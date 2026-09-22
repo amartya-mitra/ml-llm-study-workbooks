@@ -35,5 +35,6 @@ workbooks/**/*.pdf.prev-*
 # Node (only if mermaid CLI or similar is ever installed locally)
 node_modules/
 
-/.quarto/
 **/*.quarto_ipynb
+
+/.quarto/

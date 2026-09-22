@@ -12,10 +12,13 @@ readme = "README.md"
 dependencies = []
 
 [project.optional-dependencies]
-# Install this group only after a user-local pip/uv bootstrap (see
-# reports/bootstrap_report.md for the exact proposed steps). Nothing in
-# this repo requires it today; it upgrades ergonomics if/when pip becomes
-# available (real YAML edge cases, JSON Schema validation, tests).
+# The base python3 on this host has no pip/ensurepip. If you need these
+# packages, use the pip that ships inside the user-local `ml-workbooks`
+# conda env (see README.md's "Development setup") rather than trying to
+# bootstrap pip for the base interpreter. Nothing in this repo requires
+# this group today — scripts/_yaml_lite.py covers every .yaml file here
+# and tests/ needs no pytest — it only upgrades ergonomics if you want
+# real YAML-edge-case handling or JSON Schema validation later.
 full = [
     "pyyaml>=6.0",
     "jsonschema>=4.0",

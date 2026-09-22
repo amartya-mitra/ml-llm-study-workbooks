@@ -51,16 +51,16 @@ sources:
   - id: "src-03"
     title: "Machine Learning Interviews (khangich)"
     url: "https://github.com/khangich/machine-learning-interview"
-    authors: "Khang Pham (GitHub: khangich)"
+    authors: "GitHub user khangich (bio: SWE/ML practitioner, ~10 years experience; exact real-world full name not reliably confirmed from the profile, so only the handle is asserted here)"
     resource_type: "interview prep guide + question bank (repo)"
     workbook_categories: ["02-ml-interviews", "03-ml-systems-design"]
     topic_tags: ["interview-questions", "ml-system-design", "career"]
     authority_type: "interview_question_bank"
     expected_use: "topic checklist for interview loops (coding/ML/ML-system-design); cross-check against Huyen's books"
-    last_verified: null
-    access_status: "not yet fetched in this session"
-    license_or_reuse: "unknown — check repo LICENSE"
-    notes: "Popular reference for FAANG-style ML interview loop structure."
+    last_verified: "2026-09-22"
+    access_status: "fetched this session; no LICENSE file was surfaced by the fetch, so license status is still unresolved"
+    license_or_reuse: "unknown — no LICENSE file found via this session's fetch; check the repo directly before reusing any content"
+    notes: "Popular reference for FAANG-style ML interview loop structure, covers LeetCode/SQL/stats/DL/ML-system-design prep drawn from the author's own interview experience. Earlier draft of this entry attributed the author a specific full name ('Khang Pham') without verification — corrected here after actually fetching the page found no reliably confirmed full name, only the handle."
 
   - id: "src-04"
     title: "Machine Learning Interviews (book)"
@@ -135,16 +135,16 @@ sources:
   - id: "src-09"
     title: "Job Search (personal blog)"
     url: "https://alisawuffles.github.io/blog/job-search/"
-    authors: "Alisa Liu"
+    authors: "Alisa (first name confirmed on-page via the 'alisawuffles' handle and self-references; surname not stated anywhere on the fetched page, so it is deliberately omitted rather than assumed)"
     resource_type: "blog post (personal account)"
     workbook_categories: ["08-research-careers"]
     topic_tags: ["research-job-search", "phd", "academia-vs-industry"]
     authority_type: "experiential_account"
     expected_use: "personal account for workbook 08 career-narrative sections; attribute explicitly as one person's experience"
-    last_verified: null
-    access_status: "not yet fetched in this session"
+    last_verified: "2026-09-22"
+    access_status: "fetched this session"
     license_or_reuse: "personal blog — no explicit license found; attribute clearly, do not reproduce long passages"
-    notes: "NLP-research-oriented job search account; complements src-08's perspective."
+    notes: "Recent NLP PhD graduate (University of Washington, ~6-year program) sharing a personal account of the industry research job search: interview prep, timeline, negotiation, resources. Complements src-08's perspective. Earlier draft of this entry stated a full surname ('Liu') without verification — corrected here after actually fetching the page found only the first name confirmed."
 
   - id: "src-10"
     title: "How To Scale Your Model (Scaling Book)"

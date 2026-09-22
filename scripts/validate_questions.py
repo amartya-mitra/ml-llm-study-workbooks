@@ -54,6 +54,11 @@ def validate_all():
                 if fname not in q:
                     continue
                 value = q[fname]
+                field_type = fdef.get("type", "")
+                if field_type == "string" and fdef.get("required") and not str(value).strip():
+                    errors.append(f"{rel}::{qid}: required field '{fname}' is present but empty")
+                if field_type.startswith("list") and not isinstance(value, list):
+                    errors.append(f"{rel}::{qid}: field '{fname}' must be a list, got {type(value).__name__}")
                 allowed = fdef.get("allowed_values")
                 if allowed and value not in allowed:
                     errors.append(f"{rel}::{qid}: field '{fname}' value {value!r} not in {allowed}")
@@ -65,14 +70,11 @@ def validate_all():
                 errors.append(f"{rel}::{qid}: duplicate question id across project")
             seen_ids.add(qid)
 
-            for sid in q.get("source_ids", []) or []:
-                if sid not in known_source_ids:
-                    errors.append(f"{rel}::{qid}: source id '{sid}' not found in sources/registry.yaml")
-
-            if not str(q.get("prompt", "")).strip():
-                errors.append(f"{rel}::{qid}: prompt is empty")
-            if not str(q.get("expected_answer", "")).strip():
-                errors.append(f"{rel}::{qid}: expected_answer is empty")
+            source_ids = q.get("source_ids", [])
+            if isinstance(source_ids, list):
+                for sid in source_ids:
+                    if sid not in known_source_ids:
+                        errors.append(f"{rel}::{qid}: source id '{sid}' not found in sources/registry.yaml")
 
     return errors, total
 

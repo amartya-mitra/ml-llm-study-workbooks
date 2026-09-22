@@ -45,6 +45,6 @@ figure_defaults:
   palette_ref: "config/visual-style.yaml"
 
 rendering_defaults:
-  engine: "quarto+typst"  # see reports/bootstrap_report.md for current availability
-  fallback_engine: "pandoc+latex"  # unavailable in current environment; documented, not installed
+  engine: "quarto+typst"  # available via the user-local `ml-workbooks` conda env, see README.md
+  fallback_engine: "pandoc+latex"  # pandoc is available in the same env; xelatex/pdflatex/latexmk are not installed (would need `quarto install tinytex`)
   output_formats: ["pdf", "html"]

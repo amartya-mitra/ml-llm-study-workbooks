@@ -314,3 +314,82 @@ Explicitly **not done** in this bootstrap, per instructions: no full
 workbook chapter beyond the Stage 7 sample, no SLURM job submitted, no
 system-wide package installed (the conda env created is entirely
 user-local, under `$HOME`).
+
+## Update: bootstrap audit (before the baseline commit)
+
+Before treating this scaffold as a stable baseline, every file listed in
+the audit task was re-read critically rather than trusted because tests
+passed. Real issues found and fixed:
+
+- **Fabricated-risk author metadata.** `sources/registry.yaml` entries
+  for `src-03` and `src-09` asserted specific real-world full names
+  ("Khang Pham", "Alisa Liu") that were never actually verified against
+  the source pages in any session — they came from background pattern-
+  matching on the GitHub/blog handles, which is exactly what AGENTS.md's
+  "do not fabricate... do not invent missing metadata" rules exist to
+  catch. Both were actually fetched this session: `src-03`'s page does
+  not reliably confirm a full name (only the handle `khangich`); `src-09`
+  confirms only the first name "Alisa", not a surname. Both entries now
+  state only what was actually confirmed, with `last_verified` set to a
+  real date since they were genuinely checked.
+- **A public-repo PII exposure.** `config/project.yaml`'s
+  `maintainer_email` held a real work email address, already committed
+  and pushed to what turned out to be a **public** GitHub repo (verified
+  via the GitHub API: `"private": false`). Flagged to the user directly
+  rather than silently changed; per their explicit choice, the field is
+  now `null` going forward (the already-pushed history still has it —
+  that requires a separate, deliberate history-rewrite decision this
+  task did not take).
+- **Validators that silently accepted malformed input.**
+  `scripts/validate_registry.py` never actually required
+  `last_verified` to be present (despite AGENTS.md mandating it), never
+  rejected an empty-string value for any required field, and never
+  checked `authority_type` against the fixed set of categories
+  README.md documents. `scripts/validate_questions.py` had the same
+  empty-string gap for `explanation` (only `prompt`/`expected_answer`
+  were special-cased) and would silently iterate over the *characters*
+  of `source_ids` if it were ever a string instead of a list. All four
+  gaps are now closed, generically, with matching new/updated tests in
+  `tests/test_registry.py`.
+- **An unverified manual check masquerading as a real regression test.**
+  The Stage 6/7 bootstrap's canvas-bounds check on
+  `figures/rendered/kv_cache_demo.svg` was run once, by hand, in a bash
+  one-liner, and never became a real test — so a future edit to the
+  figure script could silently reintroduce clipping with nothing to
+  catch it. Formalized as `tests/test_figures.py` (well-formed XML +
+  no shape/text outside the declared canvas, for every rendered figure).
+- **Redundant, driftable Quarto frontmatter.** Both
+  `shared/chapter-template.qmd` and
+  `workbooks/04-llm-architecture/bootstrap-sample.qmd` repeated
+  `papersize`/`margin`/`toc`/`bibliography` settings that `_quarto.yml`
+  already sets project-wide — meaning a future project-level change
+  (e.g. a margin adjustment) would silently *not* apply to any chapter
+  that had copy-pasted the old per-document override. Removed the
+  duplication from both files and re-rendered
+  `bootstrap-sample.qmd` from a clean invocation to confirm the project
+  defaults still apply correctly on their own (identical 3-page output,
+  citations still render as `[1]`/`[2]`, callout-icon fix still holds —
+  compared page-by-page against the previously-inspected PNGs).
+- **Stale documentation.** `pyproject.toml` and
+  `config/workbook-defaults.yaml` still described the pre-conda state
+  (no pip/uv path found yet, pandoc "unavailable") after the toolchain
+  install; both updated to reflect the actual current environment.
+- **A cosmetic `.gitignore` duplicate** (`.quarto/` and `/.quarto/` both
+  present) was cleaned up; Quarto's own render step re-added the
+  anchored form afterward, which is Quarto's own project tooling and is
+  harmless (the unanchored `.quarto/` rule already covers every depth).
+
+Nothing else audited raised a real issue: no accidental absolute paths
+in code/config (only in prose reports, describing the actual
+environment, which is appropriate), no generated files tracked by git
+(`git ls-files` confirms `.quarto/`, `*.pdf`, `page-images/`, and
+`__pycache__/` are all correctly untracked despite existing on disk),
+and README/Makefile/actual script behavior were cross-checked and found
+consistent.
+
+All 20 tests pass (`python3 -m unittest discover -s tests`, up from 15 —
+5 new/updated: 3 in `test_figures.py`, 2 in `test_registry.py`), the
+registry/question validators pass, and the sample PDF was rebuilt from a
+clean invocation (`rm` the old PDF/page-images, rerun
+`scripts/build_figures.py` then `scripts/render_and_check.py`) and
+re-inspected page-by-page.

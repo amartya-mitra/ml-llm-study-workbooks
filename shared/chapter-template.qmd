@@ -2,14 +2,6 @@
 title: "CHAPTER_TITLE"
 subtitle: "Workbook WORKBOOK_NUMBER — WORKBOOK_TITLE"
 author: "ML/LLM Study Workbooks"
-format:
-  typst:
-    papersize: us-letter
-    margin:
-      x: 1in
-      y: 1in
-    toc: false
-bibliography: ../../shared/bibliography.bib
 crossref:
   fig-title: "Figure"
   tbl-title: "Table"
@@ -21,6 +13,10 @@ every section. Do not delete a section; if it genuinely does not apply,
 write one sentence explaining why, so absence is a decision, not an
 omission. See AGENTS.md for the non-negotiable sourcing/accuracy rules
 this template exists to enforce.
+
+papersize/margin/toc/callout-icon and bibliography are set once,
+project-wide, in the repo-root _quarto.yml — do not repeat them per
+chapter or they can drift out of sync with the project default.
 -->
 
 ## Learning objectives

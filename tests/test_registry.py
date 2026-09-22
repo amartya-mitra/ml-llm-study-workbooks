@@ -42,11 +42,34 @@ class TestRegistry(unittest.TestCase):
         required = [
             "id", "title", "url", "authors", "resource_type",
             "workbook_categories", "topic_tags", "authority_type",
-            "expected_use", "access_status", "license_or_reuse", "notes",
+            "expected_use", "last_verified", "access_status",
+            "license_or_reuse", "notes",
         ]
         for s in self.sources:
             for field in required:
                 self.assertIn(field, s, msg=f"{s.get('id')} missing field {field}")
+
+    def test_required_string_fields_are_non_empty(self):
+        # last_verified is deliberately allowed to be null/empty until a
+        # source is actually fetched and checked (AGENTS.md); everything
+        # else that's required should have real content, not a placeholder.
+        non_empty_fields = [
+            "id", "title", "url", "authors", "resource_type",
+            "authority_type", "expected_use", "access_status",
+            "license_or_reuse", "notes",
+        ]
+        for s in self.sources:
+            for field in non_empty_fields:
+                self.assertTrue(str(s[field]).strip(), msg=f"{s['id']} has an empty '{field}'")
+
+    def test_authority_type_is_known(self):
+        allowed = {
+            "primary_technical", "implementation_guide", "visual_reference",
+            "interview_question_bank", "secondary_summary",
+            "source_discovery_index", "experiential_account",
+        }
+        for s in self.sources:
+            self.assertIn(s["authority_type"], allowed, msg=f"{s['id']} has unknown authority_type")
 
     def test_workbook_categories_are_known(self):
         for s in self.sources:

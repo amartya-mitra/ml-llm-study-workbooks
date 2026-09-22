@@ -1,6 +1,6 @@
 project_name: "ML/LLM Study Workbooks"
 description: "A collection of concise, visual, source-grounded study workbooks covering machine learning foundations through modern LLM architecture, training, inference, post-training/alignment, and research careers."
-maintainer_email: "amartyam@lab.morganstanley.com"
+maintainer_email: null  # intentionally not published in this public repo; see git history/AGENTS.md context
 default_page_size: "us-letter"
 default_output_formats:
   - "pdf"

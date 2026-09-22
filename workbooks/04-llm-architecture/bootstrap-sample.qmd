@@ -2,15 +2,10 @@
 title: "KV-Cache and Autoregressive Decoding"
 subtitle: "Workbook 04 — Modern LLM Architecture (bootstrap render test)"
 author: "ML/LLM Study Workbooks"
-format:
-  typst:
-    papersize: us-letter
-    margin:
-      x: 1in
-      y: 1in
-    toc: false
-bibliography: ../../shared/bibliography.bib
 ---
+<!-- papersize/margin/toc/callout-icon and bibliography are set once,
+project-wide, in the repo-root _quarto.yml — do not repeat them here or
+they can drift out of sync with the project default. -->
 
 <!--
 Stage 7 minimal build test. This is a bootstrap render-pipeline check,
