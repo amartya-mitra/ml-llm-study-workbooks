@@ -1,0 +1,288 @@
+# Stage 7 figure plan for workbook 04. Every figure here is planned as
+# an ORIGINAL redraw generated from figures/source/*.py (see
+# figures/source/_svg_helpers.py and config/visual-style.yaml) — none
+# reproduce a source's own diagram. `source_inspiration` names what the
+# redraw is informed by, never something to trace or copy.
+#
+# `must_be_redrawn: true` on every entry is deliberate, not boilerplate:
+# it is the answer to Stage 7's "whether it must be redrawn" field, and
+# the answer is always yes for this workbook (AGENTS.md: never reuse a
+# source figure unless its license clearly permits it; none of this
+# workbook's sources grant that permission — see reports/04_source_audit.md's
+# licensing section).
+
+figures:
+  - id: "fig-decoder-block-anatomy"
+    chapter: "ch1"
+    teaching_purpose: "Show the residual stream as the one continuous thread every other diagram in this workbook will modify a piece of."
+    learner_takeaway: "The residual stream's width never changes across a block; only what gets added to it changes."
+    diagram_type: "block/flow diagram"
+    objects_and_relationships: "Residual stream (vertical bus) with an attention sublayer and an MLP sublayer each branching off, passing through a norm, and rejoining the stream additively."
+    required_labels: ["residual stream", "attention sublayer", "MLP sublayer", "norm", "+ (addition point)"]
+    underlying_calculation: null
+    source_inspiration: "generic Transformer block diagrams (src-19's own figure, not copied); this project's existing figures/source/kv_cache_demo.py establishes the visual grammar to extend"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-19 in the caption's source line; no reproduction, fully original layout"
+    intended_printed_dimensions: "half page width (about 3.25in) x 4in, fits beside body text"
+    grayscale_behavior: "sublayer boxes distinguished by fill pattern/label as well as color, so the diagram survives grayscale printing"
+    accessibility_description: "A vertical bar represents the residual stream. Two boxes, one labeled attention and one labeled MLP, each branch off the bar, pass through a smaller norm box, and rejoin the bar at a plus sign, indicating additive combination."
+
+  - id: "fig-prefill-vs-decode-extended"
+    chapter: "ch1"
+    teaching_purpose: "Extend the existing kv_cache_demo.py bootstrap figure into the chapter-1 refresher, at the definitional level only (full mechanics deferred to ch. 3)."
+    learner_takeaway: "Prefill processes the whole prompt once; every decode step after that is a small, incremental addition, not a repeat of prefill."
+    diagram_type: "timeline/process diagram"
+    objects_and_relationships: "Reuses figures/source/kv_cache_demo.py's existing layout (prompt tokens -> prefill compute -> cache -> one decode step -> extended cache)."
+    required_labels: ["prefill", "decode step", "KV-cache"]
+    underlying_calculation: null
+    source_inspiration: "this project's own existing figure (figures/source/kv_cache_demo.py) — reused/lightly adapted, not a new redraw from a third-party source"
+    must_be_redrawn: false
+    attribution_requirement: "none beyond the project's own prior figure; no third-party source involved"
+    intended_printed_dimensions: "full page width (6.5in) x 4.5in"
+    grayscale_behavior: "already colorblind-safe/grayscale-legible per config/visual-style.yaml; no change needed"
+    accessibility_description: "Same as the existing figure's description in figures/source/kv_cache_demo.py's docstring."
+
+  - id: "fig-rope-rotation"
+    chapter: "ch2"
+    teaching_purpose: "Make RoPE's core claim visible: the angle between a rotated query/key pair depends only on their position difference, not their absolute positions."
+    learner_takeaway: "Rotating both vectors by their own position's angle leaves their relative angle — and hence their dot product — dependent only on the offset between them."
+    diagram_type: "geometric/vector diagram"
+    objects_and_relationships: "A 2D plane showing a query vector and a key vector at two different absolute positions, each rotated by an angle proportional to its position, with the relative angle between them highlighted as the invariant quantity."
+    required_labels: ["query vector", "key vector", "position-dependent rotation angle", "relative angle (invariant)"]
+    underlying_calculation: "the 2D rotation-matrix form of RoPE applied to one query/key pair"
+    source_inspiration: "src-22's own rotation formulation (equation, not figure, informs this); EleutherAI's RoPE blog post exists as a well-known explainer but was not fetched this session — do not copy its diagram even for inspiration until it's actually been reviewed"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-22 in the caption's source line"
+    intended_printed_dimensions: "half page width (about 3.25in) x 3in"
+    grayscale_behavior: "query/key vectors distinguished by arrowhead style (solid vs. outlined) as well as color"
+    accessibility_description: "Two vectors on a 2D plane, one labeled query and one labeled key, each shown at two rotated positions. An angle arc between the two rotated vectors is marked as staying the same size regardless of which absolute positions were chosen, as long as their difference is held fixed."
+
+  - id: "fig-norm-placement-comparison"
+    chapter: "ch2"
+    teaching_purpose: "Make the structural difference between pre-norm, post-norm, and sandwich-norm visible side by side, since the difference is entirely about placement, not a new operation."
+    learner_takeaway: "The same norm operation moves to a different position relative to the sublayer and the residual add — that placement, not the norm formula, is what's being compared."
+    diagram_type: "three small block diagrams, side by side"
+    objects_and_relationships: "Three mini versions of fig-decoder-block-anatomy's sublayer branch, each with the norm box in a different position relative to the sublayer and the addition point."
+    required_labels: ["pre-norm", "post-norm", "sandwich-norm"]
+    underlying_calculation: null
+    source_inspiration: "src-19 (post-norm, the original placement); src-14's discussion of modern norm-placement choices (concept only, not its diagram)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-19 and src-14 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 2.5in (three small panels)"
+    grayscale_behavior: "each of the three panels labeled with text, not color-coded against each other, so grayscale printing loses no information"
+    accessibility_description: "Three small diagrams side by side, each showing a sublayer box between a residual-stream entry and exit point, with a norm box positioned before the sublayer (pre-norm), after the sublayer and before the residual add (post-norm), or in both positions (sandwich-norm)."
+
+  - id: "fig-gated-mlp-vs-plain-mlp"
+    chapter: "ch2"
+    teaching_purpose: "Show why a gated MLP needs three weight matrices instead of two, by making the gating multiplication visible as a distinct data-flow step."
+    learner_takeaway: "The extra matrix creates a second branch that elementwise-gates the first, rather than adding a third sequential layer."
+    diagram_type: "data-flow diagram"
+    objects_and_relationships: "Input vector splitting into two branches (one through W1+activation, one through W3), an elementwise multiply combining them, then a final W2 projection — contrasted with a plain two-matrix MLP's single sequential path."
+    required_labels: ["W1 (gate)", "W3 (value)", "elementwise multiply", "W2 (output projection)", "plain MLP (contrast)"]
+    underlying_calculation: "SwiGLU's formula: (Swish(xW1) * (xW3)) W2"
+    source_inspiration: "src-24's own formulation (equation, not figure)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-24 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 3in"
+    grayscale_behavior: "the two branches distinguished by line style (solid/dashed) in addition to color"
+    accessibility_description: "An input vector splits into two parallel paths, each through a different weight matrix, one of which passes through an activation function. The two paths meet at an elementwise multiplication symbol, and the result passes through one more weight matrix to produce the output. A smaller, separate diagram beside it shows a plain MLP as a single straight path through two matrices for comparison."
+
+  - id: "fig-mha-mqa-gqa-head-sharing"
+    chapter: "ch3"
+    teaching_purpose: "Make the one structural difference between MHA, MQA, and GQA — how many query heads share each key/value head — visible as a fan-in pattern."
+    learner_takeaway: "MHA has no sharing (1:1), MQA has maximum sharing (all:1), and GQA is a chosen point in between (G:1 groups) — it's the same fan-in idea at three different ratios."
+    diagram_type: "head-sharing fan-in diagram, three panels"
+    objects_and_relationships: "Query heads (small boxes) each with an arrow into a key/value head (fewer, larger boxes); the number of KV heads shrinks from panel to panel while query heads stay constant."
+    required_labels: ["query heads", "key/value heads", "MHA", "MQA", "GQA"]
+    underlying_calculation: "H_kv value for each panel, stated explicitly (H_kv = H_q for MHA, H_kv = 1 for MQA, 1 < H_kv < H_q for GQA)"
+    source_inspiration: "src-20, src-21's own formulations (equations, not figures); src-14 and src-15 both catalog this comparison visually but their specific diagrams are not to be copied"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-20, src-21 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 3.5in (three panels)"
+    grayscale_behavior: "query and key/value head boxes distinguished by shape (square vs. rounded) as well as color, so the fan-in pattern reads correctly in grayscale"
+    accessibility_description: "Three panels, each showing a row of small boxes labeled query heads connected by arrows to a smaller row of larger boxes labeled key/value heads. In the first panel every query head has its own key/value head. In the second panel all query heads point to a single shared key/value head. In the third panel query heads are divided into a few groups, each group sharing one key/value head."
+
+  - id: "fig-tensor-shape-walkthrough"
+    chapter: "ch3"
+    teaching_purpose: "Ground the head-sharing diagram in concrete tensor shapes so the reader can check their own implementation or config against it."
+    learner_takeaway: "Only the K/V projection's output shape changes between MHA and GQA; the Q projection's shape is untouched."
+    diagram_type: "annotated tensor-shape table/diagram hybrid"
+    objects_and_relationships: "A sequence of labeled tensor shapes (input, after Q projection, after K/V projection, after attention, after output projection) for one config, shown twice — once for MHA and once for GQA — with the differing shape highlighted."
+    required_labels: ["input shape", "Q projection shape", "K/V projection shape", "attention output shape", "output projection shape"]
+    underlying_calculation: "one fully-instantiated example config's shapes at each stage (matches ch. 3's first worked example)"
+    source_inspiration: "no single external source; a standard implementation-level walkthrough style"
+    must_be_redrawn: true
+    attribution_requirement: "none — this is an original worked-example diagram, not derived from any single source's figure"
+    intended_printed_dimensions: "full page width (6.5in) x 4in"
+    grayscale_behavior: "the single differing shape (K/V projection) highlighted with a border/label rather than color alone"
+    accessibility_description: "A horizontal sequence of five labeled boxes showing tensor shapes at each stage of an attention block, repeated twice for two different configurations. The one box that differs between the two versions (the key/value projection's shape) is marked with a distinct border."
+
+  - id: "fig-kv-cache-growth-gqa-variant"
+    chapter: "ch3"
+    teaching_purpose: "Extend the existing kv_cache_demo.py bootstrap figure to show how GQA's smaller per-token cache slot changes the same growth pattern already established for MHA."
+    learner_takeaway: "The cache still grows by exactly one slot per decode step under GQA — what changes is how big each slot is, not the growth pattern itself."
+    diagram_type: "process/timeline diagram (extends the existing figure)"
+    objects_and_relationships: "Same prefill/decode/cache-growth layout as the existing figure, with the cache slot size visibly smaller and labeled with its GQA-specific byte count."
+    required_labels: ["K/V[i] (smaller slot under GQA)", "prefill", "decode step"]
+    underlying_calculation: "GQA cache size per token, from ch. 3's second worked example"
+    source_inspiration: "this project's own existing figure (figures/source/kv_cache_demo.py), adapted with a second variant script rather than a third-party source"
+    must_be_redrawn: false
+    attribution_requirement: "none beyond the project's own prior figure"
+    intended_printed_dimensions: "full page width (6.5in) x 4.5in"
+    grayscale_behavior: "inherits the existing figure's already-verified grayscale legibility"
+    accessibility_description: "Same layout as the existing KV-cache demonstration figure, with each cache slot box drawn narrower and labeled with a smaller byte count to indicate GQA's reduced per-token cache size."
+
+  - id: "fig-mla-compression-reconstruction"
+    chapter: "ch3"
+    teaching_purpose: "Show MLA as a compress-then-reconstruct pipeline, distinguishing it visually from the head-sharing pattern of MQA/GQA."
+    learner_takeaway: "MLA stores one small latent vector per token, not per-head K/V directly — the per-head keys/values are reconstructed from that latent only when attention actually runs."
+    diagram_type: "pipeline/data-flow diagram"
+    objects_and_relationships: "A token's hidden state compressing into a small latent vector (the thing actually cached), then at attention time expanding back into per-head K/V vectors."
+    required_labels: ["hidden state", "latent vector (cached)", "per-head K/V (reconstructed, not cached)"]
+    underlying_calculation: "d_latent vs. reconstructed per-head KV dimension, and the resulting compression ratio, from ch. 3's third worked example"
+    source_inspiration: "src-27's own formulation (equation, not figure)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-27 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 3.5in"
+    grayscale_behavior: "the cached latent box visually distinguished (solid fill) from the reconstructed-on-the-fly K/V boxes (outlined only), so grayscale printing preserves the cached-vs-not distinction"
+    accessibility_description: "A hidden-state box compresses through an arrow into a small latent-vector box, labeled as the thing that gets cached. A second arrow from the latent vector expands into several per-head key/value boxes, labeled as reconstructed at attention time rather than stored."
+
+  - id: "fig-sliding-window-vs-global"
+    chapter: "ch4"
+    teaching_purpose: "Make the connectivity-pattern restriction visible directly, as a matrix/grid of which positions attend to which, rather than only described in prose."
+    learner_takeaway: "A sliding window is a banded diagonal in the attention connectivity grid; global attention is the full grid — the same grid, different allowed regions."
+    diagram_type: "attention connectivity matrix, two panels"
+    objects_and_relationships: "A grid of positions x positions, with allowed (attending) pairs shaded; one panel shows a full lower-triangular causal grid (global), the other shows a banded diagonal (sliding-window)."
+    required_labels: ["query position", "key position", "sliding window (global)", "sliding window (local)"]
+    underlying_calculation: null
+    source_inspiration: "src-25's own description of its windowed pattern (concept only, not any figure)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-25 in the caption's source line"
+    intended_printed_dimensions: "half page width (about 3.25in) x 3.25in per panel, two panels side by side"
+    grayscale_behavior: "allowed-attention cells shaded with a hatch pattern in addition to color"
+    accessibility_description: "Two square grids, each with rows and columns labeled as query and key positions. In the first grid, every cell below and including the diagonal is shaded, representing full causal attention. In the second grid, only a narrow diagonal band of cells is shaded, representing a fixed-size local window."
+
+  - id: "fig-receptive-field-growth"
+    chapter: "ch4"
+    teaching_purpose: "Show that stacking windowed layers recovers a larger effective receptive field even though each individual layer only sees a local window."
+    learner_takeaway: "Receptive field grows linearly with layer count under stacked local windows — depth substitutes for width."
+    diagram_type: "layered growth diagram"
+    objects_and_relationships: "A stack of layers, each widening the set of original input positions that can influence a given output position, growing outward layer by layer."
+    required_labels: ["layer 1 window", "layer 2 effective reach", "layer N effective reach"]
+    underlying_calculation: "receptive field after L stacked windowed layers of width w: L x w, instantiated for ch. 4's worked example"
+    source_inspiration: "a standard illustration style for stacked local-receptive-field growth (as in dilated/local convolutions); no single external LLM-specific source"
+    must_be_redrawn: true
+    attribution_requirement: "none — original illustration of a general stacking argument, not derived from one source's figure"
+    intended_printed_dimensions: "full page width (6.5in) x 3in"
+    grayscale_behavior: "each layer's contribution shown as a distinct outlined region rather than color alone"
+    accessibility_description: "A vertical stack of layers, each shown as a horizontal band. At the bottom, one position's local window is highlighted. Moving up through the stack, the highlighted region of positions that can influence that same output position grows wider at each layer."
+
+  - id: "fig-dense-mlp-vs-moe"
+    chapter: "ch5"
+    teaching_purpose: "Show the single structural change from a dense to a routed MoE feed-forward layer: a router selecting a subset of parallel expert MLPs instead of one fixed MLP."
+    learner_takeaway: "Every token still goes through some feed-forward computation — what changes is that a router picks WHICH parameters process it, out of many candidates, instead of it always being the same fixed MLP."
+    diagram_type: "side-by-side block diagram"
+    objects_and_relationships: "Left panel: one token through one fixed MLP. Right panel: the same token through a router that selects k of E parallel expert MLPs, whose outputs combine."
+    required_labels: ["dense MLP", "router", "expert 1..E", "top-k selected (highlighted)", "combine"]
+    underlying_calculation: null
+    source_inspiration: "src-28's original sparsely-gated formulation (concept only, not its figure)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-28 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 3.5in"
+    grayscale_behavior: "selected vs. unselected experts distinguished by border weight (bold vs. thin) as well as color"
+    accessibility_description: "Two side-by-side diagrams. The left shows one token passing through a single labeled MLP box. The right shows the same token passing through a router box, which sends arrows to a row of expert boxes; a small subset of those expert boxes is highlighted as selected, and their outputs are combined into a single output."
+
+  - id: "fig-token-to-expert-routing"
+    chapter: "ch5"
+    teaching_purpose: "Show routing at the batch level (several tokens at once), which is where load imbalance becomes visible, rather than the single-token view of fig-dense-mlp-vs-moe."
+    learner_takeaway: "Different tokens in the same batch can route to completely different, possibly overlapping, sets of experts — and an uneven number of tokens can land on the same expert."
+    diagram_type: "bipartite routing diagram"
+    objects_and_relationships: "A small batch of token boxes on one side, a router, and a row of expert boxes on the other side, with arrows showing an uneven number of tokens landing on each expert."
+    required_labels: ["tokens", "router", "experts", "uneven load (highlighted)"]
+    underlying_calculation: "matches ch. 5's expert-imbalance worked example"
+    source_inspiration: "src-28/src-29's routing formulation (concept only, not any figure)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-28, src-29 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 3.5in"
+    grayscale_behavior: "the overloaded expert marked with a distinct border/label, not color alone"
+    accessibility_description: "A small set of token boxes on the left connect via arrows through a router to a row of expert boxes on the right. The arrows are uneven: one expert box receives noticeably more incoming arrows than the others, and that box is marked as overloaded."
+
+  - id: "fig-expert-parallel-communication"
+    chapter: "ch5"
+    teaching_purpose: "Make the all-to-all communication step a routed MoE layer specifically requires, visible as a systems consequence of the architecture, not an implementation detail."
+    learner_takeaway: "Because different tokens route to experts that live on different devices, every MoE forward pass needs an all-to-all exchange that a dense model's forward pass never needs."
+    diagram_type: "device/communication diagram"
+    objects_and_relationships: "Several devices, each holding a subset of experts, with tokens dispatched across devices to reach their selected expert and results combined back to their originating device."
+    required_labels: ["device 1..N", "expert subset per device", "all-to-all dispatch", "all-to-all combine"]
+    underlying_calculation: null
+    source_inspiration: "src-29's SPMD sharding description and src-31's expert-parallel systems description (concept only, not any figure)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-29, src-31 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 4in"
+    grayscale_behavior: "dispatch and combine arrows distinguished by direction/arrowhead style, not color alone; uses the shared palette's purple (device-to-device communication) semantic"
+    accessibility_description: "Several boxes representing devices, each containing a few smaller expert boxes. Purple arrows labeled dispatch go from tokens on each device out to whichever device holds their selected expert, and a second set of purple arrows labeled combine return the results to the originating device."
+
+  - id: "fig-active-vs-total-params"
+    chapter: "ch5"
+    teaching_purpose: "Make the active-vs-total-parameter distinction visible as a simple magnitude comparison for real models, so the idea isn't only understood abstractly."
+    learner_takeaway: "A MoE model's total parameter count can be many times its active parameter count — the two numbers answer different questions (what's stored vs. what's computed per token)."
+    diagram_type: "bar comparison"
+    objects_and_relationships: "Paired bars (total vs. active) for two or three real MoE models (DeepSeek-V3, Mixtral), plus a dense model (Llama 3) shown with equal total/active bars for contrast."
+    required_labels: ["total parameters", "active parameters", "model name + citation per bar group"]
+    underlying_calculation: "the specific reported total/active numbers for src-32, src-33, src-34"
+    source_inspiration: "no single external figure; an original comparison chart built from each model's own reported numbers"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-32, src-33, src-34 in the caption's source line, one per bar group"
+    intended_printed_dimensions: "full page width (6.5in) x 3.5in"
+    grayscale_behavior: "total and active bars distinguished by fill pattern (solid vs. hatched) as well as color"
+    accessibility_description: "A bar chart with one pair of bars per model. Each pair has a taller bar labeled total parameters and a shorter (or equal, for the dense model) bar labeled active parameters, with the model name and citation below each pair."
+
+  - id: "fig-case-study-architecture-comparison"
+    chapter: "ch6"
+    teaching_purpose: "Present all four case-study models in one consistent visual grammar so their architecture differences are directly comparable, not just tabulated."
+    learner_takeaway: "The same small set of architecture dimensions (attention variant, normalization, positional scheme, dense-or-MoE) can be read off any model once you know where to look — these four look different in the same, small number of places."
+    diagram_type: "small-multiples comparison (one compact diagram per model, same layout)"
+    objects_and_relationships: "Four compact model diagrams (Llama 3, DeepSeek-V3, Jamba, plus Mixtral as a secondary contrast panel), each annotated with attention variant, normalization, positional scheme, and dense/MoE structure, using identical visual placement across all four so differences pop out by position."
+    required_labels: ["model name + date", "attention variant", "normalization", "positional scheme", "dense/MoE structure"]
+    underlying_calculation: null
+    source_inspiration: "src-14's comparison approach (the IDEA of a consistent side-by-side grammar, not its specific diagrams, which are not copied); src-32, src-33, src-35, src-34's own reported configs"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-14 (approach), src-32, src-33, src-34, src-35 (per-model facts) in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 6in (four small panels)"
+    grayscale_behavior: "each annotation uses text labels, not color alone, so the comparison survives grayscale printing"
+    accessibility_description: "Four small diagrams arranged in a grid, one per model, each using the same layout: a small decoder-block icon annotated with four text labels for attention variant, normalization type, positional scheme, and whether the model is dense or mixture-of-experts."
+
+  - id: "fig-architecture-to-consequence-map"
+    chapter: "ch7"
+    teaching_purpose: "Make the architecture-to-systems-consequence chain visible as a map, generalizing the specific instances already shown per-model in ch. 6."
+    learner_takeaway: "Each architecture choice traces to a specific, nameable systems consequence — this isn't a vague 'architecture matters' claim, it's a small number of specific, traceable links."
+    diagram_type: "map/graph diagram (nodes and directed edges)"
+    objects_and_relationships: "Architecture-choice nodes (attention variant, dense/MoE, sparsity pattern) connected by directed edges to systems-consequence nodes (training communication volume, inference memory bandwidth, serving concurrency limit)."
+    required_labels: ["architecture choice (node)", "systems consequence (node)", "edge label naming the specific mechanism (e.g. 'larger KV-cache -> lower max concurrency')"]
+    underlying_calculation: null
+    source_inspiration: "src-10's own framing of hardware-aware tradeoffs (concept only, not its figures)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-10 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 4.5in"
+    grayscale_behavior: "architecture-choice nodes and consequence nodes distinguished by shape (rounded vs. rectangular) as well as color"
+    accessibility_description: "A set of rounded boxes on the left representing architecture choices and rectangular boxes on the right representing systems consequences, connected by labeled arrows that each name the specific mechanism linking one to the other."
+
+  - id: "fig-compact-visual-reference"
+    chapter: "ch8"
+    teaching_purpose: "Give the reader one page that reconstructs the shape of every prior chapter's core diagram from memory, as the capstone's promised compact reference."
+    learner_takeaway: "Every mechanism in this workbook reduces to one small diagram — this page is the complete set, at a glance."
+    diagram_type: "small multiples (one shrunk version of each prior core figure)"
+    objects_and_relationships: "Miniaturized versions of fig-decoder-block-anatomy, fig-mha-mqa-gqa-head-sharing, fig-mla-compression-reconstruction, fig-sliding-window-vs-global, fig-dense-mlp-vs-moe, and fig-architecture-to-consequence-map, arranged in reading order."
+    required_labels: ["one short label per panel naming its chapter"]
+    underlying_calculation: null
+    source_inspiration: "none — a composite of this workbook's own prior original figures, not any third-party source"
+    must_be_redrawn: false
+    attribution_requirement: "none beyond whatever each constituent figure already cites individually"
+    intended_printed_dimensions: "full page (6.5in x 9in), six small panels"
+    grayscale_behavior: "inherits each constituent figure's already-verified grayscale legibility"
+    accessibility_description: "A grid of six small panels, each a shrunk version of an earlier chapter's main diagram, labeled with that chapter's topic."
+
+figure_count_check:
+  planned_count: 18
+  stage_7_target_range: "12-18"
+  within_range: true

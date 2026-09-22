@@ -1,0 +1,307 @@
+# Stage 6 claim-level coverage matrix for workbook 04.
+# Finer-grained than sources/coverage-matrix.yaml: that file maps
+# SOURCES to chapters; this file maps individual CLAIMS to the sources
+# that support them, so a gap or disagreement is visible at the claim
+# level, not hidden inside a chapter-level "supported" label.
+#
+# status values:
+#   supported            - a primary/official source directly backs this claim
+#   partially_supported  - some part of the claim is backed; a specific
+#                           detail (often a "which real model does this"
+#                           specific) still needs a source
+#   source_needed         - no primary source registered for this claim yet
+#   disputed              - sources genuinely disagree; do not flatten
+#   fast_changing         - the claim itself is fine, but its specific
+#                           numbers/details are model/version-specific and
+#                           will likely be superseded
+#   excluded              - considered and deliberately left out of scope
+#
+# `importance`: "core" (the chapter doesn't work without this) or
+# "supporting" (strengthens the chapter but isn't load-bearing).
+
+claims:
+  - chapter: "ch1"
+    topic: "decoder-only next-token objective"
+    proposed_claim: "A decoder-only model conditions each token's prediction only on preceding tokens, unlike an encoder-decoder or masked-LM objective."
+    importance: "core"
+    primary_source_ids: ["src-19"]
+    explanatory_source_ids: ["src-14"]
+    status: "supported"
+    freshness_risk: "stable — this is a definitional claim about model class, not a fact about any specific model"
+    notes: "No disagreement found across any source consulted."
+
+  - chapter: "ch1"
+    topic: "residual stream"
+    proposed_claim: "Each sublayer adds an update to a shared residual stream rather than replacing it, which is why the stream's dimensionality is constant across a model's depth."
+    importance: "core"
+    primary_source_ids: ["src-19"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable"
+    notes: ""
+
+  - chapter: "ch1"
+    topic: "scaled dot-product attention"
+    proposed_claim: "Attention computes softmax(QK^T / sqrt(d_head)) V, with the sqrt(d_head) scaling specifically to control the dot product's variance before the softmax."
+    importance: "core"
+    primary_source_ids: ["src-19"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable"
+    notes: ""
+
+  - chapter: "ch2"
+    topic: "RoPE mechanism"
+    proposed_claim: "RoPE rotates query/key vectors by an angle proportional to position, so their dot product depends only on relative offset, not absolute position."
+    importance: "core"
+    primary_source_ids: ["src-22"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "the rotation mechanism itself is stable; specific long-context extrapolation tricks built on top of RoPE (e.g. base/theta rescaling, YaRN) are newer and more likely to change — scope ch. 2 to the base mechanism, flag extrapolation tricks as a separate, more time-sensitive topic if included at all"
+    notes: ""
+
+  - chapter: "ch2"
+    topic: "RMSNorm mechanism"
+    proposed_claim: "RMSNorm rescales by root-mean-square magnitude only, dropping both mean-centering and the learnable bias that LayerNorm has."
+    importance: "core"
+    primary_source_ids: ["src-23"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable"
+    notes: "No independent secondary explanatory source was verified this session for this topic — a real, if minor, sourcing gap (see reports/04_source_audit.md)."
+
+  - chapter: "ch2"
+    topic: "SwiGLU / gated MLP"
+    proposed_claim: "A SwiGLU feed-forward layer uses three weight matrices (vs. two for a plain MLP) and reports lower perplexity than ReLU/GELU MLPs at matched parameter count."
+    importance: "core"
+    primary_source_ids: ["src-24"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable — the mechanism and the original paper's reported numbers are fixed facts; do not restate the specific perplexity numbers as if they'd hold for a modern, much larger model without re-checking"
+    notes: ""
+
+  - chapter: "ch2"
+    topic: "pre-norm vs. post-norm vs. sandwich-norm tradeoff"
+    proposed_claim: "Pre-norm placement favors training stability at large depth at some cost to representational capacity; some modern models use a sandwich (pre+post) hybrid specifically to recover some of that capacity."
+    importance: "core"
+    primary_source_ids: ["src-19"]
+    explanatory_source_ids: ["src-14"]
+    status: "partially_supported"
+    freshness_risk: "fast_changing for the 'which real model uses sandwich-norm' specific — src-14 names specific models but is itself an actively-updated source (last updated 2026-04-02 per its own page)"
+    notes: "The general pre-norm-vs-post-norm training-stability tradeoff is well established (src-19 is post-norm; the stability motivation for pre-norm is widely documented). The SANDWICH-norm claim specifically still needs its own dedicated primary source (e.g. a specific model's technical report that states why it adopted sandwich-norm) rather than relying on src-14's secondary description alone — flagged as a partial gap, not fabricated, in reports/04_source_audit.md."
+
+  - chapter: "ch2"
+    topic: "tied vs. untied embeddings"
+    proposed_claim: "Tying input and output embeddings halves that parameter cost; some models tie, some don't, as a deliberate tradeoff rather than a universal default."
+    importance: "supporting"
+    primary_source_ids: []
+    explanatory_source_ids: ["src-14"]
+    status: "source_needed"
+    freshness_risk: "stable claim, but currently has no primary source of its own — it's a widespread convention rather than the subject of one canonical paper"
+    notes: "Genuine gap: no primary source specifically registered for this. A specific model's config/report that explicitly states its tying choice and reasoning would resolve this before drafting ch. 2."
+
+  - chapter: "ch3"
+    topic: "MHA KV-cache size formula"
+    proposed_claim: "KV-cache size = 2 (K and V) x n_layers x n_kv_heads x d_head x seq_len x batch x bytes_per_element, for standard multi-head attention."
+    importance: "core"
+    primary_source_ids: ["src-19", "src-10"]
+    explanatory_source_ids: ["src-11"]
+    status: "supported"
+    freshness_risk: "stable — this is a derived arithmetic fact given a config, not a claim about any specific model's reported number"
+    notes: "src-19 defines the head structure the formula is built from; src-10 is the source that actually derives and states the memory formula explicitly."
+
+  - chapter: "ch3"
+    topic: "MQA cache reduction"
+    proposed_claim: "MQA shares a single K/V head across all query heads, minimizing KV-cache memory at some measured quality cost."
+    importance: "core"
+    primary_source_ids: ["src-20"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable"
+    notes: ""
+
+  - chapter: "ch3"
+    topic: "GQA cache reduction and uptraining cost"
+    proposed_claim: "GQA uses G key/value heads shared across H_q/G query heads; converting an existing MHA checkpoint to GQA via uptraining costs roughly 5% of the original pretraining compute, per the GQA paper's own reported figure."
+    importance: "core"
+    primary_source_ids: ["src-21"]
+    explanatory_source_ids: ["src-14"]
+    status: "supported"
+    freshness_risk: "the ~5% uptraining figure is specific to the GQA paper's own experiments — state it as their reported number, not a universal constant"
+    notes: ""
+
+  - chapter: "ch3"
+    topic: "MLA latent compression"
+    proposed_claim: "MLA compresses keys/values into a shared low-rank latent per token, reconstructing per-head K/V at attention time, and DeepSeek-V2 reports this matches or exceeds standard MHA quality while shrinking the KV-cache."
+    importance: "core"
+    primary_source_ids: ["src-27"]
+    explanatory_source_ids: ["src-14"]
+    status: "supported"
+    freshness_risk: "fast_changing — the specific quality/memory numbers are from DeepSeek-V2 (2024-05); DeepSeek-V3 (src-33) refines the same mechanism further, so state which model's specific numbers are being cited"
+    notes: ""
+
+  - chapter: "ch4"
+    topic: "sliding-window attention receptive field and cache reduction"
+    proposed_claim: "Mistral 7B's sliding-window attention (window=4096) with a rolling-buffer cache gives roughly an 8x cache reduction at 32K context versus full attention, per the paper's own reported figures."
+    importance: "core"
+    primary_source_ids: ["src-25"]
+    explanatory_source_ids: ["src-14"]
+    status: "supported"
+    freshness_risk: "fast_changing — these are Mistral 7B's specific reported numbers at a specific context length, not a general law; restate with the model and context length named"
+    notes: ""
+
+  - chapter: "ch4"
+    topic: "sparse attention pattern complexity"
+    proposed_claim: "Strided/fixed sparse attention factorizations reduce attention cost from O(n^2) to O(n sqrt(n))."
+    importance: "core"
+    primary_source_ids: ["src-26"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable — this is the original paper's asymptotic complexity result, not a model-specific number"
+    notes: ""
+
+  - chapter: "ch4"
+    topic: "linear/recurrent (SSM-style) attention mechanism itself"
+    proposed_claim: "Linear/recurrent attention (the SSM-style family, e.g. Mamba) replaces softmax attention with a fixed-size recurrent state, trading unbounded-context compute for bounded per-step cost."
+    importance: "core"
+    primary_source_ids: []
+    explanatory_source_ids: ["src-35"]
+    status: "source_needed"
+    freshness_risk: "the general tradeoff claim is well-established territory, but this workbook currently has NO primary source for the mechanism itself — only src-35 (Jamba), which USES Mamba layers but is not Mamba's own defining paper"
+    notes: "Genuine, honestly-flagged gap: the Stage 4 research pass covered MQA/GQA/MLA/sparse/sliding-window but did not separately verify a primary source for Mamba/SSM itself (e.g. Gu & Dao, 'Mamba: Linear-Time Sequence Modeling with Selective State Spaces'). Per ch. 4's own scope fence (outline.md: intuition-level treatment, not a from-scratch SSM derivation), a full primary-source deep-dive may not be required — but if ch. 4 states any specific claim about HOW the recurrent state update works (not just that one exists), a primary source must be added first. Flagged, not silently resolved, in reports/04_source_audit.md."
+
+  - chapter: "ch5"
+    topic: "top-k MoE routing origin"
+    proposed_claim: "Modern sparse MoE routing descends from noisy top-k gating over expert feed-forward networks, first proposed for sequence models by Shazeer et al. (2017)."
+    importance: "core"
+    primary_source_ids: ["src-28"]
+    explanatory_source_ids: ["src-14"]
+    status: "supported"
+    freshness_risk: "stable — a lineage/history claim, not a current-model fact"
+    notes: ""
+
+  - chapter: "ch5"
+    topic: "GShard top-2 routing and expert-parallel sharding"
+    proposed_claim: "GShard adapts top-2 gating to Transformer MoE layers and defines lightweight sharding annotations letting a compiler auto-partition experts across devices, demonstrated at 2048 TPU v3 cores."
+    importance: "core"
+    primary_source_ids: ["src-29"]
+    explanatory_source_ids: ["src-17"]
+    status: "supported"
+    freshness_risk: "the 2048-core figure is GShard's own 2020 demonstration scale, not a current maximum — state it as a historical data point"
+    notes: ""
+
+  - chapter: "ch5"
+    topic: "Switch Transformer top-1 routing"
+    proposed_claim: "Switch Transformer simplifies routing to top-1 (one expert per token) and reports stable trillion-parameter training in bfloat16."
+    importance: "core"
+    primary_source_ids: ["src-30"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable — a specific paper's reported training result, dated 2021-2022"
+    notes: ""
+
+  - chapter: "ch5"
+    topic: "MoE load-balancing loss — the mechanism's exact form"
+    proposed_claim: "'The' MoE load-balancing auxiliary loss."
+    importance: "core"
+    primary_source_ids: ["src-28", "src-29", "src-30", "src-33"]
+    explanatory_source_ids: []
+    status: "disputed"
+    freshness_risk: "not a freshness risk — a genuine, standing mechanism-level disagreement, not something that will resolve with time"
+    notes: "DO NOT state this claim as written above — there is no single 'the' loss. Four non-equivalent formulations exist: Shazeer 2017 (src-28, coefficient-of-variation-based importance + load losses), GShard (src-29, aux_loss = (1/E) sum_e (c_e/S) m_e), Switch Transformer (src-30, restated as alpha * N * sum_i f_i * P_i, the form most open codebases implement), and DeepSeek-V3 (src-33, explicitly auxiliary-loss-free instead). Ch. 5 must present this as an evolving design space with a genuine disagreement point, per AGENTS.md's 'preserve source disagreements' rule, not flatten it into one formula."
+
+  - chapter: "ch5"
+    topic: "active vs. total parameters"
+    proposed_claim: "A MoE model's inference compute per token tracks active parameters (shared-expert params + k x per-expert params), while total parameters still determine most of the serving memory footprint."
+    importance: "core"
+    primary_source_ids: ["src-28", "src-33"]
+    explanatory_source_ids: ["src-34"]
+    status: "supported"
+    freshness_risk: "stable claim; use src-33/src-34's specific active/total numbers only when citing those specific models"
+    notes: ""
+
+  - chapter: "ch5"
+    topic: "expert parallelism as a systems consequence"
+    proposed_claim: "Distributing experts across devices requires an all-to-all communication step to dispatch tokens to their selected experts and combine results back."
+    importance: "core"
+    primary_source_ids: ["src-29", "src-31"]
+    explanatory_source_ids: ["src-17"]
+    status: "supported"
+    freshness_risk: "stable mechanism-level claim; src-29 frames it as a compiler/sharding abstraction, src-31 as an end-to-end training+inference system — cite whichever framing ch. 5/ch. 7 actually uses, not both interchangeably"
+    notes: ""
+
+  - chapter: "ch6"
+    topic: "Llama 3 (dense case study)"
+    proposed_claim: "The largest Llama 3 model is a 405B-parameter dense decoder-only Transformer with 128K context."
+    importance: "core"
+    primary_source_ids: ["src-32"]
+    explanatory_source_ids: []
+    status: "fast_changing"
+    freshness_risk: "explicitly model-specific and dated (2024-07-31 report); state the date whenever this figure is cited, per AGENTS.md's time-sensitivity rule"
+    notes: ""
+
+  - chapter: "ch6"
+    topic: "DeepSeek-V3 (MoE + MLA case study)"
+    proposed_claim: "DeepSeek-V3 has 671B total / 37B activated parameters, combines MLA with DeepSeekMoE and an auxiliary-loss-free balancing strategy, trained on 14.8T tokens."
+    importance: "core"
+    primary_source_ids: ["src-33"]
+    explanatory_source_ids: ["src-27"]
+    status: "fast_changing"
+    freshness_risk: "explicitly model-specific and dated (report submitted 2024-12-27, revised 2025-02-18); this single model is used to exemplify BOTH the MoE and MLA case-study slots — a deliberate scope choice, see reports/04_source_audit.md"
+    notes: ""
+
+  - chapter: "ch6"
+    topic: "Jamba (hybrid case study)"
+    proposed_claim: "Jamba interleaves Transformer and Mamba layers with MoE in some layers; 12B active / 52B total parameters, long-context (up to 256K) results reported."
+    importance: "core"
+    primary_source_ids: ["src-35"]
+    explanatory_source_ids: []
+    status: "fast_changing"
+    freshness_risk: "explicitly model-specific and dated (2024-03-28, updated 2024-07-03); a newer Jamba 1.5 report (arXiv:2408.12570) exists and was NOT verified this session — decide before drafting whether to use the original or re-verify 1.5, do not silently substitute"
+    notes: ""
+
+  - chapter: "ch6"
+    topic: "Mixtral (supporting, simpler MoE example)"
+    proposed_claim: "Mixtral has 46.7B total / 12.9B active parameters via top-2 routing over 8 experts, released under Apache 2.0."
+    importance: "supporting"
+    primary_source_ids: ["src-34"]
+    explanatory_source_ids: []
+    status: "fast_changing"
+    freshness_risk: "explicitly model-specific and dated (2024-01-08)"
+    notes: "Used as a simpler contrast point to DeepSeek-V3 in the case-study table or a worked exercise, not as a fifth main case-study model."
+
+  - chapter: "ch7"
+    topic: "quantization/paging/continuous batching do not change the architecture"
+    proposed_claim: "Quantization, KV-cache paging, and continuous batching change measured memory/latency/throughput without changing the model's architecture graph."
+    importance: "core"
+    primary_source_ids: ["src-11", "src-12"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable — a definitional/conceptual claim, not tied to a specific model or benchmark number"
+    notes: "Both primary sources for this claim were fully accessed this session (unlike src-16/src-17, whose bodies were not retrievable)."
+
+  - chapter: "ch7"
+    topic: "arithmetic intensity and the compute-bound vs. memory-bandwidth-bound distinction"
+    proposed_claim: "A step's arithmetic intensity (FLOPs per byte moved) determines whether it is compute-bound or memory-bandwidth-bound; single-request decode is usually memory-bandwidth-bound."
+    importance: "core"
+    primary_source_ids: ["src-10"]
+    explanatory_source_ids: ["src-11"]
+    status: "supported"
+    freshness_risk: "stable — a hardware-arithmetic argument, not a model-specific benchmark claim"
+    notes: ""
+
+  - chapter: "ch7"
+    topic: "training communication volume depends on architecture (MoE all-to-all)"
+    proposed_claim: "MoE layers incur an all-to-all communication step during training that dense models do not, making training communication volume an architecture-dependent quantity, not just a parallelism-strategy choice."
+    importance: "core"
+    primary_source_ids: ["src-29", "src-31"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable mechanism-level claim"
+    notes: ""
+
+removed_or_descoped_claims:
+  - claim: "A full derivation of Mamba/SSM selective-state-space recurrence equations."
+    reason: "Explicitly descoped in outline.md's non-goals: this workbook treats linear/recurrent attention at the intuition-and-tradeoff level, not the differential-equation level. Removing this avoids both a page-budget blowout and a sourcing gap the project would otherwise have to fully close (see the 'source_needed' entry above for the mechanism-level claim that IS in scope)."
+  - claim: "A ranked 'best' attention variant or MoE routing scheme."
+    reason: "Every source consulted (src-14 especially) presents these as tradeoffs against different constraints (memory, quality, implementation complexity), not a strict ordering. Stating a ranking would misrepresent the sources and contradicts AGENTS.md's 'preserve ambiguities' rule."

@@ -7,6 +7,19 @@
 #   primary     - main technical backbone for this workbook
 #   supporting  - used for specific chapters/sections, not the backbone
 #   discovery   - used to find other sources, not cited directly for facts
+#   excluded    - explicitly considered and ruled out for this workbook,
+#                 recorded so the decision is visible rather than a
+#                 silent omission (see the Stage 5 "out of scope" role)
+#
+# `role` (workbook-04 entries only, added in the Stage 5 source-discovery
+# pass — see reports/04_source_audit.md) classifies a source's relevance
+# to workbook 04 SPECIFICALLY, which is a narrower question than the
+# source's general authority_type in registry.yaml. Allowed values:
+#   core_narrative_source   - a main source the prose relies on to explain a mechanism
+#   visual_reference_source - useful for scoping/figure inspiration, not prose claims
+#   source_discovery_aid    - a pointer to other sources, not citable for facts
+#   systems_companion       - relevant to systems/inference/training mechanics adjacent to architecture
+#   out_of_scope            - not used by this workbook
 
 workbooks:
   - id: "01-ml-foundations"
@@ -42,12 +55,100 @@ workbooks:
     sources:
       - id: "src-14"
         coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch2", "ch3", "ch4", "ch5", "ch6"]
       - id: "src-15"
         coverage: "supporting"
+        role: "visual_reference_source"
+        chapters: ["ch6"]
       - id: "src-10"
         coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch3", "ch7"]
+      - id: "src-11"
+        coverage: "supporting"
+        role: "systems_companion"
+        chapters: ["ch3", "ch7"]
       - id: "src-12"
         coverage: "supporting"
+        role: "systems_companion"
+        chapters: ["ch3", "ch7"]
+      - id: "src-16"
+        coverage: "excluded"
+        role: "out_of_scope"
+        chapters: []
+      - id: "src-17"
+        coverage: "supporting"
+        role: "systems_companion"
+        chapters: ["ch5", "ch7"]
+      - id: "src-19"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch1", "ch2"]
+      - id: "src-20"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch3"]
+      - id: "src-21"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch3"]
+      - id: "src-22"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch2"]
+      - id: "src-23"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch2"]
+      - id: "src-24"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch2"]
+      - id: "src-25"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch3", "ch4", "ch6"]
+      - id: "src-26"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch4"]
+      - id: "src-27"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch3"]
+      - id: "src-28"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch5"]
+      - id: "src-29"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch5"]
+      - id: "src-30"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch5"]
+      - id: "src-31"
+        coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch5", "ch7"]
+      - id: "src-32"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch6"]
+      - id: "src-33"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch3", "ch5", "ch6"]
+      - id: "src-34"
+        coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch5", "ch6"]
+      - id: "src-35"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch4", "ch6"]
 
   - id: "05-llm-training"
     sources:
@@ -89,3 +190,8 @@ gaps_and_notes:
   - "Workbook 01 (ML Foundations) currently has only one supporting source (src-01, a cheat sheet). It needs primary technical sources (textbooks, canonical papers) before drafting — flagged for the next planning pass, not resolved in this bootstrap."
   - "Workbook 03 (ML Systems Design) leans entirely on Chip Huyen's two books (src-04/src-05 authors overlap with workbook 02) — consider adding an independent second source for triangulation."
   - "No source currently covers classic ML algorithm derivations in depth (workbook 01) — this is the main pre-drafting gap."
+  - "Workbook 04: src-16 (Smol Training Playbook) was checked during Stage 5 and excluded — it's a workbook-05 pretraining source, and its body content is client-side-rendered and was not retrievable this session anyway (see its registry entry)."
+  - "Workbook 04: src-17 (Ultra-Scale Playbook)'s body content is likewise client-side-rendered and was not retrievable this session; its workbook-04 role (systems_companion for ch. 5/ch. 7) is provisional on the meta-description alone until a render-capable fetch confirms the actual content."
+  - "Workbook 04: the MoE load-balancing-loss lineage (src-28 -> src-29 -> src-30 -> src-33) is a genuine, unresolved disagreement across four non-equivalent formulations, not a citation redundancy — see reports/04_source_audit.md; do not collapse this into a single 'the load-balancing loss' claim when ch. 5 is drafted."
+  - "Workbook 04: src-35 (Jamba) has a newer 'Jamba 1.5' report (arXiv:2408.12570) that was not verified this session — an open decision for ch. 4/ch. 6's drafter, not a silent substitution either way."
+  - "Workbook 04: several secondary/explanatory sources surfaced during Stage 4 research (e.g. the EleutherAI RoPE blog post, Raschka's dedicated GQA gallery page) were only confirmed to exist via search, not fetched for content accuracy — do not cite specific claims from them until independently fetched."

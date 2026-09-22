@@ -1,0 +1,405 @@
+# Stage 8 question plan for workbook 04. This is the PLAN (skill tested,
+# expected reasoning, likely misconception, source support, difficulty)
+# for every question the workbook will eventually need — not yet the
+# final formal question records (those go in questions.yaml, validated
+# against shared/question-schema.yaml, once each chapter is drafted).
+# The two records already in workbooks/04-llm-architecture/questions.yaml
+# (q-04-kv-cache-001/002) are the first two of this plan's ch3 quick
+# questions, already promoted to formal records as part of the Stage 7
+# bootstrap sample.
+#
+# Every question here must be answerable from material earlier in the
+# same chapter/workbook (AGENTS.md) — none test outside knowledge.
+
+quick_questions:
+  # --- ch1: Transformer refresher (target 2-4; planned 3) ---
+  - chapter: "ch1"
+    topic: "residual stream contents"
+    skill_tested: "recall"
+    expected_reasoning: "identify that the residual stream carries the accumulating sum of every sublayer's output, not any single sublayer's raw output"
+    likely_misconception: "believing the residual stream is replaced/overwritten by each sublayer rather than added to"
+    source_ids: ["src-19"]
+    difficulty: "intro"
+  - chapter: "ch1"
+    topic: "decoder-only vs. encoder-decoder objective"
+    skill_tested: "explanation"
+    expected_reasoning: "state that decoder-only conditions strictly on preceding tokens, enabling straightforward autoregressive generation, while encoder-decoder separates a bidirectional encoder from a conditioned decoder"
+    likely_misconception: "believing the only difference is model size or training data, not the objective/attention-masking structure"
+    source_ids: ["src-19"]
+    difficulty: "intro"
+  - chapter: "ch1"
+    topic: "why attention needs positional information"
+    skill_tested: "explanation"
+    expected_reasoning: "state that attention over a set of vectors is permutation-invariant without an explicit positional signal, unlike an RNN's inherently sequential processing"
+    likely_misconception: "believing attention is 'already sequential' because it's used for sequences"
+    source_ids: ["src-19"]
+    difficulty: "core"
+
+  # --- ch2: Anatomy of a modern decoder (target 2-4; planned 4) ---
+  - chapter: "ch2"
+    topic: "RoPE relative-position property"
+    skill_tested: "calculation"
+    expected_reasoning: "apply the rotation to a query/key pair at two positions and show the dot product depends only on the position difference"
+    likely_misconception: "believing RoPE encodes absolute position directly, the way a learned absolute positional embedding does"
+    source_ids: ["src-22"]
+    difficulty: "core"
+  - chapter: "ch2"
+    topic: "RMSNorm vs. LayerNorm operations"
+    skill_tested: "compare_and_contrast"
+    expected_reasoning: "identify that RMSNorm drops both mean-centering and the learnable bias, not just the bias"
+    likely_misconception: "believing RMSNorm is LayerNorm minus only the bias term"
+    source_ids: ["src-23"]
+    difficulty: "core"
+  - chapter: "ch2"
+    topic: "SwiGLU's third weight matrix"
+    skill_tested: "explanation"
+    expected_reasoning: "explain that the extra matrix creates a gating branch multiplied elementwise against the value branch, not a third sequential layer"
+    likely_misconception: "believing SwiGLU is just a deeper (more sequential layers) MLP"
+    source_ids: ["src-24"]
+    difficulty: "core"
+  - chapter: "ch2"
+    topic: "pre-norm training-stability motivation"
+    skill_tested: "misconception_diagnosis"
+    expected_reasoning: "state that pre-norm is chosen primarily for training stability at depth, at some cost to representational capacity, not because it is unconditionally 'better'"
+    likely_misconception: "believing pre-norm strictly dominates post-norm on every axis"
+    source_ids: ["src-19", "src-14"]
+    difficulty: "stretch"
+
+  # --- ch3: Attention head structure and cache-efficient variants (target 2-4; 2 already promoted to formal records, 2 more planned) ---
+  - chapter: "ch3"
+    topic: "what the KV-cache stores"
+    skill_tested: "recall"
+    expected_reasoning: "already promoted to a formal record: q-04-kv-cache-001 in questions.yaml"
+    likely_misconception: "believing the cache stores attention output or the residual stream, not K/V projections"
+    source_ids: ["src-10", "src-11"]
+    difficulty: "intro"
+  - chapter: "ch3"
+    topic: "KV-cache growth per decode step"
+    skill_tested: "calculation"
+    expected_reasoning: "already promoted to a formal record: q-04-kv-cache-002 in questions.yaml"
+    likely_misconception: "believing the cache is rebuilt from scratch each decode step rather than extended by one slot"
+    source_ids: ["src-10", "src-11"]
+    difficulty: "core"
+  - chapter: "ch3"
+    topic: "GQA vs. MQA as endpoints of one axis"
+    skill_tested: "compare_and_contrast"
+    expected_reasoning: "state that MQA (H_kv=1) and MHA (H_kv=H_q) are the two extremes of the same head-sharing axis GQA occupies a middle point of"
+    likely_misconception: "believing MQA and GQA are unrelated techniques rather than the same mechanism at different group sizes"
+    source_ids: ["src-20", "src-21"]
+    difficulty: "core"
+  - chapter: "ch3"
+    topic: "MLA does not reduce FLOPs the way it reduces cache"
+    skill_tested: "misconception_diagnosis"
+    expected_reasoning: "distinguish MLA's KV-cache-memory win from attention FLOPs, which are not the primary thing MLA optimizes"
+    likely_misconception: "believing every attention-efficiency mechanism primarily saves compute rather than memory/bandwidth"
+    source_ids: ["src-27"]
+    difficulty: "stretch"
+
+  # --- ch4: Restricting attention's reach (target 2-4; planned 3) ---
+  - chapter: "ch4"
+    topic: "sliding-window receptive field after stacking"
+    skill_tested: "calculation"
+    expected_reasoning: "compute L x w and recognize this can exceed the actual sequence length well before the network is very deep"
+    likely_misconception: "believing a windowed model can never see beyond one layer's window at all"
+    source_ids: ["src-25"]
+    difficulty: "core"
+  - chapter: "ch4"
+    topic: "sparse pattern vs. linear attention — same goal, different mechanism"
+    skill_tested: "compare_and_contrast"
+    expected_reasoning: "identify that a sparse pattern is still softmax attention over a restricted set, while linear/recurrent attention replaces softmax attention with a different primitive entirely"
+    likely_misconception: "believing 'sparse attention' and 'linear attention' are two names for the same optimization"
+    source_ids: ["src-26"]
+    difficulty: "core"
+  - chapter: "ch4"
+    topic: "why mix attention types across layers"
+    skill_tested: "design"
+    expected_reasoning: "articulate the receptive-field/memory tradeoff that motivates alternating local, global, and/or linear layers rather than using one type uniformly"
+    likely_misconception: "believing a hybrid stack is just an engineering compromise with no principled motivation"
+    source_ids: ["src-35"]
+    difficulty: "stretch"
+
+  # --- ch5: Mixture-of-experts models (target 2-4; planned 4) ---
+  - chapter: "ch5"
+    topic: "active parameters given a top-k config"
+    skill_tested: "calculation"
+    expected_reasoning: "apply active = shared + k x per-expert correctly, not confusing it with total = shared + E x per-expert"
+    likely_misconception: "believing active parameters equals total parameters divided by k"
+    source_ids: ["src-28", "src-33"]
+    difficulty: "core"
+  - chapter: "ch5"
+    topic: "does total parameter count predict inference cost"
+    skill_tested: "misconception_diagnosis"
+    expected_reasoning: "state that inference compute tracks active, not total, parameters, though serving memory still has to hold most of the total"
+    likely_misconception: "believing a MoE model with N total parameters costs as much to run as a dense N-parameter model"
+    source_ids: ["src-28", "src-33"]
+    difficulty: "core"
+  - chapter: "ch5"
+    topic: "the load-balancing loss is not singular"
+    skill_tested: "compare_and_contrast"
+    expected_reasoning: "name at least two of the four distinct load-balancing formulations (Shazeer 2017, GShard, Switch, DeepSeek-V3's auxiliary-loss-free approach) and state that they are not equivalent"
+    likely_misconception: "believing there is one canonical 'the MoE load-balancing loss'"
+    source_ids: ["src-28", "src-29", "src-30", "src-33"]
+    difficulty: "stretch"
+  - chapter: "ch5"
+    topic: "why expert parallelism needs all-to-all communication"
+    skill_tested: "explanation"
+    expected_reasoning: "explain that tokens must be dispatched to whichever device holds their selected expert and results combined back, which dense models never need to do"
+    likely_misconception: "believing expert parallelism is just data parallelism applied to a bigger model"
+    source_ids: ["src-29", "src-31"]
+    difficulty: "core"
+
+  # --- ch6: Modern architecture case studies (target 2-4; planned 3) ---
+  - chapter: "ch6"
+    topic: "reading an attention variant off a real config"
+    skill_tested: "design"
+    expected_reasoning: "identify H_kv relative to H_q from a stated config to classify it as MHA/MQA/GQA, or recognize an MLA-specific latent-dimension field instead"
+    likely_misconception: "assuming every model uses standard MHA unless told otherwise"
+    source_ids: ["src-32", "src-33"]
+    difficulty: "core"
+  - chapter: "ch6"
+    topic: "one model exemplifying two mechanisms at once"
+    skill_tested: "explanation"
+    expected_reasoning: "explain why DeepSeek-V3 can serve as both the MoE and MLA case study without double-counting — the two mechanisms are architecturally independent (attention structure vs. FFN structure) and simply co-occur in this model"
+    likely_misconception: "believing MLA and MoE are the same kind of sparsity mechanism because they appear together in the same model"
+    source_ids: ["src-33"]
+    difficulty: "stretch"
+  - chapter: "ch6"
+    topic: "architecture facts vs. benchmark claims"
+    skill_tested: "misconception_diagnosis"
+    expected_reasoning: "distinguish a model's architecture facts (stated in its technical report, comparatively stable) from its benchmark scores (separately reported, more time-sensitive and comparison-method-dependent)"
+    likely_misconception: "treating a leaderboard ranking as if it were an architecture fact"
+    source_ids: ["src-32", "src-33", "src-35"]
+    difficulty: "core"
+
+  # --- ch7: From architecture to systems consequences (target 2-4; planned 3) ---
+  - chapter: "ch7"
+    topic: "does quantization change the architecture"
+    skill_tested: "misconception_diagnosis"
+    expected_reasoning: "state that quantization changes numerical precision, not the architecture graph — already the chapter's headline misconception check"
+    likely_misconception: "believing INT8 quantization changes what the model architecturally is"
+    source_ids: ["src-11", "src-12"]
+    difficulty: "intro"
+  - chapter: "ch7"
+    topic: "why single-request decode is usually bandwidth-bound"
+    skill_tested: "explanation"
+    expected_reasoning: "reason from low arithmetic intensity at batch size 1 (few FLOPs relative to bytes moved reading the cache) to a memory-bandwidth-bound classification"
+    likely_misconception: "believing decode is slow because of FLOPs, the same reasoning that applies to prefill"
+    source_ids: ["src-10"]
+    difficulty: "core"
+  - chapter: "ch7"
+    topic: "FLOPs vs. wall-clock latency"
+    skill_tested: "misconception_diagnosis"
+    expected_reasoning: "identify that a lower-FLOPs model can still be equally or more bandwidth-bound, so its wall-clock latency doesn't necessarily improve proportionally"
+    likely_misconception: "believing halving FLOPs halves latency"
+    source_ids: ["src-10"]
+    difficulty: "stretch"
+
+  # --- ch8: Synthesis and practice (no new quick questions — this chapter IS the cumulative/interview question set below) ---
+
+misconception_checks:
+  # One per major concept, cross-referencing outline.yaml's per-chapter
+  # misconception_checks field (restated here with plan metadata, not
+  # duplicated content).
+  - chapter: "ch1"
+    concept: "attention's permutation invariance"
+    statement: "attention needs no positional signal because it's already sequential"
+    correction: "attention over a set of vectors is permutation-invariant without an explicit positional mechanism, unlike an RNN"
+  - chapter: "ch2"
+    concept: "RMSNorm vs. LayerNorm"
+    statement: "RMSNorm is just LayerNorm without the learnable bias"
+    correction: "RMSNorm also drops mean-centering, the more consequential difference"
+  - chapter: "ch2"
+    concept: "pre-norm placement rationale"
+    statement: "pre-norm is strictly better than post-norm"
+    correction: "pre-norm trades some representational capacity for training stability; it is a tradeoff, not a strict improvement"
+  - chapter: "ch3"
+    concept: "KV-cache contents"
+    statement: "the KV-cache stores the attention output for each past token"
+    correction: "it stores key/value projections, not attention outputs or the residual stream"
+  - chapter: "ch3"
+    concept: "GQA's primary benefit"
+    statement: "GQA just makes attention faster"
+    correction: "GQA's primary win is KV-cache memory/bandwidth, not FLOPs, which barely change"
+  - chapter: "ch3"
+    concept: "MLA vs. GQA mechanism"
+    statement: "MLA is GQA with more groups"
+    correction: "MLA compresses into a shared latent and reconstructs; GQA shares whole K/V heads across query groups — different mechanisms"
+  - chapter: "ch4"
+    concept: "sliding-window receptive field"
+    statement: "a model with sliding-window attention can't see beyond the window at all"
+    correction: "stacked layers (and periodic global layers, in many real models) recover a much larger effective receptive field"
+  - chapter: "ch4"
+    concept: "linear attention vs. optimized softmax attention"
+    statement: "linear attention is just a faster softmax attention"
+    correction: "it is a different mixing primitive with a fixed-size state, not an optimized implementation of the same function"
+  - chapter: "ch5"
+    concept: "MoE total parameters vs. inference cost"
+    statement: "a MoE model with N total parameters costs as much to run as a dense N-parameter model"
+    correction: "inference compute tracks active parameters; serving memory still has to hold most of the total"
+  - chapter: "ch5"
+    concept: "load balancing as training-only"
+    statement: "load balancing is only a training-time concern"
+    correction: "skewed routing at inference time still creates uneven load across expert-parallel devices"
+  - chapter: "ch6"
+    concept: "newer vs. better"
+    statement: "newer always means better on every axis"
+    correction: "case studies should surface at least one place where an older or simpler choice is still made deliberately, with the source's own stated reason"
+  - chapter: "ch7"
+    concept: "quantization and architecture"
+    statement: "quantizing a model changes its architecture"
+    correction: "it changes numerical precision of stored/computed values, not the architecture graph itself"
+  - chapter: "ch7"
+    concept: "FLOPs and latency"
+    statement: "a model with fewer FLOPs per token is always faster in production"
+    correction: "wall-clock latency depends on which resource (compute or bandwidth) is the actual bottleneck"
+
+applied_exercises:
+  # One per chapter, restating outline.yaml's applied_exercise field with
+  # plan metadata (skill tested, source support) rather than new content.
+  - chapter: "ch1"
+    exercise: "Given a toy config, compute every tensor shape along one token's path through one full block, by hand."
+    skill_tested: "calculation"
+    source_ids: ["src-19"]
+  - chapter: "ch2"
+    exercise: "Given a real model's config file, identify which of RoPE/RMSNorm/SwiGLU/tied-embeddings it uses and justify each identification."
+    skill_tested: "design"
+    source_ids: ["src-22", "src-23", "src-24"]
+  - chapter: "ch3"
+    exercise: "Given a serving memory budget and context length, work backward to the maximum concurrent batch size under MHA vs. GQA vs. MLA."
+    skill_tested: "design"
+    source_ids: ["src-10", "src-21", "src-27"]
+  - chapter: "ch4"
+    exercise: "Given a described hybrid model's layer pattern, compute the effective context reach and identify where a purely local model would fail that this pattern would not."
+    skill_tested: "design"
+    source_ids: ["src-35"]
+  - chapter: "ch5"
+    exercise: "Given two model cards (one dense, one MoE) with the same active-parameter count, predict which has the larger serving memory footprint, then check against each model's published config."
+    skill_tested: "design"
+    source_ids: ["src-28", "src-33"]
+  - chapter: "ch6"
+    exercise: "Pick a current model not covered as a case study, find its official technical report, and fill in one row of the case-study comparison table, citing the specific section used per cell."
+    skill_tested: "design"
+    source_ids: ["src-14"]
+  - chapter: "ch7"
+    exercise: "Given a stated batch size, sequence length, and model config, estimate whether a decode step is compute-bound or memory-bandwidth-bound, and state what would flip the answer."
+    skill_tested: "calculation"
+    source_ids: ["src-10"]
+  - chapter: "ch8"
+    exercise: "Given a full, unseen model card, complete the architecture comparison worksheet end to end."
+    skill_tested: "design"
+    source_ids: []
+
+cumulative_review_questions:
+  - id: "cr-01"
+    spans_chapters: ["ch3", "ch5"]
+    prompt_summary: "Given a model that uses both GQA and MoE, compute both its KV-cache size and its active parameters per token."
+    skill_tested: "calculation"
+    difficulty: "core"
+  - id: "cr-02"
+    spans_chapters: ["ch2", "ch6"]
+    prompt_summary: "From a real model's config excerpt, identify its normalization scheme and positional encoding, then locate a real case-study model that matches."
+    skill_tested: "design"
+    difficulty: "core"
+  - id: "cr-03"
+    spans_chapters: ["ch3", "ch4"]
+    prompt_summary: "Compare the KV-cache consequences of GQA alone vs. GQA combined with sliding-window attention on the same base config."
+    skill_tested: "compare_and_contrast"
+    difficulty: "stretch"
+  - id: "cr-04"
+    spans_chapters: ["ch1", "ch7"]
+    prompt_summary: "Explain why a decoder-only model's prefill and decode steps have different compute-bound/bandwidth-bound classifications despite using the same weights."
+    skill_tested: "explanation"
+    difficulty: "core"
+  - id: "cr-05"
+    spans_chapters: ["ch5", "ch7"]
+    prompt_summary: "Explain why training a MoE model incurs a systems cost (all-to-all communication) that inference at small batch size does not equally stress."
+    skill_tested: "explanation"
+    difficulty: "stretch"
+  - id: "cr-06"
+    spans_chapters: ["ch3", "ch6"]
+    prompt_summary: "Rank the four ch. 6 case-study models by KV-cache bytes per token at a stated context length, using each one's actual attention variant."
+    skill_tested: "calculation"
+    difficulty: "core"
+  - id: "cr-07"
+    spans_chapters: ["ch4", "ch6"]
+    prompt_summary: "Identify which case-study model uses a hybrid attention stack and state what receptive-field/memory tradeoff motivates that choice."
+    skill_tested: "explanation"
+    difficulty: "intro"
+  - id: "cr-08"
+    spans_chapters: ["ch2", "ch3"]
+    prompt_summary: "Explain why RoPE's relative-position property matters specifically for a model using a KV-cache across many decode steps, not just for a single forward pass."
+    skill_tested: "explanation"
+    difficulty: "stretch"
+  - id: "cr-09"
+    spans_chapters: ["ch5", "ch6"]
+    prompt_summary: "Given DeepSeek-V3's reported active/total parameters, compute the effective compute savings ratio versus a hypothetical dense model of the same total size."
+    skill_tested: "calculation"
+    difficulty: "core"
+  - id: "cr-10"
+    spans_chapters: ["ch1", "ch2", "ch3"]
+    prompt_summary: "Trace one token's full path through a modern decoder block (RoPE, RMSNorm, SwiGLU, GQA attention) and state every place a chapter-specific mechanism modifies the vanilla ch. 1 picture."
+    skill_tested: "explanation"
+    difficulty: "stretch"
+  - id: "cr-11"
+    spans_chapters: ["ch4", "ch7"]
+    prompt_summary: "Explain how a sliding-window model's smaller KV-cache changes its maximum serving concurrency compared to a global-attention model of the same size."
+    skill_tested: "design"
+    difficulty: "core"
+  - id: "cr-12"
+    spans_chapters: ["ch5", "ch7"]
+    prompt_summary: "Given a load-balancing failure at serving time (not training time), diagnose the likely systems symptom and name one mitigation."
+    skill_tested: "debugging"
+    difficulty: "stretch"
+
+interview_style_questions:
+  - id: "iv-01"
+    prompt_summary: "Why does {model} use RoPE instead of learned positional embeddings?"
+    skill_tested: "explanation"
+    spans_chapters: ["ch2"]
+  - id: "iv-02"
+    prompt_summary: "Walk me through what SwiGLU changes about the MLP."
+    skill_tested: "explanation"
+    spans_chapters: ["ch2"]
+  - id: "iv-03"
+    prompt_summary: "Do the KV-cache-size arithmetic live for a stated config under MHA, then redo it under GQA."
+    skill_tested: "calculation"
+    spans_chapters: ["ch3"]
+  - id: "iv-04"
+    prompt_summary: "Explain why a MoE model can have 8x the parameters of a dense model but not 8x the inference cost."
+    skill_tested: "explanation"
+    spans_chapters: ["ch5"]
+  - id: "iv-05"
+    prompt_summary: "Compare model A and model B's architecture (open-ended; answerable using the ch. 6 case-study table format)"
+    skill_tested: "compare_and_contrast"
+    spans_chapters: ["ch6"]
+  - id: "iv-06"
+    prompt_summary: "Why doesn't halving a model's FLOPs halve its serving latency?"
+    skill_tested: "explanation"
+    spans_chapters: ["ch7"]
+  - id: "iv-07"
+    prompt_summary: "Why would you mix attention types across layers instead of using one type everywhere?"
+    skill_tested: "design"
+    spans_chapters: ["ch4"]
+  - id: "iv-08"
+    prompt_summary: "What's the difference between what quantization changes and what a genuinely smaller model changes?"
+    skill_tested: "compare_and_contrast"
+    spans_chapters: ["ch7"]
+
+count_check:
+  quick_questions_per_chapter_target: "2-4"
+  quick_questions_per_chapter_actual:
+    ch1: 3
+    ch2: 4
+    ch3: 4
+    ch4: 3
+    ch5: 4
+    ch6: 3
+    ch7: 3
+    ch8: 0
+  ch8_note: "ch. 8 has no dedicated quick questions by design — it IS the cumulative/interview question set, per outline.yaml's own description of ch. 8 as introducing no new concepts"
+  misconception_checks_count: 13
+  applied_exercises_count: 8
+  cumulative_review_target: "10-15"
+  cumulative_review_actual: 12
+  interview_style_target: "6-10"
+  interview_style_actual: 8

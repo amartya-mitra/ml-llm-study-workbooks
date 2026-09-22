@@ -147,46 +147,46 @@ sources:
     notes: "Recent NLP PhD graduate (University of Washington, ~6-year program) sharing a personal account of the industry research job search: interview prep, timeline, negotiation, resources. Complements src-08's perspective. Earlier draft of this entry stated a full surname ('Liu') without verification — corrected here after actually fetching the page found only the first name confirmed."
 
   - id: "src-10"
-    title: "How To Scale Your Model (Scaling Book)"
+    title: "How To Scale Your Model"
     url: "https://jax-ml.github.io/scaling-book/"
-    authors: "Google DeepMind / JAX ML team"
+    authors: "Jacob Austin, Sholto Douglas, Roy Frostig, Anselm Levskaya, Charlie Chen, Sharad Vikram, Federico Lebron, Peter Choy, Vinay Ramasesh, Albert Webson, Reiner Pope (credited in the page body; the HTML author meta tag itself was empty, so this byline is page-body-confirmed, not meta-tag-confirmed)"
     resource_type: "online technical book"
     workbook_categories: ["04-llm-architecture", "05-llm-training", "06-llm-inference"]
-    topic_tags: ["scaling-laws", "tpu", "gpu", "distributed-training", "rooflines", "inference-math"]
+    topic_tags: ["scaling-laws", "tpu", "gpu", "distributed-training", "rooflines", "inference-math", "kv-cache"]
     authority_type: "primary_technical"
-    expected_use: "primary reference for hardware-aware scaling math, rooflines, and systems tradeoffs across workbooks 04-06"
-    last_verified: null
-    access_status: "not yet fetched in this session"
-    license_or_reuse: "unknown — check page footer/repo for license before reusing any figure"
-    notes: "High-authority source (Google-affiliated authors); strong for worked calculations and comparison tables."
+    expected_use: "workbook 04: core narrative source for KV-cache math, attention FLOPs, and roofline/hardware-aware cost analysis (ch. 3, ch. 7); NOT the primary source for architecture-taxonomy topics like RoPE/RMSNorm/SwiGLU/MoE routing, which have their own primary papers"
+    last_verified: "2026-09-22"
+    access_status: "fetched this session (raw curl HTTP 200; title/date/copyright confirmed directly in HTML)"
+    license_or_reuse: "no explicit open-license/CC statement found; footer shows a templated Jekyll/al-folio '© Copyright 2026' — treat as standard copyright, summarize/cite, do not reproduce figures"
+    notes: "Published 2025-02-04 per on-page metadata. Covers KV cache math, attention FLOPs, roofline analysis, parallelism strategies, and a Llama-3 cost-estimation case study. Role for workbook 04 specifically: core narrative source for cache/systems math; also a systems companion for the parallelism content (more central to workbook 05)."
 
   - id: "src-11"
-    title: "Inference Engineering Book"
+    title: "Inference Engineering"
     url: "https://www.baseten.co/inference-engineering/book/"
-    authors: "Baseten"
+    authors: "Philip Kiely (Baseten Books)"
     resource_type: "online technical book (vendor-authored)"
-    workbook_categories: ["06-llm-inference"]
+    workbook_categories: ["04-llm-architecture", "06-llm-inference"]
     topic_tags: ["inference-serving", "latency", "throughput", "batching", "kv-cache"]
     authority_type: "implementation_guide"
-    expected_use: "primary reference for inference-serving mechanics; note vendor angle when citing performance claims"
-    last_verified: null
-    access_status: "not yet fetched in this session"
-    license_or_reuse: "unknown — vendor content, check terms before reusing figures"
-    notes: "Vendor-authored but technically substantive; cross-check headline performance numbers against other sources."
+    expected_use: "workbook 04: systems companion for ch. 7 (architecture-to-systems consequences) and the KV-cache/serving-mechanics portions of ch. 3; not a primary source for architecture-taxonomy claims"
+    last_verified: "2026-09-22"
+    access_status: "fetched this session (raw curl HTTP 200; title/author/copyright confirmed directly in HTML)"
+    license_or_reuse: "Copyright 2026 Baseten (footer) — standard copyright, no open-reuse license found; note vendor angle when citing performance claims"
+    notes: "Baseten Books, 2026. Table of contents (per fetch): Prerequisites, Models, Hardware, Software, Techniques, Modalities, Production. Vendor-authored but technically substantive; cross-check headline performance numbers against other sources."
 
   - id: "src-12"
-    title: "Modular Handbook"
+    title: "LLM Inference Handbook"
     url: "https://handbook.modular.com/"
-    authors: "Modular"
+    authors: "Modular (organization; no individual author byline found anywhere on the page — checked head, body, and footer)"
     resource_type: "online technical handbook (vendor-authored)"
     workbook_categories: ["04-llm-architecture", "05-llm-training", "06-llm-inference"]
-    topic_tags: ["accelerators", "compilers", "gpu-programming", "inference"]
+    topic_tags: ["accelerators", "compilers", "gpu-programming", "inference", "kv-cache"]
     authority_type: "implementation_guide"
-    expected_use: "reference for accelerator/compiler-level concepts underlying training and inference workbooks"
-    last_verified: null
-    access_status: "not yet fetched in this session"
-    license_or_reuse: "unknown — vendor content, check terms before reusing figures"
-    notes: "Vendor angle (promotes Modular's own stack); use for concepts, attribute product-specific claims carefully."
+    expected_use: "workbook 04: systems companion for ch. 7 (KV-cache mechanics, batching, GPU kernel/memory-hierarchy effects); not a primary source for architecture-taxonomy claims"
+    last_verified: "2026-09-22"
+    access_status: "fetched this session (raw curl HTTP 200; title and table of contents confirmed directly in HTML)"
+    license_or_reuse: "no copyright or license statement found anywhere in the fetched HTML; page invites GitHub contributions (github.com/modular/llm-inference-handbook), implying open-contribution, but no explicit license text was found"
+    notes: "No publish/last-updated date found on the page (a lastUpdated footer element was present but empty). Covers TTFT/TPS metrics, continuous batching, prefix caching, GPU kernel/memory-hierarchy topics, interactive KV-cache/latency visualizers. Vendor angle (promotes Modular's own stack); attribute product-specific claims carefully."
 
   - id: "src-13"
     title: "RLHF Book"
@@ -205,58 +205,58 @@ sources:
   - id: "src-14"
     title: "The Big LLM Architecture Comparison"
     url: "https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison"
-    authors: "Sebastian Raschka"
-    resource_type: "long-form blog article / newsletter"
+    authors: "Sebastian Raschka, PhD"
+    resource_type: "long-form blog article / newsletter (Ahead of AI, Substack)"
     workbook_categories: ["04-llm-architecture"]
     topic_tags: ["llm-architecture", "attention-variants", "moe", "normalization", "positional-encoding"]
     authority_type: "primary_technical"
-    expected_use: "primary comparative reference for the workbook 04 pilot — architecture-by-architecture comparison table structure"
-    last_verified: null
-    access_status: "not yet fetched in this session"
-    license_or_reuse: "newsletter content — no explicit reuse license found; summarize/cite, redraw any comparison as an original figure"
-    notes: "Central source for the pilot workbook; do not copy its comparison diagrams — redraw with config/visual-style.yaml palette."
+    expected_use: "workbook 04: core narrative source — walks through concrete architecture differences (MLA, GQA, sliding-window, MoE routing/shared experts, RoPE/NoPE, norm placement) across ~16-20 named 2025-2026 models; the primary comparative reference for the pilot's case-studies chapter (ch. 6)"
+    last_verified: "2026-09-22"
+    access_status: "fetched this session (WebFetch + raw curl both succeeded, HTTP 200)"
+    license_or_reuse: "no explicit article-level license statement; copyright attributed to Raschka AI Research (RAIR) Lab LLC in page metadata — summarize/cite, redraw any comparison as an original figure, do not reproduce"
+    notes: "Created 2025-07-19; on-page text confirms Last updated: Apr 2, 2026 (added Gemma 4 in section 23) — a fast-changing, actively-updated source per AGENTS.md's time-sensitivity rule. Central source for the pilot workbook; do not copy its comparison diagrams — redraw with config/visual-style.yaml palette."
 
   - id: "src-15"
     title: "LLM Architecture Gallery"
     url: "https://www.sebastianraschka.com/llm-architecture-gallery/"
-    authors: "Sebastian Raschka"
+    authors: "Sebastian Raschka, PhD"
     resource_type: "visual gallery / index page"
     workbook_categories: ["04-llm-architecture"]
     topic_tags: ["llm-architecture", "visual-reference", "model-timeline"]
     authority_type: "visual_reference"
-    expected_use: "browse for which architectures/models to cover and in what order; do not reuse the gallery's images directly"
-    last_verified: null
-    access_status: "not yet fetched in this session"
-    license_or_reuse: "personal site — no explicit license found; treat images as not reusable, inspiration only"
-    notes: "Companion index to src-14; good for scoping which models the pilot workbook should include."
+    expected_use: "workbook 04: visual/reference source — a catalog of roughly 105 models tagged with architecture features (MHA/GQA/MLA/SWA, RoPE, QK-Norm, DeltaNet, Lightning Attention); used to scope which models ch. 6's case studies should include, not cited for detailed mechanism claims"
+    last_verified: "2026-09-22"
+    access_status: "fetched this session via WebFetch (succeeded); a direct raw curl to this same URL was blocked with HTTP 406 / mod_security — noting this discrepancy rather than treating the curl failure as the page's true status, since the WebFetch tool did retrieve real content"
+    license_or_reuse: "the page references multiple model-specific licenses (Apache 2.0, MIT, CC BY-NC 4.0, Llama Community License) for the models it catalogs — those apply to the underlying models, not to the gallery page's own content, whose reuse terms are not stated; treat images as not reusable, inspiration only"
+    notes: "Companion index to src-14; good for scoping which models the pilot workbook should include. The on-page last-updated date seen via WebFetch (Sep 21) was not independently cross-checked against raw HTML, since the direct curl fetch was blocked — flagged rather than presented as fully confirmed."
 
   - id: "src-16"
-    title: "Smol Training Playbook"
+    title: "The Smol Training Playbook"
     url: "https://huggingface.co/spaces/HuggingFaceTB/smol-training-playbook"
-    authors: "Hugging Face (HuggingFaceTB team)"
-    resource_type: "online technical playbook"
+    authors: "Hugging Face Smol Models Research (org, per JSON-LD creator field); no individual author byline visible on the fetched page"
+    resource_type: "online technical playbook (interactive HF Space)"
     workbook_categories: ["05-llm-training"]
     topic_tags: ["pretraining", "data-curation", "small-models", "training-recipes"]
     authority_type: "primary_technical"
-    expected_use: "primary reference for pretraining practicalities in workbook 05"
-    last_verified: null
-    access_status: "not yet fetched in this session"
-    license_or_reuse: "unknown — HF Space, check space/repo license before reusing figures"
-    notes: "Practitioner-authored, empirically grounded; good source of worked examples/ablation-style comparisons."
+    expected_use: "primary reference for pretraining practicalities in workbook 05 (tentative — see access caveat)"
+    last_verified: "2026-09-22"
+    access_status: "partial: this is a client-side-rendered app; the fetch retrieved only the HTML shell and meta/JSON-LD tags (og:description: 'The secrets to building world-class LLMs' / meta description mentions dynamic training-loss-curve charts), not the actual document body. No date or license metadata found either. Do not treat specific topic-coverage or factual claims from this source as verified until a render-capable fetch or the Space's underlying markdown source is checked."
+    license_or_reuse: "not visible — no license field in JSON-LD (unlike src-17, which does have one)"
+    notes: "Scope is inferred only from the meta description, not confirmed body content. Re-verify before relying on this for any specific claim."
 
   - id: "src-17"
     title: "The Ultra-Scale Playbook"
     url: "https://huggingface.co/spaces/nanotron/ultrascale-playbook"
-    authors: "Hugging Face (Nanotron team)"
-    resource_type: "online technical playbook"
-    workbook_categories: ["05-llm-training"]
-    topic_tags: ["distributed-training", "parallelism", "3d-parallelism", "gpu-clusters"]
+    authors: "Nanotron Research (org, per JSON-LD creator field); no individual author byline visible on the fetched page"
+    resource_type: "online technical playbook (interactive HF Space)"
+    workbook_categories: ["04-llm-architecture", "05-llm-training"]
+    topic_tags: ["distributed-training", "parallelism", "3d-parallelism", "gpu-clusters", "expert-parallelism"]
     authority_type: "primary_technical"
-    expected_use: "primary reference for distributed/parallel training strategies in workbook 05; pairs with src-10 for hardware math"
-    last_verified: null
-    access_status: "not yet fetched in this session"
-    license_or_reuse: "unknown — HF Space, check space/repo license before reusing figures"
-    notes: "Detailed, benchmark-heavy source on parallelism strategies at scale."
+    expected_use: "workbook 04: systems companion for ch. 5's expert-parallelism section and ch. 7 (tentative — see access caveat); primary reference for parallelism strategies in workbook 05"
+    last_verified: "2026-09-22"
+    access_status: "partial: this is a client-side-rendered app; the fetch retrieved only the HTML shell and meta/JSON-LD tags (og:description: 'The ultimate guide to training LLM on large GPU Clusters'), not the actual document body. Do not treat specific topic-coverage or factual claims from this source as verified until a render-capable fetch or the Space's underlying markdown source is checked."
+    license_or_reuse: "Apache 2.0 — explicitly confirmed via the JSON-LD license field in raw page HTML (https://choosealicense.com/licenses/apache-2.0/)"
+    notes: "Scope (data/tensor/pipeline/expert parallelism training guide) is inferred only from the meta description, not confirmed body content. Re-verify before relying on this for any specific claim; the Apache 2.0 license is the one piece of metadata that was directly confirmed."
 
   - id: "src-18"
     title: "LoRA Without Regret"
@@ -271,3 +271,251 @@ sources:
     access_status: "not yet fetched in this session"
     license_or_reuse: "official docs — check HF docs license/terms before reusing figures verbatim"
     notes: "Official, currently-maintained docs page; mark version-specific claims as time-sensitive per AGENTS.md."
+
+  # ---------------------------------------------------------------------
+  # src-19 onward: added during the Stage 4/5 source-discovery pass for
+  # workbook 04 (Modern LLM Architecture). All entries below were
+  # verified this session via WebSearch, and several via WebFetch of the
+  # arXiv abstract page or full ar5iv text (noted per entry in
+  # access_status) — see reports/04_source_audit.md for the full
+  # research trail and honesty flags (e.g. which secondary sources were
+  # only confirmed to exist, not read).
+  # ---------------------------------------------------------------------
+
+  - id: "src-19"
+    title: "Attention Is All You Need"
+    url: "https://arxiv.org/abs/1706.03762"
+    authors: "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin"
+    resource_type: "original research paper (arXiv:1706.03762; NeurIPS 2017)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["transformer", "self-attention", "multi-head-attention", "positional-encoding"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 1-2: defines scaled dot-product multi-head self-attention and the original Transformer architecture with no recurrence/convolution"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch and WebFetch of the arXiv abstract page (confirmed full author list and version history: v1 2017-06-12, latest v7 2023-08-02)"
+    license_or_reuse: "arXiv preprint — standard arXiv license (check arxiv.org terms before reproducing figures); equations/definitions may be cited/restated, do not copy figures"
+    notes: "The foundational paper; workbook 04's ch. 1 refresher treats this as the baseline every later chapter's changes are measured against."
+
+  - id: "src-20"
+    title: "Fast Transformer Decoding: One Write-Head is All You Need"
+    url: "https://arxiv.org/abs/1911.02150"
+    authors: "Noam Shazeer"
+    resource_type: "original research paper (arXiv:1911.02150)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["multi-query-attention", "kv-cache", "attention-variants"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 3: defines multi-query attention (MQA) — all query heads share one key/value head, cutting decode-time memory-bandwidth cost with minor quality loss"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (abstract text matched)"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Dated 2019-11-06. Introduces the mechanism that GQA (src-21) later generalizes."
+
+  - id: "src-21"
+    title: "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints"
+    url: "https://arxiv.org/abs/2305.13245"
+    authors: "Joshua Ainslie, James Lee-Thorp, Michiel de Jong, Yury Zemlyanskiy, Federico Lebron, Sumit Sanghai"
+    resource_type: "original research paper (arXiv:2305.13245; EMNLP 2023, ACL Anthology 2023.emnlp-main.298)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["grouped-query-attention", "kv-cache", "attention-variants"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 3: defines GQA as an intermediate KV-head count between MHA and MQA, plus an uptraining recipe (about 5% of original pretraining compute) for converting an existing MHA checkpoint"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (authors/venue/arXiv ID confirmed)"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted 2023-05-22. Sebastian Raschka's LLM Architecture Gallery has a dedicated GQA page (part of src-15) with a good diagram for inspiration — do not copy it directly."
+
+  - id: "src-22"
+    title: "RoFormer: Enhanced Transformer with Rotary Position Embedding"
+    url: "https://arxiv.org/abs/2104.09864"
+    authors: "Jianlin Su, Yu Lu, Shengfeng Pan, Bo Wen, Yunfeng Liu"
+    resource_type: "original research paper (arXiv:2104.09864; also Neurocomputing Vol. 568, 2024, DOI 10.1016/j.neucom.2023.127063)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["rope", "positional-encoding"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 2: constructs RoPE's rotation-matrix positional encoding and shows why the resulting dot product depends only on relative position"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (title/authors/arXiv ID/journal cross-listing confirmed)"
+    license_or_reuse: "arXiv preprint plus a journal version — standard arXiv/journal license; cite/restate, do not copy figures"
+    notes: "v1 2021-04-20, v5 2023-11. Secondary explanatory source found but not fetched this session: EleutherAI's blog post 'Rotary Embeddings: A Relative Revolution' (blog.eleuther.ai/rotary-embeddings) — existence confirmed via search only, verify before citing specific claims from it."
+
+  - id: "src-23"
+    title: "Root Mean Square Layer Normalization"
+    url: "https://arxiv.org/abs/1910.07467"
+    authors: "Biao Zhang, Rico Sennrich"
+    resource_type: "original research paper (arXiv:1910.07467; NeurIPS 2019)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["rmsnorm", "normalization"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 2: defines RMSNorm as rescaling-only normalization (drops mean-centering), giving the exact formula used in place of LayerNorm"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (authors, date, venue, GitHub repo link all matched)"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Dated 2019-10-16. No secondary explanatory source was independently verified this session for this topic — flagged as a gap in reports/04_source_audit.md."
+
+  - id: "src-24"
+    title: "GLU Variants Improve Transformer"
+    url: "https://arxiv.org/abs/2002.05202"
+    authors: "Noam Shazeer"
+    resource_type: "original research paper (arXiv:2002.05202)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["swiglu", "gated-mlp", "feed-forward"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 2: defines SwiGLU/GEGLU-style gated feed-forward sublayers and reports perplexity improvements over ReLU/GELU MLPs"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (author, arXiv ID, date confirmed; the paper's own reported perplexity numbers, 1.633/1.636 for GEGLU/SwiGLU vs. 1.677 for ReLU, appeared directly in a search snippet of the paper)"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Dated 2020-02-12. This is the same Noam Shazeer as src-19, src-20, and src-28 — a recurring primary author across several of this workbook's core mechanisms, worth noting explicitly rather than treating as a coincidence."
+
+  - id: "src-25"
+    title: "Mistral 7B"
+    url: "https://arxiv.org/abs/2310.06825"
+    authors: "Albert Q. Jiang and 17 other authors (Mistral AI)"
+    resource_type: "official technical report (arXiv:2310.06825)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["sliding-window-attention", "grouped-query-attention", "kv-cache"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 4: defines sliding-window attention (window=4096) combined with a rolling-buffer KV-cache, giving each layer an effective receptive field of window x layer-count while bounding attention cost; also a real GQA deployment example for ch. 3"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (specific technical details — window=4096, reported 2x speedup, 8x cache reduction at 32k context — corroborated against the paper's own claims)"
+    license_or_reuse: "arXiv preprint; Mistral 7B model weights are Apache 2.0, but that license covers the model release, not necessarily the paper's figures — cite/restate the paper, do not copy figures"
+    notes: "Dated 2023-10-10. Candidate case-study model for ch. 6 if a second, simpler sliding-window example is wanted alongside the four main case studies."
+
+  - id: "src-26"
+    title: "Generating Long Sequences with Sparse Transformers"
+    url: "https://arxiv.org/abs/1904.10509"
+    authors: "Rewon Child, Scott Gray, Alec Radford, Ilya Sutskever"
+    resource_type: "original research paper (arXiv:1904.10509; OpenAI)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["sparse-attention", "attention-variants"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 4: introduces strided/fixed sparse factorizations of the attention matrix, reducing cost from O(n^2) to O(n sqrt(n))"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (authors, date, and the O(n sqrt(n)) complexity claim confirmed)"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Dated 2019-04-23. Historically important sparse-attention paper; workbook 04 uses it for the pattern-restriction concept, not as a claim that any specific current model uses this exact factorization."
+
+  - id: "src-27"
+    title: "DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model"
+    url: "https://arxiv.org/abs/2405.04434"
+    authors: "DeepSeek-AI"
+    resource_type: "official technical report (arXiv:2405.04434)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["multi-head-latent-attention", "kv-cache", "mixture-of-experts"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 3: introduces multi-head latent attention (MLA) — low-rank joint compression of keys and values into a shared latent vector, shrinking the KV-cache versus standard MHA while matching or exceeding MHA quality"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebFetch of the arXiv abstract page directly (confirmed exact title, DeepSeek-AI as organization, submission dates v1 2024-05-07 / v5 2024-06-19, and the MLA/low-rank KV compression claim in the abstract)"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "A closely related analytical (not official) secondary source exists — 'Hardware-Centric Analysis of DeepSeek's Multi-Head Latent Attention' (arXiv:2506.02523) — confirmed to exist via search only, itself an arXiv preprint, treat as secondary/analytical, not official, and verify before citing specific numbers from it."
+
+  - id: "src-28"
+    title: "Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer"
+    url: "https://arxiv.org/abs/1701.06538"
+    authors: "Noam Shazeer, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc Le, Geoffrey Hinton, Jeff Dean"
+    resource_type: "original research paper (arXiv:1701.06538)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["mixture-of-experts", "routing", "load-balancing"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 5: defines noisy top-k gating for sparsely-gated MoE layers, the formulation GShard/Switch/modern LLM MoE routers descend from; Section 4 defines a coefficient-of-variation-based importance loss and load loss for balancing"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebFetch of the full text (ar5iv), confirming Section 4 'Balancing Expert Utilization' describes noisy top-k gating with importance/load losses"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Dated 2017-01-23. IMPORTANT — preserve this disagreement rather than smoothing it over: this paper's load-balancing mechanism (coefficient-of-variation-based importance + load loss) is mathematically different from GShard's (src-29) auxiliary loss, which is different again from Switch Transformer's (src-30) restated form, which DeepSeek-V3 (src-33) explicitly departs from entirely with an auxiliary-loss-free strategy. Four legitimately different mechanisms, all called load balancing in MoE — see reports/04_source_audit.md."
+
+  - id: "src-29"
+    title: "GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding"
+    url: "https://arxiv.org/abs/2006.16668"
+    authors: "Dmitry Lepikhin, HyoukJoong Lee, Yuanzhong Xu, Dehao Chen, Orhan Firat, Yanping Huang, Maxim Krikun, Noam Shazeer, Zhifeng Chen"
+    resource_type: "official technical report (arXiv:2006.16668; ICLR 2021)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["mixture-of-experts", "expert-parallelism", "load-balancing", "top-2-routing"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 5: adapts top-2 gating to Transformer MoE layers at scale and defines a differentiable auxiliary load-balancing loss (aux_loss = (1/E) * sum_e (c_e/S) * m_e); also a primary source for expert parallelism via lightweight SPMD sharding annotations letting the XLA compiler auto-partition experts across devices, demonstrated at 2048 TPU v3 cores for a greater than 600B-parameter MoE model"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebFetch of the full text (ar5iv), confirming the aux-loss formula and the 2048-TPU-v3-core scaling claim"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Dated 2020-06-30. A second, more end-to-end-systems-focused primary candidate exists for expert parallelism specifically: DeepSpeed-MoE (src-31) — decide which better fits ch. 5's/ch. 7's emphasis (compiler/sharding abstraction here vs. training+low-latency-inference system there) rather than treating this pick as the only option."
+
+  - id: "src-30"
+    title: "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity"
+    url: "https://arxiv.org/abs/2101.03961"
+    authors: "William Fedus, Barret Zoph, Noam Shazeer"
+    resource_type: "official technical report (arXiv:2101.03961; JMLR Vol. 23, 2022)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["mixture-of-experts", "top-1-routing", "load-balancing", "switch-transformer"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 5: simplifies MoE routing to top-1 (switch) routing, enabling stable trillion-parameter training in bfloat16; Section 2.2 gives the load-balancing loss as alpha * N * sum_i(f_i * P_i), the form most commonly implemented in current open MoE codebases"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch plus WebFetch of the full text (ar5iv) for Section 2.2's exact loss formula"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "v1 2021-01-11, v3 2022-06-16. This is the specific 'Switch-style sparse models' source the Stage 4 task named explicitly."
+
+  - id: "src-31"
+    title: "DeepSpeed-MoE: Advancing Mixture-of-Experts Inference and Training to Power Next-Generation AI Scale"
+    url: "https://arxiv.org/abs/2201.05596"
+    authors: "Samyam Rajbhandari and additional authors (Microsoft)"
+    resource_type: "official technical report (arXiv:2201.05596; ICML 2022)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["expert-parallelism", "mixture-of-experts", "inference"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 5/ch. 7: combines expert parallelism with tensor slicing for both training and low-latency inference of MoE models — a more end-to-end systems treatment of expert parallelism than GShard's compiler-abstraction framing"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (authors, date, venue, and the tensor-slicing + expert-slicing hybrid parallelism claim confirmed)"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Dated 2022 (ICML 2022). See src-29's notes for the two-candidate-source decision this pairs with."
+
+  - id: "src-32"
+    title: "The Llama 3 Herd of Models"
+    url: "https://arxiv.org/abs/2407.21783"
+    authors: "Llama Team, AI at Meta (approximately 500 authors)"
+    resource_type: "official technical report (arXiv:2407.21783; official mirror at ai.meta.com/research/publications/the-llama-3-herd-of-models)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["dense-model", "case-study", "decoder-only"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 6: the workbook's representative dense decoder-only case-study model — 405B-parameter dense Transformer, 128K context, full pre/post-training recipe described"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (title, arXiv ID, date, official Meta AI research-page mirror, and the 405B dense / 128K context claim all corroborated)"
+    license_or_reuse: "arXiv preprint; Llama 3 model weights are under Meta's Llama Community License (not a fully open OSI license) — cite/restate the paper, do not copy figures, and do not conflate the paper's own reuse terms with the model weights' license"
+    notes: "Dated 2024-07-31. Selected specifically as the dense case study because it is the largest, most-documented model in this family with an official technical report covering full architecture detail."
+
+  - id: "src-33"
+    title: "DeepSeek-V3 Technical Report"
+    url: "https://arxiv.org/abs/2412.19437"
+    authors: "DeepSeek-AI"
+    resource_type: "official technical report (arXiv:2412.19437)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["mixture-of-experts", "multi-head-latent-attention", "case-study", "load-balancing"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 6: the workbook's representative MoE AND MLA case-study model in one — 671B total / 37B activated parameters, combining MLA (src-27's mechanism) with DeepSeekMoE and an auxiliary-loss-free load-balancing strategy plus multi-token prediction"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (671B/37B parameter split, 14.8T training tokens, and 2.788M H800 GPU-hours all corroborated directly against the paper's own abstract per search snippet)"
+    license_or_reuse: "arXiv preprint; DeepSeek-V3 model weights are released under their own model license (verify terms before any reuse beyond citation) — cite/restate the paper, do not copy figures"
+    notes: "Submitted 2024-12-27, revised 2025-02-18. Using one model to exemplify both MoE (ch. 5) and MLA (ch. 3) simultaneously is a deliberate scope choice: it keeps ch. 6's 'small, defensible set' of case-study models smaller without skipping either mechanism — see reports/04_source_audit.md. Mixtral of Experts (src-34) is registered as a simpler alternative/supporting MoE example if a less complex case study is wanted for a table row or exercise instead of a main case study."
+
+  - id: "src-34"
+    title: "Mixtral of Experts"
+    url: "https://arxiv.org/abs/2401.04088"
+    authors: "Albert Q. Jiang and 25 other authors (Mistral AI)"
+    resource_type: "official technical report (arXiv:2401.04088)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["mixture-of-experts", "top-2-routing", "case-study"]
+    authority_type: "primary_technical"
+    expected_use: "supporting source for ch. 5/ch. 6: a simpler MoE example than DeepSeek-V3 — 46.7B total / 12.9B active parameters, top-2 routing over 8 experts — useful as a contrast row in the case-study table or a worked-example config, not selected as one of the four main case-study models"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (46.7B total/12.9B active params, top-2-of-8 routing, and Apache 2.0 licensing all corroborated)"
+    license_or_reuse: "arXiv preprint; Mixtral model weights are Apache 2.0 (confirmed) — cite/restate the paper, do not copy figures"
+    notes: "Dated 2024-01-08. Good source for a worked MoE active-parameter calculation given its simpler top-2-of-8 structure versus DeepSeek-V3's."
+
+  - id: "src-35"
+    title: "Jamba: A Hybrid Transformer-Mamba Language Model"
+    url: "https://arxiv.org/abs/2403.19887"
+    authors: "Opher Lieber, Barak Lenz, and additional authors (AI21 Labs)"
+    resource_type: "official technical report (arXiv:2403.19887)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["hybrid-attention", "mamba", "mixture-of-experts", "case-study"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 4/ch. 6: the workbook's representative hybrid/linear-attention case-study model — interleaves Transformer and Mamba (state-space/linear-attention-family) layers with MoE inserted in some layers; 12B active / 52B total parameters, long-context (up to 256K) throughput/memory results reported"
+    last_verified: "2026-09-22"
+    access_status: "verified via WebSearch (title, authors, arXiv ID, dates, and the 12B/52B parameter plus 256K context claims all corroborated against the paper's own abstract per search snippet)"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate the paper, do not copy figures"
+    notes: "Submitted 2024-03-28, updated 2024-07-03. A newer 'Jamba 1.5' report also exists (arXiv:2408.12570) with a larger scaled-up version — NOT verified this session; this is an open decision for whoever drafts ch. 4/ch. 6 (use the original architecture-defining paper, or re-verify and switch to 1.5) rather than a silent substitution. AI21's own blog post 'Attention was never enough: Tracing the rise of hybrid LLMs' is an official company source, not an independent secondary source, if it is ever cited."

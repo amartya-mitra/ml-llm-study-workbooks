@@ -1,0 +1,146 @@
+# Workbook-04-specific glossary. This is more exhaustive and more
+# architecture-specific than shared/glossary.yaml (which holds a small
+# set of cross-workbook terms). If a term belongs in both, keep the
+# shared/glossary.yaml entry as the short cross-workbook definition and
+# let this file's entry go deeper.
+
+terms:
+  - term: "RoPE (rotary positional embeddings)"
+    short_definition: "Positional scheme that rotates query/key vectors by an angle proportional to position, so their dot product depends only on relative offset."
+    chapter: "ch2"
+    source_ids: ["src-22"]
+
+  - term: "RMSNorm"
+    short_definition: "Normalization that rescales by root-mean-square magnitude only, without mean-centering or a learnable bias, unlike LayerNorm."
+    chapter: "ch2"
+    source_ids: ["src-23"]
+
+  - term: "SwiGLU"
+    short_definition: "A gated MLP variant: one branch is gated (Swish-activated) elementwise by another, using three weight matrices instead of a plain two-matrix MLP."
+    chapter: "ch2"
+    source_ids: ["src-24"]
+
+  - term: "Pre-norm / post-norm / sandwich-norm"
+    short_definition: "Where normalization sits relative to a sublayer: before it (pre-norm, favors training stability), after it (post-norm, the original Transformer placement), or both (sandwich, a hybrid some modern models use)."
+    chapter: "ch2"
+    source_ids: ["src-19"]
+
+  - term: "Tied embeddings"
+    short_definition: "Using the same weight matrix for the input token embedding and the output unembedding (logit) projection, halving that parameter cost."
+    chapter: "ch2"
+    source_ids: []
+
+  - term: "Multi-head attention (MHA)"
+    short_definition: "The original attention head structure: one key/value head per query head."
+    chapter: "ch3"
+    source_ids: ["src-19"]
+
+  - term: "Multi-query attention (MQA)"
+    short_definition: "All query heads share a single key/value head, minimizing KV-cache size at some quality cost."
+    chapter: "ch3"
+    source_ids: ["src-20"]
+
+  - term: "Grouped-query attention (GQA)"
+    short_definition: "A middle ground between MHA and MQA: G key/value heads are each shared by H_q/G query heads."
+    chapter: "ch3"
+    source_ids: ["src-21"]
+
+  - term: "Multi-head latent attention (MLA)"
+    short_definition: "Compresses keys/values into a shared low-rank latent vector per token, reconstructing per-head K/V at attention time instead of storing them directly."
+    chapter: "ch3"
+    source_ids: ["src-27"]
+
+  - term: "KV-cache"
+    short_definition: "Stored key/value projections for every past token, reused during autoregressive decoding; see shared/glossary.yaml for the cross-workbook short form and ch. 3 for the full memory formula."
+    chapter: "ch3"
+    source_ids: ["src-10", "src-11"]
+
+  - term: "Sliding-window attention"
+    short_definition: "Each position only attends to a fixed-size local window of nearby positions, rather than the full sequence."
+    chapter: "ch4"
+    source_ids: ["src-25"]
+
+  - term: "Local/global attention mixture"
+    short_definition: "Most layers use a restricted (e.g. windowed) pattern; a minority of layers use full attention, recovering long-range context periodically."
+    chapter: "ch4"
+    source_ids: []
+
+  - term: "Sparse attention pattern"
+    short_definition: "A fixed, structured subset of token pairs attend to each other (e.g. strided or block patterns), reducing compute versus full attention while still using softmax attention."
+    chapter: "ch4"
+    source_ids: ["src-26"]
+
+  - term: "Linear / recurrent (SSM-style) attention"
+    short_definition: "Replaces softmax attention with a different sequence-mixing primitive that maintains a fixed-size recurrent state instead of an ever-growing KV-cache."
+    chapter: "ch4"
+    source_ids: []
+
+  - term: "Hybrid attention stack"
+    short_definition: "A model that interleaves more than one attention type (e.g. sliding-window, global, and linear/recurrent layers) across its depth."
+    chapter: "ch4"
+    source_ids: ["src-35"]
+
+  - term: "Receptive field (attention)"
+    short_definition: "The set of input positions that can influence a given position's representation, which for windowed/local attention grows with depth rather than being global at every layer."
+    chapter: "ch4"
+    source_ids: []
+
+  - term: "Router (MoE)"
+    short_definition: "A small learned function that scores each token against all experts and selects the top-k to activate."
+    chapter: "ch5"
+    source_ids: ["src-28"]
+
+  - term: "Active parameters"
+    short_definition: "The subset of a model's parameters actually used in the forward pass for a given token; equals total parameters for dense models, and is smaller than total for MoE models."
+    chapter: "ch5"
+    source_ids: ["src-28"]
+
+  - term: "Total parameters"
+    short_definition: "Every parameter the model has, whether or not a given token's forward pass touches it."
+    chapter: "ch5"
+    source_ids: []
+
+  - term: "Expert capacity"
+    short_definition: "The maximum number of tokens a single expert can accept in one batch before overflow/dropping, in capacity-limited MoE implementations."
+    chapter: "ch5"
+    source_ids: ["src-30"]
+
+  - term: "Load balancing (MoE)"
+    short_definition: "Techniques (often an auxiliary loss term) that discourage the router from concentrating tokens onto a small subset of experts."
+    chapter: "ch5"
+    source_ids: ["src-29"]
+
+  - term: "Shared expert"
+    short_definition: "An expert that is always active for every token, alongside the routed top-k experts, used to capture common computation that shouldn't depend on routing."
+    chapter: "ch5"
+    source_ids: []
+
+  - term: "Expert parallelism"
+    short_definition: "Distributing different experts of a MoE layer across different devices, requiring an all-to-all communication step to dispatch tokens to their selected experts and combine results."
+    chapter: "ch5"
+    source_ids: ["src-29"]
+
+  - term: "Arithmetic intensity"
+    short_definition: "FLOPs performed per byte of data moved; determines whether a computation is compute-bound (high intensity) or memory-bandwidth-bound (low intensity)."
+    chapter: "ch7"
+    source_ids: ["src-10"]
+
+  - term: "Memory-bandwidth-bound"
+    short_definition: "A regime where wall-clock time is limited by how fast data can be moved (e.g. reading the KV-cache), not by how fast the arithmetic can be performed — typical of single-request autoregressive decoding."
+    chapter: "ch7"
+    source_ids: ["src-10", "src-11"]
+
+  - term: "Continuous batching"
+    short_definition: "A serving technique that dynamically adds/removes sequences from an in-flight batch rather than waiting for a fixed batch to fully finish; a runtime/serving technique, not an architecture change."
+    chapter: "ch7"
+    source_ids: ["src-11"]
+
+  - term: "KV-cache paging"
+    short_definition: "A serving technique that manages the KV-cache in fixed-size non-contiguous pages instead of one contiguous per-sequence allocation, improving memory utilization; a runtime/serving technique, not an architecture change."
+    chapter: "ch7"
+    source_ids: ["src-11"]
+
+  - term: "Quantization"
+    short_definition: "Storing/computing weights or activations at reduced numeric precision (e.g. int8, fp8); changes measured memory and speed without changing the architecture graph itself."
+    chapter: "ch7"
+    source_ids: ["src-11"]

@@ -1,0 +1,146 @@
+# Stage 8 worked-example plan for workbook 04. Each example instantiates
+# every symbol it uses per notation.yaml's `worked_example_instantiation_rule`
+# — no formula appears with unbound symbols. `chains_from` marks examples
+# that deliberately reuse a prior example's config rather than starting
+# fresh, so the reader can see how one number changes when one
+# architectural choice changes, holding everything else constant.
+
+examples:
+  - id: "ex-mha-kv-cache"
+    chapter: "ch3"
+    title: "Calculate MHA KV-cache memory"
+    chains_from: null
+    given: "A stated config: L layers, H_q=H_kv query/KV heads (standard MHA), d_head, a sequence length S, batch size B=1, and bytes_per_elem for bf16 (2 bytes)."
+    steps:
+      - "instantiate every symbol from notation.yaml with a concrete number"
+      - "apply the ch. 3 formula: KV_bytes = 2 x L x H_kv x d_head x S x B x bytes_per_elem"
+      - "state the result in both bytes and a human-scale unit (MB/GB)"
+    expected_result: "a single concrete byte count, with every input assumption restated alongside the answer per the formula_assumption_checklist"
+    skill_tested: "calculation"
+    source_ids: ["src-19", "src-10"]
+
+  - id: "ex-gqa-kv-cache"
+    chapter: "ch3"
+    title: "Recalculate the same config under GQA"
+    chains_from: "ex-mha-kv-cache"
+    given: "The identical config as ex-mha-kv-cache, with H_kv reduced to a stated group size G (H_kv = G < H_q)."
+    steps:
+      - "identify that only H_kv changes; every other symbol is unchanged from ex-mha-kv-cache"
+      - "recompute KV_bytes with the new H_kv"
+      - "state the reduction factor explicitly as H_kv_gqa / H_kv_mha, not just the two raw numbers"
+    expected_result: "a smaller byte count than ex-mha-kv-cache, plus the explicit reduction ratio"
+    skill_tested: "calculation"
+    source_ids: ["src-21"]
+
+  - id: "ex-mla-vs-gqa"
+    chapter: "ch3"
+    title: "Compare GQA with MLA assumptions on the same base config"
+    chains_from: "ex-gqa-kv-cache"
+    given: "The same base config, now with a stated MLA latent dimension d_latent in place of GQA's H_kv x d_head."
+    steps:
+      - "compute the MLA cache size using d_latent in place of the H_kv x d_head term"
+      - "place all three numbers (MHA, GQA, MLA) side by side"
+      - "state explicitly that this comparison holds only for the specific d_latent/G values chosen — not a universal ranking of the three mechanisms"
+    expected_result: "a three-way comparison table for one consistent base config, with the explicit caveat that the ranking is config-dependent, not a general law"
+    skill_tested: "compare_and_contrast"
+    source_ids: ["src-21", "src-27"]
+
+  - id: "ex-moe-active-params"
+    chapter: "ch5"
+    title: "Calculate active MoE parameters per token"
+    chains_from: null
+    given: "A stated MoE config: E total experts, k selected per token, per-expert parameter count, and a shared-expert parameter count (possibly zero)."
+    steps:
+      - "instantiate every symbol (E, k, per-expert size, shared-expert size)"
+      - "apply: active params per token = shared-expert params + k x per-expert params"
+      - "separately state total params = shared-expert params + E x per-expert params, and the active/total ratio"
+    expected_result: "two numbers (active, total) and their ratio, for one concrete config"
+    skill_tested: "calculation"
+    source_ids: ["src-28", "src-33"]
+
+  - id: "ex-expert-imbalance"
+    chapter: "ch5"
+    title: "Reason about expert imbalance"
+    chains_from: "ex-moe-active-params"
+    given: "The same MoE config as ex-moe-active-params, now with a stated skewed routing distribution (e.g. one expert receiving a disproportionate fraction of tokens in a batch)."
+    steps:
+      - "compute each expert's actual load given the stated skew"
+      - "identify which expert becomes the throughput bottleneck under expert parallelism (the slowest device gates the whole batch)"
+      - "state one architectural or serving-side lever that mitigates this (e.g. a shared expert, a load-balancing loss, capacity limits) and which chapter/source that lever comes from"
+    expected_result: "an identified bottleneck expert, a stated throughput consequence, and a named mitigation with its source"
+    skill_tested: "design"
+    source_ids: ["src-28", "src-29", "src-30"]
+
+  - id: "ex-sliding-window-vs-global-receptive-field"
+    chapter: "ch4"
+    title: "Compare sliding-window and global receptive fields"
+    chains_from: null
+    given: "A stated window size w and layer count L for a windowed model, compared against a global-attention model with the same layer count."
+    steps:
+      - "compute the windowed model's effective receptive field after L layers: L x w"
+      - "state the global model's receptive field (the full sequence length, at every layer)"
+      - "identify the sequence length S at which the windowed model's L x w receptive field would fail to cover the full sequence, and what that means for a task requiring long-range dependency"
+    expected_result: "a receptive-field number for the windowed model, an explicit crossover point, and a stated consequence for a concrete task"
+    skill_tested: "calculation"
+    source_ids: ["src-25", "src-26"]
+
+  - id: "ex-serving-memory-constrained-choice"
+    chapter: "ch3"
+    title: "Choose an architecture under a serving-memory constraint"
+    chains_from: "ex-mla-vs-gqa"
+    given: "A stated total serving memory budget, a fixed base model size, and a fixed target context length; the reader must choose among MHA/GQA/MLA (using ex-mla-vs-gqa's per-token cache costs) for the largest supportable concurrent batch size."
+    steps:
+      - "for each attention variant, compute per-sequence KV-cache size at the target context length"
+      - "subtract an assumed parameter-memory footprint from the total budget to get the cache-available budget"
+      - "divide the cache-available budget by each variant's per-sequence cache size to get the maximum concurrent batch size per variant"
+      - "state which variant wins under these specific numbers, and name the one assumption that would flip the answer if changed"
+    expected_result: "three candidate max-batch-size numbers (one per attention variant) and an explicit, falsifiable statement of which assumption is load-bearing for the ranking"
+    skill_tested: "design"
+    source_ids: ["src-10", "src-11", "src-21", "src-27"]
+
+  - id: "ex-case-study-cache-size"
+    chapter: "ch6"
+    title: "Compute each case-study model's KV-cache size per token from its published config"
+    chains_from: null
+    given: "The published configs of the four ch. 6 case-study models (Llama 3, DeepSeek-V3, Jamba, and Mixtral as a fifth contrast point)."
+    steps:
+      - "for each model, identify its attention variant and the corresponding H_kv (or d_latent) value from its technical report"
+      - "apply the correct formula variant (from ch. 3) per model"
+      - "tabulate all four/five results side by side, each traceable to the specific report section used"
+    expected_result: "one filled row per model in the case-study comparison table (matches figure-plan.yaml's fig-case-study-architecture-comparison), each cell citation-traceable"
+    skill_tested: "calculation"
+    source_ids: ["src-32", "src-33", "src-34", "src-35"]
+
+  - id: "ex-compute-bound-vs-bandwidth-bound"
+    chapter: "ch7"
+    title: "Classify a prefill step and a decode step as compute-bound or memory-bandwidth-bound"
+    chains_from: null
+    given: "One case-study model's config, a stated batch size, and a stated sequence length for both a prefill pass and one decode step."
+    steps:
+      - "estimate FLOPs and bytes-moved for the prefill pass; compute the arithmetic intensity (FLOPs/byte)"
+      - "repeat for one decode step"
+      - "compare each intensity against the hardware's own compute-to-bandwidth ratio (stated as a given) to classify each step"
+      - "state what would have to change (batch size, sequence length, or hardware) to flip either classification"
+    expected_result: "two intensity numbers, two bound/unbound classifications, and an explicit, falsifiable statement of what would flip each one"
+    skill_tested: "calculation"
+    source_ids: ["src-10"]
+
+  - id: "ex-cumulative-composite-config"
+    chapter: "ch8"
+    title: "Cumulative: compute KV-cache size and active parameters for a composite, unseen config"
+    chains_from: null
+    given: "A new, unseen model config combining a stated attention variant (ch. 3), a stated sparsity/hybrid choice (ch. 4), and dense-or-MoE structure (ch. 5), not matching any of the ch. 6 case studies."
+    steps:
+      - "identify which formula variant from ch. 3 applies given the stated attention variant"
+      - "compute KV-cache size per token"
+      - "compute active and total parameters given the stated dense/MoE structure"
+      - "state one systems consequence (ch. 7) that follows from this specific combination"
+    expected_result: "a fully worked composite answer chaining ch. 3, 5, and 7's methods on a config the reader has not seen before"
+    skill_tested: "design"
+    source_ids: []
+
+count_check:
+  requested_examples: ["calculate MHA KV-cache memory", "recalculate with GQA", "compare GQA with MLA assumptions", "calculate active MoE parameters per token", "reason about expert imbalance", "compare sliding-window and global receptive fields", "choose an architecture under a serving-memory constraint"]
+  all_requested_examples_present: true
+  additional_examples_added: ["ex-case-study-cache-size", "ex-compute-bound-vs-bandwidth-bound", "ex-cumulative-composite-config"]
+  reason_for_additions: "ch. 6, ch. 7, and ch. 8 each needed at least one worked example per outline.yaml's per-chapter plan, and none of the Stage 8 task's seven suggested examples covers those three chapters"
