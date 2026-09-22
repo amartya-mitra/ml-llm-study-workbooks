@@ -1,0 +1,273 @@
+# Source registry — Stage 4 scaffolding only.
+#
+# IMPORTANT: entries below were registered from the URLs supplied for this
+# project. They have NOT been re-fetched or deep-extracted in this session
+# (per the bootstrap task's own instruction to establish the registry
+# before deep extraction). `last_verified: null` and
+# `access_status: "not yet fetched in this session"` are the honest
+# defaults — do not change them to a real date until the URL has actually
+# been opened and checked in a session. `license_or_reuse` is likewise a
+# placeholder judgment ("unknown, treat conservatively") until someone
+# checks the actual page/repo for a license file or terms.
+#
+# authority_type values used here:
+#   primary_technical      - authored technical explanation, treat as a real source of facts
+#   implementation_guide   - vendor/practitioner guide, technical but may have a promotional angle
+#   visual_reference        - useful for diagram/figure inspiration, not for prose claims
+#   interview_question_bank - crowdsourced/curated question lists, useful for practice material
+#   secondary_summary        - restates other people's material, cross-check before citing
+#   source_discovery_index  - a list of other resources, use to find sources, not to cite directly
+#   experiential_account     - one person's personal account/opinion, cite as opinion, not fact
+
+sources:
+  - id: "src-01"
+    title: "Machine Learning Cheat Sheet"
+    url: "https://github.com/soulmachine/machine-learning-cheat-sheet"
+    authors: "soulmachine (GitHub, community-maintained)"
+    resource_type: "reference cheat sheet (PDF/LaTeX notes)"
+    workbook_categories: ["01-ml-foundations", "02-ml-interviews"]
+    topic_tags: ["notation", "formulas", "quick-reference", "classic-ml"]
+    authority_type: "secondary_summary"
+    expected_use: "notation/formula cross-check when drafting foundations content, not a primary explanation"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — check repo LICENSE before reusing any figure or equation layout"
+    notes: "Long-running community cheat sheet; useful as a checklist of classic ML topics to cover in workbook 01."
+
+  - id: "src-02"
+    title: "Data Science Interview Questions & Answers"
+    url: "https://github.com/youssefHosni/Data-Science-Interview-Questions-Answers"
+    authors: "Youssef Hosni (GitHub)"
+    resource_type: "interview question bank (repo)"
+    workbook_categories: ["02-ml-interviews"]
+    topic_tags: ["interview-questions", "data-science", "statistics"]
+    authority_type: "interview_question_bank"
+    expected_use: "seed bank for recall/explanation questions; rewrite in project voice, do not copy verbatim"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — check repo LICENSE"
+    notes: "Broader than pure ML (includes general data science/stats); filter for ML-relevant items."
+
+  - id: "src-03"
+    title: "Machine Learning Interviews (khangich)"
+    url: "https://github.com/khangich/machine-learning-interview"
+    authors: "Khang Pham (GitHub: khangich)"
+    resource_type: "interview prep guide + question bank (repo)"
+    workbook_categories: ["02-ml-interviews", "03-ml-systems-design"]
+    topic_tags: ["interview-questions", "ml-system-design", "career"]
+    authority_type: "interview_question_bank"
+    expected_use: "topic checklist for interview loops (coding/ML/ML-system-design); cross-check against Huyen's books"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — check repo LICENSE"
+    notes: "Popular reference for FAANG-style ML interview loop structure."
+
+  - id: "src-04"
+    title: "Machine Learning Interviews (book)"
+    url: "https://huyenchip.com/ml-interviews-book/"
+    authors: "Chip Huyen"
+    resource_type: "online book"
+    workbook_categories: ["02-ml-interviews"]
+    topic_tags: ["interview-strategy", "ml-fundamentals", "career"]
+    authority_type: "primary_technical"
+    expected_use: "primary reference for interview structure, expectations, and framing across chapters of workbook 02"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "personal site — no explicit license found; summarize and cite, do not reproduce long passages"
+    notes: "Written by a recognized ML practitioner/educator; higher authority than crowdsourced question-bank repos."
+
+  - id: "src-05"
+    title: "Machine Learning Systems Design"
+    url: "https://huyenchip.com/machine-learning-systems-design/toc.html"
+    authors: "Chip Huyen"
+    resource_type: "online book"
+    workbook_categories: ["03-ml-systems-design"]
+    topic_tags: ["ml-systems", "production-ml", "design-interviews"]
+    authority_type: "primary_technical"
+    expected_use: "primary structural reference for workbook 03 chapter breakdown"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "personal site — no explicit license found; summarize and cite, do not reproduce long passages"
+    notes: "Companion to src-04, same author; treat as the backbone reference for ML systems design workbook."
+
+  - id: "src-06"
+    title: "MLQuestions"
+    url: "https://github.com/andrewekhalel/MLQuestions"
+    authors: "Andrew Khalel (GitHub)"
+    resource_type: "interview question bank (repo)"
+    workbook_categories: ["02-ml-interviews"]
+    topic_tags: ["interview-questions", "deep-learning", "computer-vision"]
+    authority_type: "interview_question_bank"
+    expected_use: "secondary seed bank; cross-check overlap with src-02/src-03 before treating a question as canonical"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — check repo LICENSE"
+    notes: "Skews toward deep learning / CV questions; useful supplement, not sole source."
+
+  - id: "src-07"
+    title: "LLM/ML Job Interviews Resources"
+    url: "https://mimansajaiswal.github.io/posts/llm-ml-job-interviews-resources/"
+    authors: "Mimansa Jaiswal"
+    resource_type: "blog post (resource index)"
+    workbook_categories: ["02-ml-interviews", "08-research-careers"]
+    topic_tags: ["interview-prep", "resource-list", "llm-jobs", "research-jobs"]
+    authority_type: "source_discovery_index"
+    expected_use: "use to discover additional sources; do not cite as a primary technical claim source"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "personal blog — no explicit license found; link, do not reproduce"
+    notes: "A curated list of other people's resources; treat as a map, not a destination."
+
+  - id: "src-08"
+    title: "ML Interviews (personal blog)"
+    url: "https://silviasapora.github.io/blog/ml-interviews.html"
+    authors: "Silvia Sapora"
+    resource_type: "blog post (personal account)"
+    workbook_categories: ["02-ml-interviews", "08-research-careers"]
+    topic_tags: ["interview-experience", "phd-to-industry", "research-jobs"]
+    authority_type: "experiential_account"
+    expected_use: "quote/attribute as one researcher's personal experience; use for the 'interview lens' / career-account sections, not as a technical claim source"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "personal blog — no explicit license found; attribute clearly, do not reproduce long passages"
+    notes: "Personal narrative, valuable for realism and framing, not for technical facts."
+
+  - id: "src-09"
+    title: "Job Search (personal blog)"
+    url: "https://alisawuffles.github.io/blog/job-search/"
+    authors: "Alisa Liu"
+    resource_type: "blog post (personal account)"
+    workbook_categories: ["08-research-careers"]
+    topic_tags: ["research-job-search", "phd", "academia-vs-industry"]
+    authority_type: "experiential_account"
+    expected_use: "personal account for workbook 08 career-narrative sections; attribute explicitly as one person's experience"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "personal blog — no explicit license found; attribute clearly, do not reproduce long passages"
+    notes: "NLP-research-oriented job search account; complements src-08's perspective."
+
+  - id: "src-10"
+    title: "How To Scale Your Model (Scaling Book)"
+    url: "https://jax-ml.github.io/scaling-book/"
+    authors: "Google DeepMind / JAX ML team"
+    resource_type: "online technical book"
+    workbook_categories: ["04-llm-architecture", "05-llm-training", "06-llm-inference"]
+    topic_tags: ["scaling-laws", "tpu", "gpu", "distributed-training", "rooflines", "inference-math"]
+    authority_type: "primary_technical"
+    expected_use: "primary reference for hardware-aware scaling math, rooflines, and systems tradeoffs across workbooks 04-06"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — check page footer/repo for license before reusing any figure"
+    notes: "High-authority source (Google-affiliated authors); strong for worked calculations and comparison tables."
+
+  - id: "src-11"
+    title: "Inference Engineering Book"
+    url: "https://www.baseten.co/inference-engineering/book/"
+    authors: "Baseten"
+    resource_type: "online technical book (vendor-authored)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["inference-serving", "latency", "throughput", "batching", "kv-cache"]
+    authority_type: "implementation_guide"
+    expected_use: "primary reference for inference-serving mechanics; note vendor angle when citing performance claims"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — vendor content, check terms before reusing figures"
+    notes: "Vendor-authored but technically substantive; cross-check headline performance numbers against other sources."
+
+  - id: "src-12"
+    title: "Modular Handbook"
+    url: "https://handbook.modular.com/"
+    authors: "Modular"
+    resource_type: "online technical handbook (vendor-authored)"
+    workbook_categories: ["04-llm-architecture", "05-llm-training", "06-llm-inference"]
+    topic_tags: ["accelerators", "compilers", "gpu-programming", "inference"]
+    authority_type: "implementation_guide"
+    expected_use: "reference for accelerator/compiler-level concepts underlying training and inference workbooks"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — vendor content, check terms before reusing figures"
+    notes: "Vendor angle (promotes Modular's own stack); use for concepts, attribute product-specific claims carefully."
+
+  - id: "src-13"
+    title: "RLHF Book"
+    url: "https://rlhfbook.com/"
+    authors: "Nathan Lambert"
+    resource_type: "online technical book"
+    workbook_categories: ["07-llm-post-training"]
+    topic_tags: ["rlhf", "alignment", "reward-modeling", "post-training"]
+    authority_type: "primary_technical"
+    expected_use: "primary reference for workbook 07 (post-training and alignment)"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — check page/repo for license before reusing figures"
+    notes: "Widely cited practitioner/researcher reference for RLHF; strong backbone for workbook 07 structure."
+
+  - id: "src-14"
+    title: "The Big LLM Architecture Comparison"
+    url: "https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison"
+    authors: "Sebastian Raschka"
+    resource_type: "long-form blog article / newsletter"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["llm-architecture", "attention-variants", "moe", "normalization", "positional-encoding"]
+    authority_type: "primary_technical"
+    expected_use: "primary comparative reference for the workbook 04 pilot — architecture-by-architecture comparison table structure"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "newsletter content — no explicit reuse license found; summarize/cite, redraw any comparison as an original figure"
+    notes: "Central source for the pilot workbook; do not copy its comparison diagrams — redraw with config/visual-style.yaml palette."
+
+  - id: "src-15"
+    title: "LLM Architecture Gallery"
+    url: "https://www.sebastianraschka.com/llm-architecture-gallery/"
+    authors: "Sebastian Raschka"
+    resource_type: "visual gallery / index page"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["llm-architecture", "visual-reference", "model-timeline"]
+    authority_type: "visual_reference"
+    expected_use: "browse for which architectures/models to cover and in what order; do not reuse the gallery's images directly"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "personal site — no explicit license found; treat images as not reusable, inspiration only"
+    notes: "Companion index to src-14; good for scoping which models the pilot workbook should include."
+
+  - id: "src-16"
+    title: "Smol Training Playbook"
+    url: "https://huggingface.co/spaces/HuggingFaceTB/smol-training-playbook"
+    authors: "Hugging Face (HuggingFaceTB team)"
+    resource_type: "online technical playbook"
+    workbook_categories: ["05-llm-training"]
+    topic_tags: ["pretraining", "data-curation", "small-models", "training-recipes"]
+    authority_type: "primary_technical"
+    expected_use: "primary reference for pretraining practicalities in workbook 05"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — HF Space, check space/repo license before reusing figures"
+    notes: "Practitioner-authored, empirically grounded; good source of worked examples/ablation-style comparisons."
+
+  - id: "src-17"
+    title: "The Ultra-Scale Playbook"
+    url: "https://huggingface.co/spaces/nanotron/ultrascale-playbook"
+    authors: "Hugging Face (Nanotron team)"
+    resource_type: "online technical playbook"
+    workbook_categories: ["05-llm-training"]
+    topic_tags: ["distributed-training", "parallelism", "3d-parallelism", "gpu-clusters"]
+    authority_type: "primary_technical"
+    expected_use: "primary reference for distributed/parallel training strategies in workbook 05; pairs with src-10 for hardware math"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "unknown — HF Space, check space/repo license before reusing figures"
+    notes: "Detailed, benchmark-heavy source on parallelism strategies at scale."
+
+  - id: "src-18"
+    title: "LoRA Without Regret"
+    url: "https://huggingface.co/docs/trl/lora_without_regret"
+    authors: "Hugging Face (TRL docs)"
+    resource_type: "official library documentation page"
+    workbook_categories: ["07-llm-post-training", "05-llm-training"]
+    topic_tags: ["lora", "parameter-efficient-fine-tuning", "post-training"]
+    authority_type: "implementation_guide"
+    expected_use: "primary reference for LoRA fine-tuning tradeoffs in workbook 07 (and as a cross-reference from 05)"
+    last_verified: null
+    access_status: "not yet fetched in this session"
+    license_or_reuse: "official docs — check HF docs license/terms before reusing figures verbatim"
+    notes: "Official, currently-maintained docs page; mark version-specific claims as time-sensitive per AGENTS.md."

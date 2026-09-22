@@ -1,0 +1,21 @@
+project:
+  type: default
+
+# Declaring a project here (rather than letting each .qmd render in
+# isolation) makes the whole repo root available to Typst's file-access
+# sandbox, so a chapter under workbooks/<id>/ can embed a figure from
+# figures/rendered/ (two directories up) without a Typst "access denied"
+# error. See reports/bootstrap_report.md for the render-pipeline history.
+
+bibliography: shared/bibliography.bib
+
+format:
+  typst:
+    papersize: us-letter
+    margin:
+      x: 1in
+      y: 1in
+    toc: false
+    callout-icon: false  # Font Awesome icon glyphs render as broken boxes
+                          # under this Typst install; disable them project-wide
+                          # rather than per-callout (found via visual inspection)

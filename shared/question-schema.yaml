@@ -1,0 +1,89 @@
+# Schema for comprehension-question records used across all workbooks.
+#
+# This is a hand-written schema (not JSON Schema, since jsonschema is not
+# installable in this environment — see reports/bootstrap_environment.md).
+# scripts/validate_questions.py reads this file and enforces it against
+# every questions.yaml found under workbooks/**.
+#
+# Each question record is one item in a top-level "questions:" list, with
+# the fields below.
+
+schema_version: 1
+
+fields:
+  - name: "id"
+    type: "string"
+    required: true
+    pattern: "^q-[a-z0-9-]+-[0-9]{3}$"
+    description: "Unique question ID, e.g. q-04-kv-cache-001."
+
+  - name: "workbook"
+    type: "string"
+    required: true
+    allowed_values:
+      - "01-ml-foundations"
+      - "02-ml-interviews"
+      - "03-ml-systems-design"
+      - "04-llm-architecture"
+      - "05-llm-training"
+      - "06-llm-inference"
+      - "07-llm-post-training"
+      - "08-research-careers"
+    description: "Workbook id this question belongs to."
+
+  - name: "chapter"
+    type: "string"
+    required: true
+    description: "Chapter slug within the workbook, e.g. kv-cache-and-decoding."
+
+  - name: "topic"
+    type: "string"
+    required: true
+    description: "Short topic label, e.g. 'KV-cache memory growth'."
+
+  - name: "difficulty"
+    type: "string"
+    required: true
+    allowed_values: ["intro", "core", "stretch"]
+
+  - name: "question_type"
+    type: "string"
+    required: true
+    allowed_values:
+      - "recall"
+      - "explanation"
+      - "calculation"
+      - "compare_and_contrast"
+      - "debugging"
+      - "design"
+      - "misconception_diagnosis"
+
+  - name: "prompt"
+    type: "string"
+    required: true
+    description: "The question text shown to the learner. Must be answerable from material already presented earlier in the same chapter/workbook (AGENTS.md)."
+
+  - name: "expected_answer"
+    type: "string"
+    required: true
+
+  - name: "explanation"
+    type: "string"
+    required: true
+    description: "Why the expected answer is correct; may reference the mental model/analogy used in the chapter."
+
+  - name: "common_wrong_answer"
+    type: "string"
+    required: false
+    description: "A plausible incorrect answer and, ideally, the misconception behind it."
+
+  - name: "source_ids"
+    type: "list[string]"
+    required: true
+    description: "One or more sources/registry.yaml ids that back this question's factual content. May be empty list only for pure-calculation questions with no external factual claim, but must still be present as a key."
+
+validation_rules:
+  - "Every id must be unique across the whole project, not just within one file."
+  - "Every source id listed in source_ids must exist in sources/registry.yaml."
+  - "Every workbook value must be one of the eight known workbook ids (see config/project.yaml)."
+  - "prompt and expected_answer must be non-empty strings."

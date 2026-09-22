@@ -1,0 +1,28 @@
+# Question records for workbook 04 (Modern LLM Architecture).
+# Schema: shared/question-schema.yaml. Validate with:
+#   python3 scripts/validate_questions.py
+
+questions:
+  - id: "q-04-kv-cache-001"
+    workbook: "04-llm-architecture"
+    chapter: "kv-cache-and-decoding"
+    topic: "What the KV-cache actually stores"
+    difficulty: "intro"
+    question_type: "recall"
+    prompt: "During autoregressive decoding, does the KV-cache store the attention *output* for each past token, or the key/value *projections* for each past token?"
+    expected_answer: "The key and value projections (K and V) for each past token, not the attention output."
+    explanation: "Caching K/V projections lets each new decode step compute fresh attention scores against all past tokens without redoing the linear projections or reprocessing the tokens through earlier layers; caching the output instead would not let later tokens attend to it correctly."
+    common_wrong_answer: "A common wrong answer is 'the final hidden state / output embedding of each past token' — that conflates the cache with the residual stream, but the residual stream for past tokens is not stored or reused at all."
+    source_ids: ["src-10", "src-11"]
+
+  - id: "q-04-kv-cache-002"
+    workbook: "04-llm-architecture"
+    chapter: "kv-cache-and-decoding"
+    topic: "KV-cache growth per decode step"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "A prompt has 4 tokens and the model generates 3 new tokens one at a time. After the prefill pass and all 3 decode steps, how many K/V slots does the cache hold, and how many *new* slots did each individual decode step add?"
+    expected_answer: "7 total K/V slots (4 from prefill + 3 from decode). Each individual decode step adds exactly 1 new slot."
+    explanation: "Prefill builds one K/V slot per prompt token in a single pass. Each subsequent decode step processes exactly one new token and appends exactly one new K/V slot to the existing cache — it never recomputes or replaces the earlier slots."
+    common_wrong_answer: "A common wrong answer is that the cache is rebuilt from scratch at each decode step (e.g. sizes 4, 5, 6, 7 each recomputed independently) rather than incrementally extended by 1 each time."
+    source_ids: ["src-10", "src-11"]

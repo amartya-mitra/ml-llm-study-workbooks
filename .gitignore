@@ -1,0 +1,39 @@
+# Generated, temporary, cached, and environment files only.
+# Do NOT add source material, source manifests, figure scripts, or build
+# configuration here (AGENTS.md / Stage 2 instructions).
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Quarto / rendering caches (kept out; rendered figures we *do* want to
+# keep are committed explicitly under figures/rendered/)
+.quarto/
+_freeze/
+/*_files/
+
+# Rendered PDFs / page images are build products of outputs/ and the
+# per-workbook page-images/ folders used by render_and_check.py.
+outputs/*.pdf
+outputs/*.pdf.prev-*
+workbooks/**/page-images/
+workbooks/**/*.pdf
+workbooks/**/*.pdf.prev-*
+
+# Editor / OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Node (only if mermaid CLI or similar is ever installed locally)
+node_modules/
+
+/.quarto/
+**/*.quarto_ipynb

@@ -1,0 +1,140 @@
+% Shared bibliography for all workbooks (Quarto + citeproc citation keys).
+%
+% Keys match sources/registry.yaml ids 1:1 (src-01 .. src-18) so citations
+% and registry entries can be cross-checked mechanically
+% (tests/test_registry.py checks every source id used here exists in the
+% registry, and vice versa where practical).
+%
+% `year` is deliberately omitted everywhere below: none of these sources
+% were re-fetched in this bootstrap session (see registry notes), so an
+% exact publication/last-updated year is not yet confirmed, and Typst's
+% BibLaTeX parser rejects a placeholder like `year = {n.d.}` (it requires
+% a real numeric year if the field is present at all). Add a real `year`
+% only after actually opening the source and checking it, per AGENTS.md's
+% "do not fabricate citations" rule.
+
+@misc{src-01,
+  author = {{soulmachine}},
+  title  = {Machine Learning Cheat Sheet},
+  url    = {https://github.com/soulmachine/machine-learning-cheat-sheet},
+  note   = {GitHub repository, community-maintained. Accessed date not yet confirmed.}
+}
+
+@misc{src-02,
+  author = {Hosni, Youssef},
+  title  = {Data Science Interview Questions \& Answers},
+  url    = {https://github.com/youssefHosni/Data-Science-Interview-Questions-Answers},
+  note   = {GitHub repository. Accessed date not yet confirmed.}
+}
+
+@misc{src-03,
+  author = {Pham, Khang},
+  title  = {Machine Learning Interview},
+  url    = {https://github.com/khangich/machine-learning-interview},
+  note   = {GitHub repository. Accessed date not yet confirmed.}
+}
+
+@misc{src-04,
+  author = {Huyen, Chip},
+  title  = {Machine Learning Interviews},
+  url    = {https://huyenchip.com/ml-interviews-book/},
+  note   = {Online book. Accessed date not yet confirmed.}
+}
+
+@misc{src-05,
+  author = {Huyen, Chip},
+  title  = {Machine Learning Systems Design},
+  url    = {https://huyenchip.com/machine-learning-systems-design/toc.html},
+  note   = {Online book. Accessed date not yet confirmed.}
+}
+
+@misc{src-06,
+  author = {Khalel, Andrew},
+  title  = {MLQuestions},
+  url    = {https://github.com/andrewekhalel/MLQuestions},
+  note   = {GitHub repository. Accessed date not yet confirmed.}
+}
+
+@misc{src-07,
+  author = {Jaiswal, Mimansa},
+  title  = {LLM/ML Job Interviews Resources},
+  url    = {https://mimansajaiswal.github.io/posts/llm-ml-job-interviews-resources/},
+  note   = {Blog post (resource index). Accessed date not yet confirmed.}
+}
+
+@misc{src-08,
+  author = {Sapora, Silvia},
+  title  = {ML Interviews},
+  url    = {https://silviasapora.github.io/blog/ml-interviews.html},
+  note   = {Blog post (personal account). Accessed date not yet confirmed.}
+}
+
+@misc{src-09,
+  author = {Liu, Alisa},
+  title  = {Job Search},
+  url    = {https://alisawuffles.github.io/blog/job-search/},
+  note   = {Blog post (personal account). Accessed date not yet confirmed.}
+}
+
+@misc{src-10,
+  author = {{JAX-ML / Google}},
+  title  = {How To Scale Your Model},
+  url    = {https://jax-ml.github.io/scaling-book/},
+  note   = {Online technical book, also referred to as "the Scaling Book". Accessed date and exact publication date not yet confirmed.}
+}
+
+@misc{src-11,
+  author = {{Baseten}},
+  title  = {Inference Engineering Book},
+  url    = {https://www.baseten.co/inference-engineering/book/},
+  note   = {Vendor-authored online technical book. Accessed date not yet confirmed.}
+}
+
+@misc{src-12,
+  author = {{Modular}},
+  title  = {Modular Handbook},
+  url    = {https://handbook.modular.com/},
+  note   = {Vendor-authored online handbook. Accessed date not yet confirmed.}
+}
+
+@misc{src-13,
+  author = {Lambert, Nathan},
+  title  = {RLHF Book},
+  url    = {https://rlhfbook.com/},
+  note   = {Online technical book. Accessed date not yet confirmed.}
+}
+
+@misc{src-14,
+  author = {Raschka, Sebastian},
+  title  = {The Big LLM Architecture Comparison},
+  url    = {https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison},
+  note   = {Newsletter article. Accessed date not yet confirmed.}
+}
+
+@misc{src-15,
+  author = {Raschka, Sebastian},
+  title  = {LLM Architecture Gallery},
+  url    = {https://www.sebastianraschka.com/llm-architecture-gallery/},
+  note   = {Visual gallery / index page. Accessed date not yet confirmed.}
+}
+
+@misc{src-16,
+  author = {{Hugging Face (HuggingFaceTB)}},
+  title  = {Smol Training Playbook},
+  url    = {https://huggingface.co/spaces/HuggingFaceTB/smol-training-playbook},
+  note   = {Online technical playbook (Hugging Face Space). Accessed date not yet confirmed.}
+}
+
+@misc{src-17,
+  author = {{Hugging Face (Nanotron)}},
+  title  = {The Ultra-Scale Playbook},
+  url    = {https://huggingface.co/spaces/nanotron/ultrascale-playbook},
+  note   = {Online technical playbook (Hugging Face Space). Accessed date not yet confirmed.}
+}
+
+@misc{src-18,
+  author = {{Hugging Face (TRL docs)}},
+  title  = {LoRA Without Regret},
+  url    = {https://huggingface.co/docs/trl/lora_without_regret},
+  note   = {Official library documentation page. Accessed date not yet confirmed.}
+}

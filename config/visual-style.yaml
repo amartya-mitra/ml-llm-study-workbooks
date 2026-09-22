@@ -1,0 +1,64 @@
+# Visual design system for all figures across all workbooks.
+# Read by figures/source/*.py generators. Keep this the single source of
+# truth for color/line semantics so every workbook stays visually consistent.
+
+palette:
+  # Colorblind-safe (Okabe-Ito derived), legible in grayscale, no pure
+  # red/green pairing used as the only distinguishing signal.
+  stored_information:
+    name: "blue"
+    hex: "#0072B2"
+    meaning: "stored information or state (weights, activations at rest, cache contents)"
+  computation:
+    name: "orange"
+    hex: "#E69F00"
+    meaning: "computation (a matmul, an elementwise op, an attention score)"
+  trainable_component:
+    name: "green"
+    hex: "#009E73"
+    meaning: "trainable component (a module whose parameters receive gradients)"
+  device_communication:
+    name: "purple"
+    hex: "#CC79A7"
+    meaning: "device-to-device communication (all-reduce, all-gather, network hop)"
+  bottleneck_or_failure:
+    name: "red"
+    hex: "#D55E00"
+    meaning: "bottleneck, failure, or high cost (the thing to notice as a problem)"
+  frozen_or_inactive:
+    name: "gray"
+    hex: "#888888"
+    meaning: "frozen or inactive component (no gradient, not currently executing)"
+
+arrows:
+  solid:
+    meaning: "inference or ordinary data flow"
+  dashed:
+    meaning: "training-only flow (e.g. gradient/backward path)"
+  dotted:
+    meaning: "optional or conditional flow (e.g. only taken with speculative decoding)"
+
+typography:
+  font_family: "sans-serif (system default: Helvetica/Arial/Liberation Sans stack)"
+  mono_font_family: "monospace (for token/code text inside figures)"
+  min_label_pt_at_final_size: 8
+  title_pt: 12
+  body_label_pt: 9
+
+layout_rules:
+  vector_first: true
+  formats_preferred: ["svg"]
+  formats_avoided_for_final: ["png_only_without_svg_source"]
+  colorblind_safe: true
+  grayscale_legible: true
+  no_3d_effects: true
+  no_unexplained_icons: true
+  caption_must_add_information: true  # caption explains what to notice, not a restatement of the title
+  title_must_not_restate_caption: true
+
+figure_metadata_requirements:
+  - "figure id"
+  - "source script path (figures/source/*.py)"
+  - "rendered output path (figures/rendered/*.svg or *.png)"
+  - "one-line 'what to notice' caption"
+  - "workbook(s) that use this figure"

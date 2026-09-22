@@ -1,0 +1,50 @@
+# Defaults applied to every workbook/chapter unless overridden locally.
+
+page:
+  size: "us-letter"
+  margin_in: 1.0
+  columns: 1
+
+sections_required:
+  - "learning_objectives"
+  - "why_this_matters"
+  - "mental_model_or_analogy"
+  - "visual_overview"
+  - "technical_core"
+  - "worked_example"
+  - "compare_and_contrast"
+  - "check_your_understanding"
+  - "common_misconception"
+  - "applied_exercise"
+  - "interview_lens"
+  - "one_page_recap"
+  - "sources_and_further_reading"
+
+question_defaults:
+  min_questions_per_chapter: 2
+  allowed_types:
+    - "recall"
+    - "explanation"
+    - "calculation"
+    - "compare_and_contrast"
+    - "debugging"
+    - "design"
+    - "misconception_diagnosis"
+  allowed_difficulties:
+    - "intro"
+    - "core"
+    - "stretch"
+
+citation_defaults:
+  style: "numeric"  # [1], [2], ... matching shared/bibliography.bib keys
+  require_source_id_per_claim: true
+
+figure_defaults:
+  format: "svg"
+  max_width_in: 6.5
+  palette_ref: "config/visual-style.yaml"
+
+rendering_defaults:
+  engine: "quarto+typst"  # see reports/bootstrap_report.md for current availability
+  fallback_engine: "pandoc+latex"  # unavailable in current environment; documented, not installed
+  output_formats: ["pdf", "html"]

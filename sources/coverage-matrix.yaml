@@ -1,0 +1,91 @@
+# Coverage matrix — which registry sources back which workbook, and how
+# strongly. This is derived from sources/registry.yaml's
+# workbook_categories field; keep the two in sync (tests/test_registry.py
+# checks that every source id referenced here exists in registry.yaml).
+#
+# coverage levels:
+#   primary     - main technical backbone for this workbook
+#   supporting  - used for specific chapters/sections, not the backbone
+#   discovery   - used to find other sources, not cited directly for facts
+
+workbooks:
+  - id: "01-ml-foundations"
+    sources:
+      - id: "src-01"
+        coverage: "supporting"
+
+  - id: "02-ml-interviews"
+    sources:
+      - id: "src-04"
+        coverage: "primary"
+      - id: "src-02"
+        coverage: "supporting"
+      - id: "src-03"
+        coverage: "supporting"
+      - id: "src-06"
+        coverage: "supporting"
+      - id: "src-01"
+        coverage: "supporting"
+      - id: "src-07"
+        coverage: "discovery"
+      - id: "src-08"
+        coverage: "supporting"
+
+  - id: "03-ml-systems-design"
+    sources:
+      - id: "src-05"
+        coverage: "primary"
+      - id: "src-03"
+        coverage: "supporting"
+
+  - id: "04-llm-architecture"
+    sources:
+      - id: "src-14"
+        coverage: "primary"
+      - id: "src-15"
+        coverage: "supporting"
+      - id: "src-10"
+        coverage: "supporting"
+      - id: "src-12"
+        coverage: "supporting"
+
+  - id: "05-llm-training"
+    sources:
+      - id: "src-17"
+        coverage: "primary"
+      - id: "src-16"
+        coverage: "primary"
+      - id: "src-10"
+        coverage: "supporting"
+      - id: "src-18"
+        coverage: "supporting"
+
+  - id: "06-llm-inference"
+    sources:
+      - id: "src-11"
+        coverage: "primary"
+      - id: "src-10"
+        coverage: "supporting"
+      - id: "src-12"
+        coverage: "supporting"
+
+  - id: "07-llm-post-training"
+    sources:
+      - id: "src-13"
+        coverage: "primary"
+      - id: "src-18"
+        coverage: "supporting"
+
+  - id: "08-research-careers"
+    sources:
+      - id: "src-08"
+        coverage: "primary"
+      - id: "src-09"
+        coverage: "primary"
+      - id: "src-07"
+        coverage: "discovery"
+
+gaps_and_notes:
+  - "Workbook 01 (ML Foundations) currently has only one supporting source (src-01, a cheat sheet). It needs primary technical sources (textbooks, canonical papers) before drafting — flagged for the next planning pass, not resolved in this bootstrap."
+  - "Workbook 03 (ML Systems Design) leans entirely on Chip Huyen's two books (src-04/src-05 authors overlap with workbook 02) — consider adding an independent second source for triangulation."
+  - "No source currently covers classic ML algorithm derivations in depth (workbook 01) — this is the main pre-drafting gap."

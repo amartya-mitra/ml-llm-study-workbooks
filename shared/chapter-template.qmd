@@ -1,0 +1,117 @@
+---
+title: "CHAPTER_TITLE"
+subtitle: "Workbook WORKBOOK_NUMBER — WORKBOOK_TITLE"
+author: "ML/LLM Study Workbooks"
+format:
+  typst:
+    papersize: us-letter
+    margin:
+      x: 1in
+      y: 1in
+    toc: false
+bibliography: ../../shared/bibliography.bib
+crossref:
+  fig-title: "Figure"
+  tbl-title: "Table"
+---
+
+<!--
+Chapter template — copy this file into a workbook's directory and fill in
+every section. Do not delete a section; if it genuinely does not apply,
+write one sentence explaining why, so absence is a decision, not an
+omission. See AGENTS.md for the non-negotiable sourcing/accuracy rules
+this template exists to enforce.
+-->
+
+## Learning objectives
+
+By the end of this chapter you should be able to:
+
+- OBJECTIVE_1
+- OBJECTIVE_2
+- OBJECTIVE_3
+
+## Why this matters
+
+ONE_PARAGRAPH: the practical or conceptual reason this topic matters —
+what breaks, what interview question this answers, or what system
+decision this informs.
+
+## Mental model or analogy
+
+ANALOGY_PARAGRAPH: a concrete, checkable analogy. State explicitly where
+the analogy breaks down, so it is not mistaken for the real mechanism.
+
+::: {.callout-note title="Analogy"}
+ANALOGY_CALLOUT_TEXT
+:::
+
+## Visual overview
+
+![FIGURE_CAPTION — state what the learner should notice, not just what is
+drawn.](../../figures/rendered/FIGURE_FILE.svg){#fig-overview}
+
+Figure source: `figures/source/FIGURE_SCRIPT.py`.
+
+## Technical core
+
+TECHNICAL_EXPLANATION with inline citations, e.g. [@src-14].
+
+A representative equation:
+
+$$
+y = f(x; \theta)
+$$ {#eq-core}
+
+## Worked example
+
+Walk through one concrete numeric example end to end. Show every
+intermediate number — do not skip steps a reader would need to verify by
+hand.
+
+## Compare and contrast
+
+| Aspect | Option A | Option B |
+|---|---|---|
+| ASPECT_1 | VALUE_A1 | VALUE_B1 |
+| ASPECT_2 | VALUE_A2 | VALUE_B2 |
+| ASPECT_3 | VALUE_A3 | VALUE_B3 |
+
+: CAPTION_EXPLAINING_WHAT_THE_COMPARISON_SHOWS {#tbl-compare}
+
+## Check your understanding
+
+See `workbooks/WORKBOOK_ID/questions.yaml` for the machine-checked
+question records for this chapter (schema: `shared/question-schema.yaml`).
+
+1. QUESTION_1_TEXT
+2. QUESTION_2_TEXT
+
+## Common misconception
+
+::: {.callout-warning title="Common misconception"}
+MISCONCEPTION_TEXT — state the wrong belief, why it seems plausible, and
+the concrete fact that corrects it.
+:::
+
+## Applied exercise
+
+EXERCISE_INSTRUCTIONS: a short, doable task the reader can complete with
+pen/paper or a short script, with a way to check their own answer.
+
+## Interview lens
+
+How this topic tends to show up in an interview setting, and what a
+strong answer distinguishes itself by covering. Cross-reference workbook
+02 (ML Interview Practice) where relevant.
+
+## One-page recap
+
+- RECAP_BULLET_1
+- RECAP_BULLET_2
+- RECAP_BULLET_3
+
+## Sources and further reading
+
+See `sources/registry.yaml` for full entries. Primary sources for this
+chapter: [@src-XX]. Secondary/supporting: [@src-YY].

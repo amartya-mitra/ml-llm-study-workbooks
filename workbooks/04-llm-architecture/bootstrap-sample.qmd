@@ -1,0 +1,88 @@
+---
+title: "KV-Cache and Autoregressive Decoding"
+subtitle: "Workbook 04 — Modern LLM Architecture (bootstrap render test)"
+author: "ML/LLM Study Workbooks"
+format:
+  typst:
+    papersize: us-letter
+    margin:
+      x: 1in
+      y: 1in
+    toc: false
+bibliography: ../../shared/bibliography.bib
+---
+
+<!--
+Stage 7 minimal build test. This is a bootstrap render-pipeline check,
+not a finished chapter — it exercises the equation, figure, callout,
+table, question, and citation machinery end to end so the render stack
+can be validated before real content is drafted. See
+reports/bootstrap_report.md for the outcome of attempting to render this
+file.
+-->
+
+## Why this matters
+
+Every LLM serving system spends most of its latency budget on
+autoregressive decoding, and almost every decoding optimization — from
+speculative decoding to paged attention — is really an optimization on
+top of one core mechanism: the KV-cache. Understanding what the cache
+stores and how it grows is a prerequisite for reasoning about inference
+cost at all [@src-10; @src-11].
+
+A decode step's cost is dominated by reading the existing cache, not by
+recomputing it:
+
+$$
+\text{decode\_step\_cost} \approx \underbrace{c_{\text{qkv,1 tok}}}_{\text{small, fixed}} + \underbrace{c_{\text{read}}(n)}_{\text{grows with cache length } n}
+$$ {#eq-decode-cost}
+
+::: {.callout-note title="Analogy"}
+Think of the KV-cache like a sign-in sheet at a long meeting. Prefill is
+everyone already in the room signing in at once. Each new person who
+walks in later (a decode step) only has to read the *existing* sheet and
+add *one* new line — they never re-collect everyone's signatures from
+scratch. The sheet only ever grows by one line per new arrival.
+:::
+
+## Visual overview
+
+![Prefill builds the whole KV-cache from the prompt in one pass; each
+decode step afterward reads the entire cache but appends exactly one new
+K/V slot to it.](../../figures/rendered/kv_cache_demo.svg){#fig-kv-cache}
+
+::: {.callout-warning title="Common misconception"}
+A common misconception is that the model "re-reads the whole prompt"
+before producing each new token during decoding. It does not: the prompt
+is processed once, during prefill. Every later decode step reuses the
+cached K/V projections from that single prefill pass and only computes
+fresh K/V for the one new token being generated.
+:::
+
+## Compare and contrast
+
+| Aspect | Prefill | Decode step |
+|---|---|---|
+| Tokens processed per pass | All prompt tokens at once | Exactly 1 new token |
+| KV-cache slots created | 1 per prompt token | 1 (appended to existing cache) |
+| Dominant cost driver | Compute (large matmul over the whole prompt) | Memory bandwidth (reading a growing cache) |
+
+: What changes between the prefill pass and a single decode step {#tbl-prefill-vs-decode}
+
+## Check your understanding
+
+1. During autoregressive decoding, does the KV-cache store the attention
+   *output* for each past token, or the key/value *projections* for each
+   past token?
+2. A prompt has 4 tokens and the model generates 3 new tokens one at a
+   time. After prefill and all 3 decode steps, how many K/V slots does
+   the cache hold, and how many *new* slots did each individual decode
+   step add?
+
+See `workbooks/04-llm-architecture/questions.yaml` for the machine-checked
+answer records (`q-04-kv-cache-001`, `q-04-kv-cache-002`).
+
+## Sources and further reading
+
+Primary sources for this sample: [@src-10; @src-11]. See
+`sources/registry.yaml` for full entries and current verification status.

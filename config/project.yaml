@@ -1,0 +1,42 @@
+project_name: "ML/LLM Study Workbooks"
+description: "A collection of concise, visual, source-grounded study workbooks covering machine learning foundations through modern LLM architecture, training, inference, post-training/alignment, and research careers."
+maintainer_email: "amartyam@lab.morganstanley.com"
+default_page_size: "us-letter"
+default_output_formats:
+  - "pdf"
+  - "html"
+current_pilot: "04-llm-architecture"
+
+workbooks:
+  - id: "01-ml-foundations"
+    number: 1
+    title: "Machine Learning Foundations"
+    status: "not started"
+  - id: "02-ml-interviews"
+    number: 2
+    title: "ML Interview Practice"
+    status: "not started"
+  - id: "03-ml-systems-design"
+    number: 3
+    title: "ML Systems Design"
+    status: "not started"
+  - id: "04-llm-architecture"
+    number: 4
+    title: "Modern LLM Architecture"
+    status: "pilot in planning"
+  - id: "05-llm-training"
+    number: 5
+    title: "LLM Pretraining and Distributed Training"
+    status: "not started"
+  - id: "06-llm-inference"
+    number: 6
+    title: "LLM Inference Engineering"
+    status: "not started"
+  - id: "07-llm-post-training"
+    number: 7
+    title: "LLM Post-Training and Alignment"
+    status: "not started"
+  - id: "08-research-careers"
+    number: 8
+    title: "ML/LLM Research Careers"
+    status: "not started"

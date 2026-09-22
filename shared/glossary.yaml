@@ -1,0 +1,44 @@
+# Shared glossary — cross-workbook terms. Add to this as workbooks are
+# drafted; keep one entry per term, and cite a source id where the
+# definition is non-obvious or contested.
+
+terms:
+  - term: "KV-cache"
+    short_definition: "Stored key/value projections from prior tokens, reused during autoregressive decoding so attention does not recompute them."
+    workbook_categories: ["04-llm-architecture", "06-llm-inference"]
+    source_ids: ["src-10", "src-11"]
+
+  - term: "Prefill"
+    short_definition: "The forward pass over the full prompt that populates the KV-cache before token-by-token decoding begins."
+    workbook_categories: ["04-llm-architecture", "06-llm-inference"]
+    source_ids: ["src-11"]
+
+  - term: "Decode step"
+    short_definition: "One autoregressive forward pass that consumes the last generated token and the existing KV-cache to produce the next token."
+    workbook_categories: ["04-llm-architecture", "06-llm-inference"]
+    source_ids: ["src-11"]
+
+  - term: "Grouped-query attention (GQA)"
+    short_definition: "An attention variant where multiple query heads share a smaller set of key/value heads, reducing KV-cache size versus multi-head attention."
+    workbook_categories: ["04-llm-architecture"]
+    source_ids: ["src-14"]
+
+  - term: "Mixture of experts (MoE)"
+    short_definition: "A layer design where only a subset of expert sub-networks is activated per token, increasing total parameters without proportionally increasing compute per token."
+    workbook_categories: ["04-llm-architecture", "05-llm-training"]
+    source_ids: ["src-14"]
+
+  - term: "3D parallelism"
+    short_definition: "Combining data, tensor, and pipeline parallelism to train models that do not fit on a single device."
+    workbook_categories: ["05-llm-training"]
+    source_ids: ["src-17"]
+
+  - term: "RLHF"
+    short_definition: "Reinforcement learning from human feedback: fine-tuning a model against a reward signal derived from human preference comparisons."
+    workbook_categories: ["07-llm-post-training"]
+    source_ids: ["src-13"]
+
+  - term: "LoRA"
+    short_definition: "Low-Rank Adaptation: fine-tuning by learning a small low-rank update to weight matrices instead of updating all parameters."
+    workbook_categories: ["05-llm-training", "07-llm-post-training"]
+    source_ids: ["src-18"]
