@@ -19,9 +19,11 @@ _freeze/
 /*_files/
 
 # Rendered PDFs / page images are build products of outputs/ and the
-# per-workbook page-images/ folders used by render_and_check.py.
+# per-workbook page-images/ folders used by render_and_check.py /
+# build_ch01_02_review.py.
 outputs/*.pdf
 outputs/*.pdf.prev-*
+outputs/*-pages/
 workbooks/**/page-images/
 workbooks/**/*.pdf
 workbooks/**/*.pdf.prev-*

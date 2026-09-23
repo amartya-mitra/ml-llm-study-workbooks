@@ -1,0 +1,20 @@
+## Notation quick reference {#sec-notation}
+
+The full project-wide symbol table lives in `notation.yaml` and grows as
+later chapters introduce mechanisms this pilot doesn't cover (KV-cache
+size, expert counts, and others start in Chapter 3 onward). The subset
+below is everything Chapters 1-2 actually use -- flip back here if a
+symbol in an equation isn't immediately obvious.
+
+| Symbol | Name | Meaning |
+|---|---|---|
+| $B$ | batch size | number of independent sequences processed together |
+| $S$ | sequence length | number of tokens in the current sequence |
+| $V$ | vocabulary size | number of distinct token ids; also the output-head's logit width |
+| $d_{\text{model}}$ | hidden dimension | width of the residual stream, constant across every block |
+| $H_q$ | query heads | number of attention query heads (the "q" matters starting Chapter 3) |
+| $d_{\text{head}}$ | head dimension | width of one attention head, $d_{\text{model}} / H_q$ |
+| $L$ | number of layers | count of decoder blocks stacked |
+| $d_{\text{ff}}$ | feed-forward expansion dimension | width of a feed-forward sublayer's hidden projection |
+
+: Notation used in Chapters 1-2 only -- see `notation.yaml` for the full, growing project-wide table {#tbl-notation}

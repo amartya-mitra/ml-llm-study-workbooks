@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="425" viewBox="0 0 400 425">
+  <title>Causal attention visibility</title>
+  <defs></defs>
+  <rect x="0" y="0" width="400" height="425" fill="#ffffff"/>
+  <text x="20" y="30" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">Which positions may each query attend to?</text>
+  <text x="153.0" y="60" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="middle">The</text>
+  <text x="199.0" y="60" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="middle">cat</text>
+  <text x="245.0" y="60" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="middle">sat</text>
+  <text x="291.0" y="60" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="middle">on</text>
+  <text x="337.0" y="60" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="middle">the</text>
+  <text x="245.0" y="42" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#555555" text-anchor="middle">key position (attended TO)</text>
+  <text x="116" y="97.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="end">The</text>
+  <text x="116" y="143.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="end">cat</text>
+  <text x="116" y="189.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="end">sat</text>
+  <text x="116" y="235.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="end">on</text>
+  <text x="116" y="281.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#111111" text-anchor="end">the</text>
+  <text x="20" y="185.0" font-size="9" fill="#555555" transform="rotate(-90 20 185.0)" text-anchor="middle">query position (attending FROM)</text>
+  <rect x="130" y="70" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="130" y="70" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="151.5" y="95.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">self</text>
+  <rect x="176" y="70" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="197.5" y="95.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="222" y="70" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="243.5" y="95.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="268" y="70" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="289.5" y="95.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="314" y="70" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="335.5" y="95.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="130" y="116" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="130" y="116" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="151.5" y="141.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="176" y="116" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="176" y="116" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="197.5" y="141.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">self</text>
+  <rect x="222" y="116" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="243.5" y="141.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="268" y="116" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="289.5" y="141.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="314" y="116" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="335.5" y="141.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="130" y="162" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="130" y="162" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="151.5" y="187.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="176" y="162" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="176" y="162" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="197.5" y="187.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="222" y="162" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="222" y="162" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="243.5" y="187.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">self</text>
+  <rect x="268" y="162" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="289.5" y="187.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="314" y="162" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="335.5" y="187.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="130" y="208" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="130" y="208" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="151.5" y="233.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="176" y="208" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="176" y="208" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="197.5" y="233.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="222" y="208" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="222" y="208" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="243.5" y="233.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="268" y="208" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="268" y="208" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="289.5" y="233.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">self</text>
+  <rect x="314" y="208" width="43" height="43" rx="3" fill="#eeeeee" stroke="#cccccc" stroke-width="1.2"/>
+  <text x="335.5" y="233.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#aaaaaa" text-anchor="middle">x</text>
+  <rect x="130" y="254" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="130" y="254" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="151.5" y="279.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="176" y="254" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="176" y="254" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="197.5" y="279.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="222" y="254" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="222" y="254" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="243.5" y="279.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="268" y="254" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="268" y="254" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="289.5" y="279.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">OK</text>
+  <rect x="314" y="254" width="43" height="43" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="314" y="254" width="43" height="43" rx="3" fill="none" stroke="#333333" stroke-width="0" />
+  <text x="335.5" y="279.5" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">self</text>
+  <rect x="130" y="330" width="16" height="16" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="152" y="342" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">allowed (key position &lt;= query position)</text>
+  <rect x="130" y="352" width="16" height="16" rx="6" fill="#eeeeee" stroke="#cccccc" stroke-width="1.5"/>
+  <text x="152" y="364" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">blocked (key is in the future)</text>
+  <text x="20" y="390" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#555555" text-anchor="start">Note: row 5 (the decoded token &quot;the&quot;) can see all 5 columns -- prompt tokens</text>
+  <text x="20" y="405" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#555555" text-anchor="start">plus itself. No row can see anything to the right of its own position.</text>
+</svg>

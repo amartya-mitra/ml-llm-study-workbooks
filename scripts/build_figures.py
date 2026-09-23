@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Run every figures/source/*.py generator script to (re)build
-figures/rendered/*.svg.
+"""Run every figures/source/*.py generator script to (re)build the
+matching figures/rendered/*.svg, across the whole repo.
 
 Each figure script is expected to be runnable standalone
-(`python3 figures/source/<name>.py`) and to write its own output; this
+(`python3 <path-to-script>.py`) and to write its own output; this
 script just discovers and invokes all of them, so a single command
-rebuilds every figure after a palette or content change.
+rebuilds every figure after a palette or content change. Discovery is
+recursive: the project-wide figures/source/ directory holds
+cross-workbook figures (e.g. the reused KV-cache demo), and individual
+workbooks (starting with 04-llm-architecture) may have their own
+figures/source/ directory for workbook-specific figures -- both are
+found the same way.
 """
 import glob
 import os
@@ -13,12 +18,11 @@ import subprocess
 import sys
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-FIGURES_SOURCE = os.path.join(REPO_ROOT, "figures", "source")
 SKIP_PREFIXES = ("_",)  # helper modules like _svg_helpers.py are not standalone figures
 
 
 def find_figure_scripts():
-    scripts = sorted(glob.glob(os.path.join(FIGURES_SOURCE, "*.py")))
+    scripts = sorted(glob.glob(os.path.join(REPO_ROOT, "**", "figures", "source", "*.py"), recursive=True))
     return [s for s in scripts if not os.path.basename(s).startswith(SKIP_PREFIXES)]
 
 

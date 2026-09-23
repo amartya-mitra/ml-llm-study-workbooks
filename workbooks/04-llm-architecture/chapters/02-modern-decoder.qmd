@@ -1,0 +1,381 @@
+## Chapter 2: Anatomy of a Modern Decoder {#sec-ch2}
+
+*The Components Behind Today's LLMs*
+
+### Learning objectives
+
+By the end of this chapter you should be able to:
+
+- Explain RMSNorm's formula and state precisely what it drops relative
+  to LayerNorm.
+- Explain RoPE's rotation well enough to say why it encodes *relative*
+  rather than absolute position.
+- Explain why a gated feed-forward layer needs three weight matrices
+  instead of two, and what that costs in parameters.
+- For any one of RMSNorm, pre-norm placement, RoPE, SwiGLU, or tied
+  embeddings, say whether it is an architectural convention (a common
+  but non-forced choice) or something closer to a fundamental
+  requirement -- and justify the answer rather than asserting it.
+
+### Why this matters
+
+Chapter 1 gave you the skeleton every decoder shares: a residual
+stream, an attention sublayer, a feed-forward sublayer, a causal mask.
+If you opened a 2017 Transformer and a 2025-era open-weight model side
+by side, the skeleton would look identical -- and almost every detail
+*inside* it would be different. This chapter fills in what actually
+changed, component by component, and -- just as importantly -- asks of
+each one whether it's load-bearing or just a common convention. That
+distinction matters practically: a convention is something you could
+swap out without breaking the model's ability to function; a
+requirement is something the architecture depends on. Confusing the two
+is a fast way to either over-explain a trivial implementation choice or
+under-explain something that quietly determines a model's memory
+footprint.
+
+### Mental model or analogy
+
+This chapter reuses Chapter 1's residual-stream picture rather than
+introducing a second, competing analogy -- the "running total on a
+receipt" from Chapter 1 still describes exactly what's happening here.
+What's new in this chapter is *which specific operation* fills each
+slot in that picture (@fig-annotated-block below), not a new mental
+model for the stream itself.
+
+### Visual overview
+
+![The same residual-stream skeleton from Chapter 1, now filled in with
+the specific components a modern decoder actually uses: RMSNorm in the
+norm slots, RoPE applied inside attention (not as a separate block),
+and a SwiGLU-gated MLP in the feed-forward slot.](figures/rendered/fig-annotated-modern-block.svg){#fig-annotated-block width=48%}
+
+Figure source: `figures/source/fig_annotated_modern_block.py`.
+
+### Technical core
+
+**RMSNorm.** Chapter 1 left `Norm` in @eq-residual-update unspecified.
+The original Transformer used LayerNorm, which both re-centers (subtracts
+the mean) and re-scales (divides by the standard deviation) a vector,
+then applies a learned scale and a learned bias. RMSNorm drops both the
+mean-subtraction *and* the learned bias, keeping only a rescale by root-
+mean-square magnitude:
+
+$$
+\text{RMSNorm}(x) = \frac{x}{\text{RMS}(x)} \odot \gamma, \qquad
+\text{RMS}(x) = \sqrt{\frac{1}{d_{\text{model}}}\sum_{k=1}^{d_{\text{model}}} x_k^2}
+$$ {#eq-rmsnorm}
+
+where $x \in \mathbb{R}^{d_{\text{model}}}$ is one position's vector,
+$\gamma \in \mathbb{R}^{d_{\text{model}}}$ is a learned per-dimension
+scale, and $\odot$ is elementwise multiplication. *In words:* measure
+the vector's overall magnitude (RMS), divide it out so the vector has
+unit RMS, then let a learned per-dimension scale stretch or shrink each
+dimension back. There is no learned shift and no mean-subtraction step
+at all.
+
+::: {.callout-warning title="Common misconception"}
+**"RMSNorm and LayerNorm are identical except for naming."** They are
+not. RMSNorm drops mean-centering (the $x - \text{mean}(x)$ step) *and*
+the learned bias term, not just the bias. Dropping mean-centering is
+the more consequential change: it means RMSNorm never asks "is this
+vector's average component large or small," only "is this vector's
+overall magnitude large or small." Both choices are motivated by the
+same practical benefit -- fewer operations per normalization call, at a
+cost most current large decoders have judged acceptable -- but "fewer
+operations" and "identical except for naming" are very different
+claims.
+:::
+
+**Where normalization sits.** @eq-residual-update wrote `Norm` as
+happening *before* handing the vector to a sublayer -- that placement is
+called **pre-norm**. The original Transformer instead normalized
+*after* the sublayer's output was added back onto the stream
+(**post-norm**). A third option, **sandwich-norm**, applies normalization
+in both places around the same sublayer.
+
+| Placement | Where norm sits | Typical motivation |
+|---|---|---|
+| Pre-norm | Before the sublayer reads the stream | Training stability at large depth: gradients flow through an un-normalized residual path all the way back |
+| Post-norm | After the sublayer's output is added to the stream | The original placement; keeps the stream itself bounded, at some training-stability cost as depth grows |
+| Sandwich-norm | Both before and after the sublayer | Attempts to recover some of post-norm's boundedness without losing pre-norm's stability |
+
+: Pre-norm vs. post-norm vs. sandwich-norm: what changes is placement, not the normalization formula itself {#tbl-norm-placement}
+
+![The same sublayer and the same residual addition in all three
+panels -- only where the norm box sits changes.](figures/rendered/fig-norm-placement.svg){#fig-norm-placement}
+
+Figure source: `figures/source/fig_norm_placement.py`.
+
+::: {.callout-tip title="Working approximation"}
+"Pre-norm is more stable to train at depth" is a widely-repeated,
+well-supported rule of thumb, not a proof that pre-norm dominates
+post-norm on every axis. Pre-norm's stability comes with a
+representational-capacity cost as depth grows, which is part of why
+sandwich-norm exists at all -- if pre-norm were unconditionally better,
+there would be no reason to pay for a second normalization step. Treat
+"which placement is best" as a genuine, config-dependent tradeoff, not
+a settled question.
+:::
+
+**RoPE.** Positional information has to enter the model somewhere,
+since attention itself (@eq-attention) treats its inputs as an
+unordered set -- nothing in $QK^\top$ depends on token order unless
+something makes it depend on order. Rotary position embeddings (RoPE)
+inject position by rotating each query and key vector by an angle
+proportional to its position, *before* the dot product in
+@eq-attention:
+
+$$
+q'_m = R_m\, q_m, \qquad k'_n = R_n\, k_n
+$$ {#eq-rope}
+
+where $q_m, k_n \in \mathbb{R}^{d_{\text{head}}}$ are a query/key pair
+at positions $m$ and $n$, and $R_m$ is a rotation matrix built from
+angles $m\theta_1, m\theta_2, \ldots$ that grow with position $m$ (in
+practice $d_{\text{head}}$ is split into 2D pairs, each pair rotated at
+its own fixed frequency $\theta_j$; @fig-rope-rotation shows one such
+pair). The reason this matters: rotating *both* vectors by an amount
+tied to their own absolute position leaves the *angle between them* --
+and therefore their dot product $q_m'^\top k_n'$ -- dependent only on
+the relative offset $m - n$, not on $m$ and $n$ individually.
+
+![Two different absolute-position pairs, (1,0) and (3,2), both with a
+relative offset of 1 -- notice the angle traced between the rotated q
+and k vectors is the same in both panels.](figures/rendered/fig-rope-rotation.svg){#fig-rope-rotation}
+
+Figure source: `figures/source/fig_rope_rotation.py`.
+
+::: {.callout-warning title="Common misconception"}
+**"RoPE adds a learned position vector to every token embedding."** It
+does not add anything to the embedding, and it is not learned. RoPE
+*rotates* the query and key vectors, inside the attention computation,
+by a fixed (not learned) angle that depends on position. The embedding
+table from Chapter 1 (@eq-embedding) is untouched -- RoPE's effect is
+purely inside @eq-attention, applied fresh at every layer that has
+attention, not once at the input.
+:::
+
+**Gated feed-forward networks and SwiGLU.** Chapter 1 described the
+feed-forward sublayer as "a small two-matrix network," deferred until
+now. A plain feed-forward layer is:
+
+$$
+\text{FFN}_{\text{plain}}(x) = \sigma(x W_1) W_2
+$$ {#eq-plain-ffn}
+
+with $W_1 \in \mathbb{R}^{d_{\text{model}} \times d_{\text{ff}}}$,
+$W_2 \in \mathbb{R}^{d_{\text{ff}} \times d_{\text{model}}}$, and
+$\sigma$ an elementwise activation. $d_{\text{ff}}$ (the **expansion
+dimension**) is typically several times wider than $d_{\text{model}}$.
+A **gated** feed-forward layer, of which SwiGLU is the specific variant
+most current open decoders use, adds a second, parallel projection that
+gates the first:
+
+$$
+\text{SwiGLU}(x) = \big(\text{Swish}(x W_1) \odot (x W_3)\big) W_2
+$$ {#eq-swiglu}
+
+with $W_1, W_3 \in \mathbb{R}^{d_{\text{model}} \times d_{\text{ff}}}$
+and $W_2 \in \mathbb{R}^{d_{\text{ff}} \times d_{\text{model}}}$ --
+**three** weight matrices where the plain version had two. *In words:*
+one branch ($W_1$, activated) acts as a gate; a second, purely linear
+branch ($W_3$) carries a value; the two are multiplied elementwise
+before the shared output projection $W_2$. Nothing here makes the layer
+*sparse* the way a mixture-of-experts layer is (Chapter 5) -- every
+weight in $W_1$, $W_2$, and $W_3$ is used for every token; SwiGLU is a
+different, denser computation per token, not a routing mechanism.
+
+![A plain two-matrix MLP (left) against a gated MLP (right): the extra
+matrix creates a second parallel branch that multiplies against the
+first, it does not add a third sequential
+step.](figures/rendered/fig-gated-mlp.svg){#fig-gated-mlp}
+
+Figure source: `figures/source/fig_gated_mlp.py`.
+
+::: {.callout-warning title="Common misconception"}
+**"SwiGLU makes the feed-forward block sparse like an MoE layer."** It
+does not. Every parameter in a SwiGLU feed-forward layer participates
+in every token's forward pass, exactly like the plain version -- the
+only change is *within* one dense computation (an extra multiplicative
+branch), not *which* parameters get used. Sparsity, in the sense
+Chapter 5 will use the word, means a router activates only a subset of
+available parameters per token. SwiGLU has no router and activates
+100% of its own weights every time, same as a plain FFN.
+:::
+
+**Tied vs. untied embeddings.** The input embedding table $E$ from
+@eq-embedding and the output head $W_{\text{out}}$ from @eq-next-token
+have transposed shapes ($V \times d_{\text{model}}$ and $d_{\text{model}}
+\times V$) -- some models set $W_{\text{out}} = E^\top$ (**tied**
+embeddings, one shared table doing both jobs), others learn two
+separate matrices (**untied**). Tying halves that specific parameter
+cost, at the cost of forcing the same table to serve two different
+roles (looking a token up vs. scoring how token-like a hidden vector
+is).
+
+::: {.callout-tip title="Implementation-dependent detail"}
+Whether a given model ties its embeddings is a genuine implementation
+choice that varies across model families, and this workbook does not
+have a primary source specifically dedicated to *when* tying is
+preferred (see `reports/04_source_audit.md`'s tracked gap on this
+topic). Treat "tied embeddings" as a real, checkable fact about any
+specific model's config -- not as a claim this workbook makes a
+historical or performance argument about.
+:::
+
+**Convention vs. requirement, applied.** Of everything in this
+chapter, RoPE-vs-some-other-positional-scheme and
+tied-vs-untied-embeddings are conventions: a model is a well-defined,
+functioning decoder either way, and real, current models make both
+choices differently. Pre-norm-vs-post-norm is closer to a
+requirement-shaped tradeoff at large depth -- it is not free to ignore
+once $L$ is large, even though small models tolerate either. RMSNorm
+vs. LayerNorm is closest to a pure convention: it changes cost, not
+what the model is capable of expressing.
+
+::: {.callout-warning title="Common misconception"}
+**"Every modern decoder uses exactly the same block ordering."** It
+does not. This chapter's components (RMSNorm, pre-norm, RoPE, SwiGLU)
+describe a common, current combination, not a single mandatory
+recipe. Norm placement alone has three real variants in production
+models (@tbl-norm-placement); tying is a per-model choice; some models
+still use post-norm. "Modern decoder" describes a family of closely
+related designs, not one design.
+:::
+
+### Worked example
+
+**Parameter cost of gating.** Using
+`data/worked-examples/gated_mlp_params.py`, with $d_{\text{model}} = 8$
+and biases excluded from the count (a stated assumption, per
+`notation.yaml`'s assumption-checklist habit):
+
+| Design | $d_{\text{ff}}$ | Formula | Parameters |
+|---|---|---|---|
+| Plain MLP | 32 | $2 \, d_{\text{model}} \, d_{\text{ff}}$ | 512 |
+| Gated MLP, same $d_{\text{ff}}$ | 32 | $3 \, d_{\text{model}} \, d_{\text{ff}}$ | 768 (1.5x plain) |
+| Gated MLP, compensated $d_{\text{ff}}$ | 21 | $3 \, d_{\text{model}} \, d_{\text{ff}}$ | 504 (0.98x plain) |
+
+: Gating adds a third matrix -- at the same expansion width, that's a flat 1.5x parameter cost, which is exactly why gated models typically shrink $d_{\text{ff}}$ instead of accepting it {#tbl-gated-params}
+
+Holding $d_{\text{ff}}$ fixed, gating is exactly 1.5x the plain design's
+parameters, because the formula gains one more $d_{\text{model}} \times
+d_{\text{ff}}$ term (3 matrices instead of 2, all the same size). Rather
+than accept that 1.5x, many real gated-MLP models shrink $d_{\text{ff}}$
+(here, to about $\frac{2}{3}$ of the plain design's width) to land back
+near the plain design's total parameter count. Both rows are
+*implementation choices* -- nothing about SwiGLU forces either one --
+but the 1.5x number is a fixed, checkable consequence of adding a third
+same-sized matrix, not a rough estimate.
+
+### Compare and contrast
+
+| Aspect | Learned absolute positional embedding | RoPE |
+|---|---|---|
+| What it encodes | Each position gets its own learned vector | A rotation angle, applied inside attention, derived from position |
+| Extrapolation to longer sequences than trained on | Poor -- positions beyond the trained range have no learned vector at all | Better, though not unlimited -- the rotation formula is defined for any position, but very long offsets still stress the model in practice |
+| Parameter cost | One full vector per position, up to a fixed max length | None -- RoPE has no learned parameters of its own |
+
+: Two ways to inject positional information, compared on what they cost and how they behave outside the training distribution {#tbl-positional}
+
+### Check your understanding
+
+See `workbooks/04-llm-architecture/questions.yaml` for the machine-checked
+question records for this chapter, ids `q-04-ch2-001` through
+`q-04-ch2-010`. Full solutions are in the answer key (@sec-solutions-ch2):
+
+1. **(calculation)** For a query/key pair at positions 1 and 0 (relative
+   offset 1), and a second pair at positions 3 and 2 (also relative
+   offset 1), what does RoPE guarantee about the two pairs' dot
+   products, and what does it *not* guarantee? ________________________________________________
+2. **(compare_and_contrast)** Name the two operations RMSNorm omits
+   relative to LayerNorm. ________________________________________________
+3. **(explanation)** Why does a gated feed-forward layer need three
+   weight matrices instead of two -- what does the third matrix do that
+   the first one doesn't already? ________________________________________________
+4. **(calculation)** Using the formulas in this chapter, what is the
+   parameter count of a plain MLP with $d_{\text{model}} = 16$,
+   $d_{\text{ff}} = 64$? ________________________________________________
+5. **(misconception_diagnosis)** Is pre-norm's popularity mainly about
+   training stability or mainly about final model quality? ________________________________________________
+6. **(misconception_diagnosis)** True or false, and why: "RoPE adds a
+   learned position vector to every token embedding." ________________________________________________
+7. **(misconception_diagnosis)** True or false, and why: "SwiGLU makes
+   the feed-forward block sparse like an MoE layer." ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+Here is a (fictional, illustrative) model config excerpt:
+
+```
+hidden_size: 2048
+num_attention_heads: 16
+intermediate_size: 5504
+hidden_act: "silu"
+rms_norm_eps: 1e-5
+tie_word_embeddings: false
+rope_theta: 10000.0
+```
+
+From this excerpt alone: (a) which normalization scheme does this model
+use, and how do you know from a field name alone versus what you'd need
+to check the model's own code to be sure? (b) does it use a gated
+feed-forward layer -- what field is the giveaway? (c) is
+`intermediate_size` closer to $4 \times$ `hidden_size` (a plain-MLP-style
+ratio) or closer to $\frac{2}{3} \times 4 \times$ `hidden_size` (a
+gated, compensated ratio, per this chapter's worked example)? (d) are
+embeddings tied? Write your reasoning for each, not just the answer --
+this is the same skill Chapter 6's case studies will ask of you at
+real-model scale.
+
+### Interview lens
+
+*"Why does this model use RoPE instead of learned positional
+embeddings?"* A strong answer states RoPE's relative-position property
+(@eq-rope) as the mechanism, names at least one concrete consequence
+(no learned positional parameters; different, generally better
+long-context extrapolation behavior than a learned table with a fixed
+max length), and resists the temptation to just say "it's more modern"
+without saying what specifically changed. *"Walk me through what
+SwiGLU changes about the MLP"* is answered well by describing the extra
+parallel branch and the elementwise multiply (@eq-swiglu), explicitly
+including the 1.5x-or-compensated parameter tradeoff from this
+chapter's worked example -- an answer that skips the parameter cost
+entirely is incomplete for a systems-flavored interview.
+
+### One-page recap
+
+- RMSNorm drops both mean-centering and the learned bias LayerNorm has,
+  keeping only a magnitude rescale.
+- Pre-norm, post-norm, and sandwich-norm describe *where* normalization
+  sits relative to a sublayer and the residual add -- not three
+  different normalization formulas.
+- RoPE rotates queries and keys by a position-dependent angle inside
+  attention, so their dot product depends only on relative offset --
+  it adds nothing to the embedding table and learns nothing.
+- A gated (SwiGLU-style) feed-forward layer adds one parallel matrix
+  and one elementwise multiply; at matched expansion width that's a
+  flat 1.5x parameter cost, which is why real models often shrink the
+  expansion width to compensate.
+- Tied vs. untied embeddings and RoPE-vs-alternative are conventions;
+  norm placement is closer to a real training-stability tradeoff at
+  depth. None of this chapter's components is used identically by
+  every current model.
+
+### Sources and further reading
+
+Primary sources for this chapter: [@src-22] for RoPE, [@src-23] for
+RMSNorm, [@src-24] for SwiGLU/gated feed-forward layers. Secondary/
+supporting: [@src-14], used for the norm-placement comparison framing
+and to cross-check which real model families use which combination of
+these components; note that this source is actively updated (see its
+`sources/registry.yaml` entry for the last-verified date), so treat any
+model-specific detail drawn from it as current as of that check, not
+timeless. See `sources/registry.yaml` for full entries and current
+verification status, and `reports/04_source_audit.md` for the two
+tracked sourcing gaps this chapter works around (tied embeddings has no
+dedicated primary source; the sandwich-norm claim leans on a secondary
+source rather than a model's own technical report).

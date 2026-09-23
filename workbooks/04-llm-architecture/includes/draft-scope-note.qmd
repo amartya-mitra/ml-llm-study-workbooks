@@ -1,0 +1,17 @@
+::: {.callout-important title="This is a two-chapter pilot, not the complete workbook"}
+This document contains **only Chapters 1 and 2** of *Modern LLM
+Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
+Models* (workbook 04 of the ML/LLM Study Workbooks series). Chapters
+3-8 -- attention head structure and cache-efficient variants, restricting
+attention's reach, mixture-of-experts models, case studies, architecture
+-> systems consequences, and a synthesis/practice chapter -- are planned
+(see `workbooks/04-llm-architecture/outline.md`) but **not drafted**.
+Nothing in this document should be read as implying those chapters
+exist yet.
+
+This is a review artifact: it exists to establish the workbook's
+explanatory depth, visual language, page density, question style, and
+citation style before the remaining six chapters are drafted at scale.
+Treat any rough edge you find as exactly the kind of thing this pilot
+is meant to surface early.
+:::

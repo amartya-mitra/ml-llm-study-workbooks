@@ -1,0 +1,52 @@
+---
+title: "Modern LLM Architecture"
+subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Two-Chapter Review Pilot"
+author: "ML/LLM Study Workbooks"
+toc: true
+number-sections: true
+---
+<!-- papersize/margin/callout-icon/bibliography are set once, project-
+wide, in the repo-root _quarto.yml -- do not repeat them here (see
+AGENTS.md and reports/bootstrap_report.md for why). `toc: true` is a
+deliberate per-document override of the project default (toc: false),
+since this multi-chapter review build benefits from a table of
+contents in a way the earlier single-section bootstrap sample did not.
+
+Section order note: the task governing this build asked for
+title page -> how to use -> pilot-scope note -> Ch.1 -> Ch.2 -> answer
+key -> references -> build/version note. That exact order is not
+achievable with this toolchain: Typst's citeproc:false native
+bibliography is *always* appended at the absolute end of the compiled
+document (verified empirically -- neither trailing content nor a
+`{#refs}` div redirects it). The build/version note is therefore placed
+immediately before the auto-generated "Bibliography" section, which
+becomes the true final section. This is a disclosed, deliberate
+deviation, not a silent one -- see reports/04_ch01_02_draft_report.md. -->
+
+## How to use this workbook
+
+Each chapter follows the same structure: learning objectives, why the
+topic matters, a mental model, a visual overview, the technical core
+(equations with every symbol defined), a fully worked numeric example,
+a comparison table, comprehension questions, a common misconception, an
+applied exercise, an interview-style question, a one-page recap, and
+sources. Short questions appear near the concept they test, with space
+left for written answers if you're using this as a workbook rather than
+only a reading; full solutions are collected in the answer key
+(@sec-solutions-ch1, @sec-solutions-ch2) rather than revealed inline, so
+you can attempt each question before checking it. A notation quick
+reference (@sec-notation) covers every symbol Chapters 1-2 use.
+
+{{< include includes/draft-scope-note.qmd >}}
+
+{{< include includes/notation-summary.qmd >}}
+
+{{< include chapters/01-transformer-refresher.qmd >}}
+
+{{< include chapters/02-modern-decoder.qmd >}}
+
+{{< include solutions/01-transformer-refresher-solutions.qmd >}}
+
+{{< include solutions/02-modern-decoder-solutions.qmd >}}
+
+{{< include includes/build-version-note.qmd >}}

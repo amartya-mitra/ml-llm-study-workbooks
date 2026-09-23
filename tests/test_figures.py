@@ -21,7 +21,6 @@ import unittest
 import xml.etree.ElementTree as ET
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-RENDERED_DIR = os.path.join(REPO_ROOT, "figures", "rendered")
 
 CANVAS_RE = re.compile(r'width="(\d+(?:\.\d+)?)" height="(\d+(?:\.\d+)?)"')
 RECT_RE = re.compile(
@@ -32,7 +31,9 @@ TEXT_RE = re.compile(r'<text x="(-?\d+(?:\.\d+)?)" y="(-?\d+(?:\.\d+)?)"')
 
 
 def find_rendered_svgs():
-    return sorted(glob.glob(os.path.join(RENDERED_DIR, "*.svg")))
+    # Recursive: covers the project-wide figures/rendered/ directory and
+    # any per-workbook figures/rendered/ directory (see build_figures.py).
+    return sorted(glob.glob(os.path.join(REPO_ROOT, "**", "figures", "rendered", "*.svg"), recursive=True))
 
 
 class TestFigures(unittest.TestCase):

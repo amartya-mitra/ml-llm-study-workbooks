@@ -26,3 +26,215 @@ questions:
     explanation: "Prefill builds one K/V slot per prompt token in a single pass. Each subsequent decode step processes exactly one new token and appends exactly one new K/V slot to the existing cache — it never recomputes or replaces the earlier slots."
     common_wrong_answer: "A common wrong answer is that the cache is rebuilt from scratch at each decode step (e.g. sizes 4, 5, 6, 7 each recomputed independently) rather than incrementally extended by 1 each time."
     source_ids: ["src-10", "src-11"]
+
+  # ---------------------------------------------------------------------
+  # q-04-ch1-*: Chapter 1 (Transformer Refresher) question bank.
+  # ---------------------------------------------------------------------
+
+  - id: "q-04-ch1-001"
+    workbook: "04-llm-architecture"
+    chapter: "transformer-refresher"
+    topic: "What the residual stream carries between blocks"
+    difficulty: "intro"
+    question_type: "recall"
+    prompt: "What does the residual stream carry from one block to the next: the raw output of the most recent sublayer, or something else?"
+    expected_answer: "The running sum of the original embedding plus every sublayer update added so far -- not just the most recent sublayer's raw output."
+    explanation: "Per the residual update x^(l+1) = x^(l) + f(Norm(x^(l))), each block ADDS its sublayer's output onto the existing stream value; it never replaces the stream with just the new sublayer's output. The stream at any point is the accumulated sum of the original embedding and every update so far."
+    common_wrong_answer: "A common wrong answer is 'the output of the most recent attention or MLP sublayer' -- that describes only the update being added in that step, not the accumulated stream value."
+    source_ids: ["src-19"]
+
+  - id: "q-04-ch1-002"
+    workbook: "04-llm-architecture"
+    chapter: "transformer-refresher"
+    topic: "Decoder-only objective vs. encoder-decoder"
+    difficulty: "intro"
+    question_type: "explanation"
+    prompt: "Why does a decoder-only model's objective let it generate text one token at a time, in a way that a bidirectional encoder's objective does not?"
+    expected_answer: "Because the causal mask restricts every position to attending only to itself and earlier positions, the same forward pass structure that trains on a full sequence also directly defines how to generate: at each position, produce a next-token distribution conditioned only on what came before, which is exactly what's needed to extend a sequence one token at a time. A bidirectional encoder's positions can attend to LATER positions too, so its representation at a given position already depends on tokens that would not exist yet during generation."
+    explanation: "The causal mask (M_ij = 0 for j <= i, -infinity otherwise) is what makes training and generation use the same computation: at training time every position's next-token prediction only ever depended on earlier positions, so at generation time you can reuse exactly that structure one position at a time."
+    common_wrong_answer: "A common wrong answer is 'decoder-only models are just smaller/simpler than encoder-decoder models' -- size is unrelated; the difference is specifically about which positions are allowed to attend to which."
+    source_ids: ["src-19"]
+
+  - id: "q-04-ch1-003"
+    workbook: "04-llm-architecture"
+    chapter: "transformer-refresher"
+    topic: "Tensor shapes for a toy attention config"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "For a toy config with d_model = 8, H_q = 2 heads, and S = 5: what is d_head, and what is the shape of the raw attention score matrix QK^T for one head, before masking?"
+    expected_answer: "d_head = d_model / H_q = 8 / 2 = 4. The raw attention score matrix for one head is (S, S) = (5, 5) -- one score per query/key pair, independent of d_head."
+    explanation: "d_head is defined by splitting d_model evenly across H_q heads. QK^T for one head multiplies a (S, d_head) matrix by a (d_head, S) matrix, giving (S, S) regardless of what d_head actually is -- d_head affects the score VALUES (via the dot product and the 1/sqrt(d_head) scaling) but not the score matrix's shape."
+    common_wrong_answer: "A common wrong answer is (S, d_head) = (5, 4) for the score matrix -- that confuses the per-head attention OUTPUT shape (which is (S, d_head)) with the score matrix shape (which is always (S, S))."
+    source_ids: ["src-19"]
+
+  - id: "q-04-ch1-004"
+    workbook: "04-llm-architecture"
+    chapter: "transformer-refresher"
+    topic: "Causal masking visibility"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: \"causal masking means each token can only attend to the immediately previous token.\""
+    expected_answer: "False. Causal masking allows a position to attend to every position at or before it (j <= i), not only the single immediately preceding position."
+    explanation: "The mask M_ij is 0 (allowed) for every j <= i, and -infinity (blocked) only for j > i. The allowed region is a full lower-triangular block, not a single diagonal band one step wide -- position 5 in a 5-token sequence can attend to all of positions 1 through 5, not just position 4."
+    common_wrong_answer: "The false belief usually comes from conflating causal masking with a fixed local window (as in sliding-window attention, a later, separate mechanism) -- causal masking alone imposes no limit on how far back a position can look, only that it cannot look forward."
+    source_ids: ["src-19"]
+
+  - id: "q-04-ch1-005"
+    workbook: "04-llm-architecture"
+    chapter: "transformer-refresher"
+    topic: "The residual stream is not a separate memory store"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: \"the residual stream is a separate memory database the model writes facts into and reads back later.\""
+    expected_answer: "False. The residual stream is a single vector per position, updated additively in place as it passes through blocks -- it is not a separate, queryable store the model looks facts up in the way a database would be queried."
+    explanation: "Per the residual update equation, every sublayer's output is added directly onto the same fixed-width vector that already exists at that position. There is no separate storage structure, no keys to look facts up by, and no mechanism for a later block to selectively 'query' what an earlier block wrote -- it can only read the accumulated sum."
+    common_wrong_answer: "This misconception often comes from analogies (including this chapter's own receipt analogy) being taken too literally -- a receipt's lines stay individually readable, but the residual stream's contributions are summed into one vector and cannot be individually read back out."
+    source_ids: ["src-19"]
+
+  - id: "q-04-ch1-006"
+    workbook: "04-llm-architecture"
+    chapter: "transformer-refresher"
+    topic: "Applied exercise: full tensor-shape trace for a toy config"
+    difficulty: "stretch"
+    question_type: "design"
+    prompt: "Pick your own toy config (d_model, number of layers L, number of heads H_q, with d_model divisible by H_q). For a single token's forward path through one full block, write down the shape of every intermediate tensor: the input vector, Q/K/V before and after splitting into heads, the per-head attention output, the concatenated output, and the vector added back onto the residual stream."
+    expected_answer: "Input vector: (d_model,). Q/K/V before splitting: (d_model,) each (or (S, d_model) for the whole sequence). After splitting into heads: (H_q, d_head) where d_head = d_model / H_q. Per-head attention output: (d_head,) per head (or (S, d_head) for the whole sequence per head). Concatenated across heads: back to (d_model,). Final vector added to the residual stream: (d_model,) -- matching the input vector's shape exactly, since addition requires matching shapes."
+    explanation: "Every shape traces back to d_model and H_q alone: splitting divides d_model by H_q to get d_head, and concatenating heads multiplies d_head back up by H_q to return to d_model. The match between the input shape and the final added-back shape is not a coincidence -- it's required by the residual addition in the update equation."
+    common_wrong_answer: "A common mistake is forgetting that the per-head output must be concatenated back to d_model width before the output projection and residual addition -- leaving the answer at the per-head (d_head,) shape instead of reassembling to (d_model,)."
+    source_ids: ["src-19"]
+
+  - id: "q-04-ch1-007"
+    workbook: "04-llm-architecture"
+    chapter: "transformer-refresher"
+    topic: "Interview-style: prefill vs. a single decode step"
+    difficulty: "stretch"
+    question_type: "explanation"
+    prompt: "Interview-style question: \"Walk me through what happens differently between processing a 500-token prompt for the first time versus generating the 501st token.\" What does a strong answer cover, and what should it explicitly avoid saying?"
+    expected_answer: "A strong answer: (1) names prefill -- all 500 positions processed together in one pass, building K/V for every position; (2) names the decode step -- exactly one new position processed, computing only its own new K/V and reusing the 500 cached K/V rows unchanged; (3) explicitly states that generating the 501st token does not reprocess or re-read the first 500 tokens. A strong answer explicitly avoids saying the model 're-reads the whole prompt' at each step, and avoids implying prefill and decode use different underlying attention mechanisms -- they use the identical formula, just over different numbers of new positions."
+    explanation: "Evaluation criteria for this answer: does it name both phases correctly, does it state what specifically gets reused (K/V rows) versus recomputed (the one new position's K/V), and does it avoid the 're-reads the whole prompt' framing that this chapter's headline misconception warns against?"
+    common_wrong_answer: "A weak answer says only 'decoding is faster because the prompt is already processed' without stating what specifically is reused (the K/V cache) or why that reuse is what makes it faster rather than merely a vague optimization."
+    source_ids: ["src-19"]
+
+  # ---------------------------------------------------------------------
+  # q-04-ch2-*: Chapter 2 (Anatomy of a Modern Decoder) question bank.
+  # ---------------------------------------------------------------------
+
+  - id: "q-04-ch2-001"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "RoPE's relative-position guarantee"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "For a query/key pair at positions 1 and 0 (relative offset 1), and a second pair at positions 3 and 2 (also relative offset 1), what does RoPE guarantee about the two pairs' dot products, and what does it NOT guarantee?"
+    expected_answer: "RoPE guarantees the ANGLE between the rotated query and key vectors is identical in both cases, because each vector is rotated by an amount tied to its own position, so only the relative offset (1, in both cases) survives. It does NOT guarantee the dot products are numerically equal in general, because the dot product also depends on the original (pre-rotation) query and key vectors' magnitudes and directions, which can differ between the two pairs."
+    explanation: "RoPE's rotation (q'_m = R_m q_m, k'_n = R_n k_n) makes the ANGLE BETWEEN q'_m and k'_n depend only on m - n. The dot product q'^T k' depends on that angle AND on |q| and |k| (the vectors' magnitudes) -- so equal relative offsets guarantee equal angles, not automatically equal dot products unless the original vectors also happen to have matching magnitudes."
+    common_wrong_answer: "A common overreach is claiming RoPE guarantees identical dot products for any two pairs with the same relative offset -- this conflates the angle (which IS guaranteed to match) with the dot product (which also depends on vector magnitudes)."
+    source_ids: ["src-22"]
+
+  - id: "q-04-ch2-002"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "RMSNorm vs. LayerNorm operations"
+    difficulty: "core"
+    question_type: "compare_and_contrast"
+    prompt: "Name the two operations RMSNorm omits relative to LayerNorm."
+    expected_answer: "RMSNorm omits mean-centering (subtracting the vector's mean before rescaling) and the learned bias term (an additive per-dimension shift after rescaling)."
+    explanation: "LayerNorm computes (x - mean(x)) / std(x) * gamma + beta. RMSNorm computes x / RMS(x) * gamma -- no mean subtraction (RMS uses the raw values, not centered ones) and no beta (additive bias) term at all."
+    common_wrong_answer: "A common incomplete answer names only the missing bias term and misses that mean-centering is also gone -- dropping mean-centering is the more consequential of the two omissions."
+    source_ids: ["src-23"]
+
+  - id: "q-04-ch2-003"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "Why a gated feed-forward layer needs a third matrix"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "Why does a gated feed-forward layer need three weight matrices instead of two -- what does the third matrix do that the first one doesn't already?"
+    expected_answer: "The third matrix (W3, the 'value' branch) provides a second, purely linear projection of the input that gets elementwise-multiplied against the first matrix's activated output (W1, the 'gate' branch) before the shared output projection (W2). W1 alone only produces one activated signal; W3 gives something for that signal to gate, which a two-matrix design has no equivalent of."
+    explanation: "SwiGLU(x) = (Swish(xW1) * (xW3)) W2 -- the elementwise multiply between two DIFFERENT projections (one activated, one not) is the entire mechanism. A plain MLP's single activated branch (sigma(xW1)) has nothing to multiply against, since it goes straight to W2."
+    common_wrong_answer: "A common wrong answer is that the third matrix makes the network 'deeper' by adding a sequential layer -- it does not; W1 and W3 are parallel branches computed from the same input, not a longer sequential chain."
+    source_ids: ["src-24"]
+
+  - id: "q-04-ch2-004"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "Plain MLP parameter count"
+    difficulty: "intro"
+    question_type: "calculation"
+    prompt: "Using this chapter's formulas, what is the parameter count of a plain MLP with d_model = 16, d_ff = 64 (no biases)?"
+    expected_answer: "2 * d_model * d_ff = 2 * 16 * 64 = 2048 parameters."
+    explanation: "A plain MLP has two matrices, W1 (d_model x d_ff) and W2 (d_ff x d_model), each contributing d_model * d_ff parameters, for a total of 2 * d_model * d_ff. With d_model=16 and d_ff=64: 2 * 16 * 64 = 2048."
+    common_wrong_answer: "A common arithmetic slip is computing only one matrix's parameter count (d_model * d_ff = 1024) and forgetting the second matrix, or using the gated-MLP formula (3x) by mistake."
+    source_ids: ["src-24"]
+
+  - id: "q-04-ch2-005"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "Pre-norm's motivation: stability, not quality"
+    difficulty: "stretch"
+    question_type: "misconception_diagnosis"
+    prompt: "Is pre-norm's popularity mainly about training stability or mainly about final model quality?"
+    expected_answer: "Mainly training stability at depth, not final model quality. Pre-norm trades away some representational capacity for a more stable gradient path through an un-normalized residual stream, particularly as the number of layers grows."
+    explanation: "Pre-norm is not unconditionally 'better' -- it is a stability-motivated tradeoff. Sandwich-norm's existence (paying for a second normalization step around the same sublayer) is direct evidence that pre-norm alone is understood to give something up, not that it is a strict improvement over post-norm."
+    common_wrong_answer: "A common wrong answer treats pre-norm as simply 'the new correct default' with no tradeoff, rather than a training-stability choice with an acknowledged capacity cost."
+    source_ids: ["src-19", "src-14"]
+
+  - id: "q-04-ch2-006"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "RoPE does not touch the embedding table"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: \"RoPE adds a learned position vector to every token embedding.\""
+    expected_answer: "False. RoPE rotates the query and key vectors INSIDE the attention computation, at every layer that has attention -- it does not add anything to the embedding table, and the rotation angles are fixed by position, not learned."
+    explanation: "RoPE's formula (q'_m = R_m q_m) operates on Q and K after they've already been projected from the (unmodified) embedding. There is no learned parameter in RoPE itself and no modification to the embedding table from Chapter 1."
+    common_wrong_answer: "This misconception likely comes from conflating RoPE with learned absolute positional embeddings (an older, different scheme that DOES add a learned per-position vector directly to the embedding) -- the two approaches inject positional information through entirely different mechanisms."
+    source_ids: ["src-22"]
+
+  - id: "q-04-ch2-007"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "SwiGLU is dense, not sparse"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: \"SwiGLU makes the feed-forward block sparse like an MoE layer.\""
+    expected_answer: "False. Every weight in a SwiGLU feed-forward layer (W1, W2, and W3) is used for every token, exactly like a plain feed-forward layer. Sparsity, in the mixture-of-experts sense, means a ROUTER activates only a subset of available parameters per token -- SwiGLU has no router and always uses 100% of its own weights."
+    explanation: "SwiGLU changes WHAT computation happens within one dense feed-forward layer (an extra multiplicative branch); it does not change WHICH parameters get used, which is the axis mixture-of-experts sparsity operates on. The two ideas are orthogonal, not related versions of the same mechanism."
+    common_wrong_answer: "The word 'gated' likely drives this misconception, since gating sounds like it could mean 'selecting a subset' -- but the gate here is a continuous, dense elementwise multiply applied to every token, not a discrete routing decision."
+    source_ids: ["src-24"]
+
+  - id: "q-04-ch2-008"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "Applied exercise: reading a model config excerpt"
+    difficulty: "stretch"
+    question_type: "design"
+    prompt: "Given a config excerpt with hidden_size: 2048, num_attention_heads: 16, intermediate_size: 5504, hidden_act: \"silu\", rms_norm_eps: 1e-5, tie_word_embeddings: false, rope_theta: 10000.0 -- which normalization scheme does it use, does it use a gated feed-forward layer, is intermediate_size closer to a plain-MLP-style or gated-compensated ratio, and are embeddings tied?"
+    expected_answer: "Normalization: RMSNorm (the rms_norm_eps field is the giveaway -- LayerNorm configs typically have no single epsilon field named this way, or have a separate bias-related field). Gated feed-forward: yes -- hidden_act: 'silu' matches SwiGLU's Swish/SiLU activation convention, and rope_theta separately confirms RoPE is in use. Ratio check: intermediate_size / hidden_size = 5504 / 2048 ~= 2.69, close to (2/3) * 4 ~= 2.67 -- a gated-compensated ratio, not the plain 4x ratio. Embeddings: untied (tie_word_embeddings: false is explicit)."
+    explanation: "This mirrors the chapter's worked example: computing the compensated ratio ((2/3) * 4 ~= 2.67) and comparing it against the actual intermediate_size/hidden_size ratio (~2.69) is the same check used to distinguish a plain-MLP-style config from a gated-compensated one."
+    common_wrong_answer: "A common mistake is assuming intermediate_size following ANY 4x-ish number automatically implies a plain (ungated) MLP -- the compensated gated ratio (~2.67x) is close enough to other plausible ratios that the activation function field (hidden_act) is a more reliable signal than the ratio alone, and should be checked first."
+    source_ids: ["src-22", "src-23", "src-24"]
+
+  - id: "q-04-ch2-009"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "Interview-style: why RoPE instead of learned positional embeddings"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "Interview-style question: \"Why does this model use RoPE instead of learned positional embeddings?\" What does a strong answer include, and what should it avoid?"
+    expected_answer: "A strong answer states RoPE's relative-position mechanism (rotating Q/K by a position-dependent angle) as the reason, and names at least one concrete consequence: no learned positional parameters at all, and generally better behavior when a sequence is longer than anything seen during training, versus a learned absolute table that has no vector at all for positions beyond its trained maximum. A strong answer avoids simply saying 'RoPE is more modern' without stating the specific mechanism or consequence."
+    explanation: "Evaluation criteria: does the answer name the actual mechanism (relative position via rotation) rather than just asserting RoPE is better; does it name a specific, checkable consequence (parameter cost, or extrapolation behavior) rather than a vague quality claim?"
+    common_wrong_answer: "A weak answer says 'RoPE encodes position better' without being able to say what 'better' means concretely -- no comparison to what a learned table actually costs or how it actually fails outside its trained range."
+    source_ids: ["src-22"]
+
+  - id: "q-04-ch2-010"
+    workbook: "04-llm-architecture"
+    chapter: "modern-decoder"
+    topic: "Interview-style: walking through what SwiGLU changes"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "Interview-style question: \"Walk me through what SwiGLU changes about the MLP.\" What does a strong answer include, and what should it avoid?"
+    expected_answer: "A strong answer describes the extra parallel branch (W3) and the elementwise multiply against the activated branch (W1) before the shared output projection (W2), and explicitly states the parameter tradeoff: at matched expansion width, three matrices cost 1.5x what two matrices cost, which is why real models often shrink the expansion width to compensate rather than accept the full 1.5x. A strong answer avoids describing SwiGLU as 'a deeper MLP' or omitting the parameter-cost discussion entirely."
+    explanation: "Evaluation criteria: does the answer correctly describe the parallel-branch-plus-multiply structure (not a sequential deepening); does it proactively raise the parameter cost tradeoff rather than needing to be prompted for it, since a systems-flavored interviewer is very likely to ask a follow-up about cost if the candidate doesn't raise it first."
+    common_wrong_answer: "A weak answer describes the gating mechanism correctly but stops there, never mentioning that it costs anything extra in parameters -- an interviewer probing for systems awareness will consider this an incomplete answer even if the mechanism description was accurate."
+    source_ids: ["src-24"]

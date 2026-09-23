@@ -1,0 +1,25 @@
+{
+  "assumptions": {
+    "d_model": 8,
+    "d_ff_plain": 32,
+    "biases_counted": false,
+    "note": "d_ff_compensated is rounded to the nearest integer from (2/3) * d_ff_plain"
+  },
+  "plain_mlp": {
+    "d_ff": 32,
+    "params": 512,
+    "formula": "2 * d_model * d_ff"
+  },
+  "gated_mlp_same_d_ff": {
+    "d_ff": 32,
+    "params": 768,
+    "formula": "3 * d_model * d_ff",
+    "ratio_vs_plain": 1.5
+  },
+  "gated_mlp_compensated_d_ff": {
+    "d_ff": 21,
+    "params": 504,
+    "formula": "3 * d_model * d_ff_compensated",
+    "ratio_vs_plain": 0.9844
+  }
+}
