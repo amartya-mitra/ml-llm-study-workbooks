@@ -98,15 +98,25 @@ programmatically to match the stated total.
 
 ## Source-coverage gaps (see source-coverage.yaml for the full claim-level detail)
 
-- **No primary source for the linear/recurrent (SSM-style) attention
-  mechanism itself.** The research pass verified sources for MQA, GQA,
-  MLA, sliding-window, and sparse attention, but not for Mamba/SSM
-  specifically — Jamba (src-35) is registered as a model that *uses*
-  Mamba layers, not Mamba's own defining paper. Per ch. 4's deliberate
-  scope fence (intuition-level treatment, not a from-scratch SSM
-  derivation), this may not need closing before drafting — but any
-  claim about *how* the recurrent state update works, specifically,
-  needs a source added first.
+- **RESOLVED (2026-09-23), no primary source for the linear/recurrent
+  (SSM-style) attention mechanism itself.** The research pass verified
+  sources for MQA, GQA, MLA, sliding-window, and sparse attention, but
+  not for Mamba/SSM specifically — Jamba (src-35) is registered as a
+  model that *uses* Mamba layers, not Mamba's own defining paper. Per
+  ch. 4's deliberate scope fence (intuition-level treatment, not a
+  from-scratch SSM derivation), this did not need closing before ch. 4
+  was drafted — but ch. 6's hybrid case study needed a source for *how*
+  the recurrent state update works before it could responsibly discuss
+  Jamba's Mamba layers. Closed by adding src-37 (Gu & Dao, "Mamba:
+  Linear-Time Sequence Modeling with Selective State Spaces,"
+  arXiv:2312.00752), verified via full-text fetch and pdftotext
+  extraction (not a snippet), and confirmed via Jamba's own reference
+  [17] that Jamba uses exactly this mechanism, not Mamba-2 or Gated
+  DeltaNet. See sources/registry.yaml src-37 and source-coverage.yaml's
+  new ch6 "Mamba selective state-space mechanism" entry. Ch. 6 still
+  cites only enough of the mechanism to interpret Jamba's architecture,
+  not a full derivation — that remains out of scope per outline.md's
+  non-goals (see below).
 - **Tied vs. untied embeddings** has no primary source of its own — it's
   a widespread convention rather than the subject of one canonical
   paper. A specific model's config/report that states its tying choice

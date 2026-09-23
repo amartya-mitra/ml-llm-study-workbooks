@@ -242,33 +242,43 @@ claims:
 
   - chapter: "ch6"
     topic: "Llama 3 (dense case study)"
-    proposed_claim: "The largest Llama 3 model is a 405B-parameter dense decoder-only Transformer with 128K context."
+    proposed_claim: "Llama 3 405B is a 126-layer, 16384-hidden-dimension dense decoder-only Transformer with GQA (8 KV heads), RoPE (theta=500,000), and a 128K context window."
     importance: "core"
     primary_source_ids: ["src-32"]
     explanatory_source_ids: []
     status: "fast_changing"
     freshness_risk: "explicitly model-specific and dated (2024-07-31 report); state the date whenever this figure is cited, per AGENTS.md's time-sensitivity rule"
-    notes: ""
+    notes: "Verified 2026-09-23 directly against the arXiv PDF's Table 3 and Section 3.2.1 (full-text extraction, not a search snippet) -- see sources/registry.yaml src-32. Normalization (RMSNorm) is cited as inherited unchanged from Llama 2 per the paper's own statement that only GQA and cross-document masking changed, not independently re-stated in this paper's text."
 
   - chapter: "ch6"
     topic: "DeepSeek-V3 (MoE + MLA case study)"
-    proposed_claim: "DeepSeek-V3 has 671B total / 37B activated parameters, combines MLA with DeepSeekMoE and an auxiliary-loss-free balancing strategy, trained on 14.8T tokens."
+    proposed_claim: "DeepSeek-V3 has 671B total / 37B activated parameters, 61 layers, hidden dimension 7168, combines MLA (d_c=512, d_c'=1536, decoupled-RoPE dim 64) with DeepSeekMoE (1 shared + 256 routed experts, 8 activated) and an auxiliary-loss-free balancing strategy, trained on 14.8T tokens."
     importance: "core"
     primary_source_ids: ["src-33"]
     explanatory_source_ids: ["src-27"]
     status: "fast_changing"
     freshness_risk: "explicitly model-specific and dated (report submitted 2024-12-27, revised 2025-02-18); this single model is used to exemplify BOTH the MoE and MLA case-study slots — a deliberate scope choice, see reports/04_source_audit.md"
-    notes: ""
+    notes: "Verified 2026-09-23 directly against the arXiv PDF's Section 4.2 'Hyper-Parameters' (full-text extraction, not a search snippet) -- see sources/registry.yaml src-33."
 
   - chapter: "ch6"
     topic: "Jamba (hybrid case study)"
-    proposed_claim: "Jamba interleaves Transformer and Mamba layers with MoE in some layers; 12B active / 52B total parameters, long-context (up to 256K) results reported."
+    proposed_claim: "Jamba interleaves Transformer-attention and Mamba (selective-SSM) layers, with MoE applied every other layer; 12B active / 52B total parameters, GQA (32 query / 8 KV heads), no RoPE/positional embeddings, up to 256K context."
     importance: "core"
     primary_source_ids: ["src-35"]
-    explanatory_source_ids: []
+    explanatory_source_ids: ["src-37"]
     status: "fast_changing"
-    freshness_risk: "explicitly model-specific and dated (2024-03-28, updated 2024-07-03); a newer Jamba 1.5 report (arXiv:2408.12570) exists and was NOT verified this session — decide before drafting whether to use the original or re-verify 1.5, do not silently substitute"
-    notes: ""
+    freshness_risk: "explicitly model-specific and dated (2024-03-28, updated 2024-07-03); a newer Jamba 1.5 report (arXiv:2408.12570) exists but was deliberately NOT selected -- see src-35's notes for the resolved rationale (prefer the architecture-defining original over a later scaled-up successor)"
+    notes: "Verified 2026-09-23 directly against the arXiv PDF's full text plus the Jamba-v0.1 Hugging Face config.json (not gated) -- see sources/registry.yaml src-35. The recurrent (Mamba) mechanism itself is now sourced separately via src-37 (Gu & Dao), resolving the gap flagged in reports/04_source_audit.md; src-35 remains the source for Jamba's own architecture facts."
+
+  - chapter: "ch6"
+    topic: "Mamba selective state-space mechanism (explanatory source for the hybrid case study)"
+    proposed_claim: "Mamba's selective SSM maintains a fixed-size recurrent state per layer, updated each token via input-dependent (selective) Delta, B, and C parameters -- contrasted with attention's linearly-growing KV-cache."
+    importance: "core"
+    primary_source_ids: ["src-37"]
+    explanatory_source_ids: []
+    status: "stable"
+    freshness_risk: "the mechanism itself is a stable, published result (2023-12-01); only its use in specific downstream models (e.g. Jamba) is fast-changing"
+    notes: "Verified 2026-09-23 directly against the arXiv PDF's full text (Section 3.2, full-text extraction, not a search snippet) -- see sources/registry.yaml src-37. This is the source ch. 6 needed before it could responsibly claim HOW Jamba's Mamba layers work; only enough of the mechanism is used to interpret Jamba's architecture, not a full derivation (out of scope per outline.md's non-goals)."
 
   - chapter: "ch6"
     topic: "Mixtral (supporting, simpler MoE example)"

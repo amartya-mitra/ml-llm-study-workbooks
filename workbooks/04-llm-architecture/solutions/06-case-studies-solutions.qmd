@@ -1,0 +1,44 @@
+## Answer Key: Chapter 6 {#sec-solutions-ch6}
+
+Full solutions to Chapter 6's "Check your understanding" questions
+(@sec-ch6).
+
+**1. Quick check.** *Answer.* Group size $=H_q/H_{kv}=128/8=16$. Since
+$1 < H_{kv} < H_q$, this is GQA, not MHA ($H_{kv}=H_q$) or MQA
+($H_{kv}=1$).
+
+**2. Quick check.** *Answer.* Only the routed expert bank's ratio --
+attention, the shared expert, and every other always-active component
+also count toward the whole model's active fraction, which stays
+closer to 1 than the bank-level $k/E$ ratio (ch. 5).
+
+**3. Compare.** *Answer.* Llama 3's growing state is present in every
+one of its 126 layers (all attention). Jamba's growing state exists
+only in its 4 attention layers out of 32 -- the other 28 keep a
+fixed-size recurrent state instead.
+
+**4. Misconception check.** *Answer.* False. Measured model quality
+depends on architecture together with training data, training recipe,
+optimization, evaluation methodology, and serving implementation --
+none of the three case studies' architectural choices alone determines
+how well, how cheaply, or how reliably the resulting model performs.
+*Common trap:* treating one architectural feature (more experts, a
+newer mechanism) as a stand-in for overall quality.
+
+**5. Design exercise (applied exercise).** *Answer.* (a) Group size
+$=32/8=4$. (b) Attention layers' KV-cache grows with context; recurrent
+layers' state stays fixed size. (c) 2 of 64 routed experts active per
+token plus 1 shared; all 64 still stored. (d) All-to-all dispatch if
+the 64 experts are device-split (ch. 5). (e) GQA (ch. 3), local/global
+attention (ch. 4), routed MoE with a shared expert (ch. 5), and a
+recurrent/state-space layer (ch. 6) are all present. (f) Quality,
+latency, training recipe, and serving cost cannot be read off the
+config alone. *Interview criteria:* separates the bank ratio from any
+whole-model claim; names a non-inferable conclusion.
+
+**6. Interview practice.** *Answer.* Head counts/cache representation
+predict memory; dense-vs-MoE and active parameters predict compute;
+whether experts/layers are device-split predicts communication --
+latency, throughput, and quality are explicitly not predicted from
+architecture alone. *Interview criteria:* covers memory, compute,
+*and* communication; refuses to overclaim benchmark performance.

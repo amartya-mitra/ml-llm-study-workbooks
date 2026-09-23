@@ -13,9 +13,9 @@
 schema_version: 1
 
 pilot_actual:
-  measured_from: "outputs/04-llm-architecture-ch01-05-review.pdf"
-  total_pages: 50
-  total_words: 23835
+  measured_from: "outputs/04-llm-architecture-ch01-06-review.pdf"
+  total_pages: 57
+  total_words: 27312
   sections:
     - name: "front_matter"
       description: "Title page, how-to-use, pilot-scope note, notation quick reference"
@@ -60,11 +60,24 @@ pilot_actual:
     - name: "answer_key_chapter_5"
       description: "Answer Key: Chapter 5 only"
       pages: 0.69
-      notes: "Begins mid-page on page 48 (no forced break), ends well before the bottom of the same page. Lands well UNDER the 0.75-page preferred budget (hard maximum was 1.0) -- the tightest answer key in the pilot, achieved with a minimal Answer/Common-trap structure (most items have no 'Common trap' field at all) appropriate for a chapter with only 8 check-your-understanding-derived answer items, the fewest of any chapter so far."
+      notes: "Begins mid-page on page 53 (no forced break), ends before the bottom of the same page. Lands well UNDER the 0.75-page preferred budget (hard maximum was 1.0) -- the tightest answer key in the pilot, achieved with a minimal Answer/Common-trap structure (most items have no 'Common trap' field at all) appropriate for a chapter with only 8 check-your-understanding-derived answer items, the fewest of any chapter so far."
+    - name: "chapter_6"
+      description: "Chapter 6: Reading Modern LLM Architectures: Three Designs, Three Sets of Tradeoffs, instructional content only"
+      pages: 5
+      notes: "Starts fresh on page 42 (deliberate break), ends at the bottom of page 46 -- lands EXACTLY at the 5-page HARD MAXIMUM (preferred target was 4 pages), a disclosed miss. Two figures (architecture cards, tradeoff map), one merged architecture-ledger table (row-per-attribute, three model columns), three equal-space case studies (Llama 3 405B, DeepSeek-V3, Jamba), one boxed misconception, and a hypothetical-4th-model applied exercise did not compress into 4 pages without cutting a required element or shrinking figures/tables below legibility -- see outline.yaml's ch6.drafting_note and reports/04_ch06_draft_report.md."
+    - name: "answer_key_chapter_6"
+      description: "Answer Key: Chapter 6 only"
+      pages: 0.67
+      notes: "Item 1 begins at the bottom of page 53 (no forced break); items 2-6 continue on page 54, ending before the bottom of that page. Lands within the 0.75-page HARD MAXIMUM but over the 0.5-page preferred target -- a disclosed miss, tightened once already (from an initial ~0.87-page draft) by compressing the multi-part design-exercise and interview-practice answers."
     - name: "build_note_and_bibliography"
       description: "Build and Version Note (with its Provenance subsection) plus the auto-appended Bibliography"
-      pages: 2.1
-      notes: "The build note ends and the Bibliography begins on page 48; Typst's native (citeproc:false) bibliography does not force its own fresh page -- it continues wherever the build note ends, spilling from page 48 through page 50 here. Grew slightly from Chapter 4's 1.8 pages because of one new Provenance bullet (Chapter 5's DeepSeekMoE sourcing note) and 4 new bibliography entries (sources 12-15)."
+      pages: 2.4
+      notes: "The build note ends and the Bibliography begins on page 55; Typst's native (citeproc:false) bibliography does not force its own fresh page -- it continues wherever the build note ends, spilling from page 55 through page 57 here. Grew from Chapter 5's 2.1 pages because of two new Provenance bullets (Chapter 6's model-verification and case-study-scope notes) and one new bibliography entry (src-37, the Mamba paper)."
+  pre_ch6_reference:
+    total_pages: 50
+    instructional_pages_ch1_through_ch5: 37
+    total_words: 23835
+    note: "Chapters 1-5 pilot actuals immediately before Chapter 6 was drafted (see reports/04_ch05_draft_report.md). Chapter 6 added exactly 7 pages (5 instructional + 0.67 answer-key + a ~0.3-page build-note/bibliography growth from the new source), taking the total from 50 to 57."
   pre_ch5_reference:
     total_pages: 44
     instructional_pages_ch1_ch2_ch3_ch4: 32
@@ -75,11 +88,7 @@ full_workbook_projection:
   preferred_total_pages: [60, 68]
   hard_ceiling_total_pages: 72
   hard_ceiling_note: "Exceeding 72 requires explicit approval. Page growth must come from adding chapters, not from ever shrinking fonts, figures, margins, or writing space."
-  chapters_6_to_8_provisional:
-    - chapter: 6
-      topic: "Case studies (architecture at real-model scale)"
-      instructional_pages: [5, 5.5]
-      estimated_answer_key_pages: [1, 1.2]
+  chapters_7_to_8_provisional:
     - chapter: 7
       topic: "Architecture -> systems consequences"
       instructional_pages: [5, 5.5]
@@ -88,14 +97,14 @@ full_workbook_projection:
       topic: "Synthesis / practice chapter"
       instructional_pages: [4, 4.5]
       estimated_answer_key_pages: [1, 1]
-  provisional_revision_note: "Chapter 5 landed at 5.69 total pages (5 instructional + 0.69 answer-key), UNDER even its own already-tight 5.75-7.8 provisional range from reports/04_ch04_draft_report.md -- the best-fitting chapter yet, alongside Chapter 3's exact preferred-budget hit. This is strong evidence the chapters_6_to_8_provisional ranges below (carried over unchanged from the post-Chapter-4 revision) are achievable without further tightening; they are NOT loosened back up despite the good news, since the point of a budget is to hold regardless of any one chapter's good outcome."
-  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-5 (actual). Chapter 5's own ratio (0.69 answer-key page per 5 instructional pages, ~0.14) matches Chapter 4's efficient ~0.14 ratio -- both inform the chapters 6-8 estimates above, which remain deliberately conservative relative to this observed efficiency."
+  provisional_revision_note: "Chapter 6 landed at 5.67 total pages (5 instructional, exactly at its hard maximum, + 0.67 answer-key, within its hard maximum), a disclosed miss against its own 4-instructional/0.5-answer-key preferred targets -- unlike Chapter 5's under-budget result, this is evidence the remaining chapters_7_to_8_provisional ranges below should NOT be tightened further; they are carried over unchanged from the post-Chapter-5 revision, not loosened either, since the point of a budget is to hold regardless of any one chapter's outcome in either direction."
+  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-6 (actual). Chapter 6's own ratio (0.67 answer-key page per 5 instructional pages, ~0.13) is close to Chapter 4's and Chapter 5's efficient ~0.14 ratio -- all three inform the chapters 7-8 estimates above, which remain deliberately conservative relative to this observed efficiency."
   projection_arithmetic:
-    pilot_actual_total: 50
-    chapters_6_to_8_instructional_range: [14, 15.5]
-    chapters_6_to_8_answer_key_range: [3, 3.4]
-    projected_full_total_range: [67, 68.9]
-  ceiling_status: "Within the 72-page hard ceiling on both ends (67-68.9), and now also within the 60-68 PREFERRED range at the low end. This depends on chapters 6-8 actually holding to the provisional ranges above; Chapter 5's strong result is encouraging but not a license to relax them."
+    pilot_actual_total: 57
+    chapters_7_to_8_instructional_range: [9, 10]
+    chapters_7_to_8_answer_key_range: [2, 2.2]
+    projected_full_total_range: [68, 69.2]
+  ceiling_status: "Within the 72-page hard ceiling on both ends (68-69.2). The low end (68) sits at the top of the 60-68 PREFERRED range and the high end (69.2) is marginally over it -- not a hard-ceiling breach, but Chapters 7-8 should not be allowed to grow beyond their provisional ranges above without revisiting this projection."
 
 chapter_3_specific:
   mla_deferral_note: "RESOLVED (2026-09-23): MLA's placement, left open when Chapter 3 was drafted, is Chapter 4 -- see outline.yaml's ch3.drafting_note and ch4.drafting_note, and reports/04_ch04_draft_report.md."
@@ -107,3 +116,9 @@ chapter_4_specific:
 chapter_5_specific:
   scope_reduction_note: "Chapter 5 was scoped down from outline.yaml's original 8-page/4-figure plan to 5 preferred pages and 3 figures -- see outline.yaml's ch5.drafting_note. Systems-level material (distributed-training implementation, collective-communication algorithms, kernel optimization, inference-engine configuration, expert quantization, model-specific benchmark comparisons, post-training, routing-research surveys) is entirely deferred, not taught even briefly, except for one architecture-level paragraph on expert parallelism's all-to-all communication."
   shared_experts_sourcing_note: "Chapter 5's shared-experts claim (motivation and compute tradeoff) was verified directly against DeepSeekMoE's full paper text ([@src-36], arXiv:2401.06066, fetched and read in full), not DeepSeek-V3's report (a downstream user of the idea) and not a snippet or blog summary. src-36 was newly added to sources/registry.yaml, shared/bibliography.bib, and source-coverage.yaml this session."
+
+chapter_6_specific:
+  case_study_selection_note: "Chapter 6 selects exactly three case-study model families -- Llama 3 405B (dense, src-32), DeepSeek-V3 (MoE + MLA, src-33), and Jamba (hybrid attention/Mamba, src-35) -- dropping Mixtral entirely as a fourth main case study (it remains registered only as ch. 5-adjacent supporting material). See outline.yaml's ch6.drafting_note and reports/04_ch06_draft_report.md."
+  mamba_sourcing_gap_resolved_note: "Chapter 4 (see chapter_4_specific.recurrent_family_sourcing_gap above) deliberately deferred teaching recurrent/SSM mechanics pending a primary source. Chapter 6 resolves that gap: Gu and Dao's Mamba paper (src-37, arXiv:2312.00752) was added to sources/registry.yaml, shared/bibliography.bib, and source-coverage.yaml, verified via full-text PDF extraction, and confirmed (via Jamba's own reference [17]) to be the exact mechanism Jamba's non-attention layers use -- not Mamba-2 or Gated DeltaNet, which are not treated as synonyms."
+  model_verification_note: "All three case-study models' architecture facts (Llama 3 405B's Table 3/Section 3.2.1; DeepSeek-V3's Section 4.2; Jamba's full text plus its non-gated Hugging Face config.json) were verified this session by downloading the primary-source PDF and extracting its full text (pdftotext + grep), not by trusting a search snippet or a fetch tool's own summary -- consistent with this workbook's established sourcing standard. The Llama 3 405B config.json on Hugging Face is gated (HTTP 401) and was not used."
+  page_budget_miss_note: "Chapter 6 landed at its 5-page instructional hard maximum (not the 4-page preferred target) and 0.67 answer-key pages (within the 0.75 hard maximum, over the 0.5 preferred target) -- both disclosed misses, not silent scope creep. See the chapter_6/answer_key_chapter_6 section notes above for what was tightened (table merge, prose trims, figure spacing) and reports/04_ch06_draft_report.md for the full account."

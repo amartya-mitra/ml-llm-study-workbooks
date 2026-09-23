@@ -473,10 +473,10 @@ sources:
     topic_tags: ["dense-model", "case-study", "decoder-only"]
     authority_type: "primary_technical"
     expected_use: "primary source for ch. 6: the workbook's representative dense decoder-only case-study model — 405B-parameter dense Transformer, 128K context, full pre/post-training recipe described"
-    last_verified: "2026-09-22"
-    access_status: "verified via WebSearch (title, arXiv ID, date, official Meta AI research-page mirror, and the 405B dense / 128K context claim all corroborated)"
+    last_verified: "2026-09-23"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF (Table 3 and Section 3.2.1 'Model Architecture'): 126 layers, 16,384-dim hidden state, 128 attention heads, GQA with 8 key-value heads, 53,248-dim FFN, SwiGLU activation, RoPE with theta=500,000, 128,000-token vocabulary, 128K context window confirmed directly against the paper's own text, not a search snippet"
     license_or_reuse: "arXiv preprint; Llama 3 model weights are under Meta's Llama Community License (not a fully open OSI license) — cite/restate the paper, do not copy figures, and do not conflate the paper's own reuse terms with the model weights' license"
-    notes: "Dated 2024-07-31. Selected specifically as the dense case study because it is the largest, most-documented model in this family with an official technical report covering full architecture detail."
+    notes: "Dated 2024-07-31. Selected specifically as the dense case study because it is the largest, most-documented model in this family with an official technical report covering full architecture detail. The paper's own Section 3.2.1 states Llama 3 405B does not deviate from Llama 2's architecture except for GQA and cross-document attention masking; it does not restate RMSNorm explicitly since that choice is unchanged from Llama 2 — the ledger's normalization field cites this inheritance explicitly rather than treating RMSNorm as independently re-confirmed in this paper's text. The 405B config.json on Hugging Face is gated (HTTP 401 without authentication) and was not used; all figures above come from the paper text itself."
 
   - id: "src-33"
     title: "DeepSeek-V3 Technical Report"
@@ -487,8 +487,8 @@ sources:
     topic_tags: ["mixture-of-experts", "multi-head-latent-attention", "case-study", "load-balancing"]
     authority_type: "primary_technical"
     expected_use: "primary source for ch. 6: the workbook's representative MoE AND MLA case-study model in one — 671B total / 37B activated parameters, combining MLA (src-27's mechanism) with DeepSeekMoE and an auxiliary-loss-free load-balancing strategy plus multi-token prediction"
-    last_verified: "2026-09-22"
-    access_status: "verified via WebSearch (671B/37B parameter split, 14.8T training tokens, and 2.788M H800 GPU-hours all corroborated directly against the paper's own abstract per search snippet)"
+    last_verified: "2026-09-23"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF (Section 4.2 'Hyper-Parameters'): 61 Transformer layers, 7168 hidden dimension, MLA with n_h=128 attention heads/128 per-head dimension, KV compression dimension d_c=512, query compression dimension d_c'=1536, decoupled RoPE per-head dimension 64; MoE layers (all but the first 3, which stay dense) each with 1 shared expert + 256 routed experts (8 activated per token, intermediate dim 2048, capped at 4 nodes per token); RoPE, RMSNorm, 128K vocabulary, and 128K context (via YaRN extension) all confirmed directly against the paper's own text, not a search snippet"
     license_or_reuse: "arXiv preprint; DeepSeek-V3 model weights are released under their own model license (verify terms before any reuse beyond citation) — cite/restate the paper, do not copy figures"
     notes: "Submitted 2024-12-27, revised 2025-02-18. Using one model to exemplify both MoE (ch. 5) and MLA (ch. 3) simultaneously is a deliberate scope choice: it keeps ch. 6's 'small, defensible set' of case-study models smaller without skipping either mechanism — see reports/04_source_audit.md. Mixtral of Experts (src-34) is registered as a simpler alternative/supporting MoE example if a less complex case study is wanted for a table row or exercise instead of a main case study."
 
@@ -515,10 +515,10 @@ sources:
     topic_tags: ["hybrid-attention", "mamba", "mixture-of-experts", "case-study"]
     authority_type: "primary_technical"
     expected_use: "primary source for ch. 4/ch. 6: the workbook's representative hybrid/linear-attention case-study model — interleaves Transformer and Mamba (state-space/linear-attention-family) layers with MoE inserted in some layers; 12B active / 52B total parameters, long-context (up to 256K) throughput/memory results reported"
-    last_verified: "2026-09-22"
-    access_status: "verified via WebSearch (title, authors, arXiv ID, dates, and the 12B/52B parameter plus 256K context claims all corroborated against the paper's own abstract per search snippet)"
+    last_verified: "2026-09-23"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF plus the Jamba-v0.1 Hugging Face config.json (not gated): 12B active / 52B total parameters; 32 total layers arranged as 4 blocks of 8 layers each with a 1:7 attention-to-Mamba layer ratio (4 attention layers, 28 Mamba layers); MoE applied every other layer (16 experts, top-2 routed); GQA with 32 query heads / 8 key-value heads; hidden_size=4096; no positional embeddings (RoPE is not used — sequence order comes from the Mamba layers); RMSNorm; vocab_size=65536; max_position_embeddings=262144 (256K); the paper's own Table 1 KV-cache-at-256K comparison (Llama-2 128GB, Mistral 32GB, Mixtral 32GB, Jamba 4GB) — all confirmed directly against the paper's own text and the config file, not a search snippet"
     license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate the paper, do not copy figures"
-    notes: "Submitted 2024-03-28, updated 2024-07-03. A newer 'Jamba 1.5' report also exists (arXiv:2408.12570) with a larger scaled-up version — NOT verified this session; this is an open decision for whoever drafts ch. 4/ch. 6 (use the original architecture-defining paper, or re-verify and switch to 1.5) rather than a silent substitution. AI21's own blog post 'Attention was never enough: Tracing the rise of hybrid LLMs' is an official company source, not an independent secondary source, if it is ever cited."
+    notes: "Submitted 2024-03-28, updated 2024-07-03. RESOLVED (2026-09-23): the original Jamba paper (this entry), not the later 'Jamba 1.5' report (arXiv:2408.12570), was selected for ch. 6 — consistent with Stage 2's 'prefer conceptual contrast over recency' selection rule and this workbook's established preference for architecture-defining sources over their later scaled-up successors. Jamba 1.5 was not independently verified and is not cited. AI21's own blog post 'Attention was never enough: Tracing the rise of hybrid LLMs' is an official company source, not an independent secondary source, if it is ever cited. The Mamba mechanism Jamba relies on is documented separately in src-37, not restated here — Jamba's own reference [17] confirms it uses exactly the Gu & Dao Mamba mechanism, not Mamba-2 or Gated DeltaNet."
 
   - id: "src-36"
     title: "DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models"
@@ -533,3 +533,17 @@ sources:
     access_status: "verified via WebFetch of the full HTML text (arxiv.org/html/2401.06066v1), confirming the shared-expert motivation quote, the exact configs (2B model: 1 shared/63 routed; 16B: 2 shared/64 routed; 145B: 4 shared/128 routed), and the compute-held-constant tradeoff statement directly from the paper's own text, not a snippet or blog summary"
     license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
     notes: "Dated 2024-01-11, published ACL 2024 (2024.acl-long.70). This is the paper DeepSeek-V2/V3's own shared-expert design descends from (DeepSeek-V2's report cites it as 'Dai et al., 2024') -- used here instead of DeepSeek-V3 (src-33) for the shared-expert claim specifically, since this is the architecture-defining source, not a downstream user of the idea."
+
+  - id: "src-37"
+    title: "Mamba: Linear-Time Sequence Modeling with Selective State Spaces"
+    url: "https://arxiv.org/abs/2312.00752"
+    authors: "Albert Gu and Tri Dao"
+    resource_type: "original research paper (arXiv:2312.00752)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["state-space-model", "recurrent", "selective-ssm", "mamba", "case-study"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 6's hybrid case study: defines the selective state-space (SSM) mechanism itself — a fixed-size recurrent state updated per token via input-dependent (selective) Delta, B, and C parameters, contrasted explicitly against attention's linearly-growing KV-cache. Needed to interpret Jamba (src-35), which uses this exact mechanism in its non-attention layers, not a different recurrent family (Mamba-2 or Gated DeltaNet are NOT the same mechanism and must not be treated as synonyms)"
+    last_verified: "2026-09-23"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming the selective-SSM recurrence formulation (Delta, B, and C as input-dependent functions of the current token, Section 3.2), and the fixed-size-state-versus-growing-KV-cache framing directly from the paper's own text, not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate the paper, do not copy figures"
+    notes: "Submitted 2023-12-01. Resolves the source gap flagged in reports/04_source_audit.md ('no primary source for the linear/recurrent (SSM-style) attention mechanism itself') — Jamba's own paper (reference [17]) confirms it uses exactly this Mamba mechanism, so this entry is cited for HOW the recurrent state update works, while src-35 remains the source for Jamba's specific architecture (layer interleaving, MoE placement, parameter counts). Full derivation of the SSM recurrence equations from first principles remains out of scope per outline.md's non-goals; ch. 6 cites only enough of this mechanism to interpret Jamba's architecture, not to re-derive it."

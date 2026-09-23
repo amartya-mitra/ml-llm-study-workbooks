@@ -148,26 +148,33 @@ quick_questions:
     source_ids: ["src-29", "src-31"]
     difficulty: "core"
 
-  # --- ch6: Modern architecture case studies (target 2-4; planned 3) ---
+  # --- ch6: Reading modern LLM architectures (target 5-6 total across quick questions, applied exercise, and interview lens; planned 6) ---
   - chapter: "ch6"
-    topic: "reading an attention variant off a real config"
-    skill_tested: "design"
+    topic: "reading an attention/KV-head configuration off a real config"
+    skill_tested: "recall"
     expected_reasoning: "identify H_kv relative to H_q from a stated config to classify it as MHA/MQA/GQA, or recognize an MLA-specific latent-dimension field instead"
     likely_misconception: "assuming every model uses standard MHA unless told otherwise"
     source_ids: ["src-32", "src-33"]
     difficulty: "core"
   - chapter: "ch6"
-    topic: "one model exemplifying two mechanisms at once"
-    skill_tested: "explanation"
-    expected_reasoning: "explain why DeepSeek-V3 can serve as both the MoE and MLA case study without double-counting — the two mechanisms are architecturally independent (attention structure vs. FFN structure) and simply co-occur in this model"
-    likely_misconception: "believing MLA and MoE are the same kind of sparsity mechanism because they appear together in the same model"
+    topic: "reading an expert configuration off a real config"
+    skill_tested: "recall"
+    expected_reasoning: "identify the active-vs-total expert distinction from a stated routed/shared-expert and top-k configuration, without assuming k/E applies to the whole model (ch. 5's distinction, reused here on a real model's numbers)"
+    likely_misconception: "reporting the routed-bank's k/E ratio as if it were the whole model's active-parameter fraction"
     source_ids: ["src-33"]
-    difficulty: "stretch"
+    difficulty: "core"
   - chapter: "ch6"
-    topic: "architecture facts vs. benchmark claims"
+    topic: "comparing two models' cache-relevant state"
+    skill_tested: "compare_and_contrast"
+    expected_reasoning: "pick two case-study models with different sequence-mixing mechanisms and state what state each one carries forward across a growing context (a linearly-growing KV-cache vs. MLA's compressed latent vs. Mamba's fixed-size recurrent state)"
+    likely_misconception: "assuming every model's per-token cache grows the same way regardless of its sequence-mixing mechanism"
+    source_ids: ["src-32", "src-33", "src-35", "src-37"]
+    difficulty: "core"
+  - chapter: "ch6"
+    topic: "sophistication is not the same axis as quality"
     skill_tested: "misconception_diagnosis"
-    expected_reasoning: "distinguish a model's architecture facts (stated in its technical report, comparatively stable) from its benchmark scores (separately reported, more time-sensitive and comparison-method-dependent)"
-    likely_misconception: "treating a leaderboard ranking as if it were an architecture fact"
+    expected_reasoning: "distinguish architecture from data, training recipe, optimization, evaluation, and serving implementation as separate contributors to a model's measured quality"
+    likely_misconception: "treating a more sophisticated architecture as necessarily a better model"
     source_ids: ["src-32", "src-33", "src-35"]
     difficulty: "core"
 
@@ -277,9 +284,9 @@ applied_exercises:
     skill_tested: "design"
     source_ids: ["src-28", "src-33"]
   - chapter: "ch6"
-    exercise: "Pick a current model not covered as a case study, find its official technical report, and fill in one row of the case-study comparison table, citing the specific section used per cell."
+    exercise: "Given the chapter's 4th, unnamed hypothetical model config, apply the 10-question architecture-reading checklist end to end, and state which conclusions the config supports and which it does not."
     skill_tested: "design"
-    source_ids: ["src-14"]
+    source_ids: ["src-21", "src-28", "src-37"]
   - chapter: "ch7"
     exercise: "Given a stated batch size, sequence length, and model config, estimate whether a decode step is compute-bound or memory-bandwidth-bound, and state what would flip the answer."
     skill_tested: "calculation"
@@ -369,8 +376,8 @@ interview_style_questions:
     skill_tested: "explanation"
     spans_chapters: ["ch5"]
   - id: "iv-05"
-    prompt_summary: "Compare model A and model B's architecture (open-ended; answerable using the ch. 6 case-study table format)"
-    skill_tested: "compare_and_contrast"
+    prompt_summary: "Given a model configuration and technical report, walk through how to predict its memory, compute, and communication bottlenecks without overclaiming benchmark performance."
+    skill_tested: "design"
     spans_chapters: ["ch6"]
   - id: "iv-06"
     prompt_summary: "Why doesn't halving a model's FLOPs halve its serving latency?"
@@ -393,7 +400,7 @@ count_check:
     ch3: 4
     ch4: 3
     ch5: 4
-    ch6: 3
+    ch6: 4
     ch7: 3
     ch8: 0
   ch8_note: "ch. 8 has no dedicated quick questions by design — it IS the cumulative/interview question set, per outline.yaml's own description of ch. 8 as introducing no new concepts"

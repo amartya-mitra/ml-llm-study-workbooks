@@ -1,0 +1,218 @@
+## Chapter 6: Reading Modern LLM Architectures: Three Designs, Three Sets of Tradeoffs {#sec-ch6}
+
+*A Ten-Question Checklist, Applied to Three Real Model Families*
+
+### Learning objectives
+
+By the end of this chapter you should be able to:
+
+- Apply a compact, repeatable checklist to read a real model's
+  technical report or config and identify its block structure,
+  normalization, position representation, sequence-mixing mechanism,
+  head counts, feed-forward type, and (if MoE) expert counts.
+- Compare one dense, one sparse-MoE-with-compressed-attention, and one
+  hybrid-attention model on architecture alone, not on leaderboard
+  scores.
+- State what cannot be inferred about a model's quality, latency, or
+  cost from its architecture alone.
+
+### Why this matters
+
+Chapters 2 through 5 taught individual mechanisms one at a time. Real
+models combine a small number of these mechanisms in different ways,
+and the skill this chapter teaches is reading which ones, from a
+model's own documentation, using a fixed checklist rather than an ad
+hoc scan. Model families change quickly; the three case studies below
+are each pinned to an exact, dated version, not stated as a permanent
+fact about "the best" or "the latest" model -- the checklist itself
+does not go stale the same way.
+
+### The architecture-reading checklist
+
+1. What is the block structure -- how are layers/blocks arranged and repeated?
+2. Where is normalization applied?
+3. What represents position?
+4. What is the attention or sequence-mixing mechanism?
+5. How many query and key/value heads (or equivalent) are there?
+6. Is the feed-forward path dense or MoE?
+7. If MoE: what are the total and active expert counts?
+8. What state grows with context length?
+9. Which components are active for every token, regardless of routing?
+10. What training or serving complication follows from these choices?
+
+The three case studies below answer these questions concretely; the
+architecture ledger (@tbl-case-study-ledger) collects every answer in
+one place.
+
+![Three case-study architectures redrawn in one visual grammar.
+Repeated blocks and layer counts are schematic -- see the ledger for
+exact counts. The one distinction worth noticing: each panel's
+cache-state icon at the bottom (growing bars vs. a fixed
+box).](figures/rendered/fig-case-study-architecture-cards.svg){#fig-case-study-architecture-cards}
+
+### Three case studies
+
+**Llama 3 405B: a dense baseline.** Meta's Llama 3 405B ([@src-32],
+2024-07-31) is a 126-layer dense decoder: GQA ($H_q=128$, $H_{kv}=8$,
+group size 16, ch. 3) and RoPE ($\theta=500{,}000$) in every layer,
+paired with a dense SwiGLU feed-forward block (ch. 2) -- no routing, no
+MoE, no attention-mechanism variation across layers. This has the
+effect of keeping compute and memory uniform across positions and
+layers, at the cost of a KV-cache that grows every layer, every token
+(ch. 3), and of all 405B parameters being active for every token (ch.
+5's total/active distinction collapses to one number here). Do not
+infer from this uniformity that Llama 3 is cheaper or simpler to
+*train* than the other two -- architecture alone does not settle that.
+
+**DeepSeek-V3: sparse experts, compressed attention.** DeepSeek-V3
+([@src-33], 2024-12-27, rev. 2025-02-18) combines two *independent*
+sparsity mechanisms: Multi-head Latent Attention (MLA, ch. 4)
+compresses each token's key/value information into one shared latent
+($d_c=512$ plus a $d_{\text{rope}}=64$ decoupled-RoPE component, per
+[@src-27]) instead of per-head K/V, and a DeepSeekMoE feed-forward path
+(ch. 5) routes each token to 8 of 256 experts plus 1 always-active
+shared expert in all but its first 3 layers. This has the effect of
+holding active compute (37B) far below total capacity (671B) while
+shrinking the per-token cache footprint versus full multi-head
+attention -- but it adds an all-to-all step wherever experts are
+split across devices (ch. 5), and reconstructing attention from the
+compressed latent adds computation MLA alone does not remove. Do not
+infer that MLA and MoE are "the same kind of sparsity" from their
+co-occurrence -- one compresses attention state, the other narrows
+which feed-forward parameters run; they are independent mechanisms.
+
+**Jamba: attention interleaved with a recurrent mechanism.** Jamba
+([@src-35], 2024-03-28) interleaves 4 attention layers (GQA, $H_q=32$,
+$H_{kv}=8$, group size 4) with 28 Mamba layers -- a selective
+state-space mechanism ([@src-37]) -- across 4 repeated blocks (a 1:7
+attention:Mamba ratio), plus a 16-expert, top-2 MoE path every other
+layer. This has the effect of replacing most of the growing KV-cache
+with a fixed-size recurrent state: Jamba's own comparison places its
+cache at roughly 4GB at a 256K-token context, against 32-128GB for the
+fully-attention baselines it compares against ([@src-35]) -- while
+keeping a small attention-based component for exact, long-range lookup
+a fixed-size state cannot easily provide. Do not infer that a smaller
+*reported* cache number means uniformly lower cost across every
+workload: the comparison is Jamba's own, at one stated configuration,
+not an independent benchmark.
+
+### Architecture ledger
+
+| Attribute | Llama 3 405B | DeepSeek-V3 | Jamba |
+|---|---|---|---|
+| Version / date | 2024-07-31 | 2024-12-27 (rev. 2025-02-18) | 2024-03-28 |
+| Total / active params | 405B / 405B | 671B / 37B | 52B / 12B |
+| Depth / hidden dim | 126 layers / 16,384 | 61 layers / 7,168 | 32 layers (4x8) / 4,096 |
+| Normalization | RMSNorm (per Llama 2) | RMSNorm, plus post-latent norm | RMSNorm |
+| Position representation | RoPE ($\theta{=}500{,}000$) | RoPE, decoupled (MLA) | none (implicit, via Mamba) |
+| Heads / cache representation | $H_q{=}128$, $H_{kv}{=}8$ (GQA-16) | $n_h{=}128$, $d_c{=}512{+}d_{\text{rope}}{=}64$ | $H_q{=}32$, $H_{kv}{=}8$ (GQA-4, attention layers only) |
+| Sequence-mixing pattern | uniform full attention | uniform MLA-compressed attention | hybrid: attention 1/8, Mamba 7/8 |
+| Feed-forward type | dense (SwiGLU) | dense (3 layers), then MoE | dense, plus MoE every other layer |
+| Expert counts, if MoE | not applicable | 1 shared + 256 routed, 8 active | 16 routed, 2 active, no shared |
+| Documented context length | 128K | 128K (via YaRN) | 256K |
+| Cache-relevant state | full K/V, grows every layer | compressed latent, grows every layer | mostly fixed size, small growing part |
+| Principal tradeoff | uniform cost, full cache growth | large capacity, compressed cache, routing/reconstruction overhead | fixed-size state, smaller-scale MoE comms, newer mixing mechanism |
+
+: Architecture ledger -- every cell traceable to the primary source cited in the text; "not applicable" is used rather than a guessed number {#tbl-case-study-ledger}
+
+![A qualitative tradeoff map. Positions are ordinal, not measured --
+there is no unit on either axis, and no coordinate here is a
+benchmark result. Marker shape encodes uniform vs. hybrid layer
+pattern; marker color encodes communication complexity at three
+qualitative levels, each traceable to a documented expert
+count.](figures/rendered/fig-case-study-tradeoff-map.svg){#fig-case-study-tradeoff-map}
+
+::: {.callout-warning title="Common misconception"}
+**"A more sophisticated architecture is necessarily a better model."**
+It is not automatically so. Measured model quality depends on
+architecture together with training data, training recipe,
+optimization, evaluation methodology, and serving implementation --
+none of the three case studies' architectural choices alone determines
+how well, how cheaply, or how reliably the resulting model performs.
+:::
+
+### Check your understanding
+
+Full solutions are in the answer key (@sec-solutions-ch6):
+
+1. **Quick check.** Given $H_q=128$ and $H_{kv}=8$ (Llama 3's
+   configuration), what GQA group size does this imply, and is this
+   MHA, MQA, or GQA? ________________________________________________
+2. **Quick check.** DeepSeek-V3 routes each token to 8 of 256 experts
+   plus 1 shared expert. Does the 8-of-256 ratio describe the whole
+   model's active-parameter fraction, or only the routed expert
+   bank's? ________________________________________________
+3. **Compare.** Llama 3 and Jamba both use GQA in their attention
+   layers. Which of the two carries a per-token state that keeps
+   growing with context length in *every* layer, and which does not?
+   ________________________________________________
+4. **Misconception check.** True or false: a more sophisticated
+   architecture is necessarily a better model.
+   ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+A 4th, unnamed model's configuration -- not one of the three case
+studies above -- states: 32 query heads, 8 KV heads, alternating
+local/global attention, 64 routed experts with top-2 routing plus 1
+always-active shared expert, and recurrent layers interleaved between
+attention layers. Using only this configuration and this chapter's
+checklist: (a) state the GQA group size; (b) identify which
+component's state grows with context length and which does not; (c)
+state the active-vs-total expert distinction; (d) name one likely
+communication concern; (e) name which chapters 2-5 mechanisms are
+present; and (f) state at least one conclusion that cannot be drawn
+from the config alone.
+
+### Interview lens
+
+*"Given a model configuration and technical report, walk me through
+how you would predict its memory, compute, and communication
+bottlenecks without overclaiming benchmark performance."* A strong
+answer works through this chapter's checklist item by item: head
+counts and cache representation for memory; dense-vs-MoE and active
+parameter count for compute; whether experts or layers are split
+across devices for communication -- and explicitly declines to predict
+measured latency, throughput, or quality from these facts alone,
+naming training data, training recipe, and serving implementation as
+the pieces architecture cannot supply.
+
+### Chapter recap
+
+- A fixed, 10-question checklist lets you read block structure,
+  normalization, position representation, sequence-mixing mechanism,
+  head counts, feed-forward type, and expert counts off any model's
+  own documentation.
+- Llama 3 405B is a uniform dense baseline: every parameter active for
+  every token, a KV-cache that grows in every layer.
+- DeepSeek-V3 combines two *independent* sparsity mechanisms -- MLA's
+  per-token attention compression and DeepSeekMoE's routed
+  feed-forward sparsity -- not one mechanism wearing two names.
+- Jamba replaces most of its attention layers with a fixed-size
+  recurrent (Mamba) state, keeping only a small fraction of layers as
+  attention for exact long-range lookup.
+- Architecture facts are comparatively stable and traceable to a
+  technical report; benchmark scores are separately reported and more
+  time-sensitive -- this chapter deliberately stays on the former.
+- A more sophisticated architecture is not necessarily a better model:
+  data, training recipe, optimization, evaluation, and serving
+  implementation all matter too.
+
+### Sources and further reading
+
+Primary sources: [@src-32] (Llama 3 405B's architecture, verified
+directly against the paper's Table 3 and Section 3.2.1, not a search
+snippet), [@src-33] (DeepSeek-V3's architecture, verified directly
+against Section 4.2's hyper-parameters), [@src-35] (Jamba's
+architecture and its own KV-cache comparison table, verified against
+the paper's full text plus its published config), [@src-37] (Gu and
+Dao's selective state-space mechanism, the recurrent update Jamba's
+non-attention layers use -- resolving a sourcing gap left open in ch.
+4). Secondary/supporting: [@src-14], [@src-15], [@src-27] (MLA's
+compression mechanism, taught in ch. 4). A model-specific benchmark
+comparison, a survey of every current model, and a release-history
+timeline are all out of scope for this chapter; undocumented
+proprietary architectures are not discussed.

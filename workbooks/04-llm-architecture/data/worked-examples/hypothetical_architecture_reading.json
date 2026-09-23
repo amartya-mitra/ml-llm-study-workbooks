@@ -1,0 +1,20 @@
+{
+  "assumptions": {
+    "H_q": 32,
+    "H_kv": 8,
+    "E_routed": 64,
+    "k_routed": 2,
+    "has_shared_expert": true,
+    "note": "Hypothetical config, not a real model -- see Chapter 6's worked reading exercise."
+  },
+  "gqa_group_size": 4,
+  "routed_bank_active_fraction": 0.03125,
+  "reading_answers": {
+    "growing_state": "The attention layers' KV-cache grows with context length (one entry per past token, per attention layer).",
+    "fixed_state": "The recurrent layers' state does not grow with context length -- it stays a fixed size per layer, updated in place each token (ch. 6's Mamba reference mechanism).",
+    "active_vs_total_experts": "Only 2 of 64 routed experts are active per token (0.031 of the routed bank), plus the always-active shared expert; all 64 routed experts are still stored regardless of activation (ch. 5's total-vs-active distinction).",
+    "communication_concern": "Expert-parallel deployment of 64 routed experts implies an all-to-all dispatch/combine step, the same architectural consequence ch. 5 and ch. 6's case studies describe for any routed-MoE model -- not a number this config alone determines.",
+    "mechanisms_present": "GQA (ch. 3), alternating local/global attention (ch. 4), a routed-MoE feed-forward path with a shared expert (ch. 5), and a recurrent/state-space sequence-mixing layer (ch. 6's Mamba reference) all appear in this one hypothetical config.",
+    "not_inferable_from_config_alone": "Quality, wall-clock latency, training data, training recipe, and serving cost cannot be read off this config -- architecture constrains but does not determine any of them."
+  }
+}

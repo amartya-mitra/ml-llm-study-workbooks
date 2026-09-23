@@ -98,18 +98,20 @@ examples:
     skill_tested: "design"
     source_ids: ["src-10", "src-11", "src-21", "src-27"]
 
-  - id: "ex-case-study-cache-size"
+  - id: "ex-case-study-hypothetical-reading"
     chapter: "ch6"
-    title: "Compute each case-study model's KV-cache size per token from its published config"
+    title: "Apply the architecture-reading checklist to a 4th, unnamed hypothetical model config"
     chains_from: null
-    given: "The published configs of the four ch. 6 case-study models (Llama 3, DeepSeek-V3, Jamba, and Mixtral as a fifth contrast point)."
+    given: "A hypothetical, unnamed model configuration (not one of the three named case studies): 32 query heads, 8 KV heads, alternating local/global attention, 64 routed experts with top-2 routing plus one shared expert, and recurrent layers interleaved between attention layers."
     steps:
-      - "for each model, identify its attention variant and the corresponding H_kv (or d_latent) value from its technical report"
-      - "apply the correct formula variant (from ch. 3) per model"
-      - "tabulate all four/five results side by side, each traceable to the specific report section used"
-    expected_result: "one filled row per model in the case-study comparison table (matches figure-plan.yaml's fig-case-study-architecture-comparison), each cell citation-traceable"
-    skill_tested: "calculation"
-    source_ids: ["src-32", "src-33", "src-34", "src-35"]
+      - "compute the GQA group size from the stated query/KV head counts (ch. 3's formula, reused, not re-derived)"
+      - "identify which state grows with context length (the attention layers' KV-cache) versus which stays fixed size (the recurrent layers' state, ch. 6's Mamba reference)"
+      - "state the active-vs-total expert distinction for the MoE path without assuming a specific active-parameter number the config does not state"
+      - "name which previously-learned mechanisms (chs. 2-5) are present in this config"
+      - "state at least one conclusion that CANNOT be drawn from the config alone (e.g. quality, latency, training recipe)"
+    expected_result: "a GQA group size, an explicit growing-vs-fixed-state distinction, an active-vs-total expert statement, a list of present mechanisms, and at least one explicitly-stated non-inferable conclusion -- not a single large numerical calculation"
+    skill_tested: "design"
+    source_ids: ["src-21", "src-28", "src-37"]
 
   - id: "ex-compute-bound-vs-bandwidth-bound"
     chapter: "ch7"

@@ -11,7 +11,7 @@
 working_title: "Modern LLM Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models"
 target_reader: "technically experienced ML practitioner or researcher; knows standard deep learning and linear algebra and the vanilla Transformer; not fluent yet in modern efficiency mechanisms (GQA, MLA, MoE routing, hybrid attention stacks)"
 page_ceiling: 65
-estimated_total_pages: 51  # ch3 9->8 (MLA deferred out); ch4 7->6 (retitled, MLA absorbed); ch5 8->5 (scoped down, systems depth deferred); all 2026-09-23, see ch3/ch4/ch5 drafting_note fields
+estimated_total_pages: 47  # ch3 9->8 (MLA deferred out); ch4 7->6 (retitled, MLA absorbed); ch5 8->5 (scoped down, systems depth deferred); ch6 8->4 (rescoped to 3 case studies + reading checklist); all 2026-09-23, see ch3/ch4/ch5/ch6 drafting_note fields
 
 chapters:
   - id: "ch1"
@@ -246,35 +246,40 @@ chapters:
 
   - id: "ch6"
     number: 6
-    title: "Modern architecture case studies"
-    purpose: "Apply every mechanism from chapters 2-5 to a small, defensible set of real, current models, comparing architecture choices rather than restating benchmark marketing."
+    title: "Reading modern LLM architectures: three designs, three sets of tradeoffs"
+    drafting_note: "SCOPED DOWN and RESELECTED (2026-09-23) from the original plan per that day's drafting task: case-study count 4->3 (Mixtral dropped entirely as a main case study, kept only as a ch. 5-adjacent supporting reference elsewhere -- see source-coverage.yaml); figures kept at 2 but redefined as (A) three architecture cards in one consistent visual grammar and (B) a qualitative tradeoff map with labeled regions, not fabricated numeric coordinates; the worked exercise changed from 'compute each real case-study model's KV-cache size' to a single compact reading exercise over a 4th, HYPOTHETICAL model config, so it teaches architecture-reading judgment rather than repeating ch. 3's cache-size calculation a fourth time; estimated_pages 8->4 (5 hard maximum), matching the drafting task's page contract. This chapter also newly organizes around an explicit 10-question architecture-reading checklist (Stage 4 of that task) rather than an implicit comparison. DISCLOSED MISS: the chapter landed at exactly 5 instructional pages (the hard maximum, not the 4-page preferred target) and ~0.67 answer-key pages (within the 0.75 hard maximum, over the 0.5 preferred target) -- two figures, one merged architecture-ledger table, three equal-space case studies, and a hypothetical-config exercise did not compress further without sacrificing legibility or cutting a required element; see reports/04_ch06_draft_report.md."
+    purpose: "Apply every mechanism from chapters 2-5 to a small, defensible set of real, well-documented model families, comparing architecture choices rather than restating benchmark marketing or a release-history timeline."
     prerequisites: ["ch1", "ch2", "ch3", "ch4", "ch5"]
     learning_objectives:
-      - "Read a real model's technical report or config and identify which attention variant, normalization, positional scheme, and (if any) MoE structure it uses"
-      - "Compare at least one dense, one MoE, one MLA-based, and one hybrid/linear-attention model on architecture, not on leaderboard scores"
-      - "Explain at least one instance where two similar-looking models made different architectural choices, and state the tradeoff each side implies"
+      - "Apply a compact, repeatable checklist to read a real model's technical report or config and identify its block structure, normalization, position representation, sequence-mixing mechanism, head counts, FFN type, and (if MoE) expert counts"
+      - "Compare one dense, one sparse-MoE-with-compressed-KV, and one hybrid-attention model on architecture alone, not on leaderboard scores"
+      - "State what cannot be inferred about a model's quality, latency, or cost from its architecture alone"
     core_concepts:
-      - "reading a model's published architecture description/config as a primary source"
-      - "separating architecture facts (stated in a technical report) from benchmark claims (separately reported, separately time-sensitive)"
-      - "a working definition of 'representative' used to justify which models were included and which were left out"
+      - "reading a model's published architecture description/config as a primary source, using a fixed checklist rather than an ad hoc scan"
+      - "separating architecture facts (stated in a technical report, comparatively stable) from benchmark claims (separately reported, separately time-sensitive, not covered here)"
+      - "a working definition of 'representative' used to justify which three model families were included and which were left out"
     required_equations: []
     worked_examples:
-      - "for each of the four selected case-study models, compute that model's KV-cache size per token using the formula from ch. 3, from its published config"
+      - "apply the chapter's 10-question checklist to a 4th, unnamed hypothetical model config, identifying GQA group size, which state grows with context, active-vs-total expert distinction, and which conclusions cannot be drawn from the config alone"
     planned_figures:
-      - "dense vs. MoE vs. MLA vs. hybrid architecture comparison (one compact diagram per model family, same visual grammar across all four for direct comparison)"
-      - "architecture-to-training/inference consequence map, instantiated with the four case-study models as concrete points on the map (the general version of this map is ch. 7's; this is the worked instantiation)"
+      - "three architecture cards (dense baseline, sparse MoE + compressed KV, hybrid attention/recurrent) in one consistent visual grammar, marking cache-relevant state and active-vs-inactive components per model"
+      - "a qualitative tradeoff map placing the three architectures on labeled axes (dense vs. sparse params; full vs. compressed/recurrent state; uniform vs. hybrid layer pattern) -- ordinal placement only, no fabricated numeric coordinates"
     planned_tables:
-      - "case-study models x architecture dimensions: attention variant, KV heads/latent dim, normalization, positional scheme, dense/MoE, active/total params, publication date — every cell traceable to a specific primary-source section"
+      - "case-study models x architecture-ledger dimensions: exact version/date, params (total/active), depth, hidden dim, normalization, positional mechanism, head counts, sequence-mixing pattern, FFN type, expert counts, documented context length, cache-relevant state, principal tradeoff -- every cell traceable to a specific primary-source section, 'not applicable'/'not reported' used rather than guessed"
     misconception_checks:
-      - "\"Newer always means better on every axis\" — false; case studies should surface at least one place where an older or simpler choice is still made deliberately in a current model, with the source's own stated reason"
+      - "\"A more sophisticated architecture is necessarily a better model\" — false; quality depends on architecture, data, training recipe, optimization, evaluation, and serving implementation together, not architecture alone"
     short_questions:
-      - "compare_and_contrast: pick two case-study models with different attention variants and state the KV-cache consequence"
-      - "design: given a new model's config excerpt not covered in the case studies, classify its attention variant and normalization from the config alone"
-    applied_exercise: "Pick a current model not covered as a case study, find its official technical report or model card, and fill in one row of the case-study comparison table for it, citing the specific section used for each cell."
-    interview_lens: "\"Compare {model A} and {model B}'s architecture\" is a direct, common interview prompt; this chapter's table is deliberately structured to be answerable in the same format live."
-    primary_sources: ["src-32", "src-33", "src-35"]
-    secondary_sources: ["src-14", "src-15", "src-27", "src-34"]
-    estimated_pages: 8
+      - "recall: read a stated attention/KV-head configuration and classify it as MHA/GQA/MQA or MLA-style"
+      - "recall: read a stated expert configuration and state the active-vs-total expert distinction"
+      - "compare_and_contrast: pick two case-study models with different sequence-mixing mechanisms and state what state each one carries forward across a growing context"
+      - "misconception_diagnosis: is a more sophisticated architecture necessarily a better model?"
+      - "design: given the chapter's hypothetical 4th model config, identify its GQA group size and state one conclusion that cannot be drawn from the config alone"
+      - "interview-style: given a model configuration and technical report, walk through how to predict its memory, compute, and communication bottlenecks without overclaiming benchmark performance"
+    applied_exercise: "Given the chapter's 4th, unnamed hypothetical model config, apply the 10-question checklist end to end and identify which conclusions the config supports and which it does not."
+    interview_lens: "\"Given a model configuration and technical report, walk me through how you would predict its memory, compute, and communication bottlenecks without overclaiming benchmark performance\" is a direct systems-interview prompt this chapter's checklist is built to answer."
+    primary_sources: ["src-32", "src-33", "src-35", "src-37"]
+    secondary_sources: ["src-14", "src-15", "src-27"]
+    estimated_pages: 4
 
   - id: "ch7"
     number: 7

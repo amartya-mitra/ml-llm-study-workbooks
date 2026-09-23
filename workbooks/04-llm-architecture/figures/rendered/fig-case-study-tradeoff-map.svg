@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="570" viewBox="0 0 1000 570">
+  <title>Qualitative architecture tradeoff map</title>
+  <defs><marker id="arrow-555555" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker></defs>
+  <rect x="0" y="0" width="1000" height="570" fill="#ffffff"/>
+  <text x="500.0" y="24" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">Ordinal placement only -- no axis is a measured number</text>
+  <rect x="220" y="70" width="640" height="380" rx="8" fill="#fbfbfb" stroke="#999999" stroke-width="1.5"/>
+  <text x="180" y="455" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#111111" text-anchor="end">more full/</text>
+  <text x="180" y="472" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#111111" text-anchor="end">growing state</text>
+  <text x="180" y="48" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#111111" text-anchor="end">more compressed/</text>
+  <text x="180" y="65" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#111111" text-anchor="end">fixed state</text>
+  <text x="220" y="480" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">mostly dense parameters</text>
+  <text x="860" y="480" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="end">mostly sparse/routed parameters</text>
+  <line x1="220" y1="465" x2="860" y2="465" stroke="#555555" stroke-width="1.5" marker-end="url(#arrow-555555)"/>
+  <line x1="160" y1="450" x2="160" y2="70" stroke="#555555" stroke-width="1.5" marker-end="url(#arrow-555555)"/>
+  <circle cx="271.2" cy="412.0" r="14" fill="#0072B2" stroke="#222222" stroke-width="2"/>
+  <text x="293.2" y="394.0" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start">Llama 3 405B</text>
+  <text x="293.2" y="412.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">no MoE all-to-all</text>
+  <circle cx="808.8000000000001" cy="317.0" r="14" fill="#D55E00" stroke="#222222" stroke-width="2"/>
+  <text x="618.8000000000001" y="299.0" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start">DeepSeek-V3</text>
+  <text x="618.8000000000001" y="317.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">all-to-all, 256-expert scale</text>
+  <rect x="559.0" y="114.0" width="26" height="26" rx="3" fill="#E69F00" stroke="#222222" stroke-width="2"/>
+  <text x="594.0" y="133.0" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start">Jamba</text>
+  <text x="594.0" y="151.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">all-to-all, 16-expert scale</text>
+  <circle cx="28" cy="518" r="10" fill="#0072B2" stroke="#222222" stroke-width="1.5"/>
+  <text x="48" y="523" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">circle = uniform layer pattern; square = hybrid layer pattern</text>
+  <text x="28" y="550" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">marker color = communication complexity (blue: none/low, orange: present, smaller-scale, red: present, larger-scale)</text>
+</svg>

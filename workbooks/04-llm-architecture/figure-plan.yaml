@@ -237,20 +237,35 @@ figures:
     grayscale_behavior: "total and active bars distinguished by fill pattern (solid vs. hatched) as well as color"
     accessibility_description: "A bar chart with one pair of bars per model. Each pair has a taller bar labeled total parameters and a shorter (or equal, for the dense model) bar labeled active parameters, with the model name and citation below each pair."
 
-  - id: "fig-case-study-architecture-comparison"
+  - id: "fig-case-study-architecture-cards"
     chapter: "ch6"
-    teaching_purpose: "Present all four case-study models in one consistent visual grammar so their architecture differences are directly comparable, not just tabulated."
-    learner_takeaway: "The same small set of architecture dimensions (attention variant, normalization, positional scheme, dense-or-MoE) can be read off any model once you know where to look — these four look different in the same, small number of places."
-    diagram_type: "small-multiples comparison (one compact diagram per model, same layout)"
-    objects_and_relationships: "Four compact model diagrams (Llama 3, DeepSeek-V3, Jamba, plus Mixtral as a secondary contrast panel), each annotated with attention variant, normalization, positional scheme, and dense/MoE structure, using identical visual placement across all four so differences pop out by position."
-    required_labels: ["model name + date", "attention variant", "normalization", "positional scheme", "dense/MoE structure"]
+    teaching_purpose: "Present the three selected case-study models in one consistent visual grammar so their architecture differences are directly comparable, not just tabulated."
+    learner_takeaway: "The same small set of architecture dimensions (sequence-mixing mechanism, FFN/MoE path, cache-relevant state, active-vs-inactive components) can be read off any model once you know where to look — these three look different in the same, small number of places."
+    diagram_type: "small-multiples comparison (one compact 'architecture card' per model, same layout)"
+    objects_and_relationships: "Three compact model cards (Llama 3 405B, DeepSeek-V3, Jamba), each showing a simplified repeated-block/layer pattern, its sequence-mixing mechanism (full attention with GQA / MLA-compressed attention / interleaved attention+Mamba), its FFN path (dense vs. MoE with active-vs-total experts marked), and its cache-relevant state, using identical visual placement across all three so differences pop out by position. Repeated blocks and omitted details are explicitly schematic, stated in the caption."
+    required_labels: ["model name + exact version + date", "sequence-mixing mechanism", "FFN/MoE path (active vs. total, if MoE)", "cache-relevant state"]
     underlying_calculation: null
-    source_inspiration: "src-14's comparison approach (the IDEA of a consistent side-by-side grammar, not its specific diagrams, which are not copied); src-32, src-33, src-35, src-34's own reported configs"
+    source_inspiration: "src-14's comparison approach (the IDEA of a consistent side-by-side grammar, not its specific diagrams, which are not copied); src-32, src-33, src-35's own reported configs; original redraw, no official figure copied"
     must_be_redrawn: true
-    attribution_requirement: "cite src-14 (approach), src-32, src-33, src-34, src-35 (per-model facts) in the caption's source line"
-    intended_printed_dimensions: "full page width (6.5in) x 6in (four small panels)"
+    attribution_requirement: "cite src-14 (approach), src-32, src-33, src-35, src-37 (per-model/mechanism facts) in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 4.5in (three small panels)"
     grayscale_behavior: "each annotation uses text labels, not color alone, so the comparison survives grayscale printing"
-    accessibility_description: "Four small diagrams arranged in a grid, one per model, each using the same layout: a small decoder-block icon annotated with four text labels for attention variant, normalization type, positional scheme, and whether the model is dense or mixture-of-experts."
+    accessibility_description: "Three small diagrams arranged side by side, one per model, each using the same layout: a small repeated-block icon annotated with text labels for the sequence-mixing mechanism, the feed-forward or MoE path with active-vs-total experts marked where applicable, and the cache-relevant state that grows or stays fixed with context length."
+
+  - id: "fig-case-study-tradeoff-map"
+    chapter: "ch6"
+    teaching_purpose: "Place the three case-study architectures on qualitative tradeoff axes so their design differences read as a comparison, not a ranking."
+    learner_takeaway: "The three architectures occupy different regions of a small set of qualitative axes (dense vs. sparse parameters; full vs. compressed/recurrent state; uniform vs. hybrid layer pattern) — no numeric coordinate on this map is a measurement."
+    diagram_type: "labeled-region tradeoff map (ordinal placement, not a scatter plot with numeric axes)"
+    objects_and_relationships: "Three labeled regions/markers (one per case-study model) placed on two or three qualitative axes using ordinal position (further left/right, further up/down) rather than fabricated numeric coordinates; each axis endpoint is labeled with what it means, not a unit."
+    required_labels: ["axis names and endpoint meanings", "model name + version per marker"]
+    underlying_calculation: null
+    source_inspiration: "original diagram; no external figure copied; markers positioned from src-32, src-33, src-35's own reported architecture facts, not from any benchmark source"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-32, src-33, src-35, src-37 in the caption's source line; caption states explicitly that axis positions are qualitative/ordinal, not measured"
+    intended_printed_dimensions: "full page width (6.5in) x 3.5in"
+    grayscale_behavior: "each model's marker uses a distinct shape as well as a color/pattern so the map survives grayscale printing"
+    accessibility_description: "A two-axis diagram with three labeled markers, one per case-study model, placed at qualitative (not numeric) positions along each axis; axis endpoints are labeled with what they mean (e.g. 'mostly dense parameters' to 'mostly sparse/routed parameters')."
 
   - id: "fig-architecture-to-consequence-map"
     chapter: "ch7"
@@ -283,6 +298,7 @@ figures:
     accessibility_description: "A grid of six small panels, each a shrunk version of an earlier chapter's main diagram, labeled with that chapter's topic."
 
 figure_count_check:
-  planned_count: 18
+  planned_count: 19
   stage_7_target_range: "12-18"
-  within_range: true
+  within_range: false
+  revision_note: "RESOLVED (2026-09-23): ch. 6's task-mandated figure contract (Stage 7 of that day's drafting task: 'exactly 2' figures -- architecture cards AND a separate qualitative tradeoff map) replaced the original single-figure plan for ch. 6, raising the workbook-wide planned count from 18 to 19 -- one over the original 12-18 target range. This is a disclosed, deliberate increase driven by the current chapter's own explicit figure requirement, not scope creep; see outline.yaml's ch6.drafting_note and reports/04_ch06_draft_report.md."
