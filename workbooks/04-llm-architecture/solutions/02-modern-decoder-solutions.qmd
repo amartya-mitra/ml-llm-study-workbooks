@@ -1,105 +1,105 @@
 ## Answer Key: Chapter 2 {#sec-solutions-ch2}
 
 Full solutions to Chapter 2's "Check your understanding" questions
-(@sec-ch2). Question records are in
-`workbooks/04-llm-architecture/questions.yaml`, ids `q-04-ch2-001`
-through `q-04-ch2-010`.
+(@sec-ch2).
 
-**1. (calculation) RoPE, positions (1,0) and (3,2), both relative
+**1. Calculation. RoPE, positions (1,0) and (3,2), both relative
 offset 1: what's guaranteed, what isn't?**
 
-RoPE guarantees the *angle* between the rotated query and key vectors
-is identical in both cases, because each vector is rotated by an amount
-tied to its own position, so only the relative offset (1, in both
-cases) survives. It does **not** guarantee the dot products are
+*Answer.* RoPE guarantees the *angle* between the rotated query and key
+vectors is identical in both cases, because each vector is rotated by
+an amount tied to its own position, so only the relative offset (1, in
+both cases) survives. It does **not** guarantee the dot products are
 numerically equal in general -- the dot product also depends on the
 original (pre-rotation) vectors' magnitudes and directions, which can
 differ between the two pairs.
 
-*Common overreach:* claiming RoPE guarantees identical dot products for
-any two pairs with the same relative offset -- this conflates the angle
+*Common trap:* claiming RoPE guarantees identical dot products for any
+two pairs with the same relative offset -- this conflates the angle
 (guaranteed to match) with the dot product (which also depends on
 vector magnitudes).
 
-**2. (compare_and_contrast) Two operations RMSNorm omits relative to
+**2. Compare. Two operations RMSNorm omits relative to
 LayerNorm.**
 
-Mean-centering (subtracting the vector's mean before rescaling) and the
-learned bias term (an additive per-dimension shift after rescaling).
-LayerNorm computes $(x - \text{mean}(x))/\text{std}(x) \odot \gamma +
-\beta$; RMSNorm computes $x / \text{RMS}(x) \odot \gamma$ -- no mean
-subtraction and no $\beta$ term.
+*Answer.* Mean-centering (subtracting the vector's mean before
+rescaling) and the learned bias term (an additive per-dimension shift
+after rescaling). LayerNorm computes $(x - \text{mean}(x))/\text{std}(x)
+\odot \gamma + \beta$; RMSNorm computes $x / \text{RMS}_\epsilon(x)
+\odot \gamma$ -- no mean subtraction and no $\beta$ term (the
+$\epsilon$ inside $\text{RMS}_\epsilon$ is a fixed numerical-stability
+constant, not a learned bias).
 
-*Common incomplete answer:* naming only the missing bias and missing
-that mean-centering is also gone -- dropping mean-centering is the more
+*Common trap:* naming only the missing bias and missing that
+mean-centering is also gone -- dropping mean-centering is the more
 consequential of the two omissions.
 
-**3. (explanation) Why three matrices for a gated feed-forward layer?**
+**3. Explain. Why three matrices for a gated feed-forward layer?**
 
-The third matrix ($W_3$, the "value" branch) provides a second, purely
-linear projection of the input that gets elementwise-multiplied against
-the first matrix's activated output ($W_1$, the "gate" branch) before
-the shared output projection ($W_2$). $W_1$ alone only produces one
-activated signal; $W_3$ gives something for that signal to gate.
+*Answer.* The third matrix ($W_3$, the "value" branch) provides a
+second, purely linear projection of the input that gets
+elementwise-multiplied against the first matrix's activated output
+($W_1$, the "gate" branch) before the shared output projection ($W_2$).
+$W_1$ alone only produces one activated signal; $W_3$ gives something
+for that signal to gate.
 
-*Common wrong answer:* describing the third matrix as making the
-network "deeper" -- it does not; $W_1$ and $W_3$ are parallel branches
-computed from the same input, not a longer sequential chain.
+*Common trap:* describing the third matrix as making the network
+"deeper" -- it does not; $W_1$ and $W_3$ are parallel branches computed
+from the same input, not a longer sequential chain.
 
-**4. (calculation) Plain MLP, $d_{\text{model}} = 16$, $d_{\text{ff}} =
+**4. Calculation. Plain MLP, $d_{\text{model}} = 16$, $d_{\text{ff}} =
 64$: parameter count.**
 
-$2 \, d_{\text{model}} \, d_{\text{ff}} = 2 \times 16 \times 64 =
-2048$ parameters (verified by
-`data/worked-examples/gated_mlp_params.py`'s formula, instantiated at
-these dimensions).
+*Answer.* $2 \, d_{\text{model}} \, d_{\text{ff}} = 2 \times 16 \times
+64 = 2048$ parameters, from this chapter's plain-MLP formula
+instantiated at these dimensions and checked programmatically (see the
+Build and Version Note).
 
-*Common slip:* computing only one matrix's parameter count (1024) and
+*Common trap:* computing only one matrix's parameter count (1024) and
 forgetting the second, or applying the gated-MLP (3x) formula by
 mistake.
 
-**5. (misconception_diagnosis) Pre-norm's popularity: stability or
+**5. Misconception check. Pre-norm's popularity: stability or
 quality?**
 
-Mainly training stability at depth, not final model quality. Pre-norm
-trades away some representational capacity for a more stable gradient
-path through an un-normalized residual stream as $L$ grows.
+*Answer.* Mainly training stability at depth, not final model quality.
+Pre-norm trades away some representational capacity for a more stable
+gradient path through an un-normalized residual stream as $L$ grows.
 Sandwich-norm's existence (paying for a *second* normalization step
 around the same sublayer) is direct evidence that pre-norm alone is
 understood to give something up, not that it is a strict improvement.
 
-*Common wrong answer:* treating pre-norm as simply "the new correct
-default" with no acknowledged tradeoff.
+*Common trap:* treating pre-norm as simply "the new correct default"
+with no acknowledged tradeoff.
 
-**6. (misconception_diagnosis) "RoPE adds a learned position vector to
+**6. Misconception check. "RoPE adds a learned position vector to
 every token embedding."**
 
-False. RoPE rotates the query and key vectors *inside* the attention
-computation, at every layer that has attention -- it adds nothing to
-the embedding table, and the rotation angles are fixed by position, not
-learned.
+*Answer.* False. RoPE rotates the query and key vectors *inside* the
+attention computation, at every layer that has attention -- it adds
+nothing to the embedding table, and the rotation angles are fixed by
+position, not learned.
 
-*Common wrong answer's origin:* conflating RoPE with learned absolute
-positional embeddings (an older, different scheme that *does* add a
-learned per-position vector directly to the embedding).
+*Why:* conflating RoPE with learned absolute positional embeddings (an
+older, different scheme that *does* add a learned per-position vector
+directly to the embedding).
 
-**7. (misconception_diagnosis) "SwiGLU makes the feed-forward block
+**7. Misconception check. "SwiGLU makes the feed-forward block
 sparse like an MoE layer."**
 
-False. Every weight in a SwiGLU feed-forward layer is used for every
-token, exactly like a plain feed-forward layer. Sparsity, in the
-mixture-of-experts sense, means a *router* activates only a subset of
-available parameters per token -- SwiGLU has no router and always uses
-100% of its own weights.
+*Answer.* False. Every weight in a SwiGLU feed-forward layer is used
+for every token, exactly like a plain feed-forward layer. Sparsity, in
+the mixture-of-experts sense, means a *router* activates only a subset
+of available parameters per token -- SwiGLU has no router and always
+uses 100% of its own weights.
 
-*Common wrong answer's origin:* the word "gated" sounds like it could
-mean "selecting a subset," but the gate here is a continuous, dense
-elementwise multiply applied to every token, not a discrete routing
-decision.
+*Why:* the word "gated" sounds like it could mean "selecting a
+subset," but the gate here is a continuous, dense elementwise multiply
+applied to every token, not a discrete routing decision.
 
-**8. (design, applied exercise) Reading a model config excerpt.**
+**8. Design exercise (applied exercise). Reading a model config excerpt.**
 
-Given `hidden_size: 2048`, `num_attention_heads: 16`,
+*Answer.* Given `hidden_size: 2048`, `num_attention_heads: 16`,
 `intermediate_size: 5504`, `hidden_act: "silu"`, `rms_norm_eps: 1e-5`,
 `tie_word_embeddings: false`, `rope_theta: 10000.0`:
 
@@ -113,33 +113,33 @@ Given `hidden_size: 2048`, `num_attention_heads: 16`,
   4x ratio.
 - **Embeddings:** untied (`tie_word_embeddings: false` is explicit).
 
-*Common mistake:* assuming any roughly-4x `intermediate_size` implies a
+*Common trap:* assuming any roughly-4x `intermediate_size` implies a
 plain (ungated) MLP -- the compensated gated ratio is close enough to
 other plausible ratios that the activation-function field is a more
 reliable signal than the ratio alone.
 
-**9. (explanation, interview-style) "Why RoPE instead of learned
+**9. Interview practice. "Why RoPE instead of learned
 positional embeddings?"**
 
-A strong answer states RoPE's relative-position mechanism as the
-reason, and names at least one concrete consequence: no learned
+*Answer.* A strong answer states RoPE's relative-position mechanism as
+the reason, and names at least one concrete consequence: no learned
 positional parameters at all, and generally better behavior beyond the
 training length than a learned table with a fixed maximum.
 
-*Evaluation criteria:* does the answer name the actual mechanism rather
+*Interview criteria:* does the answer name the actual mechanism rather
 than asserting RoPE is "more modern"; does it name a specific,
 checkable consequence rather than a vague quality claim?
 
-**10. (explanation, interview-style) "Walk me through what SwiGLU
+**10. Interview practice. "Walk me through what SwiGLU
 changes about the MLP."**
 
-A strong answer describes the extra parallel branch and the elementwise
-multiply before the shared output projection, and explicitly states
-the parameter tradeoff: at matched expansion width, three matrices cost
-1.5x what two matrices cost, which is why real models often shrink the
-expansion width to compensate.
+*Answer.* A strong answer describes the extra parallel branch and the
+elementwise multiply before the shared output projection, and
+explicitly states the parameter tradeoff: at matched expansion width,
+three matrices cost 1.5x what two matrices cost, which is why real
+models often shrink the expansion width to compensate.
 
-*Evaluation criteria:* does the answer proactively raise the
+*Interview criteria:* does the answer proactively raise the
 parameter-cost tradeoff, rather than needing to be prompted for it --
 a systems-flavored interviewer will very likely ask a follow-up about
 cost if the candidate doesn't raise it first.

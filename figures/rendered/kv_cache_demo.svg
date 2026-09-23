@@ -1,67 +1,69 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="920" height="611" viewBox="0 0 920 611">
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="710" viewBox="0 0 920 710">
   <title>KV-cache: prefill then one decode step</title>
   <defs><marker id="arrow-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker><marker id="arrow-888888" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#888888"/></marker></defs>
-  <rect x="0" y="0" width="920" height="611" fill="#ffffff"/>
-  <text x="20" y="30" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">Prefill: build the whole KV-cache from the prompt in one pass</text>
-  <rect x="20" y="55" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="50.0" y="79.0" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">The</text>
-  <rect x="92" y="55" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="122.0" y="79.0" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">cat</text>
-  <rect x="164" y="55" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="194.0" y="79.0" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">sat</text>
-  <rect x="236" y="55" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="266.0" y="79.0" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">on</text>
-  <rect x="20" y="140" width="276" height="60" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="158.0" y="175.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">Prefill forward pass (attention + MLP, all 4 tokens at once)</text>
-  <line x1="50.0" y1="95" x2="50.0" y2="140" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="122.0" y1="95" x2="122.0" y2="140" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="194.0" y1="95" x2="194.0" y2="140" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="266.0" y1="95" x2="266.0" y2="140" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <text x="20" y="216" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">KV-cache after prefill (one slot per prompt token)</text>
-  <rect x="20" y="248" width="60" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="50.0" y="267.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[0]</text>
-  <rect x="92" y="248" width="60" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="122.0" y="267.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[1]</text>
-  <rect x="164" y="248" width="60" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="194.0" y="267.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[2]</text>
-  <rect x="236" y="248" width="60" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="266.0" y="267.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[3]</text>
-  <line x1="158.0" y1="226" x2="158.0" y2="244" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="20" y1="303" x2="900" y2="303" stroke="#cccccc" stroke-width="1"/>
-  <text x="20" y="328" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">Decode step: one new token reuses the whole cache, then extends it by one slot</text>
-  <rect x="20" y="383" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="50.0" y="407.0" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">the</text>
-  <text x="20" y="377" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#555555" text-anchor="start">new token</text>
-  <rect x="160" y="373" width="380" height="60" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="350.0" y="408.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">Decode forward pass (1 new token attends to all cached K/V)</text>
-  <line x1="80" y1="403.0" x2="160" y2="403.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="50.0" y1="278" x2="50.0" y2="316" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3"/>
-  <line x1="50.0" y1="338" x2="50.0" y2="371" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
-  <line x1="122.0" y1="278" x2="122.0" y2="316" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3"/>
-  <line x1="122.0" y1="338" x2="122.0" y2="371" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
-  <line x1="194.0" y1="278" x2="194.0" y2="316" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3"/>
-  <line x1="194.0" y1="338" x2="194.0" y2="371" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
-  <line x1="266.0" y1="278" x2="266.0" y2="316" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3"/>
-  <line x1="266.0" y1="338" x2="266.0" y2="371" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
-  <text x="20" y="449" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">KV-cache after this decode step (cache grew by exactly one slot)</text>
-  <rect x="20" y="481" width="60" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="50.0" y="500.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[0]</text>
-  <rect x="92" y="481" width="60" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="122.0" y="500.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[1]</text>
-  <rect x="164" y="481" width="60" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="194.0" y="500.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[2]</text>
-  <rect x="236" y="481" width="60" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="266.0" y="500.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[3]</text>
-  <rect x="308" y="481" width="60" height="30" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="338.0" y="500.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[4]</text>
-  <line x1="350.0" y1="459" x2="350.0" y2="477" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <text x="358.0" y="473" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#333333" text-anchor="start">+1 new K/V pair appended</text>
-  <text x="20" y="541" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#555555" text-anchor="start">Repeated once per generated token until a stop condition (dotted = conditional, not always taken):</text>
-  <path d="M 368,496.0 L 880,496.0 L 880,403.0 L 540,403.0" fill="none" stroke="#888888" stroke-width="1.5" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
-  <rect x="20" y="571" width="16" height="16" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="42" y="583" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">stored (tokens / cache)</text>
-  <rect x="230" y="571" width="16" height="16" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
-  <text x="252" y="583" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">computation (forward pass)</text>
-  <rect x="470" y="571" width="16" height="16" rx="6" fill="#888888" stroke="#333333" stroke-width="1.5"/>
-  <text x="492" y="583" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">dotted = conditional / not-always-taken flow</text>
+  <rect x="0" y="0" width="920" height="710" fill="#ffffff"/>
+  <text x="20" y="32" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="start">Prefill: build the whole KV-cache from the prompt in one pass</text>
+  <rect x="20" y="58" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="50.0" y="83.0" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#ffffff" text-anchor="middle">The</text>
+  <rect x="92" y="58" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="122.0" y="83.0" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#ffffff" text-anchor="middle">cat</text>
+  <rect x="164" y="58" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="194.0" y="83.0" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#ffffff" text-anchor="middle">sat</text>
+  <rect x="236" y="58" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="266.0" y="83.0" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#ffffff" text-anchor="middle">on</text>
+  <rect x="20" y="142" width="340" height="72" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="190.0" y="174.0" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">Prefill forward pass</text>
+  <text x="190.0" y="196.0" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">(attention + MLP, all 4 tokens at once)</text>
+  <line x1="50.0" y1="98" x2="50.0" y2="142" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="122.0" y1="98" x2="122.0" y2="142" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="194.0" y1="98" x2="194.0" y2="142" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="266.0" y1="98" x2="266.0" y2="142" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <text x="20" y="234" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#111111" text-anchor="start">KV-cache after prefill (one slot per prompt token)</text>
+  <rect x="20" y="266" width="60" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="50.0" y="288.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[0]</text>
+  <rect x="92" y="266" width="60" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="122.0" y="288.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[1]</text>
+  <rect x="164" y="266" width="60" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="194.0" y="288.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[2]</text>
+  <rect x="236" y="266" width="60" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="266.0" y="288.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[3]</text>
+  <line x1="190.0" y1="244" x2="190.0" y2="262" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="20" y1="325" x2="900" y2="325" stroke="#cccccc" stroke-width="1"/>
+  <text x="20" y="350" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="start">Decode step: one new token reuses the whole cache, then extends it by one slot</text>
+  <rect x="20" y="408" width="60" height="40" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="50.0" y="433.0" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#ffffff" text-anchor="middle">the</text>
+  <text x="20" y="464" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">new token</text>
+  <rect x="160" y="398" width="420" height="72" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="370.0" y="430.0" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">Decode forward pass</text>
+  <text x="370.0" y="452.0" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">(1 new token attends to all cached K/V)</text>
+  <line x1="80" y1="428.0" x2="160" y2="434.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="50.0" y1="300" x2="50.0" y2="338" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3"/>
+  <line x1="50.0" y1="360" x2="50.0" y2="396" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
+  <line x1="122.0" y1="300" x2="122.0" y2="338" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3"/>
+  <line x1="122.0" y1="360" x2="122.0" y2="396" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
+  <line x1="194.0" y1="300" x2="194.0" y2="338" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3"/>
+  <line x1="194.0" y1="360" x2="194.0" y2="396" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
+  <line x1="266.0" y1="300" x2="266.0" y2="338" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3"/>
+  <line x1="266.0" y1="360" x2="266.0" y2="396" stroke="#888888" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
+  <text x="20" y="490" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#111111" text-anchor="start">KV-cache after this decode step (cache grew by exactly one slot)</text>
+  <rect x="20" y="522" width="60" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="50.0" y="544.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[0]</text>
+  <rect x="92" y="522" width="60" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="122.0" y="544.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[1]</text>
+  <rect x="164" y="522" width="60" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="194.0" y="544.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[2]</text>
+  <rect x="236" y="522" width="60" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="266.0" y="544.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[3]</text>
+  <rect x="308" y="522" width="60" height="34" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="338.0" y="544.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">K/V[4]</text>
+  <line x1="370.0" y1="500" x2="370.0" y2="518" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <text x="378.0" y="515" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#333333" text-anchor="start">+1 new K/V pair appended</text>
+  <text x="20" y="590" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">Repeated once per generated token until a stop condition (dotted = conditional, not always taken):</text>
+  <path d="M 368,539.0 L 880,539.0 L 880,434.0 L 580,434.0" fill="none" stroke="#888888" stroke-width="1.5" stroke-dasharray="2,3" marker-end="url(#arrow-888888)"/>
+  <rect x="20" y="620" width="16" height="16" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="42" y="633" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">stored (tokens / cache)</text>
+  <rect x="20" y="648" width="16" height="16" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="42" y="661" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">computation (forward pass)</text>
+  <rect x="20" y="676" width="16" height="16" rx="6" fill="#888888" stroke="#333333" stroke-width="1.5"/>
+  <text x="42" y="689" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">dotted = conditional / not-always-taken flow</text>
 </svg>

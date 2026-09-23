@@ -101,7 +101,7 @@ How this topic tends to show up in an interview setting, and what a
 strong answer distinguishes itself by covering. Cross-reference workbook
 02 (ML Interview Practice) where relevant.
 
-## One-page recap
+## Chapter recap
 
 - RECAP_BULLET_1
 - RECAP_BULLET_2

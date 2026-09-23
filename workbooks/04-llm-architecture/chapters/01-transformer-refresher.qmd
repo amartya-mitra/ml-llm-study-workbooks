@@ -63,8 +63,6 @@ weights at each repetition, and only the final softmax turns a vector
 back into a probability distribution over the vocabulary -- nothing
 "decides" the next token before that last step.](figures/rendered/fig-decoder-end-to-end.svg){#fig-end-to-end}
 
-Figure source: `figures/source/fig_decoder_end_to_end.py`.
-
 ### Technical core
 
 **Tokens and embeddings.** A tokenizer splits text into a sequence of
@@ -108,8 +106,6 @@ $d_{\text{model}}$ stays constant across every block in a model.
 ![One block, showing the residual stream as the vertical bar and the
 two sublayers branching off it. Notice the stream's width never
 changes -- only what gets added to it does.](figures/rendered/fig-decoder-block-anatomy.svg){#fig-block-anatomy width=48%}
-
-Figure source: `figures/source/fig_decoder_block_anatomy.py`.
 
 **The attention sublayer.** Each block's attention sublayer projects
 the normalized stream into three role-specific views:
@@ -173,8 +169,6 @@ region (blue) is everything at or before a row's own position, not a
 single step back -- position 5 ("the") can see all 4 prompt tokens plus
 itself.](figures/rendered/fig-causal-attention-mask.svg){#fig-causal-mask width=55%}
 
-Figure source: `figures/source/fig_causal_attention_mask.py`.
-
 After softmax, each row of the $(S,S)$ weight matrix sums to 1 and is
 used to take a weighted average of $V$'s rows, producing a
 $(S, d_{\text{head}})$ output per head. The $H_q$ heads' outputs are
@@ -224,9 +218,9 @@ far as "here is the skeleton every modern decoder shares."
 
 We trace a complete, tiny causal decoder over the prompt `"The cat sat
 on"` (4 tokens, processed by prefill) followed by one decode step that
-generates a 5th token, `"the"`. Every number below is produced by
-`data/worked-examples/tiny_decoder_trace.py`, not hand-derived --
-re-run the script if you want to check or extend the arithmetic.
+generates a 5th token, `"the"`. Every number below is verified
+programmatically, not hand-derived -- see the Build and Version Note
+for how.
 
 **Toy configuration** (deliberately tiny; a real model's dimensions are
 hundreds to thousands of times larger, but the mechanics are identical):
@@ -242,9 +236,19 @@ block. Toy (untrained, hand-picked) embeddings:
 | `the` | $(1, 0, 0, 1)$ |
 
 Before tracing the numbers, the same distinction shown here holds at
-any scale: prefill happens once, decode steps happen once per generated
-token, and each decode step only ever adds one new position's worth of
-state.
+any scale: prefill happens once (conceptually), decode steps happen
+once per generated token, and each decode step only ever adds one new
+position's worth of state.
+
+::: {.callout-tip title="Implementation-dependent detail"}
+Conceptually, prefill evaluates the prompt positions together and
+constructs their per-layer K/V state, which is the model this chapter
+uses throughout. A production serving engine may split a long prompt
+into chunks for scheduling or memory reasons -- chunking does not
+change the logical distinction this chapter draws between prompt
+processing and one-position-at-a-time decoding; it is an engineering
+detail about how "together" gets scheduled, not a different mechanism.
+:::
 
 ![Prefill builds the whole cache from the prompt in one pass; each
 decode step afterward reads the entire cache but appends exactly one
@@ -253,9 +257,7 @@ existing KV-cache demonstration -- the mechanics don't change between
 this chapter's introduction of the idea and Chapter 3's deeper
 treatment of it.](../../figures/rendered/kv_cache_demo.svg){#fig-prefill-vs-decode}
 
-Figure source: `figures/source/kv_cache_demo.py`.
-
-**Prefill.** All 4 prompt tokens are processed in one pass. After
+**Prefill.** All 4 prompt tokens are processed together. After
 computing $Q$, $K$, $V$ for all 4 positions and applying the causal
 mask, head 0's softmax attention weights are:
 
@@ -275,10 +277,20 @@ matrices, not a property of causal masking itself -- causal masking
 only decides *which* positions are eligible, never how the weight is
 split among them.
 
-Prefill's output for this block is the full $(4, 4)$ residual stream
-after the attention sublayer's update has been added in -- this is
-exactly the state that gets cached for reuse (Chapter 3 gives this
-state a name: the KV-cache) rather than recomputed on the next step.
+Prefill's output for this block includes the full $(4, 4)$ residual
+stream after the attention sublayer's update has been added in, but
+that residual stream is *not* what gets cached. What actually persists
+for reuse is each layer's own $K$ and $V$ projections -- computed from
+that layer's input, before the attention sublayer's output is folded
+back into the residual stream (Chapter 3 gives this retained state a
+name: the KV-cache). The residual stream is recomputed fresh at every
+step from whichever tokens are currently being processed; only the
+per-layer $K$/$V$ rows persist unchanged across steps. (Some
+architectures apply a position-dependent transform to $K$ before it is
+cached -- Chapter 3 covers this -- so the cached row is not always
+identical to the raw projection shown here, but it is still derived
+once per position and reused, never re-derived from the residual
+stream.)
 
 **Decode step.** To generate token 5, the model embeds only the new
 token `the`, computes *its own* $Q$, $K$, $V$ (a single new row, not a
@@ -309,26 +321,23 @@ generating token 5 did not touch positions 1 through 4 at all.
 
 ### Check your understanding
 
-See `workbooks/04-llm-architecture/questions.yaml` for the machine-checked
-question records for this chapter (schema: `shared/question-schema.yaml`),
-ids `q-04-ch1-001` through `q-04-ch1-007`. Full solutions are in the
-answer key (@sec-solutions-ch1), not below, so you can attempt these
-before checking:
+Full solutions are in the answer key (@sec-solutions-ch1), not below,
+so you can attempt these before checking:
 
-1. **(recall)** What does the residual stream carry from one block to
+1. **Quick check.** What does the residual stream carry from one block to
    the next -- the raw output of the most recent sublayer, or something
    else? ________________________________________________
-2. **(explanation)** Why does a decoder-only objective let the model
+2. **Explain.** Why does a decoder-only objective let the model
    generate text one token at a time, in a way that a bidirectional
    encoder's objective does not? ________________________________________________
-3. **(calculation)** For a toy config with $d_{\text{model}} = 8$, $H_q =
+3. **Calculation.** For a toy config with $d_{\text{model}} = 8$, $H_q =
    2$ heads, and $S = 5$: what is $d_{\text{head}}$, and what is the
    shape of the raw attention score matrix $QK^\top$ for one head, before
    masking? ________________________________________________
-4. **(misconception_diagnosis)** True or false, and why: "causal masking
+4. **Misconception check.** True or false, and why: "causal masking
    means each token can only attend to the immediately previous token."
    ________________________________________________
-5. **(misconception_diagnosis)** True or false, and why: "the residual
+5. **Misconception check.** True or false, and why: "the residual
    stream is a separate memory database the model writes facts into and
    reads back later." ________________________________________________
 
@@ -359,24 +368,26 @@ per-head attention output, the concatenated output, and the vector
 added back onto the residual stream. Check your shapes against
 @eq-qkv and @eq-attention -- every shape should be traceable to
 $d_{\text{model}}$ and $H_q$ alone. If you want a check with real
-numbers instead of just shapes, re-run
-`data/worked-examples/tiny_decoder_trace.py` with your own
-$d_{\text{model}}$/$H_q$ and toy embeddings.
+numbers instead of just shapes, redo the trace above with your own
+$d_{\text{model}}$/$H_q$ and toy embeddings; the same programmatic
+verification approach applies.
 
 ### Interview lens
 
 A common interview framing is: *"Walk me through what happens
 differently between processing a 500-token prompt for the first time
 versus generating the 501st token."* A strong answer distinguishes
-prefill (all 500 positions processed together, in one pass, building
-the full KV-cache) from a decode step (one new position, reusing the
-500 cached K/V rows unchanged, only computing K/V for the new token) --
-and explicitly rejects "the model re-reads the whole prompt every time,"
-which is the same misconception as this chapter's headline one, just
-phrased in systems terms. See workbook 02 (ML Interview Practice) for
-more on how to structure this kind of answer under time pressure.
+prefill (conceptually, all 500 positions evaluated together, building
+per-layer K/V state for the whole prompt -- possibly split into chunks
+by the serving engine, which doesn't change the logical picture) from a
+decode step (one new position, reusing the 500 cached K/V rows
+unchanged, only computing K/V for the new token) -- and explicitly
+rejects "the model re-reads the whole prompt every time," which is the
+same misconception as this chapter's headline one, just phrased in
+systems terms. See workbook 02 (ML Interview Practice) for more on how
+to structure this kind of answer under time pressure.
 
-### One-page recap
+### Chapter recap
 
 - A decoder-only model conditions strictly on earlier positions; nothing
   about its objective lets it "see ahead."
@@ -385,9 +396,10 @@ more on how to structure this kind of answer under time pressure.
 - Attention has three roles ($Q$, $K$, $V$), a causal mask that allows
   every earlier-or-equal position (not just the immediately previous
   one), and a softmax that turns raw scores into a weighted average.
-- Prefill processes the whole prompt in one pass and produces cached
-  state; each decode step reuses that cached state and adds exactly one
-  new position's worth of new state.
+- Prefill conceptually evaluates the whole prompt together and produces
+  cached per-layer K/V state (the residual stream itself is not that
+  cached state); each decode step reuses that cached state and adds
+  exactly one new position's worth of new state.
 - Generating $N$ tokens costs at least $N$ forward passes -- there is no
   single-pass shortcut.
 
@@ -396,6 +408,4 @@ more on how to structure this kind of answer under time pressure.
 Primary source for this chapter: [@src-19], the original Transformer
 paper, which this chapter's notation and equations follow directly.
 Secondary/supporting: [@src-14], used here only for the encoder-decoder
-vs. decoder-only framing convention, not for any equation. See
-`sources/registry.yaml` for full entries and current verification
-status.
+vs. decoder-only framing convention, not for any equation.

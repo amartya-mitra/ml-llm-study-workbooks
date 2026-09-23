@@ -29,7 +29,7 @@ Each chapter follows the same structure: learning objectives, why the
 topic matters, a mental model, a visual overview, the technical core
 (equations with every symbol defined), a fully worked numeric example,
 a comparison table, comprehension questions, a common misconception, an
-applied exercise, an interview-style question, a one-page recap, and
+applied exercise, an interview-style question, a chapter recap, and
 sources. Short questions appear near the concept they test, with space
 left for written answers if you're using this as a workbook rather than
 only a reading; full solutions are collected in the answer key
@@ -43,7 +43,15 @@ reference (@sec-notation) covers every symbol Chapters 1-2 use.
 
 {{< include chapters/01-transformer-refresher.qmd >}}
 
+```{=typst}
+#pagebreak()
+```
+
 {{< include chapters/02-modern-decoder.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
 
 {{< include solutions/01-transformer-refresher-solutions.qmd >}}
 

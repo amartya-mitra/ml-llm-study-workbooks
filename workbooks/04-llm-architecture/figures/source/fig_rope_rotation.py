@@ -44,9 +44,9 @@ def draw_panel(canvas, cx, cy, r, q_pos, k_pos, colors, label):
     orange = colors["computation"]
     canvas.add_arrow(cx, cy, qx, qy, style="solid", color=blue, stroke_width=2.5)
     canvas.add_arrow(cx, cy, kx, ky, style="solid", color=orange, stroke_width=2.5)
-    canvas.add_text(qx + (8 if qx >= cx else -8), qy - 6, f"q (pos {q_pos})", size=10, color=blue,
+    canvas.add_text(qx + (8 if qx >= cx else -8), qy - 8, f"q (pos {q_pos})", size=14, color=blue,
                      anchor="start" if qx >= cx else "end")
-    canvas.add_text(kx + (8 if kx >= cx else -8), ky + 14, f"k (pos {k_pos})", size=10, color=orange,
+    canvas.add_text(kx + (8 if kx >= cx else -8), ky + 18, f"k (pos {k_pos})", size=14, color=orange,
                      anchor="start" if kx >= cx else "end")
 
     arc_r = r * 0.4
@@ -59,30 +59,36 @@ def draw_panel(canvas, cx, cy, r, q_pos, k_pos, colors, label):
     path = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
     canvas.add_raw(f'<path d="{path}" fill="none" stroke="#333333" stroke-width="1.5"/>')
 
-    canvas.add_text(cx, cy + r + 30, label, size=11, weight="bold", anchor="middle")
-    canvas.add_text(cx, cy + r + 46, f"relative offset = {abs(q_pos - k_pos)} position(s)", size=9, color="#555555", anchor="middle")
+    canvas.add_text(cx, cy + r + 32, label, size=16, weight="bold", anchor="middle")
+    canvas.add_text(cx, cy + r + 54, f"relative offset = {abs(q_pos - k_pos)} position(s)", size=13, color="#555555", anchor="middle")
 
 
 def main():
     style = load_visual_style()
     colors = palette_hex(style)
 
+    # This figure embeds at 100% of the 6.5in text column, so 1 SVG unit =
+    # 6.5*72/W points at final size. Sizes below target >= 8-9pt for
+    # essential labels (q/k tags, panel titles) and >= 7pt for the
+    # secondary explanatory text (see the review notes behind
+    # scripts/build_ch01_02_review.py; this figure was explicitly flagged
+    # for being unreadable at print size).
     W = 700
     canvas = SVGCanvas(width=W, height=1, title="RoPE: relative angle is invariant to absolute position")
 
-    canvas.add_text(20, 30, "Same relative offset, different absolute positions -> same angle between q and k", size=12, weight="bold")
+    canvas.add_text(20, 32, "Same relative offset, different absolute positions -> same angle between q and k", size=15, weight="bold")
 
     r = 90
-    draw_panel(canvas, 190, 170, r, q_pos=1, k_pos=0, colors=colors, label="positions (1, 0)")
-    draw_panel(canvas, 510, 170, r, q_pos=3, k_pos=2, colors=colors, label="positions (3, 2)")
+    draw_panel(canvas, 190, 175, r, q_pos=1, k_pos=0, colors=colors, label="positions (1, 0)")
+    draw_panel(canvas, 510, 175, r, q_pos=3, k_pos=2, colors=colors, label="positions (3, 2)")
 
-    legend_y = 170 + r + 75
-    canvas.add_text(20, legend_y, "Both panels: the angle traced between q and k is identical, because each vector", size=10, color="#555555")
-    canvas.add_text(20, legend_y + 15, "is rotated by its OWN position, so only the difference in position survives.", size=10, color="#555555")
-    canvas.add_text(20, legend_y + 38, "Simplified model: real RoPE rotates several 2D subspaces at different frequencies", size=9, color="#888888")
-    canvas.add_text(20, legend_y + 52, "at once; this figure shows one subspace at one frequency to keep the geometry checkable by eye.", size=9, color="#888888")
+    legend_y = 175 + r + 85
+    canvas.add_text(20, legend_y, "Both panels: the angle traced between q and k is identical, because each vector", size=13, color="#555555")
+    canvas.add_text(20, legend_y + 18, "is rotated by its OWN position, so only the difference in position survives.", size=13, color="#555555")
+    canvas.add_text(20, legend_y + 42, "Simplified model: real RoPE rotates several 2D subspaces at different frequencies", size=12, color="#888888")
+    canvas.add_text(20, legend_y + 60, "at once; this figure shows one subspace at one frequency to keep the geometry checkable by eye.", size=12, color="#888888")
 
-    canvas.height = legend_y + 75
+    canvas.height = legend_y + 85
     canvas.save(OUTPUT_PATH)
     print(f"wrote {OUTPUT_PATH}")
 

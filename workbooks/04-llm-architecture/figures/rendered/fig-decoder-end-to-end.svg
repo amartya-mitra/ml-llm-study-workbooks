@@ -1,57 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="920" height="431" viewBox="0 0 920 431">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="517" viewBox="0 0 960 517">
   <title>End-to-end decoder data flow</title>
   <defs><marker id="arrow-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker></defs>
-  <rect x="0" y="0" width="920" height="431" fill="#ffffff"/>
-  <rect x="20" y="60" width="110" height="70" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="75.0" y="99.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">tokens</text>
-  <rect x="154" y="60" width="110" height="70" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="209.0" y="99.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">embeddings</text>
-  <rect x="288" y="60" width="110" height="70" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="343.0" y="92.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">N x decoder</text>
-  <text x="343.0" y="105.5" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">block</text>
-  <rect x="422" y="60" width="110" height="70" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="477.0" y="99.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">final norm</text>
-  <rect x="556" y="60" width="110" height="70" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="611.0" y="99.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">output head</text>
-  <rect x="690" y="60" width="110" height="70" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="745.0" y="99.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">logits</text>
-  <line x1="130" y1="95.0" x2="154" y2="95.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="264" y1="95.0" x2="288" y2="95.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="398" y1="95.0" x2="422" y2="95.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="532" y1="95.0" x2="556" y2="95.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="666" y1="95.0" x2="690" y2="95.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <path d="M 288,38 L 288,56 M 398,38 L 398,56" stroke="#333333" stroke-width="1" fill="none"/>
-  <line x1="288" y1="38" x2="398" y2="38" stroke="#333333" stroke-width="1"/>
-  <text x="343.0" y="32" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#555555" text-anchor="middle">same block, applied N times, each with its own weights</text>
-  <line x1="745.0" y1="130" x2="745.0" y2="181" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="665.0" y="185" width="160" height="50" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="745.0" y="214.0" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">softmax</text>
-  <line x1="745.0" y1="235" x2="745.0" y2="271" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <text x="20" y="275" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">next-token probability distribution over the whole vocabulary:</text>
-  <rect x="20" y="346.16129032258067" width="50" height="4.838709677419355" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="45.0" y="367" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="middle">the</text>
-  <text x="45.0" y="342.16129032258067" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#555555" text-anchor="middle">0.05</text>
-  <rect x="88" y="291.0" width="50" height="60.00000000000001" rx="6" fill="#D55E00" stroke="#333333" stroke-width="1.5"/>
-  <text x="113.0" y="367" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="middle">cat</text>
-  <text x="113.0" y="287.0" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#555555" text-anchor="middle">0.62</text>
-  <rect x="156" y="341.3225806451613" width="50" height="9.67741935483871" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="181.0" y="367" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="middle">dog</text>
-  <text x="181.0" y="337.3225806451613" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#555555" text-anchor="middle">0.10</text>
-  <rect x="224" y="333.5806451612903" width="50" height="17.419354838709676" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="249.0" y="367" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="middle">sat</text>
-  <text x="249.0" y="329.5806451612903" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#555555" text-anchor="middle">0.18</text>
-  <rect x="292" y="348.0967741935484" width="50" height="2.9032258064516125" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="317.0" y="367" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="middle">runs</text>
-  <text x="317.0" y="344.0967741935484" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#555555" text-anchor="middle">0.03</text>
-  <rect x="360" y="349.06451612903226" width="50" height="1.9354838709677418" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="385.0" y="367" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="middle">...</text>
-  <text x="385.0" y="345.06451612903226" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#555555" text-anchor="middle">0.02</text>
-  <text x="438" y="321.0" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#555555" text-anchor="start">one token is
-sampled/chosen
-from this
-distribution</text>
-  <rect x="20" y="391" width="16" height="16" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
-  <text x="42" y="403" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">stored (tokens/embeddings/vocabulary scores)</text>
-  <rect x="300" y="391" width="16" height="16" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
-  <text x="322" y="403" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">computation (a stage that transforms the vector)</text>
+  <rect x="0" y="0" width="960" height="517" fill="#ffffff"/>
+  <rect x="20" y="60" width="125" height="78" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="82.5" y="103.0" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="normal" fill="#ffffff" text-anchor="middle">tokens</text>
+  <rect x="167" y="60" width="125" height="78" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="229.5" y="103.0" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="normal" fill="#ffffff" text-anchor="middle">embeddings</text>
+  <rect x="314" y="60" width="125" height="78" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="376.5" y="93.0" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="normal" fill="#ffffff" text-anchor="middle">N x decoder</text>
+  <text x="376.5" y="113.0" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="normal" fill="#ffffff" text-anchor="middle">block</text>
+  <rect x="461" y="60" width="125" height="78" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="523.5" y="103.0" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="normal" fill="#ffffff" text-anchor="middle">final norm</text>
+  <rect x="608" y="60" width="125" height="78" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="670.5" y="103.0" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="normal" fill="#ffffff" text-anchor="middle">output head</text>
+  <rect x="755" y="60" width="125" height="78" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="817.5" y="103.0" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="normal" fill="#ffffff" text-anchor="middle">logits</text>
+  <line x1="145" y1="99.0" x2="167" y2="99.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="292" y1="99.0" x2="314" y2="99.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="439" y1="99.0" x2="461" y2="99.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="586" y1="99.0" x2="608" y2="99.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="733" y1="99.0" x2="755" y2="99.0" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <path d="M 314,38 L 314,56 M 439,38 L 439,56" stroke="#333333" stroke-width="1" fill="none"/>
+  <line x1="314" y1="38" x2="439" y2="38" stroke="#333333" stroke-width="1"/>
+  <text x="376.5" y="32" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">same block, applied N times, each with its own weights</text>
+  <line x1="817.5" y1="138" x2="817.5" y2="189" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="732.5" y="193" width="170" height="55" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="817.5" y="224.5" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="normal" fill="#ffffff" text-anchor="middle">softmax</text>
+  <line x1="817.5" y1="248" x2="817.5" y2="284" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <text x="20" y="288" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="start">next-token probability distribution over the whole vocabulary:</text>
+  <rect x="20" y="377.16129032258067" width="54" height="4.838709677419355" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="47.0" y="404" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#111111" text-anchor="middle">the</text>
+  <text x="47.0" y="369.16129032258067" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#333333" text-anchor="middle">0.05</text>
+  <rect x="94" y="322.0" width="54" height="60.00000000000001" rx="6" fill="#D55E00" stroke="#333333" stroke-width="1.5"/>
+  <text x="121.0" y="404" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#111111" text-anchor="middle">cat</text>
+  <text x="121.0" y="314.0" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#333333" text-anchor="middle">0.62</text>
+  <rect x="168" y="372.3225806451613" width="54" height="9.67741935483871" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="195.0" y="404" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#111111" text-anchor="middle">dog</text>
+  <text x="195.0" y="364.3225806451613" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#333333" text-anchor="middle">0.10</text>
+  <rect x="242" y="364.5806451612903" width="54" height="17.419354838709676" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="269.0" y="404" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#111111" text-anchor="middle">sat</text>
+  <text x="269.0" y="356.5806451612903" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#333333" text-anchor="middle">0.18</text>
+  <rect x="316" y="379.0967741935484" width="54" height="2.9032258064516125" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="343.0" y="404" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#111111" text-anchor="middle">runs</text>
+  <text x="343.0" y="371.0967741935484" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#333333" text-anchor="middle">0.03</text>
+  <rect x="390" y="380.06451612903226" width="54" height="1.9354838709677418" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="417.0" y="404" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#111111" text-anchor="middle">...</text>
+  <text x="417.0" y="372.06451612903226" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#333333" text-anchor="middle">0.02</text>
+  <text x="474" y="352.0" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">one token is sampled/chosen from this distribution</text>
+  <rect x="20" y="452" width="16" height="16" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="42" y="465" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">stored (tokens / embeddings / vocabulary scores)</text>
+  <rect x="20" y="482" width="16" height="16" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="42" y="495" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">computation (a stage that transforms the vector)</text>
 </svg>

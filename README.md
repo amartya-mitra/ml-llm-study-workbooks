@@ -29,7 +29,7 @@ Every chapter follows `shared/chapter-template.qmd`:
 learning objectives -> why this matters -> mental model/analogy -> visual
 overview -> technical core -> worked example -> compare and contrast ->
 check your understanding -> common misconception -> applied exercise ->
-interview lens -> one-page recap -> sources and further reading.
+interview lens -> chapter recap -> sources and further reading.
 
 Comprehension questions are stored as structured records (not just prose)
 in `workbooks/<id>/questions.yaml`, validated against

@@ -33,7 +33,7 @@ def panel(canvas, x0, title, norm_before, norm_after, colors):
     cur_y = y
     if norm_before:
         canvas.add_rect(x0 + 30, cur_y, w - 60, 22, fill="#ffffff", stroke="#333333", stroke_width=1.5)
-        canvas.add_text(x0 + w / 2, cur_y + 15, "norm", size=9, anchor="middle")
+        canvas.add_text(x0 + w / 2, cur_y + 15, "norm", size=10, anchor="middle")
         cur_y += 22
         canvas.add_arrow(x0 + w / 2, cur_y, x0 + w / 2, cur_y + 14, style="solid", color="#333333", stroke_width=1.5)
         cur_y += 14
@@ -46,7 +46,7 @@ def panel(canvas, x0, title, norm_before, norm_after, colors):
 
     if norm_after:
         canvas.add_rect(x0 + 30, cur_y, w - 60, 22, fill="#ffffff", stroke="#333333", stroke_width=1.5)
-        canvas.add_text(x0 + w / 2, cur_y + 15, "norm", size=9, anchor="middle")
+        canvas.add_text(x0 + w / 2, cur_y + 15, "norm", size=10, anchor="middle")
         cur_y += 22
         canvas.add_arrow(x0 + w / 2, cur_y, x0 + w / 2, cur_y + 14, style="solid", color="#333333", stroke_width=1.5)
         cur_y += 14
@@ -77,7 +77,7 @@ def main():
     bottom = max(bottom1, bottom2, bottom3)
 
     legend_y = bottom + 20
-    canvas.add_text(20, legend_y, "blue = residual stream (bypasses the sublayer at the + point)", size=9, color="#555555")
+    canvas.add_text(20, legend_y, "blue = residual stream (bypasses the sublayer at the + point)", size=11, color="#555555")
 
     canvas.height = legend_y + 25
     canvas.save(OUTPUT_PATH)

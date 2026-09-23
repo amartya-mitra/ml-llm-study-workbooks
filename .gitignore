@@ -28,6 +28,12 @@ workbooks/**/page-images/
 workbooks/**/*.pdf
 workbooks/**/*.pdf.prev-*
 
+# Portable review bundles (PDF copy + page PNGs + contact sheet +
+# extracted text + manifest, packaged as a .tar.gz for human review) --
+# these are disposable review artifacts, not source.
+outputs/review-bundle-*/
+outputs/review-bundle-*.tar.gz
+
 # Editor / OS noise
 .DS_Store
 *.swp

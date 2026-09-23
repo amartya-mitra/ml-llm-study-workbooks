@@ -49,8 +49,6 @@ the specific components a modern decoder actually uses: RMSNorm in the
 norm slots, RoPE applied inside attention (not as a separate block),
 and a SwiGLU-gated MLP in the feed-forward slot.](figures/rendered/fig-annotated-modern-block.svg){#fig-annotated-block width=48%}
 
-Figure source: `figures/source/fig_annotated_modern_block.py`.
-
 ### Technical core
 
 **RMSNorm.** Chapter 1 left `Norm` in @eq-residual-update unspecified.
@@ -61,17 +59,19 @@ mean-subtraction *and* the learned bias, keeping only a rescale by root-
 mean-square magnitude:
 
 $$
-\text{RMSNorm}(x) = \frac{x}{\text{RMS}(x)} \odot \gamma, \qquad
-\text{RMS}(x) = \sqrt{\frac{1}{d_{\text{model}}}\sum_{k=1}^{d_{\text{model}}} x_k^2}
+\text{RMSNorm}(x) = \frac{x}{\text{RMS}_\epsilon(x)} \odot \gamma, \qquad
+\text{RMS}_\epsilon(x) = \sqrt{\frac{1}{d_{\text{model}}}\sum_{k=1}^{d_{\text{model}}} x_k^2 + \epsilon}
 $$ {#eq-rmsnorm}
 
 where $x \in \mathbb{R}^{d_{\text{model}}}$ is one position's vector,
 $\gamma \in \mathbb{R}^{d_{\text{model}}}$ is a learned per-dimension
-scale, and $\odot$ is elementwise multiplication. *In words:* measure
-the vector's overall magnitude (RMS), divide it out so the vector has
-unit RMS, then let a learned per-dimension scale stretch or shrink each
-dimension back. There is no learned shift and no mean-subtraction step
-at all.
+scale, $\odot$ is elementwise multiplication, and $\epsilon$ is a small
+fixed constant (not learned) added purely to keep the denominator away
+from zero when a vector's RMS magnitude is near zero -- it has no
+other role in the formula. *In words:* measure the vector's overall
+magnitude (RMS), divide it out so the vector has unit RMS, then let a
+learned per-dimension scale stretch or shrink each dimension back.
+There is no learned shift and no mean-subtraction step at all.
 
 ::: {.callout-warning title="Common misconception"}
 **"RMSNorm and LayerNorm are identical except for naming."** They are
@@ -103,8 +103,6 @@ in both places around the same sublayer.
 
 ![The same sublayer and the same residual addition in all three
 panels -- only where the norm box sits changes.](figures/rendered/fig-norm-placement.svg){#fig-norm-placement}
-
-Figure source: `figures/source/fig_norm_placement.py`.
 
 ::: {.callout-tip title="Working approximation"}
 "Pre-norm is more stable to train at depth" is a widely-repeated,
@@ -142,8 +140,6 @@ the relative offset $m - n$, not on $m$ and $n$ individually.
 ![Two different absolute-position pairs, (1,0) and (3,2), both with a
 relative offset of 1 -- notice the angle traced between the rotated q
 and k vectors is the same in both panels.](figures/rendered/fig-rope-rotation.svg){#fig-rope-rotation}
-
-Figure source: `figures/source/fig_rope_rotation.py`.
 
 ::: {.callout-warning title="Common misconception"}
 **"RoPE adds a learned position vector to every token embedding."** It
@@ -190,8 +186,6 @@ matrix creates a second parallel branch that multiplies against the
 first, it does not add a third sequential
 step.](figures/rendered/fig-gated-mlp.svg){#fig-gated-mlp}
 
-Figure source: `figures/source/fig_gated_mlp.py`.
-
 ::: {.callout-warning title="Common misconception"}
 **"SwiGLU makes the feed-forward block sparse like an MoE layer."** It
 does not. Every parameter in a SwiGLU feed-forward layer participates
@@ -217,8 +211,8 @@ is).
 Whether a given model ties its embeddings is a genuine implementation
 choice that varies across model families, and this workbook does not
 have a primary source specifically dedicated to *when* tying is
-preferred (see `reports/04_source_audit.md`'s tracked gap on this
-topic). Treat "tied embeddings" as a real, checkable fact about any
+preferred -- a tracked sourcing gap (see the Build and Version Note).
+Treat "tied embeddings" as a real, checkable fact about any
 specific model's config -- not as a claim this workbook makes a
 historical or performance argument about.
 :::
@@ -245,10 +239,9 @@ related designs, not one design.
 
 ### Worked example
 
-**Parameter cost of gating.** Using
-`data/worked-examples/gated_mlp_params.py`, with $d_{\text{model}} = 8$
-and biases excluded from the count (a stated assumption, per
-`notation.yaml`'s assumption-checklist habit):
+**Parameter cost of gating.** Verified programmatically (see the Build
+and Version Note), with $d_{\text{model}} = 8$ and biases excluded from
+the count (a stated assumption):
 
 | Design | $d_{\text{ff}}$ | Formula | Parameters |
 |---|---|---|---|
@@ -280,27 +273,25 @@ same-sized matrix, not a rough estimate.
 
 ### Check your understanding
 
-See `workbooks/04-llm-architecture/questions.yaml` for the machine-checked
-question records for this chapter, ids `q-04-ch2-001` through
-`q-04-ch2-010`. Full solutions are in the answer key (@sec-solutions-ch2):
+Full solutions are in the answer key (@sec-solutions-ch2):
 
-1. **(calculation)** For a query/key pair at positions 1 and 0 (relative
+1. **Calculation.** For a query/key pair at positions 1 and 0 (relative
    offset 1), and a second pair at positions 3 and 2 (also relative
    offset 1), what does RoPE guarantee about the two pairs' dot
    products, and what does it *not* guarantee? ________________________________________________
-2. **(compare_and_contrast)** Name the two operations RMSNorm omits
+2. **Compare.** Name the two operations RMSNorm omits
    relative to LayerNorm. ________________________________________________
-3. **(explanation)** Why does a gated feed-forward layer need three
+3. **Explain.** Why does a gated feed-forward layer need three
    weight matrices instead of two -- what does the third matrix do that
    the first one doesn't already? ________________________________________________
-4. **(calculation)** Using the formulas in this chapter, what is the
+4. **Calculation.** Using the formulas in this chapter, what is the
    parameter count of a plain MLP with $d_{\text{model}} = 16$,
    $d_{\text{ff}} = 64$? ________________________________________________
-5. **(misconception_diagnosis)** Is pre-norm's popularity mainly about
+5. **Misconception check.** Is pre-norm's popularity mainly about
    training stability or mainly about final model quality? ________________________________________________
-6. **(misconception_diagnosis)** True or false, and why: "RoPE adds a
+6. **Misconception check.** True or false, and why: "RoPE adds a
    learned position vector to every token embedding." ________________________________________________
-7. **(misconception_diagnosis)** True or false, and why: "SwiGLU makes
+7. **Misconception check.** True or false, and why: "SwiGLU makes
    the feed-forward block sparse like an MoE layer." ________________________________________________
 
 *(Space intentionally left for written answers if you are using this as
@@ -346,10 +337,11 @@ including the 1.5x-or-compensated parameter tradeoff from this
 chapter's worked example -- an answer that skips the parameter cost
 entirely is incomplete for a systems-flavored interview.
 
-### One-page recap
+### Chapter recap
 
 - RMSNorm drops both mean-centering and the learned bias LayerNorm has,
-  keeping only a magnitude rescale.
+  keeping only a magnitude rescale (plus a small fixed $\epsilon$ to
+  avoid dividing by zero).
 - Pre-norm, post-norm, and sandwich-norm describe *where* normalization
   sits relative to a sublayer and the residual add -- not three
   different normalization formulas.
@@ -371,11 +363,10 @@ Primary sources for this chapter: [@src-22] for RoPE, [@src-23] for
 RMSNorm, [@src-24] for SwiGLU/gated feed-forward layers. Secondary/
 supporting: [@src-14], used for the norm-placement comparison framing
 and to cross-check which real model families use which combination of
-these components; note that this source is actively updated (see its
-`sources/registry.yaml` entry for the last-verified date), so treat any
-model-specific detail drawn from it as current as of that check, not
-timeless. See `sources/registry.yaml` for full entries and current
-verification status, and `reports/04_source_audit.md` for the two
-tracked sourcing gaps this chapter works around (tied embeddings has no
-dedicated primary source; the sandwich-norm claim leans on a secondary
-source rather than a model's own technical report).
+these components; this source is actively updated, so treat any
+model-specific detail drawn from it as current as of its last
+verification (see the Build and Version Note), not timeless. This
+chapter works around two tracked sourcing gaps: tied embeddings has no
+dedicated primary source, and the sandwich-norm claim leans on a
+secondary source rather than a model's own technical report (both
+noted in the Build and Version Note).

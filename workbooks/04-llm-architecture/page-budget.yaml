@@ -1,0 +1,81 @@
+# Page budget for Workbook 04 (Modern LLM Architecture), tracked across
+# the two-chapter review pilot and projected forward to the full
+# eight-chapter workbook. Authored by hand (see shared/_yaml_lite.py for
+# the supported YAML subset -- no anchors/aliases/flow-mappings).
+#
+# "actual" sections below are measured directly from
+# outputs/04-llm-architecture-ch01-02-review.pdf after the post-review
+# revision pass (pdfinfo/pdftotext, US Letter, this project's standard
+# margins/fonts -- see the Build and Version Note for the exact build).
+# "provisional" sections are estimates for not-yet-drafted chapters and
+# will be replaced with actuals as each chapter is drafted and rendered.
+
+schema_version: 1
+
+pilot_actual:
+  measured_from: "outputs/04-llm-architecture-ch01-02-review.pdf"
+  total_pages: 26
+  total_words: 11732
+  sections:
+    - name: "front_matter"
+      description: "Title page, how-to-use, pilot-scope note, notation quick reference"
+      pages: 2
+      notes: "Shares a page boundary with Chapter 1's opening (Chapter 1's heading starts partway down page 3), so this is a rounded count, not a clean page range."
+    - name: "chapter_1"
+      description: "Chapter 1: Transformer Refresher, instructional content only"
+      pages: 10
+      notes: "Starts partway down page 3, ends partway down page 12. Grew from the pre-revision pilot's combined 17-page Ch.1+Ch.2 instructional total mainly because of the corrected KV-cache explanation (longer, more precise prose) and the mandatory fresh-page break before Chapter 2."
+    - name: "chapter_2"
+      description: "Chapter 2: Anatomy of a Modern Decoder, instructional content only"
+      pages: 9
+      notes: "Starts fresh on page 13 (deliberate page break per review feedback), ends partway down page 21."
+    - name: "answer_key"
+      description: "Answer Key: Chapter 1 + Answer Key: Chapter 2, combined"
+      pages: 4
+      notes: "Answer Key: Chapter 1 starts fresh on page 22 (deliberate break); Answer Key: Chapter 2 begins mid-page on page 23 (no forced break -- the transition is a natural continuation of the same 'answer key' material, not a major navigation boundary)."
+    - name: "build_note_and_bibliography"
+      description: "Build and Version Note (with its Provenance subsection) plus the auto-appended Bibliography"
+      pages: 1
+      notes: "The build note ends and the Bibliography begins on page 25/26; Typst's native (citeproc:false) bibliography is always appended at the absolute end of the document regardless of source order, so this section's position is fixed by the toolchain, not a content choice."
+  pre_revision_reference:
+    total_pages: 24
+    instructional_pages_ch1_ch2: 17
+    total_words: 11400
+    note: "Approximate figures from the pre-revision review bundle (outputs/review-bundle-04-ch01-02/manifest.txt), before this pass's KV-cache correction, prefill qualification, RMSNorm epsilon, path removal, question relabeling, page breaks, and figure-legibility fixes."
+
+full_workbook_projection:
+  preferred_total_pages: [60, 68]
+  hard_ceiling_total_pages: 72
+  hard_ceiling_note: "Exceeding 72 requires explicit approval, per the task instructions governing this revision. Page growth must come from adding chapters, not from ever shrinking fonts, figures, margins, or writing space (AGENTS.md-adjacent constraint from the task)."
+  chapters_3_to_8_provisional:
+    - chapter: 3
+      topic: "Attention head structure and cache-efficient variants"
+      instructional_pages: [7, 8]
+      estimated_answer_key_pages: [1.5, 2]
+    - chapter: 4
+      topic: "Restricting attention's reach"
+      instructional_pages: [6, 7]
+      estimated_answer_key_pages: [1.5, 1.5]
+    - chapter: 5
+      topic: "Mixture-of-experts models"
+      instructional_pages: [6, 7]
+      estimated_answer_key_pages: [1.5, 1.5]
+    - chapter: 6
+      topic: "Case studies (architecture at real-model scale)"
+      instructional_pages: [5, 6]
+      estimated_answer_key_pages: [1, 1.5]
+    - chapter: 7
+      topic: "Architecture -> systems consequences"
+      instructional_pages: [5, 6]
+      estimated_answer_key_pages: [1, 1.5]
+    - chapter: 8
+      topic: "Synthesis / practice chapter"
+      instructional_pages: [4, 5]
+      estimated_answer_key_pages: [1, 1]
+  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of ~2 answer-key pages per 9 instructional pages (Chapters 1-2 actual), applied to each later chapter's smaller provisional instructional-page budget. Will be replaced by actuals as each chapter is drafted."
+  projection_arithmetic:
+    pilot_actual_total: 26
+    chapters_3_to_8_instructional_range: [33, 39]
+    chapters_3_to_8_answer_key_range: [7.5, 9]
+    projected_full_total_range: [66.5, 74]
+  flagged_risk: "The high end of the projected full-workbook range (~74 pages) exceeds the 72-page hard ceiling. This is a projection, not a current overage -- only Chapters 1-2 are drafted -- but it means Chapters 3-8 cannot all land at the top of their provisional instructional-page ranges with proportionally-sized answer keys and still stay under the ceiling without approval. Track actuals chapter-by-chapter as each is drafted, and treat the top of each chapter's range as a budget to justify exceeding, not a default."

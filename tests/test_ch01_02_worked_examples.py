@@ -80,6 +80,29 @@ class TestTinyDecoderTrace(unittest.TestCase):
         self.assertEqual(decode["cache_size_before"], 4)
         self.assertEqual(decode["cache_size_after"], 5)
 
+    def test_kv_cache_is_not_the_residual_stream(self):
+        """Regression test for a corrected error: the chapter previously
+        (wrongly) called the post-attention residual stream 'exactly the
+        state that gets cached'. What actually gets cached is each
+        layer's K/V projections (computed from that layer's INPUT),
+        which must differ in both shape and value from the residual
+        stream state produced AFTER the attention sublayer's output is
+        added back in."""
+        prefill = self.data["prefill"]
+        k_full = prefill["K_full"]
+        residual = prefill["residual_stream_after_attn"]
+        self.assertEqual(len(k_full), len(residual))
+        self.assertEqual(len(k_full[0]), len(residual[0]))
+        differs_somewhere = any(
+            abs(k_full[i][j] - residual[i][j]) > 1e-9
+            for i in range(len(k_full))
+            for j in range(len(k_full[0]))
+        )
+        self.assertTrue(
+            differs_somewhere,
+            msg="K (what gets cached) must not equal the post-attention residual stream",
+        )
+
     def test_decode_step_query_has_no_blocked_positions(self):
         """The decode step's query is always the last position, so every
         key (including the 4 cached ones and itself) must be visible --
@@ -177,6 +200,63 @@ class TestQuestionAndFigureIntegrity(unittest.TestCase):
             used = set(re.findall(r"@(src-\d+)", text))
             for key in used:
                 self.assertIn(key, bib_keys, msg=f"{fname} cites {key}, not found in bibliography.bib")
+
+
+class TestLearnerFacingTextIsClean(unittest.TestCase):
+    """Regression tests for the post-review cleanup: raw machine-readable
+    enum labels and internal repo-relative paths must never appear in the
+    learner-facing chapter/solutions text, and the corrected KV-cache
+    claim must not silently regress."""
+
+    LEARNER_FACING_FILES = [
+        os.path.join(WB04, "chapters", "01-transformer-refresher.qmd"),
+        os.path.join(WB04, "chapters", "02-modern-decoder.qmd"),
+        os.path.join(WB04, "solutions", "01-transformer-refresher-solutions.qmd"),
+        os.path.join(WB04, "solutions", "02-modern-decoder-solutions.qmd"),
+        os.path.join(WB04, "includes", "notation-summary.qmd"),
+        os.path.join(WB04, "includes", "draft-scope-note.qmd"),
+    ]
+
+    BANNED_SUBSTRINGS = [
+        "figures/source",
+        "data/worked-examples",
+        "workbooks/04",
+        "shared/question-schema",
+        "misconception_diagnosis",
+        "compare_and_contrast",
+        "residual stream is exactly the state that gets cached",
+        "sources/registry.yaml",
+        "notation.yaml",
+        "questions.yaml",
+        "(recall)",
+        "(explanation)",
+        "(calculation)",
+        "(design)",
+        "(debugging)",
+    ]
+
+    def test_no_banned_substrings_in_learner_facing_files(self):
+        for path in self.LEARNER_FACING_FILES:
+            with open(path) as f:
+                text = f.read()
+            for banned in self.BANNED_SUBSTRINGS:
+                self.assertNotIn(
+                    banned, text,
+                    msg=f"found banned substring {banned!r} in {os.path.relpath(path, REPO_ROOT)}",
+                )
+
+    def test_display_labels_used_instead_of_raw_enum_names(self):
+        display_labels = [
+            "Quick check", "Explain", "Calculation", "Compare",
+            "Misconception check", "Design exercise", "Interview practice",
+        ]
+        for path in self.LEARNER_FACING_FILES[:4]:
+            with open(path) as f:
+                text = f.read()
+            self.assertTrue(
+                any(label in text for label in display_labels),
+                msg=f"no humanized display label found in {os.path.relpath(path, REPO_ROOT)}",
+            )
 
 
 if __name__ == "__main__":

@@ -57,6 +57,33 @@ fields:
       - "debugging"
       - "design"
       - "misconception_diagnosis"
+    # Presentation-label mapping (the "rendering layer" mapping): the
+    # machine-readable question_type value stays stable for
+    # scripts/validate_questions.py and questions.yaml, but no
+    # learner-facing PDF may print the raw enum value (with its
+    # underscores) directly. Every chapter/answer-key qmd must use only
+    # the display_label below when labeling a question by type. A
+    # question originating as an "interview-style" prompt (not itself a
+    # question_type value -- these are typically tagged "explanation" or
+    # "design" with interview framing in the prompt text) uses the
+    # separate "Interview practice" label instead of its underlying
+    # question_type's label; see notes.
+    display_labels:
+      - question_type: "recall"
+        display_label: "Quick check"
+      - question_type: "explanation"
+        display_label: "Explain"
+      - question_type: "calculation"
+        display_label: "Calculation"
+      - question_type: "compare_and_contrast"
+        display_label: "Compare"
+      - question_type: "debugging"
+        display_label: "Debugging"
+      - question_type: "design"
+        display_label: "Design exercise"
+      - question_type: "misconception_diagnosis"
+        display_label: "Misconception check"
+    display_label_notes: "Interview-style questions (identified by prompt framing, e.g. \"Interview-style question: ...\", not a distinct question_type) use the display label \"Interview practice\" instead of their underlying type's label."
 
   - name: "prompt"
     type: "string"

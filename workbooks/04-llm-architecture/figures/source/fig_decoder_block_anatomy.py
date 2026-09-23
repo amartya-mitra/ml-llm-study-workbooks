@@ -20,29 +20,39 @@ FIGURE_ID = "fig-decoder-block-anatomy"
 OUTPUT_PATH = os.path.join(os.path.dirname(_THIS_DIR), "rendered", f"{FIGURE_ID}.svg")
 
 
-def branch(canvas, stream_x, y0, y1, label_norm, label_sublayer, fill, colors, side=1):
+# Box/font sizes below target >= 8pt printed at this figure's actual
+# embed width (48% of the 6.5in text column -> 1 SVG unit = 0.48*6.5*72/W
+# points). That ratio is much smaller than a 100%-embed figure's, so
+# essential labels need much larger SVG-unit sizes than they would at
+# full width -- see the review notes behind scripts/build_ch01_02_review.py.
+NORM_W, NORM_H = 90, 32
+SUB_W, SUB_H = 220, 46
+PLUS_R = 15
+BRANCH_DX = 160
+LABEL_SIZE = 20  # ~8.0pt at final size -- essential (names each sublayer/norm)
+
+
+def branch(canvas, stream_x, y0, label_norm, label_sublayer, fill, colors, side=1):
     """Draw one residual branch: stream -> norm -> sublayer -> back to stream."""
-    branch_x = stream_x + side * 130
-    canvas.add_arrow(stream_x + side * 6, y0 + 14, branch_x - 45 if side > 0 else branch_x + 45, y0 + 14,
+    branch_x = stream_x + side * BRANCH_DX
+    canvas.add_arrow(stream_x + side * 6, y0 + 16, branch_x - side * (NORM_W / 2), y0 + 16,
                       style="solid", color="#333333", stroke_width=1.5)
-    norm_w, norm_h = 70, 28
-    norm_x = branch_x - norm_w / 2
-    canvas.add_rect(norm_x, y0, norm_w, norm_h, fill="#ffffff", stroke="#333333", stroke_width=1.5)
-    canvas.add_text(branch_x, y0 + norm_h / 2 + 4, label_norm, size=10, anchor="middle")
+    norm_x = branch_x - NORM_W / 2
+    canvas.add_rect(norm_x, y0, NORM_W, NORM_H, fill="#ffffff", stroke="#333333", stroke_width=1.5)
+    canvas.add_text(branch_x, y0 + NORM_H / 2 + 6, label_norm, size=LABEL_SIZE, anchor="middle")
 
-    canvas.add_arrow(branch_x, y0 + norm_h, branch_x, y0 + norm_h + 22, style="solid", color="#333333", stroke_width=1.5)
+    canvas.add_arrow(branch_x, y0 + NORM_H, branch_x, y0 + NORM_H + 22, style="solid", color="#333333", stroke_width=1.5)
 
-    sub_y = y0 + norm_h + 22
-    sub_w, sub_h = 130, 44
-    sub_x = branch_x - sub_w / 2
-    canvas.add_rect(sub_x, sub_y, sub_w, sub_h, fill=fill, stroke="#333333", stroke_width=2)
-    canvas.add_text(branch_x, sub_y + sub_h / 2 + 4, label_sublayer, size=11, color="#ffffff", anchor="middle")
+    sub_y = y0 + NORM_H + 22
+    sub_x = branch_x - SUB_W / 2
+    canvas.add_rect(sub_x, sub_y, SUB_W, SUB_H, fill=fill, stroke="#333333", stroke_width=2)
+    canvas.add_text(branch_x, sub_y + SUB_H / 2 + 6, label_sublayer, size=LABEL_SIZE, color="#ffffff", anchor="middle")
 
-    plus_y = sub_y + sub_h + 26
-    canvas.add_arrow(branch_x, sub_y + sub_h, branch_x, plus_y - 10, style="solid", color="#333333", stroke_width=1.5)
-    canvas.add_raw(f'<circle cx="{branch_x}" cy="{plus_y}" r="11" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>')
-    canvas.add_text(branch_x, plus_y + 4, "+", size=14, weight="bold", anchor="middle")
-    canvas.add_arrow(branch_x - side * 45 if side > 0 else branch_x + 45, plus_y, stream_x + side * 6, plus_y,
+    plus_y = sub_y + SUB_H + 30
+    canvas.add_arrow(branch_x, sub_y + SUB_H, branch_x, plus_y - PLUS_R - 1, style="solid", color="#333333", stroke_width=1.5)
+    canvas.add_raw(f'<circle cx="{branch_x}" cy="{plus_y}" r="{PLUS_R}" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>')
+    canvas.add_text(branch_x, plus_y + 6, "+", size=20, weight="bold", anchor="middle")
+    canvas.add_arrow(branch_x - side * (NORM_W / 2), plus_y, stream_x + side * 6, plus_y,
                       style="solid", color="#333333", stroke_width=1.5)
     return plus_y
 
@@ -56,33 +66,40 @@ def main():
     W = 560
     canvas = SVGCanvas(width=W, height=1, title="Decoder block anatomy: residual stream with two sublayers")
 
-    stream_x = W / 2
+    # Stream sits left-of-center (not dead center) so the branch column has
+    # enough width for the wider, more-legible boxes below without pushing
+    # past the canvas edge.
+    stream_x = 170
     top_y = 30
-    bottom_y = 430
 
-    canvas.add_text(stream_x, top_y - 10, "residual stream (in)", size=10, color="#555555", anchor="middle")
+    canvas.add_text(stream_x, top_y - 12, "residual stream (in)", size=20, color="#555555", anchor="middle")
     canvas.add_arrow(stream_x, top_y, stream_x, top_y + 20, style="solid", color=blue, stroke_width=3)
 
-    y1 = branch(canvas, stream_x, top_y + 30, None, "norm", "attention sublayer", orange, colors, side=1)
+    y1 = branch(canvas, stream_x, top_y + 30, "norm", "attention sublayer", orange, colors, side=1)
     canvas.add_arrow(stream_x, top_y + 30 - 10, stream_x, y1 - 11, style="solid", color=blue, stroke_width=3)
 
-    y2 = branch(canvas, stream_x, y1 + 30, None, "norm", "MLP sublayer", orange, colors, side=1)
+    y2 = branch(canvas, stream_x, y1 + 30, "norm", "MLP sublayer", orange, colors, side=1)
     canvas.add_arrow(stream_x, y1, stream_x, y2 + 30 - 20, style="solid", color=blue, stroke_width=3)
 
     canvas.add_arrow(stream_x, y2, stream_x, y2 + 40, style="solid", color=blue, stroke_width=3)
-    canvas.add_text(stream_x, y2 + 55, "residual stream (out) -- same width as (in)", size=10, color="#555555", anchor="middle")
+    canvas.add_text(stream_x, y2 + 60, "residual stream (out)", size=20, color="#555555", anchor="middle")
 
-    canvas.add_text(30, top_y - 10, "each box below reads a normalized COPY", size=9, color="#777777")
-    canvas.add_text(30, top_y + 4, "of the stream but adds its result back", size=9, color="#777777")
-    canvas.add_text(30, top_y + 18, "onto the ORIGINAL stream value at +", size=9, color="#777777")
+    # An earlier version repeated, inside the figure, the same "reads a
+    # normalized copy, adds back onto the original" explanation that is
+    # already in the surrounding prose and this figure's own caption
+    # (see @eq-residual-update's discussion in the chapter text) -- at
+    # this figure's 48%-embed size that explanatory text could not be
+    # enlarged to a legible point size without overflowing the branch
+    # column, and removing it loses no information the reader doesn't
+    # already have from the prose/caption.
 
-    legend_y = y2 + 85
+    legend_y = y2 + 95
     canvas.add_rect(30, legend_y, 16, 4, fill=blue)
-    canvas.add_text(52, legend_y + 8, "residual stream (stored state, constant width)", size=9)
-    canvas.add_rect(300, legend_y - 6, 16, 16, fill=orange)
-    canvas.add_text(322, legend_y + 8, "computation (a sublayer)", size=9)
+    canvas.add_text(54, legend_y + 7, "residual stream (constant width)", size=20)
+    canvas.add_rect(30, legend_y + 32, 16, 16, fill=orange)
+    canvas.add_text(54, legend_y + 45, "computation (a sublayer)", size=20)
 
-    canvas.height = legend_y + 30
+    canvas.height = legend_y + 70
     canvas.save(OUTPUT_PATH)
     print(f"wrote {OUTPUT_PATH}")
 

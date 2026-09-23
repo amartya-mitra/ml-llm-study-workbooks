@@ -29,65 +29,80 @@ def main():
     blue = colors["stored_information"]
     green = colors["trainable_component"]
 
-    W = 460
+    # This figure embeds at 48% of the 6.5in text column, so 1 SVG unit =
+    # 0.48*6.5*72/W points at final size -- a much smaller ratio than a
+    # full-width figure gets, so labels need large SVG-unit sizes and wide
+    # boxes to clear 8pt (see the review notes behind
+    # scripts/build_ch01_02_review.py; this figure was explicitly flagged
+    # for being unreadable at print size).
+    W = 480
     canvas = SVGCanvas(width=W, height=1, title="Annotated modern decoder block")
     stream_x = W / 2
+
+    NORM_W, NORM_H = 130, 32
+    SUB_W = 230
+    R = 13
+    LABEL_SIZE = 19  # ~8.9pt at final size -- essential (names each component)
+    SUB_LABEL_SIZE = 14  # ~6.5pt -- secondary clarification, kept well above the 6pt floor
+    BYPASS_DX = SUB_W / 2 + 15
 
     top_y = 30
     canvas.add_arrow(stream_x, top_y, stream_x, top_y + 20, style="solid", color=blue, stroke_width=3)
 
     y = top_y + 20
-    canvas.add_rect(stream_x - 60, y, 120, 24, fill="#ffffff", stroke=green, stroke_width=2)
-    canvas.add_text(stream_x, y + 16, "RMSNorm", size=10, weight="bold", anchor="middle")
-    y += 24
+    canvas.add_rect(stream_x - NORM_W / 2, y, NORM_W, NORM_H, fill="#ffffff", stroke=green, stroke_width=2)
+    canvas.add_text(stream_x, y + NORM_H / 2 + 6, "RMSNorm", size=LABEL_SIZE, weight="bold", anchor="middle")
+    y += NORM_H
     canvas.add_arrow(stream_x, y, stream_x, y + 16, style="solid", color="#333333", stroke_width=1.5)
     y += 16
-    canvas.add_rect(stream_x - 75, y, 150, 52, fill=orange, stroke="#333333", stroke_width=2)
-    canvas.add_text(stream_x, y + 20, "attention sublayer", size=10, color="#ffffff", anchor="middle")
-    canvas.add_text(stream_x, y + 36, "(RoPE rotates Q, K", size=8, color="#ffffff", anchor="middle")
-    canvas.add_text(stream_x, y + 47, "before the dot product)", size=8, color="#ffffff", anchor="middle")
-    y += 52
+    attn_h = 72
+    canvas.add_rect(stream_x - SUB_W / 2, y, SUB_W, attn_h, fill=orange, stroke="#333333", stroke_width=2)
+    canvas.add_text(stream_x, y + 24, "attention sublayer", size=LABEL_SIZE, color="#ffffff", anchor="middle")
+    canvas.add_text(stream_x, y + 44, "(RoPE rotates Q, K", size=SUB_LABEL_SIZE, color="#ffffff", anchor="middle")
+    canvas.add_text(stream_x, y + 60, "before the dot product)", size=SUB_LABEL_SIZE, color="#ffffff", anchor="middle")
+    y += attn_h
     canvas.add_arrow(stream_x, y, stream_x, y + 16, style="solid", color="#333333", stroke_width=1.5)
     y += 16
-    plus1_y = y + 11
-    canvas.add_raw(f'<circle cx="{stream_x}" cy="{plus1_y}" r="11" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>')
-    canvas.add_text(stream_x, plus1_y + 4, "+", size=13, weight="bold", anchor="middle")
+    plus1_y = y + R
+    canvas.add_raw(f'<circle cx="{stream_x}" cy="{plus1_y}" r="{R}" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>')
+    canvas.add_text(stream_x, plus1_y + 6, "+", size=18, weight="bold", anchor="middle")
     canvas.add_raw(
-        f'<path d="M {stream_x-90},{top_y+34} L {stream_x-90},{plus1_y} L {stream_x-11},{plus1_y}" '
+        f'<path d="M {stream_x-BYPASS_DX},{top_y+20} L {stream_x-BYPASS_DX},{plus1_y} L {stream_x-R},{plus1_y}" '
         f'fill="none" stroke="{blue}" stroke-width="3"/>'
     )
-    y = plus1_y + 11
+    y = plus1_y + R
 
     canvas.add_arrow(stream_x, y, stream_x, y + 20, style="solid", color=blue, stroke_width=3)
     y += 20
-    canvas.add_rect(stream_x - 60, y, 120, 24, fill="#ffffff", stroke=green, stroke_width=2)
-    canvas.add_text(stream_x, y + 16, "RMSNorm", size=10, weight="bold", anchor="middle")
-    y += 24
+    canvas.add_rect(stream_x - NORM_W / 2, y, NORM_W, NORM_H, fill="#ffffff", stroke=green, stroke_width=2)
+    canvas.add_text(stream_x, y + NORM_H / 2 + 6, "RMSNorm", size=LABEL_SIZE, weight="bold", anchor="middle")
+    y += NORM_H
     canvas.add_arrow(stream_x, y, stream_x, y + 16, style="solid", color="#333333", stroke_width=1.5)
     y += 16
-    canvas.add_rect(stream_x - 75, y, 150, 40, fill=orange, stroke="#333333", stroke_width=2)
-    canvas.add_text(stream_x, y + 24, "SwiGLU MLP", size=11, color="#ffffff", anchor="middle")
-    y += 40
+    mlp_h = 46
+    canvas.add_rect(stream_x - SUB_W / 2, y, SUB_W, mlp_h, fill=orange, stroke="#333333", stroke_width=2)
+    canvas.add_text(stream_x, y + mlp_h / 2 + 6, "SwiGLU MLP", size=LABEL_SIZE, color="#ffffff", anchor="middle")
+    y += mlp_h
     canvas.add_arrow(stream_x, y, stream_x, y + 16, style="solid", color="#333333", stroke_width=1.5)
     y += 16
-    plus2_y = y + 11
-    canvas.add_raw(f'<circle cx="{stream_x}" cy="{plus2_y}" r="11" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>')
-    canvas.add_text(stream_x, plus2_y + 4, "+", size=13, weight="bold", anchor="middle")
+    plus2_y = y + R
+    canvas.add_raw(f'<circle cx="{stream_x}" cy="{plus2_y}" r="{R}" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>')
+    canvas.add_text(stream_x, plus2_y + 6, "+", size=18, weight="bold", anchor="middle")
     canvas.add_raw(
-        f'<path d="M {stream_x-90},{plus1_y+11} L {stream_x-90},{plus2_y} L {stream_x-11},{plus2_y}" '
+        f'<path d="M {stream_x-BYPASS_DX},{plus1_y+R} L {stream_x-BYPASS_DX},{plus2_y} L {stream_x-R},{plus2_y}" '
         f'fill="none" stroke="{blue}" stroke-width="3"/>'
     )
-    y = plus2_y + 11
+    y = plus2_y + R
     canvas.add_arrow(stream_x, y, stream_x, y + 20, style="solid", color=blue, stroke_width=3)
     y += 20
 
     legend_y = y + 20
     canvas.add_rect(20, legend_y, 16, 16, fill=orange)
-    canvas.add_text(42, legend_y + 12, "computation (attention / SwiGLU MLP)", size=9)
-    canvas.add_rect(20, legend_y + 22, 16, 16, fill="#ffffff", stroke=green, stroke_width=2)
-    canvas.add_text(42, legend_y + 34, "RMSNorm (fills the generic \"norm\" slot from ch. 1)", size=9)
+    canvas.add_text(42, legend_y + 13, "computation (attention / SwiGLU MLP)", size=18)
+    canvas.add_rect(20, legend_y + 26, 16, 16, fill="#ffffff", stroke=green, stroke_width=2)
+    canvas.add_text(42, legend_y + 26 + 13, "RMSNorm (fills the norm slot from ch. 1)", size=18)
 
-    canvas.height = legend_y + 55
+    canvas.height = legend_y + 26 + 16 + 24
     canvas.save(OUTPUT_PATH)
     print(f"wrote {OUTPUT_PATH}")
 

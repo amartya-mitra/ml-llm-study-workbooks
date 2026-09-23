@@ -1,41 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="327" viewBox="0 0 760 327">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="375" viewBox="0 0 760 375">
   <title>Plain MLP vs. gated MLP</title>
   <defs><marker id="arrow-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker></defs>
-  <rect x="0" y="0" width="760" height="327" fill="#ffffff"/>
-  <text x="20" y="25" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">Plain MLP (two matrices)</text>
-  <rect x="20" y="50" width="90" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="65" y="70" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">input x</text>
-  <line x1="65" y1="80" x2="65" y2="100" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="20" y="100" width="90" height="34" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="65" y="122" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#ffffff" text-anchor="middle">W1, activation</text>
-  <line x1="65" y1="134" x2="65" y2="154" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="20" y="154" width="90" height="30" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="65" y="174" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">W2</text>
-  <line x1="65" y1="184" x2="65" y2="204" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="20" y="204" width="90" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="65" y="224" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">output</text>
-  <text x="15" y="260" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#555555" text-anchor="start">one path, two weight matrices (W1, W2)</text>
-  <text x="320" y="25" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">Gated MLP / SwiGLU (three matrices)</text>
-  <rect x="410" y="50" width="90" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="455" y="70" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">input x</text>
-  <line x1="420" y1="80" x2="385" y2="100" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="490" y1="80" x2="615" y2="100" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="340" y="100" width="90" height="34" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="385" y="118" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">W1</text>
-  <text x="385" y="130" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">(gate, activated)</text>
-  <rect x="570" y="100" width="90" height="34" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="615" y="118" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">W3</text>
-  <text x="615" y="130" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">(value, linear)</text>
-  <line x1="385" y1="134" x2="490.0" y2="154" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <line x1="615" y1="134" x2="510.0" y2="154" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <circle cx="500.0" cy="164" r="13" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>
-  <text x="500.0" y="168" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">x</text>
-  <text x="500.0" y="186" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#555555" text-anchor="middle">elementwise multiply</text>
-  <line x1="500.0" y1="177" x2="500.0" y2="202" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="455.0" y="202" width="90" height="30" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="500.0" y="222" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">W2</text>
-  <line x1="500.0" y1="232" x2="500.0" y2="252" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="455.0" y="252" width="90" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
-  <text x="500.0" y="272" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">output</text>
-  <text x="300" y="302" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#555555" text-anchor="start">two parallel paths (W1, W3) meet at a multiply before the shared W2 -- three weight matrices total</text>
+  <rect x="0" y="0" width="760" height="375" fill="#ffffff"/>
+  <text x="20" y="28" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start">Plain MLP (two matrices)</text>
+  <rect x="20" y="50" width="130" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="85.0" y="72" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">input x</text>
+  <line x1="85.0" y1="84" x2="85.0" y2="104" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="20" y="104" width="130" height="34" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="85.0" y="126" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">W1, activation</text>
+  <line x1="85.0" y1="138" x2="85.0" y2="158" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="20" y="158" width="130" height="34" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="85.0" y="180" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">W2</text>
+  <line x1="85.0" y1="192" x2="85.0" y2="212" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="20" y="212" width="130" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="85.0" y="234" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">output</text>
+  <text x="20" y="272" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">one path, two weight matrices (W1, W2)</text>
+  <text x="300" y="28" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start">Gated MLP / SwiGLU (three matrices)</text>
+  <rect x="450.0" y="50" width="130" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="515.0" y="72" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">input x</text>
+  <line x1="475.0" y1="84" x2="385.0" y2="104" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="555.0" y1="84" x2="645.0" y2="104" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="320" y="104" width="130" height="46" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="385.0" y="124" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">W1</text>
+  <text x="385.0" y="142" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">(gate, activated)</text>
+  <rect x="580" y="104" width="130" height="46" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="645.0" y="124" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">W3</text>
+  <text x="645.0" y="142" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">(value, linear)</text>
+  <line x1="385.0" y1="150" x2="503.0" y2="178" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <line x1="645.0" y1="150" x2="527.0" y2="178" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <circle cx="515.0" cy="190" r="14" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>
+  <text x="515.0" y="195" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#111111" text-anchor="middle">x</text>
+  <text x="515.0" y="220" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="middle">elementwise multiply</text>
+  <line x1="515.0" y1="204" x2="515.0" y2="236" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="450.0" y="236" width="130" height="34" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="515.0" y="258" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">W2</text>
+  <line x1="515.0" y1="270" x2="515.0" y2="290" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="450.0" y="290" width="130" height="34" rx="6" fill="#0072B2" stroke="#333333" stroke-width="2"/>
+  <text x="515.0" y="312" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#ffffff" text-anchor="middle">output</text>
+  <text x="20" y="350" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">two parallel paths (W1, W3) meet at a multiply before the shared W2 -- three weight matrices total</text>
 </svg>

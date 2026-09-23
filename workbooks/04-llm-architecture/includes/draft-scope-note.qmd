@@ -5,9 +5,8 @@ Models* (workbook 04 of the ML/LLM Study Workbooks series). Chapters
 3-8 -- attention head structure and cache-efficient variants, restricting
 attention's reach, mixture-of-experts models, case studies, architecture
 -> systems consequences, and a synthesis/practice chapter -- are planned
-(see `workbooks/04-llm-architecture/outline.md`) but **not drafted**.
-Nothing in this document should be read as implying those chapters
-exist yet.
+but **not drafted**. Nothing in this document should be read as
+implying those chapters exist yet.
 
 This is a review artifact: it exists to establish the workbook's
 explanatory depth, visual language, page density, question style, and

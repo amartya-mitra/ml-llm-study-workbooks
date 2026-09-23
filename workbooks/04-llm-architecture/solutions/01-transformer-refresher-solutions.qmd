@@ -1,85 +1,83 @@
 ## Answer Key: Chapter 1 {#sec-solutions-ch1}
 
 Full solutions to Chapter 1's "Check your understanding" questions
-(@sec-ch1). Question records (with the same content, plus difficulty
-and source tags) are in `workbooks/04-llm-architecture/questions.yaml`,
-ids `q-04-ch1-001` through `q-04-ch1-007`.
+(@sec-ch1).
 
-**1. (recall) What does the residual stream carry from one block to the
+**1. Quick check. What does the residual stream carry from one block to the
 next?**
 
-The running sum of the original embedding plus every sublayer update
-added so far -- not just the most recent sublayer's raw output. Per the
-residual update $x^{(l+1)} = x^{(l)} + f(\text{Norm}(x^{(l)}))$, each
-block *adds* its sublayer's output onto the existing stream value; it
-never replaces the stream with just the new sublayer's output.
+*Answer.* The running sum of the original embedding plus every
+sublayer update added so far -- not just the most recent sublayer's raw
+output. Per the residual update $x^{(l+1)} = x^{(l)} + f(\text{Norm}(x^{(l)}))$,
+each block *adds* its sublayer's output onto the existing stream value;
+it never replaces the stream with just the new sublayer's output.
 
-*Common wrong answer:* "the output of the most recent attention or MLP
+*Common trap:* "the output of the most recent attention or MLP
 sublayer" -- that describes only the update being added in that step,
 not the accumulated stream value.
 
-**2. (explanation) Why does a decoder-only objective allow one-token-
+**2. Explain. Why does a decoder-only objective allow one-token-
 at-a-time generation?**
 
-Because the causal mask restricts every position to attending only to
-itself and earlier positions, the same forward-pass structure used in
-training also directly defines how to generate: at each position,
-produce a next-token distribution conditioned only on what came before.
-A bidirectional encoder's positions can attend to *later* positions
-too, so its representation at a given position already depends on
-tokens that would not exist yet during generation -- that structure
-cannot be reused one token at a time the way a causal one can.
+*Answer.* Because the causal mask restricts every position to
+attending only to itself and earlier positions, the same forward-pass
+structure used in training also directly defines how to generate: at
+each position, produce a next-token distribution conditioned only on
+what came before. A bidirectional encoder's positions can attend to
+*later* positions too, so its representation at a given position
+already depends on tokens that would not exist yet during generation --
+that structure cannot be reused one token at a time the way a causal
+one can.
 
-*Common wrong answer:* "decoder-only models are just smaller/simpler" --
-size is unrelated; the difference is specifically about which positions
-are allowed to attend to which.
+*Common trap:* "decoder-only models are just smaller/simpler" -- size
+is unrelated; the difference is specifically about which positions are
+allowed to attend to which.
 
-**3. (calculation) $d_{\text{model}} = 8$, $H_q = 2$, $S = 5$: find
+**3. Calculation. $d_{\text{model}} = 8$, $H_q = 2$, $S = 5$: find
 $d_{\text{head}}$ and the shape of $QK^\top$ for one head.**
 
-$d_{\text{head}} = d_{\text{model}} / H_q = 8 / 2 = 4$. The raw
-attention score matrix for one head is $(S, S) = (5, 5)$ -- one score
-per query/key pair, regardless of $d_{\text{head}}$.
+*Answer.* $d_{\text{head}} = d_{\text{model}} / H_q = 8 / 2 = 4$. The
+raw attention score matrix for one head is $(S, S) = (5, 5)$ -- one
+score per query/key pair, regardless of $d_{\text{head}}$.
 
-*Common wrong answer:* $(S, d_{\text{head}}) = (5, 4)$ -- this confuses
-the per-head attention *output* shape (which is $(S, d_{\text{head}})$)
+*Common trap:* $(S, d_{\text{head}}) = (5, 4)$ -- this confuses the
+per-head attention *output* shape (which is $(S, d_{\text{head}})$)
 with the score matrix shape (always $(S, S)$).
 
-**4. (misconception_diagnosis) "Causal masking means each token can
+**4. Misconception check. "Causal masking means each token can
 only attend to the immediately previous token."**
 
-False. Causal masking allows a position to attend to *every* position
-at or before it ($j \le i$), not only the single immediately preceding
-position. The mask is $0$ (allowed) for every $j \le i$ and $-\infty$
-(blocked) only for $j > i$ -- a full lower-triangular region, not a
-single diagonal band.
+*Answer.* False. Causal masking allows a position to attend to *every*
+position at or before it ($j \le i$), not only the single immediately
+preceding position. The mask is $0$ (allowed) for every $j \le i$ and
+$-\infty$ (blocked) only for $j > i$ -- a full lower-triangular region,
+not a single diagonal band.
 
-*Common wrong answer's origin:* conflating causal masking with a fixed
-local window (sliding-window attention, a separate mechanism covered in
-a later chapter). Causal masking alone imposes no limit on how far back
-a position can look.
+*Why:* conflating causal masking with a fixed local window
+(sliding-window attention, a separate mechanism covered in a later
+chapter). Causal masking alone imposes no limit on how far back a
+position can look.
 
-**5. (misconception_diagnosis) "The residual stream is a separate
+**5. Misconception check. "The residual stream is a separate
 memory database the model writes facts into and reads back later."**
 
-False. The residual stream is a single vector per position, updated
-additively in place -- not a separate, queryable store. Every
+*Answer.* False. The residual stream is a single vector per position,
+updated additively in place -- not a separate, queryable store. Every
 sublayer's output is added directly onto the same fixed-width vector
 that already exists at that position; there is no separate storage
 structure and no mechanism for a later block to selectively "query"
 what an earlier block specifically wrote. It can only read the
 accumulated sum.
 
-*Common wrong answer's origin:* taking this chapter's own receipt
-analogy too literally -- a real receipt's lines stay individually
-readable; the residual stream's contributions are summed into one
-vector and cannot be individually read back out. This is exactly the
-analogy's stated breakdown point.
+*Why:* taking this chapter's own receipt analogy too literally -- a
+real receipt's lines stay individually readable; the residual stream's
+contributions are summed into one vector and cannot be individually
+read back out. This is exactly the analogy's stated breakdown point.
 
-**6. (design, applied exercise) Full tensor-shape trace for your own
+**6. Design exercise (applied exercise). Full tensor-shape trace for your own
 toy config.**
 
-For config $(d_{\text{model}}, L, H_q)$ with $d_{\text{model}}$
+*Answer.* For config $(d_{\text{model}}, L, H_q)$ with $d_{\text{model}}$
 divisible by $H_q$: input vector $(d_{\text{model}},)$; $Q$/$K$/$V$
 before splitting, $(d_{\text{model}},)$ each (or $(S, d_{\text{model}})$
 for a full sequence); after splitting into heads, $(H_q, d_{\text{head}})$
@@ -89,26 +87,28 @@ to $(d_{\text{model}},)$; final vector added to the residual stream,
 $(d_{\text{model}},)$ -- matching the input shape exactly, since
 addition requires matching shapes.
 
-*Common mistake:* forgetting to concatenate the per-head outputs back
-to $d_{\text{model}}$ width before the output projection and residual
+*Common trap:* forgetting to concatenate the per-head outputs back to
+$d_{\text{model}}$ width before the output projection and residual
 addition -- leaving the answer at the per-head shape.
 
-**7. (explanation, interview-style) "Walk me through what happens
+**7. Interview practice. "Walk me through what happens
 differently between processing a 500-token prompt versus generating
 the 501st token."**
 
-A strong answer: (1) names prefill -- all 500 positions processed
-together in one pass, building K/V for every position; (2) names the
-decode step -- exactly one new position processed, computing only its
-own new K/V and reusing the 500 cached K/V rows unchanged; (3)
-explicitly states that generating the 501st token does not reprocess
-or re-read the first 500 tokens.
+*Answer.* A strong answer: (1) names prefill -- conceptually, all 500
+positions evaluated together, building per-layer K/V state for every
+position (a serving engine may chunk this for scheduling reasons
+without changing the logical picture); (2) names the decode step --
+exactly one new position processed, computing only its own new K/V and
+reusing the 500 cached K/V rows unchanged; (3) explicitly states that
+generating the 501st token does not reprocess or re-read the first 500
+tokens.
 
-*Evaluation criteria:* does the answer name both phases correctly, does
+*Interview criteria:* does the answer name both phases correctly, does
 it state what specifically is reused (K/V rows) versus recomputed (the
 one new position's K/V), and does it avoid the "re-reads the whole
 prompt" framing this chapter's headline misconception warns against?
 
-*Weak-answer pattern:* "decoding is faster because the prompt is
-already processed," without stating what specifically is reused or why
-that reuse is what makes it faster.
+*Common trap:* "decoding is faster because the prompt is already
+processed," without stating what specifically is reused or why that
+reuse is what makes it faster.

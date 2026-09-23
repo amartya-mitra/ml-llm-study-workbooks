@@ -1,32 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="460" height="413" viewBox="0 0 460 413">
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="474" viewBox="0 0 480 474">
   <title>Annotated modern decoder block</title>
   <defs><marker id="arrow-0072B2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0072B2"/></marker><marker id="arrow-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker></defs>
-  <rect x="0" y="0" width="460" height="413" fill="#ffffff"/>
-  <line x1="230.0" y1="30" x2="230.0" y2="50" stroke="#0072B2" stroke-width="3" marker-end="url(#arrow-0072B2)"/>
-  <rect x="170.0" y="50" width="120" height="24" rx="6" fill="#ffffff" stroke="#009E73" stroke-width="2"/>
-  <text x="230.0" y="66" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#111111" text-anchor="middle">RMSNorm</text>
-  <line x1="230.0" y1="74" x2="230.0" y2="90" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="155.0" y="90" width="150" height="52" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="230.0" y="110" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#ffffff" text-anchor="middle">attention sublayer</text>
-  <text x="230.0" y="126" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">(RoPE rotates Q, K</text>
-  <text x="230.0" y="137" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="normal" fill="#ffffff" text-anchor="middle">before the dot product)</text>
-  <line x1="230.0" y1="142" x2="230.0" y2="158" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <circle cx="230.0" cy="169" r="11" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>
-  <text x="230.0" y="173" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">+</text>
-  <path d="M 140.0,64 L 140.0,169 L 219.0,169" fill="none" stroke="#0072B2" stroke-width="3"/>
-  <line x1="230.0" y1="180" x2="230.0" y2="200" stroke="#0072B2" stroke-width="3" marker-end="url(#arrow-0072B2)"/>
-  <rect x="170.0" y="200" width="120" height="24" rx="6" fill="#ffffff" stroke="#009E73" stroke-width="2"/>
-  <text x="230.0" y="216" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#111111" text-anchor="middle">RMSNorm</text>
-  <line x1="230.0" y1="224" x2="230.0" y2="240" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <rect x="155.0" y="240" width="150" height="40" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
-  <text x="230.0" y="264" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">SwiGLU MLP</text>
-  <line x1="230.0" y1="280" x2="230.0" y2="296" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
-  <circle cx="230.0" cy="307" r="11" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>
-  <text x="230.0" y="311" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">+</text>
-  <path d="M 140.0,180 L 140.0,307 L 219.0,307" fill="none" stroke="#0072B2" stroke-width="3"/>
-  <line x1="230.0" y1="318" x2="230.0" y2="338" stroke="#0072B2" stroke-width="3" marker-end="url(#arrow-0072B2)"/>
-  <rect x="20" y="358" width="16" height="16" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
-  <text x="42" y="370" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">computation (attention / SwiGLU MLP)</text>
-  <rect x="20" y="380" width="16" height="16" rx="6" fill="#ffffff" stroke="#009E73" stroke-width="2"/>
-  <text x="42" y="392" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="normal" fill="#111111" text-anchor="start">RMSNorm (fills the generic &quot;norm&quot; slot from ch. 1)</text>
+  <rect x="0" y="0" width="480" height="474" fill="#ffffff"/>
+  <line x1="240.0" y1="30" x2="240.0" y2="50" stroke="#0072B2" stroke-width="3" marker-end="url(#arrow-0072B2)"/>
+  <rect x="175.0" y="50" width="130" height="32" rx="6" fill="#ffffff" stroke="#009E73" stroke-width="2"/>
+  <text x="240.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="19" font-weight="bold" fill="#111111" text-anchor="middle">RMSNorm</text>
+  <line x1="240.0" y1="82" x2="240.0" y2="98" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="125.0" y="98" width="230" height="72" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="240.0" y="122" font-family="Helvetica, Arial, sans-serif" font-size="19" font-weight="normal" fill="#ffffff" text-anchor="middle">attention sublayer</text>
+  <text x="240.0" y="142" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">(RoPE rotates Q, K</text>
+  <text x="240.0" y="158" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#ffffff" text-anchor="middle">before the dot product)</text>
+  <line x1="240.0" y1="170" x2="240.0" y2="186" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <circle cx="240.0" cy="199" r="13" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>
+  <text x="240.0" y="205" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">+</text>
+  <path d="M 110.0,50 L 110.0,199 L 227.0,199" fill="none" stroke="#0072B2" stroke-width="3"/>
+  <line x1="240.0" y1="212" x2="240.0" y2="232" stroke="#0072B2" stroke-width="3" marker-end="url(#arrow-0072B2)"/>
+  <rect x="175.0" y="232" width="130" height="32" rx="6" fill="#ffffff" stroke="#009E73" stroke-width="2"/>
+  <text x="240.0" y="254.0" font-family="Helvetica, Arial, sans-serif" font-size="19" font-weight="bold" fill="#111111" text-anchor="middle">RMSNorm</text>
+  <line x1="240.0" y1="264" x2="240.0" y2="280" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <rect x="125.0" y="280" width="230" height="46" rx="6" fill="#E69F00" stroke="#333333" stroke-width="2"/>
+  <text x="240.0" y="309.0" font-family="Helvetica, Arial, sans-serif" font-size="19" font-weight="normal" fill="#ffffff" text-anchor="middle">SwiGLU MLP</text>
+  <line x1="240.0" y1="326" x2="240.0" y2="342" stroke="#333333" stroke-width="1.5" marker-end="url(#arrow-333333)"/>
+  <circle cx="240.0" cy="355" r="13" fill="#ffffff" stroke="#333333" stroke-width="1.5"/>
+  <text x="240.0" y="361" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">+</text>
+  <path d="M 110.0,212 L 110.0,355 L 227.0,355" fill="none" stroke="#0072B2" stroke-width="3"/>
+  <line x1="240.0" y1="368" x2="240.0" y2="388" stroke="#0072B2" stroke-width="3" marker-end="url(#arrow-0072B2)"/>
+  <rect x="20" y="408" width="16" height="16" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="42" y="421" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="normal" fill="#111111" text-anchor="start">computation (attention / SwiGLU MLP)</text>
+  <rect x="20" y="434" width="16" height="16" rx="6" fill="#ffffff" stroke="#009E73" stroke-width="2"/>
+  <text x="42" y="447" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="normal" fill="#111111" text-anchor="start">RMSNorm (fills the norm slot from ch. 1)</text>
 </svg>

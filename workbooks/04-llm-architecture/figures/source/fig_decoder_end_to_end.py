@@ -27,13 +27,20 @@ def main():
     orange = colors["computation"]
     gray = colors["frozen_or_inactive"]
 
-    W = 920
+    # Font sizes below are chosen so essential labels print at >= 8pt at
+    # final embed size: this figure embeds at 100% of the 6.5in text
+    # column, so 1 SVG unit = 6.5*72/W points and a label of size S prints
+    # at S * 6.5 * 72 / W points (see AGENTS.md-adjacent build note /
+    # scripts/build_ch01_02_review.py review pass for the derivation).
+    W = 960
     canvas = SVGCanvas(width=W, height=1, title="End-to-end decoder data flow")
 
     stage_y = 60
-    stage_h = 70
-    stage_w = 110
-    gap = 24
+    stage_h = 78
+    stage_w = 125
+    gap = 22
+    stage_label_size = 17  # ~8.3pt at final size -- essential (names the stage)
+    line_step = 20
     stages = ["tokens", "embeddings", "N x decoder\nblock", "final norm", "output head", "logits"]
     x = 20
     centers = []
@@ -42,8 +49,8 @@ def main():
         canvas.add_rect(x, stage_y, stage_w, stage_h, fill=fill, stroke="#333333", stroke_width=2)
         lines = label.split("\n")
         for li, line in enumerate(lines):
-            canvas.add_text(x + stage_w / 2, stage_y + stage_h / 2 + 4 + (li - (len(lines) - 1) / 2) * 13,
-                             line, size=11, color="#ffffff", anchor="middle")
+            canvas.add_text(x + stage_w / 2, stage_y + stage_h / 2 + 4 + (li - (len(lines) - 1) / 2) * line_step,
+                             line, size=stage_label_size, color="#ffffff", anchor="middle")
         centers.append((x, x + stage_w))
         x += stage_w + gap
 
@@ -61,43 +68,43 @@ def main():
     canvas.add_raw(
         f'<line x1="{loop_x1}" y1="{loop_y0}" x2="{loop_x2}" y2="{loop_y0}" stroke="#333333" stroke-width="1"/>'
     )
-    canvas.add_text((loop_x1 + loop_x2) / 2, loop_y0 - 6, "same block, applied N times, each with its own weights", size=9, color="#555555", anchor="middle")
+    canvas.add_text((loop_x1 + loop_x2) / 2, loop_y0 - 6, "same block, applied N times, each with its own weights", size=15, color="#555555", anchor="middle")
 
     softmax_y = stage_y + stage_h + 55
     logits_cx = (centers[5][0] + centers[5][1]) / 2
     canvas.add_arrow(logits_cx, stage_y + stage_h, logits_cx, softmax_y - 4, style="solid", color="#333333", stroke_width=1.5)
-    softmax_w, softmax_h = 160, 50
+    softmax_w, softmax_h = 170, 55
     softmax_x = logits_cx - softmax_w / 2
     canvas.add_rect(softmax_x, softmax_y, softmax_w, softmax_h, fill=orange, stroke="#333333", stroke_width=2)
-    canvas.add_text(logits_cx, softmax_y + softmax_h / 2 + 4, "softmax", size=12, color="#ffffff", anchor="middle")
+    canvas.add_text(logits_cx, softmax_y + softmax_h / 2 + 4, "softmax", size=17, color="#ffffff", anchor="middle")
 
     dist_y = softmax_y + softmax_h + 40
     canvas.add_arrow(logits_cx, softmax_y + softmax_h, logits_cx, dist_y - 4, style="solid", color="#333333", stroke_width=1.5)
-    canvas.add_text(20, dist_y, "next-token probability distribution over the whole vocabulary:", size=11, weight="bold")
-    bar_y = dist_y + 16
+    canvas.add_text(20, dist_y, "next-token probability distribution over the whole vocabulary:", size=18, weight="bold")
+    bar_y = dist_y + 34
     bar_h_max = 60
     probs = [0.05, 0.62, 0.10, 0.18, 0.03, 0.02]
     tok_labels = ["the", "cat", "dog", "sat", "runs", "..."]
-    bar_w = 50
-    bar_gap = 18
+    bar_w = 54
+    bar_gap = 20
     bx = 20
     for p, lab in zip(probs, tok_labels):
         h = p * bar_h_max / max(probs)
         canvas.add_rect(bx, bar_y + (bar_h_max - h), bar_w, h, fill=blue if lab != "cat" else colors["bottleneck_or_failure"],
                          stroke="#333333", stroke_width=1.5)
-        canvas.add_text(bx + bar_w / 2, bar_y + bar_h_max + 16, lab, size=9, anchor="middle")
-        canvas.add_text(bx + bar_w / 2, bar_y + (bar_h_max - h) - 4, f"{p:.2f}", size=8, anchor="middle", color="#555555")
+        canvas.add_text(bx + bar_w / 2, bar_y + bar_h_max + 22, lab, size=16, anchor="middle")
+        canvas.add_text(bx + bar_w / 2, bar_y + (bar_h_max - h) - 8, f"{p:.2f}", size=16, anchor="middle", color="#333333")
         bx += bar_w + bar_gap
 
-    canvas.add_text(bx + 10, bar_y + bar_h_max / 2, "one token is\nsampled/chosen\nfrom this\ndistribution", size=9, color="#555555")
+    canvas.add_text(bx + 10, bar_y + bar_h_max / 2, "one token is sampled/chosen from this distribution", size=13, color="#555555")
 
-    legend_y = bar_y + bar_h_max + 40
+    legend_y = bar_y + bar_h_max + 70
     canvas.add_rect(20, legend_y, 16, 16, fill=blue)
-    canvas.add_text(42, legend_y + 12, "stored (tokens/embeddings/vocabulary scores)", size=9)
-    canvas.add_rect(300, legend_y, 16, 16, fill=orange)
-    canvas.add_text(322, legend_y + 12, "computation (a stage that transforms the vector)", size=9)
+    canvas.add_text(42, legend_y + 13, "stored (tokens / embeddings / vocabulary scores)", size=16)
+    canvas.add_rect(20, legend_y + 30, 16, 16, fill=orange)
+    canvas.add_text(42, legend_y + 43, "computation (a stage that transforms the vector)", size=16)
 
-    canvas.height = legend_y + 40
+    canvas.height = legend_y + 65
     canvas.save(OUTPUT_PATH)
     print(f"wrote {OUTPUT_PATH}")
 

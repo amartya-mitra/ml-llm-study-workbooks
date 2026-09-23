@@ -235,3 +235,166 @@ backed worked examples, the width-constrained-figure convention) hold
 up under a chapter with meaningfully more visual and numerical density
 than Chapters 1-2, before committing to drafting the remaining five
 chapters at scale.
+
+## Revision — post-review polish pass (2026-09-23)
+
+External review of `outputs/04-llm-architecture-ch01-02-review.pdf`
+(the 24-page build referenced above) found one technical error and
+several production-quality issues. This section records the fixes.
+Chapter 3 was **not** drafted in this pass.
+
+### Technical corrections
+
+- **KV-cache vs. residual stream (the one real error).** Chapter 1's
+  worked example previously stated that the post-attention residual
+  stream "is exactly the state that gets cached" for the KV-cache. This
+  is wrong: what gets cached is each layer's own $K$/$V$ projections,
+  computed from that layer's *input*, before the attention sublayer's
+  output is folded back into the residual stream. The residual stream
+  is recomputed fresh at every step; the $K$/$V$ rows are what actually
+  persist. Fixed in `chapters/01-transformer-refresher.qmd`'s worked
+  example, with a brief, unnamed hedge for RoPE-style cached-key
+  transforms so the claim doesn't go stale when Chapter 3 introduces
+  them. Added a regression test,
+  `test_kv_cache_is_not_the_residual_stream` in
+  `tests/test_ch01_02_worked_examples.py`, which asserts the
+  script-computed `K_full` and `residual_stream_after_attn` arrays
+  differ (the underlying `tiny_decoder_trace.py` computation was
+  already correct; only the chapter's prose narration was wrong).
+- **Prefill qualification.** Added a callout in Chapter 1's worked
+  example, and updated the Interview lens Q&A (chapter prose and
+  `solutions/01-transformer-refresher-solutions.qmd` answer 7), so that
+  "prefill processes the prompt in one pass" is presented as the
+  conceptual model, with an explicit note that a production serving
+  engine may chunk a long prompt for scheduling/memory reasons without
+  changing the logical prefill/decode distinction.
+- **RMSNorm epsilon.** Added $\epsilon$ explicitly to the RMSNorm
+  equation in `chapters/02-modern-decoder.qmd`
+  ($\text{RMS}_\epsilon(x) = \sqrt{\frac{1}{d_{\text{model}}}\sum x_k^2 + \epsilon}$),
+  with $\epsilon$ defined in prose as a fixed, non-learned
+  numerical-stability constant. The LayerNorm/RMSNorm comparison and
+  the "RMSNorm drops mean-centering and the learned bias" claim are
+  unaffected and remain accurate; no claim that RMSNorm is universally
+  preferable was introduced.
+
+### Reader-facing cleanup
+
+- **Internal paths removed.** All repo-relative paths and file
+  references (`figures/source/*.py`, `data/worked-examples/*.py`,
+  `workbooks/04-llm-architecture/questions.yaml`, `notation.yaml`,
+  `sources/registry.yaml`, `reports/04_source_audit.md`, `outline.md`)
+  were removed from both chapters, both solutions files, and
+  `includes/notation-summary.qmd` / `includes/draft-scope-note.qmd`.
+  Reproducibility is preserved, not deleted: `scripts/generate_build_note.py`
+  now takes a repeatable `--provenance-note` argument, and the Build
+  and Version Note has a new "Provenance" subsection (populated by
+  `scripts/build_ch01_02_review.py`) that states, in plain language,
+  that worked-example numbers and figures are script-generated and
+  test-checked, and that two sourcing gaps (tied embeddings, sandwich-
+  norm) are tracked. All underlying scripts, records, and tests stay in
+  the repo; only the rendered PDF's prose stopped naming their paths.
+- **Question labels humanized.** Added a `display_labels` mapping to
+  `shared/question-schema.yaml` (machine `question_type` values stay
+  unchanged for `scripts/validate_questions.py`) and used it to relabel
+  every in-chapter and answer-key question tag: `recall` → "Quick
+  check", `explanation` → "Explain", `calculation` → "Calculation",
+  `compare_and_contrast` → "Compare", `misconception_diagnosis` →
+  "Misconception check", `design` → "Design exercise", and
+  interview-framed questions → "Interview practice". No raw enum name
+  with an underscore appears anywhere in the rendered PDF. Added
+  `TestLearnerFacingTextIsClean` to
+  `tests/test_ch01_02_worked_examples.py`, asserting both the absence
+  of every banned path/enum substring and the presence of at least one
+  humanized label in each learner-facing file.
+- **Answer-key framing compacted.** Replaced the inconsistent
+  "Common wrong answer" / "Common wrong answer's origin" / "Common
+  mistake" / "Weak-answer pattern" / "Evaluation criteria" labels with
+  a lighter, consistent set (*Answer* / *Why* / *Common trap* /
+  *Interview criteria*), used only where each adds something — not
+  every answer has every field. Full explanatory content was preserved
+  for the four call-outs specifically flagged as worth keeping in full:
+  the causal-mask misconception, the residual-stream analogy breakdown,
+  the prefill-vs-decode interview question, and the gated-MLP parameter
+  calculation.
+- **"One-page recap" renamed to "Chapter recap"** in both chapters,
+  `shared/chapter-template.qmd`, and `README.md`, since this pilot's
+  recap was never redesigned as a standalone page.
+
+### Figure changes (Stage 7)
+
+All 8 figures (`figures/source/kv_cache_demo.py` plus the 7
+workbook-local scripts) had essential labels enlarged so they print at
+approximately 8-9pt at final embed size — previously, several were
+printing at roughly 4-7pt because SVG font sizes hadn't been scaled for
+each figure's actual embed width. Figures 1 (`fig_decoder_end_to_end`),
+5 (`fig_annotated_modern_block`), 7 (`fig_rope_rotation`), and 8
+(`fig_gated_mlp`) were explicitly flagged by the reviewer and received
+the largest adjustments (label sizes roughly doubled, with matching box
+widening so text doesn't overflow). Two nonessential in-figure
+annotations that duplicated their figure's own caption almost verbatim
+(`fig_decoder_block_anatomy`'s "each box below reads a normalized
+COPY..." note; `fig_causal_attention_mask`'s "row 5 can see..." note)
+were removed rather than shrunk further, since there was no room to
+enlarge them to a legible size without overcrowding. One genuine
+overlap (a label colliding with an arrowhead in the reused KV-cache
+figure) was found and fixed during visual inspection. All figures were
+re-rendered, re-checked against `tests/test_figures.py`'s bounds check,
+and visually inspected page-by-page at final print size before this
+report was written.
+
+### Page-break changes (Stage 6)
+
+Chapter 2 now begins on a fresh page (`index.qmd` inserts
+`#pagebreak()` before its include), and Answer Key: Chapter 1 begins on
+a fresh page as well, since both are major navigational boundaries and
+the preceding section ends with enough trailing whitespace that the
+break costs little. Answer Key: Chapter 2 was deliberately **not**
+forced onto its own page — it's the same "answer key" family as
+Chapter 1's, and Chapter 1's answer key already ends close to a natural
+page boundary, so a forced break there would only have wasted space.
+The Build and Version Note and Bibliography were left to flow
+naturally; Typst's native bibliography is appended at the absolute end
+of the document regardless of source order, so its position isn't a
+content choice.
+
+### Page and word counts
+
+| Metric | Before this revision | After this revision |
+|---|---|---|
+| Total pages | 24 | 26 |
+| Chapters 1-2 instructional pages | 17 | ~19 (Ch.1 ~10, Ch.2 ~9, boundaries approximate since chapters share page transitions) |
+| Total words (pdftotext) | ~11,400 | 11,732 |
+
+The 2-page growth comes from the two mandatory fresh-page breaks
+(Chapter 2, Answer Key: Chapter 1) plus the expanded KV-cache
+correction and prefill-chunking-qualification prose — both net
+additions of accuracy-necessary text, not padding. See
+`workbooks/04-llm-architecture/page-budget.yaml` for the full
+breakdown and the projected implications for Chapters 3-8: at the
+provisional per-chapter instructional-page budgets given for Chapters
+3-8 (7-8, 6-7, 6-7, 5-6, 5-6, 4-5 pages respectively), plus
+proportionally-scaled answer-key growth, the full eight-chapter
+workbook is projected to land in the 66.5-74 page range — the high end
+of which exceeds the 72-page hard ceiling. This is a projection, not a
+current problem (only Chapters 1-2 exist), but it means later chapters
+should be drafted toward the lower half of their provisional ranges
+where the topic allows, rather than treating the upper end as a
+default.
+
+### Remaining limitations
+
+- The two sourcing gaps carried over from the blueprint stage (tied
+  embeddings has no dedicated primary source; the sandwich-norm claim
+  leans on a secondary source) remain open, now tracked via the Build
+  and Version Note's Provenance subsection rather than in-chapter
+  path references. Neither is a new issue introduced by this revision.
+- The page-budget projection above shows real risk of exceeding the
+  72-page hard ceiling if Chapters 3-8 land at the top of their
+  provisional ranges with proportionally-sized answer keys; this
+  should be watched chapter-by-chapter as Chapters 3-8 are drafted, not
+  addressed retroactively by shrinking Chapters 1-2.
+- This revision did not re-run a full independent source-accuracy
+  audit; it corrected the one error the external review found and
+  the production-quality issues it flagged. A fresh technical-accuracy
+  pass is still worthwhile before Chapters 1-2 are treated as fully
+  final, independent of this pass's fixes.

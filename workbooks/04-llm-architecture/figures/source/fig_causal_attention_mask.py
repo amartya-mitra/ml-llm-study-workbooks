@@ -33,28 +33,32 @@ def main():
     blue = colors["stored_information"]
     gray = colors["frozen_or_inactive"]
 
+    # This figure embeds at 55% of the 6.5in text column, so 1 SVG unit =
+    # 0.55*6.5*72/W points at final size. Sizes below target >= 8pt for
+    # essential labels at that ratio (see the review notes behind
+    # scripts/build_ch01_02_review.py).
     n = len(TOKENS)
-    cell = 46
-    grid_x0 = 130
-    grid_y0 = 70
+    cell = 50
+    grid_x0 = 135
+    grid_y0 = 95
 
     W = grid_x0 + n * cell + 40
     canvas = SVGCanvas(width=W, height=1, title="Causal attention visibility")
 
-    canvas.add_text(20, 30, "Which positions may each query attend to?", size=12, weight="bold")
+    canvas.add_text(20, 32, "Which positions may each query attend to?", size=14, weight="bold")
 
     for j, tok in enumerate(TOKENS):
         cx = grid_x0 + j * cell + cell / 2
-        canvas.add_text(cx, grid_y0 - 10, tok, size=10, anchor="middle")
-    canvas.add_text(grid_x0 + n * cell / 2, grid_y0 - 28, "key position (attended TO)", size=9, color="#555555", anchor="middle")
+        canvas.add_text(cx, grid_y0 - 16, tok, size=14, anchor="middle")
+    canvas.add_text(grid_x0 + n * cell / 2, grid_y0 - 36, "key position (attended TO)", size=14, color="#555555", anchor="middle")
 
     for i, tok in enumerate(TOKENS):
         cy = grid_y0 + i * cell + cell / 2
-        canvas.add_text(grid_x0 - 14, cy + 4, tok, size=10, anchor="end")
+        canvas.add_text(grid_x0 - 18, cy + 5, tok, size=14, anchor="end")
 
     canvas.add_raw(
-        f'<text x="20" y="{grid_y0 + n*cell/2}" font-size="9" fill="#555555" '
-        f'transform="rotate(-90 20 {grid_y0 + n*cell/2})" text-anchor="middle">query position (attending FROM)</text>'
+        f'<text x="24" y="{grid_y0 + n*cell/2}" font-size="14" fill="#555555" '
+        f'transform="rotate(-90 24 {grid_y0 + n*cell/2})" text-anchor="middle">query position (attending FROM)</text>'
     )
 
     for i in range(n):
@@ -71,24 +75,25 @@ def main():
                     f'fill="none" stroke="#333333" stroke-width="0" />'
                 )
                 mark = "self" if j == i else "OK"
-                canvas.add_text(x + (cell - 3) / 2, y + (cell - 3) / 2 + 4, mark, size=8,
+                canvas.add_text(x + (cell - 3) / 2, y + (cell - 3) / 2 + 5, mark, size=14,
                                  color="#ffffff", anchor="middle")
             else:
-                canvas.add_text(x + (cell - 3) / 2, y + (cell - 3) / 2 + 4, "x", size=10,
+                canvas.add_text(x + (cell - 3) / 2, y + (cell - 3) / 2 + 5, "x", size=14,
                                  color="#aaaaaa", anchor="middle")
 
+    # The "Note: row 5 ..." explanatory line that used to sit below the
+    # legend duplicated this figure's own caption text almost verbatim
+    # (the caption already spells out that position 5 sees all 4 prompt
+    # tokens plus itself) and, at this figure's 55%-embed width, could not
+    # be enlarged to a legible size without wrapping far past the canvas.
+    # Removed here; the reader gets the same information from the caption.
     legend_y = grid_y0 + n * cell + 30
-    canvas.add_rect(grid_x0, legend_y, 16, 16, fill=blue)
-    canvas.add_text(grid_x0 + 22, legend_y + 12, "allowed (key position <= query position)", size=9)
-    canvas.add_rect(grid_x0, legend_y + 22, 16, 16, fill="#eeeeee", stroke="#cccccc")
-    canvas.add_text(grid_x0 + 22, legend_y + 34, "blocked (key is in the future)", size=9)
+    canvas.add_rect(20, legend_y, 16, 16, fill=blue)
+    canvas.add_text(42, legend_y + 13, "allowed (key position <= query position)", size=14)
+    canvas.add_rect(20, legend_y + 30, 16, 16, fill="#eeeeee", stroke="#cccccc")
+    canvas.add_text(42, legend_y + 43, "blocked (key is in the future)", size=14)
 
-    canvas.add_text(20, legend_y + 60, "Note: row 5 (the decoded token \"the\") can see all 5 columns -- prompt tokens",
-                     size=9, color="#555555")
-    canvas.add_text(20, legend_y + 75, "plus itself. No row can see anything to the right of its own position.",
-                     size=9, color="#555555")
-
-    canvas.height = legend_y + 95
+    canvas.height = legend_y + 65
     canvas.save(OUTPUT_PATH)
     print(f"wrote {OUTPUT_PATH}")
 

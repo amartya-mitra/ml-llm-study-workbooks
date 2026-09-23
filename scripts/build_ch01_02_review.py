@@ -51,6 +51,9 @@ def main():
         "--output", "workbooks/04-llm-architecture/includes/build-version-note.qmd",
         "--pilot-status", "Two-chapter pilot (Chapters 1-2 of 8) -- Chapters 3-8 are planned but not drafted",
         "--registry-note", "src-19, src-22, src-23, src-24 (primary sources for Ch.1-2) last verified 2026-09-22; see sources/registry.yaml",
+        "--provenance-note", "Tied-embeddings usage (Chapter 2) has no dedicated primary source; the sandwich-norm claim (Chapter 2) leans on a secondary source rather than a model's own technical report. Both are tracked sourcing gaps, not unsupported claims.",
+        "--provenance-note", "All worked-example numbers in Chapters 1-2 (attention weights, parameter counts) are computed by version-controlled project scripts and checked by the project's automated test suite, not hand-derived.",
+        "--provenance-note", "Figures are generated from version-controlled scripts using a fixed visual-style configuration, not drawn freehand; each figure's caption credits its scholarly/technical source where one applies.",
     ])
     if r.returncode != 0:
         sys.exit(1)
