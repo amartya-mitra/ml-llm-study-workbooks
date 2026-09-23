@@ -1,0 +1,23 @@
+{
+  "toy_example": {
+    "1": {
+      "window_w": 4,
+      "num_layers": 1,
+      "direct_receptive_field": 4,
+      "effective_receptive_field": 4
+    },
+    "2": {
+      "window_w": 4,
+      "num_layers": 2,
+      "direct_receptive_field": 4,
+      "effective_receptive_field": 8
+    },
+    "3": {
+      "window_w": 4,
+      "num_layers": 3,
+      "direct_receptive_field": 4,
+      "effective_receptive_field": 12
+    }
+  },
+  "note": "L * W is a stacking argument (informal, not a proof of exact effective context); Mistral 7B's own reported window=4096 / ~8x cache reduction at 32K context (Chapter 4's citation) is a separate, real, dated data point, not derived from this toy formula."
+}

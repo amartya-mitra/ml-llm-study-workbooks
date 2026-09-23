@@ -81,14 +81,14 @@ here would blow the page budget and the "don't drift into a full
 |---|---|---|---|
 | 1 | Transformer refresher | Fast, shared vocabulary — not a tutorial | 4 |
 | 2 | Anatomy of a modern decoder | RoPE, RMSNorm, SwiGLU, norm placement, tied embeddings — convention vs. requirement | 7 |
-| 3 | Attention head structure and cache-efficient variants | MHA → MQA → GQA → MLA, with the KV-cache-size formula built up mechanism by mechanism | 9 |
-| 4 | Restricting attention's reach | Sliding-window/local-global, sparse patterns, linear/recurrent & hybrid alternatives | 7 |
+| 3 | Attention head structure and cache-efficient variants | MHA → MQA → GQA, with the KV-cache-size formula built up mechanism by mechanism (MLA moved to ch. 4) | 8 |
+| 4 | Reducing attention cost: windows, sparsity, and latent KV representations | Three non-interchangeable efficiency axes: fewer attended positions (sliding-window/sparse/local+global), smaller stored representation per position (MLA), and replacing growing state entirely (recurrent/SSM/linear, taxonomy + forward reference only) | 6 |
 | 5 | Mixture-of-experts models | Routing, active vs. total params, load balancing, expert parallelism | 8 |
 | 6 | Modern architecture case studies | Real dense / MoE / MLA / hybrid models, compared on architecture not benchmark marketing | 8 |
 | 7 | From architecture to systems consequences | Architecture-vs-runtime distinction, training communication, inference memory bandwidth, latency vs. throughput, why FLOPs ≠ wall-clock | 7 |
 | 8 | Synthesis and practice | Worksheet, worked calculations, design scenarios, misconception diagnosis, interview questions, compact visual reference | 6 |
 
-**Total estimated pages: 56** (ceiling is 65; ~9 pages of margin
+**Total estimated pages: 54** (ceiling is 65; ~11 pages of margin
 reserved for front matter, a table of contents, and drafting overrun —
 deliberately not spent in advance, per "the length is a ceiling, not a
 target to inflate").
@@ -107,9 +107,11 @@ target to inflate").
 4. **Ch. 5** (MoE) — independent of ch. 3/4's attention content
    (orthogonal axis: which *parameters* activate, not attention
    structure), can be drafted in parallel with ch. 4 once ch. 1-2 exist.
-5. **Ch. 4** (restricting attention's reach) — depends on ch. 3's
-   head-structure vocabulary (e.g. explaining sliding-window GQA
-   requires GQA to already be defined).
+5. **Ch. 4** (reducing attention cost: windows, sparsity, and latent
+   KV representations) — depends on ch. 3's head-structure vocabulary
+   and cache-size formula (e.g. explaining sliding-window GQA requires
+   GQA to already be defined; comparing MLA against GQA requires ch.
+   3's formula to compare against).
 6. **Ch. 6** (case studies) — depends on ch. 2, 3, 4, and 5 all being
    done, since it exercises every mechanism taught so far against real
    models.
@@ -118,38 +120,45 @@ target to inflate").
 8. **Ch. 8** (synthesis) — must be last; it is explicitly a worksheet
    over the preceding seven chapters and cannot be written first.
 
-## Drafting-time adjustment: MLA deferred out of chapter 3 (2026-09-23)
+## Drafting-time adjustment: MLA deferred out of chapter 3, then resolved into chapter 4
 
-The chapter-3 drafting task explicitly scoped chapter 3 to MHA, MQA,
-and GQA only, and explicitly excluded substantially teaching MLA in
-that pass ("do not substantially teach: MLA..."), with a tighter
-instructional-page budget (7 preferred / 8 hard maximum) than this
-outline's own estimate (9 pages) assumed. This is a real conflict with
-this file's and `outline.yaml`'s original chapter-3 scope (MHA → MQA →
-GQA → MLA as one progression). Per the drafting task's own instruction
-to preserve intended learning goals while documenting the adjustment
-rather than silently relocating material, the resolution taken was:
+**2026-09-23 (chapter 3 drafted):** the chapter-3 drafting task
+explicitly scoped chapter 3 to MHA, MQA, and GQA only, and explicitly
+excluded substantially teaching MLA in that pass ("do not substantially
+teach: MLA..."), with a tighter instructional-page budget (7 preferred
+/ 8 hard maximum) than this outline's own estimate (9 pages) assumed.
+This was a real conflict with this file's and `outline.yaml`'s original
+chapter-3 scope (MHA → MQA → GQA → MLA as one progression). Chapter 3,
+as drafted, covers MHA/MQA/GQA and the KV-cache formula they share,
+ending with one brief, unnamed-mechanism forward reference to a
+further latent-compression technique "a later chapter" would name —
+not a taught mechanism. MLA's placement was left explicitly open at
+that point (see `reports/04_ch03_draft_report.md`).
 
-- Chapter 3, as actually drafted, covers MHA/MQA/GQA and the KV-cache
-  formula they share, ending with one brief, unnamed-mechanism forward
-  reference to a further latent-compression technique "chapter 6's
-  case studies will name" — not a taught mechanism.
-- MLA's full mechanism (low-rank latent compression, its own cache
-  formula, its own worked example and figure) is **not yet placed** in
-  a specific future chapter. The most natural homes are a short
-  addition to chapter 3 in a later revision (so the KV-cache-formula
-  chapter still owns every head-structure/compression mechanism) or a
-  dedicated slice of chapter 6's case studies (since DeepSeek-V2/V3 are
-  already chapter 6's case-study source for MLA). This decision is
-  deliberately left open rather than guessed at now — see
-  `reports/04_ch03_draft_report.md` for the full rationale — and must
-  be made explicitly before chapter 6 is drafted, not defaulted by
-  omission.
-- This also resolves the estimated-page mismatch: chapter 3's estimate
-  above (9 pages) assumed MLA content that is no longer in chapter 3 as
-  drafted; the actual chapter is ~7-8 pages, consistent with dropping
-  roughly a figure, a worked example, and a table row's worth of MLA
-  material relative to the original estimate.
+**2026-09-23 (chapter 4 drafted, same day, later task): RESOLVED — MLA
+belongs in chapter 4.** Chapter 4 ("Reducing Attention Cost: Windows,
+Sparsity, and Latent KV Representations") was reorganized around three
+efficiency strategies that are explicitly taught as non-interchangeable:
+(1) attending to fewer positions (sliding/local windows, sparse
+patterns, local+global mixtures — the material chapter 4 already
+owned), (2) storing a smaller representation per retained position
+(MLA — moved here from chapter 3's `deferred_content`), and (3)
+replacing/summarizing growing attention state entirely (recurrent/
+state-space/linear-attention, covered only as a concise taxonomy and
+forward reference, per the still-open `source_needed` sourcing gap for
+the SSM/Mamba mechanism itself — see `reports/04_source_audit.md`).
+This absorbs chapter 3's `deferred_content` block (now removed from
+`outline.yaml`'s ch3 entry) directly into chapter 4's plan. See
+`reports/04_ch04_draft_report.md` for the full rationale and the
+worked-example numbers, which are grounded in DeepSeek-V2's own
+reported MLA/GQA cache-equivalence ratio (Table 1 of [@src-27]:
+MLA's cache ≈ GQA at 2.25 groups), verified directly from the paper's
+full text, not a search-result snippet.
+
+This also resolves the estimated-page mismatch: chapter 3's original
+estimate (9 pages) assumed MLA content that is no longer in chapter 3;
+chapter 4's estimate below is revised to include the MLA content it
+absorbed.
 
 ## Explicit non-goals (scope fences, checked again at Stage 10)
 

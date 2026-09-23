@@ -3,7 +3,7 @@
 This project maintains a full, growing symbol table across all eight
 workbooks; later chapters introduce mechanisms this pilot doesn't cover
 (expert counts and others start in Chapter 5 onward). The subset below
-is everything Chapters 1-3 actually use -- flip back here if a symbol
+is everything Chapters 1-4 actually use -- flip back here if a symbol
 in an equation isn't immediately obvious.
 
 | Symbol | Name | Meaning |
@@ -19,5 +19,7 @@ in an equation isn't immediately obvious.
 | $L$ | number of layers | count of decoder blocks stacked |
 | $d_{\text{ff}}$ | feed-forward expansion dimension | width of a feed-forward sublayer's hidden projection |
 | $\text{bytes\_per\_elem}$ | bytes per cached element | storage width of one stored number (e.g. 2 for bf16); stated explicitly per calculation, never assumed |
+| $d_c$ | MLA KV compression dimension | width of MLA's shared, jointly-compressed latent for keys and values (one per token per layer, not one per head) |
+| $d_{\text{rope}}$ | MLA decoupled rotary dimension | per-head width of MLA's separately-retained rotary component, cached alongside the compressed latent |
 
-: Notation used in Chapters 1-3 only; later chapters extend this table {#tbl-notation}
+: Notation used in Chapters 1-4 only; later chapters extend this table {#tbl-notation}

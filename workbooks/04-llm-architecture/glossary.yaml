@@ -46,8 +46,8 @@ terms:
     source_ids: ["src-21"]
 
   - term: "Multi-head latent attention (MLA)"
-    short_definition: "Compresses keys/values into a shared low-rank latent vector per token, reconstructing per-head K/V at attention time instead of storing them directly."
-    chapter: "deferred (planned for ch3, not drafted there 2026-09-23 per outline.yaml's ch3.drafting_note; future placement TBD)"
+    short_definition: "Compresses keys and values into one shared low-rank latent vector per token (plus a separately-retained decoupled rotary component), rather than storing conventional per-head K/V tensors directly. An optimized implementation can algebraically absorb the latent-to-key/value up-projections into query/output-side projections instead of reconstructing full K/V."
+    chapter: "ch4"
     source_ids: ["src-27"]
 
   - term: "KV-cache"
@@ -84,6 +84,16 @@ terms:
     short_definition: "The set of input positions that can influence a given position's representation, which for windowed/local attention grows with depth rather than being global at every layer."
     chapter: "ch4"
     source_ids: []
+
+  - term: "Matrix absorption (MLA)"
+    short_definition: "An optimization where MLA's latent-to-key/value up-projection matrices are algebraically folded into the query-side and output-side projections ahead of time, so an optimized implementation need not explicitly reconstruct full per-head K/V tensors from the cached latent at every decode step. Not every implementation is guaranteed to use this specific kernel strategy."
+    chapter: "ch4"
+    source_ids: ["src-27"]
+
+  - term: "Decoupled rotary position embedding (MLA)"
+    short_definition: "MLA's fix for RoPE's incompatibility with low-rank KV compression: a small, separately-retained rotary query/key component (not folded into the compressed latent) carries positional information, since rotating the compressed latent directly would break matrix absorption and force recomputing keys for every prefix token."
+    chapter: "ch4"
+    source_ids: ["src-27"]
 
   - term: "Router (MoE)"
     short_definition: "A small learned function that scores each token against all experts and selects the top-k to activate."

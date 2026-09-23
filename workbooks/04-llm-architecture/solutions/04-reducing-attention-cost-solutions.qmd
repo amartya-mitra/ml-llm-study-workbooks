@@ -1,0 +1,66 @@
+## Answer Key: Chapter 4 {#sec-solutions-ch4}
+
+Full solutions to Chapter 4's "Check your understanding" questions
+(@sec-ch4).
+
+**1. Quick check.** *Answer.* The score matrix grows quadratically
+($O(S^2)$); the KV-cache grows linearly in $S$ (@eq-kv-cache). *Common
+trap:* assuming both scale the same way.
+
+**2. Explain.** *Answer.* Rotating the compressed latent directly
+would couple the up-projection $W^{UK}$ to a position-specific
+rotation matrix that can no longer be folded into $W^Q$, forcing every
+prior key to be recomputed each step. The decoupled rotary component
+carries positional information separately, preserving matrix
+absorption. *Common trap:* assuming positional info can simply be
+added to the latent like an ordinary embedding.
+
+**3. Explain.** *Answer.* No. Reconstructing full $K$/$V$ is
+always a *conceptually* valid derivation, but an optimized
+implementation may instead absorb $W^{UK}$ into $W^Q$ and $W^{UV}$
+into $W^O$, computing attention directly from the cached latent
+without ever materializing full $K$/$V$. *Common trap:* treating
+reconstruction as mandatory rather than one available (unabsorbed)
+path.
+
+**4. Misconception check.** *Answer.* False, for a stacked model: one
+layer's direct window is $W$, but stacking $L$ windowed layers gives
+an *indirect* effective reach of $L \times W$ (@eq-receptive-field) --
+older information can still propagate through earlier layers.
+*Common trap:* confusing one layer's direct window with the whole
+model's effective reach.
+
+**5. Misconception check.** *Answer.* False. Compressing the cache
+reduces stored *bytes*; end-to-end decode latency also depends on
+compute, kernel implementation, and whatever else is bottlenecking
+that step -- a 4x cache cut is not a guaranteed 4x latency cut. *Common
+trap:* equating a memory ratio with a latency ratio (the same error
+Chapter 3 flagged for GQA).
+
+**6. Calculation.** *Answer.* MLA elements/token $= (d_c+d_{\text{rope}})L
+= (512+64) \times 24 = 13{,}824$. GQA at $H_{kv}=4$: $2 H_{kv}
+d_{\text{head}} L = 2 \times 4 \times 128 \times 24 = 24{,}576$. Ratio
+$= 0.5625$ -- MLA is about 1.8x smaller here (verified
+programmatically; see the Build and Version Note). *Common trap:*
+forgetting GQA's factor of 2 (keys and values), which MLA's single
+joint latent does not have.
+
+**7. Design exercise (applied exercise).** *Answer.* A pure sliding
+window only ever gives *indirect* access ($L \times W$) to old tokens,
+which can fail to reach a token far outside that reach at high $S$.
+Combining a sliding window with occasional global layers/tokens
+restores direct access to specific old positions; adding GQA or MLA
+then reduces the memory cost of retaining that longer effective
+history at high concurrency. *Interview criteria:* does the answer
+name the specific failure mode (indirect-only reach, not "windows are
+bad"), and combine mechanisms rather than picking just one?
+
+**8. Interview practice.** *Answer.* GQA primarily reduces KV-cache
+memory/bandwidth by sharing $K$/$V$ heads, at some representational
+cost. Sliding-window attention reduces both compute and memory by
+restricting connectivity, at the cost of only indirect long-range
+access. MLA reduces memory/bandwidth by compressing what is stored per
+token, at the cost of implementation complexity (a separately-cached
+rotary component, optional matrix absorption). *Common trap:*
+collapsing any two of the three into "they all just save memory" --
+compute and access-pattern effects differ.

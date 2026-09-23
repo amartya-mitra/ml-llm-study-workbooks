@@ -1,0 +1,275 @@
+## Chapter 4: Reducing Attention Cost: Windows, Sparsity, and Latent KV Representations {#sec-ch4}
+
+*Three Different Problems, Not One Knob*
+
+### Learning objectives
+
+By the end of this chapter you should be able to:
+
+- Explain why full causal attention grows expensive as retained
+  context grows, without conflating score-matrix cost, KV-cache
+  storage, total model FLOPs, wall-clock latency, memory bandwidth,
+  and temporary workspace.
+- Distinguish *attending to fewer positions* from *storing a smaller
+  representation per position* as independent axes, and explain why
+  sparse attention does not automatically shrink the KV-cache.
+- Draw sliding-window attention's receptive field across stacked
+  layers, and state the conceptual purpose of occasional global layers
+  or tokens.
+- Compare GQA and MLA structurally (GQA shares $K$/$V$ heads; MLA
+  compresses what is stored per token) and state what a DeepSeek-style
+  MLA cache retains, including why a separately-retained rotary
+  component is needed.
+- Explain why an optimized MLA implementation need not reconstruct
+  full $K$/$V$ tensors every decode step, and recognize recurrent/
+  linear-state alternatives as a third design family without claiming
+  this chapter teaches their mechanics.
+
+### Why this matters
+
+Chapter 3 fixed *how many* query heads share a key/value head. This
+chapter is about a different question entirely: given a fixed head
+structure, what else can shrink attention's cost as retained context
+grows? Three genuinely different strategies exist -- attend to fewer
+positions, store less per retained position, or replace the growing
+history with something that doesn't grow -- and they solve different
+problems. Treating them as interchangeable, or as three strengths of
+one dial, is the single biggest misreading this chapter is built to
+prevent.
+
+### Mental model or analogy
+
+Think of the retained context as a shelf of books a reader might need
+again. Strategy 1 (fewer positions) means only checking nearby shelves.
+Strategy 2 (smaller representation) means keeping one compressed
+summary card per book instead of the whole book. Strategy 3 (replace
+growing state) means keeping a running summary that never grows,
+discarding the shelf entirely. A reader who confuses "check fewer
+shelves" with "keep shorter notes" would misjudge what they can still
+find later -- exactly the confusion this chapter targets.
+
+### Visual overview
+
+![Three different axes for reducing attention's cost, not one
+continuum: which positions are scored, what is stored per retained
+position, and whether the history grows at all. Panel 3 names the
+third family without teaching its
+mechanics.](figures/rendered/fig-three-efficiency-strategies.svg){#fig-three-strategies}
+
+### Technical core
+
+**Full attention's baseline.** For a sequence of retained length $S$,
+the attention score matrix has $S^2$ entries per head -- full attention
+costs $O(S^2)$ score computations for a whole sequence. During
+incremental decoding, each single new query attends over all $S$
+retained positions, so per-step attention work grows with $S$; summed
+over $S$ decode steps this totals $O(S^2)$ as well. The **KV-cache**,
+by contrast, grows *linearly* in $S$ (per @eq-kv-cache from Chapter 3)
+-- storage and score-computation are different growth curves, and
+neither is the same as total model FLOPs (which includes the
+feed-forward sublayers), wall-clock latency (hardware- and
+batch-dependent), memory bandwidth (the rate data moves, not the
+amount), or temporary softmax/attention workspace (excluded from the
+cache formula entirely).
+
+**Sliding-window attention.** Each position attends only to a bounded
+window of $W$ recent positions -- the *direct* receptive field is $W$,
+regardless of $S$. Stacking layers extends this indirectly:
+
+$$
+\text{effective receptive field after } L \text{ stacked windowed layers} = L \times W
+$$ {#eq-receptive-field}
+
+For $W=4$ over 3 stacked layers, the direct window per layer stays 4,
+but the effective reach grows to $3 \times 4 = 12$ (verified
+programmatically) -- wider than one layer's window, but still not
+unrestricted global attention.
+
+![A target position's direct window is narrow at any one layer;
+tracing back through earlier layers, the region of positions that can
+indirectly influence it widens by $W$ per layer -- distinct from
+unrestricted global
+attention.](figures/rendered/fig-sliding-window-receptive-field.svg){#fig-sliding-window-rf}
+
+@fig-sliding-window-rf marks direct vs.
+indirect reach explicitly. If a layer strictly evicts state outside its
+window, that layer's cache growth can be bounded; real serving systems
+may still retain more state than the strictest bound, depending on
+implementation. Real models often mix strategies: most layers windowed,
+a minority full ("global") layers, or selected global tokens visible to
+every position -- recovering long-range access without paying full
+attention's cost everywhere. Mistral 7B's window-4096 design with a
+rolling-buffer cache is one deployed example, reporting roughly an 8x
+cache reduction at 32K context versus full attention ([@src-25]).
+
+**Sparse attention.** A sparse pattern (e.g. strided/block
+factorizations, [@src-26]) restricts *which* query-key pairs are
+scored, reducing $O(S^2)$ score computation. This is a different
+statement from what must stay *cached*: some patterns permit dropping
+positions no future query will ever revisit, but others (e.g. a
+strided pattern where a future layer or a future token's stride
+offset can reach any past position) must retain every token's $K$/$V$
+regardless, because some future query may still access it.
+
+::: {.callout-warning title="Common misconception"}
+**"Sparse attention automatically means a proportionally smaller KV
+cache."** It does not. Sparsity is a statement about which pairs get
+*scored*; the cache must hold whatever a *future* query might still
+need, which depends on the specific pattern, not sparsity alone.
+:::
+
+**Multi-head latent attention (MLA).** GQA (Chapter 3) shares whole
+$K$/$V$ *heads* across query groups -- the per-head representation is
+unchanged, just fewer distinct copies. MLA changes *what* is stored
+per token: DeepSeek-V2 ([@src-27]) jointly compresses $K$ and $V$ into
+one shared latent $c_t^{KV} \in \mathbb{R}^{d_c}$ per token per layer,
+with $d_c \ll H_q\, d_{\text{head}}$, via a down-projection; per-head
+$K$/$V$ are then *derived* from that latent when needed, not stored
+directly. RoPE complicates this: rotating the compressed latent
+directly would tie the up-projection to a position-specific rotation
+matrix that cannot later be folded elsewhere, forcing every prior
+token's key to be recomputed at each step. MLA's fix retains a small,
+separately-cached decoupled rotary component ($d_{\text{rope}}$,
+shared across heads) alongside the latent, so:
+
+$$
+M_{\text{MLA}} = B \, S \, L \, (d_c + d_{\text{rope}}) \, \text{bytes\_per\_elem}
+$$ {#eq-mla-cache}
+
+@eq-mla-cache and Chapter 3's $M_{KV}$ describe **different cached
+representations** -- a numeric comparison is meaningful only for an
+explicitly defined architecture, and both remain logical minimums
+(runtime overhead excluded, same exclusions as Chapter 3).
+
+::: {.callout-warning title="Common misconception"}
+**"MLA is just GQA with fewer KV heads."** It is not. GQA shares whole
+per-head $K$/$V$ representations across query groups; MLA compresses
+$K$ and $V$ *jointly* into one smaller latent representation per
+token, a different mechanism, not a further point on GQA's
+head-count axis.
+:::
+
+![MLA's cache pathway: only the compressed latent and the decoupled
+rotary component are cached. Reconstructing full K/V (left) is always
+a conceptually valid derivation; an optimized implementation may
+instead take the dashed, optional matrix-absorption path, which never
+materializes full K/V at
+all.](figures/rendered/fig-mla-cache-pathway.svg){#fig-mla-pathway}
+
+@fig-mla-pathway shows what is actually cached and where reconstruction
+happens. Because a score is $q_t^\top k_j = q_t^\top (W^{UK} c_j^{KV})$,
+and matrix multiplication reassociates as $(q_t^\top W^{UK})
+c_j^{KV}$, an optimized implementation can fold $W^{UK}$ into the
+query-side projection ahead of time (and, symmetrically, $W^{UV}$ into
+the output projection) -- so it never has to materialize full $K$/$V$
+at all ([@src-27]). This is an available optimization, not a mandatory
+step every implementation takes; the conceptual derivation (reconstruct,
+then attend) remains valid either way.
+
+### Worked example
+
+**Sliding-window reach.** $W=4$, layers 1/2/3 give effective reach
+4/8/12 (@eq-receptive-field, verified programmatically).
+
+**GQA vs. MLA cache.** Reusing Chapter 3's base config ($L=32$,
+$H_q=32$, $d_{\text{head}}=128$, $S=8192$, $B=1$, bf16) and DeepSeek-V2's
+own reported ratio ($d_c = 4\,d_{\text{head}} = 512$,
+$d_{\text{rope}} = 0.5\,d_{\text{head}} = 64$; [@src-27] Table 1):
+
+| Representation | Per-sequence cache | vs. MHA (4 GiB) |
+|---|---|---|
+| GQA, $H_{kv}=8$ (Ch. 3) | 1 GiB | 0.25x |
+| MLA, $d_c{+}d_{\text{rope}}=576$ | 288 MiB | 0.070x |
+
+: GQA vs. MLA on one shared base config -- verified programmatically; see the Build and Version Note {#tbl-gqa-mla-worked}
+
+This MLA configuration's cache equals a GQA config with exactly 2.25
+groups ([@src-27]'s own stated equivalence, reproduced here as a
+verified invariant) -- MLA and GQA can land at comparable *sizes* for
+some configuration, without being the same mechanism. This toy ratio
+is **not** a claimed speedup: cache compression is not the same as
+end-to-end latency, model quality and training behavior are outside
+this arithmetic, and runtime overhead is excluded throughout.
+
+### Compare and contrast
+
+| | Full attn. | Sliding-window | Sparse (generic) | GQA | MLA | Recurrent/linear |
+|---|---|---|---|---|---|---|
+| Changes connectivity? | -- | yes | yes | no | no | yes (different primitive) |
+| Changes stored representation? | -- | pattern-dependent | pattern-dependent | yes (fewer copies) | yes (compressed) | yes (fixed-size state) |
+| Can bound retained history? | no | pattern-dependent | pattern-dependent | no | no | yes |
+| Direct access to every prior token? | yes | no (indirect only) | pattern-dependent | yes | yes (via latent) | no |
+| Primary benefit | -- | compute + memory | compute | memory/bandwidth | memory/bandwidth | memory + compute |
+| Principal tradeoff | cost grows with $S$ | indirect long-range access | cache not guaranteed smaller | some capacity loss | implementation complexity | mechanics not covered here |
+
+: Six strategies compared without forcing false binaries -- "pattern-dependent" and "implementation-dependent" are answers, not omissions {#tbl-strategy-comparison}
+
+### Check your understanding
+
+Full solutions are in the answer key (@sec-solutions-ch4):
+
+1. **Quick check.** As retained context $S$ grows, what grows
+   quadratically and what grows linearly? ________________________________________________
+2. **Explain.** Why must MLA retain a separately-cached rotary
+   component alongside its compressed latent? ________________________________________________
+3. **Explain.** Does an optimized MLA implementation have to
+   reconstruct full $K$/$V$ tensors every decode step?
+   ________________________________________________
+4. **Misconception check.** True or false: a sliding window means
+   information older than $W$ tokens can never affect the current
+   representation. ________________________________________________
+5. **Misconception check.** True or false: compressing the cache by
+   4x makes decoding 4x faster. ________________________________________________
+6. **Calculation.** For $L=24$, $H_q=16$, $d_{\text{head}}=128$: using
+   DeepSeek-V2's ratio ($d_c=4d_{\text{head}}$,
+   $d_{\text{rope}}=0.5d_{\text{head}}$), compute the MLA cache
+   elements per token and compare to GQA at $H_{kv}=4$.
+   ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+A workload needs long context, high concurrency, and occasional
+retrieval of very old tokens. Explain why a pure sliding window may be
+insufficient, and what combination of mechanisms (global layers/
+tokens, GQA, MLA) could help.
+
+### Interview lens
+
+*"Compare GQA, sliding-window attention, and MLA. What resource does
+each primarily reduce, and what does each give up or complicate?"* A
+strong answer names each one's primary win and cost: GQA (memory/
+bandwidth, at some representational cost), sliding-window (compute
+and memory, at the cost of indirect long-range access), and MLA
+(memory/bandwidth, at the cost of implementation complexity) -- and
+does not collapse any two into the same mechanism.
+
+### Chapter recap
+
+- Full attention's score matrix grows $O(S^2)$; its KV-cache grows
+  linearly in $S$ -- different curves, never the same claim.
+- Attending to fewer positions (windows, sparsity) and storing less
+  per position (MLA) are independent axes; sparse attention does not
+  automatically shrink the cache.
+- Sliding-window's direct reach is $W$; stacked layers reach $L \times
+  W$ indirectly -- not unrestricted global attention.
+- MLA compresses $K$/$V$ jointly into one latent per token (plus a
+  rotary component); GQA shares whole per-head copies instead --
+  different mechanisms, occasionally comparable sizes.
+- An optimized MLA implementation may skip explicit $K$/$V$
+  reconstruction via matrix absorption, but this is an available
+  optimization, not a mandatory step.
+- Recurrent/SSM/linear-attention replace the growing cache with a
+  fixed-size state -- named here as a third family, mechanics deferred.
+
+### Sources and further reading
+
+Primary sources: [@src-25] (sliding-window), [@src-26] (sparse
+attention), [@src-27] (MLA -- compression formula, decoupled-RoPE
+reasoning, and cache-per-token table verified against the paper's full
+text, Sections 2.1.1-2.1.4 and Table 1, not a snippet).
+Secondary/supporting: [@src-14]. This
+chapter keeps recurrent/SSM/linear-attention at the taxonomy level,
+without a primary source for its mechanics.

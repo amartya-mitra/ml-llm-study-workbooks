@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
-"""Build the Chapters 1-3 review PDF end to end:
+"""Build the Chapters 1-4 review PDF end to end:
 
     1. regenerate every figure (root + workbook-local)
     2. regenerate the build/version note with the current git commit
     3. render workbooks/04-llm-architecture/index.qmd via Quarto/Typst
-    4. copy the result to outputs/04-llm-architecture-ch01-03-review.pdf
+    4. copy the result to outputs/04-llm-architecture-ch01-04-review.pdf
        (preserving any prior copy, per AGENTS.md)
     5. run pdfinfo / pdftotext / pdffonts / pdftoppm and print the results
 
-This supersedes scripts/build_ch01_02_review.py now that
-workbooks/04-llm-architecture/index.qmd includes Chapter 3 --
-re-running the old script would render the same (now 3-chapter)
-index.qmd but mislabel the output as "ch01-02", so use this script
-(and `make review-ch01-03`) instead. The old script and its frozen
-outputs/04-llm-architecture-ch01-02-review.pdf artifact are left in
-place as a historical checkpoint, not deleted.
+This supersedes scripts/build_ch01_03_review.py now that
+workbooks/04-llm-architecture/index.qmd includes Chapter 4 --
+re-running the old script would render the same (now 4-chapter)
+index.qmd but mislabel the output as "ch01-03", so use this script
+(and `make review-ch01-04`) instead. Earlier scripts and their frozen
+PDF artifacts are left in place as historical checkpoints, not deleted.
 
 Requires the `ml-workbooks` conda env active (quarto + poppler-utils).
-
-SUPERSEDED (2026-09-23): index.qmd now includes Chapter 4 as well. Use
-scripts/build_ch01_04_review.py (`make review-ch01-04`) instead.
 """
 import datetime
 import os
@@ -30,8 +26,8 @@ import sys
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 WB04 = os.path.join(REPO_ROOT, "workbooks", "04-llm-architecture")
 INDEX_QMD = os.path.join(WB04, "index.qmd")
-OUTPUT_PDF = os.path.join(REPO_ROOT, "outputs", "04-llm-architecture-ch01-03-review.pdf")
-PAGE_IMAGE_DIR = os.path.join(REPO_ROOT, "outputs", "04-llm-architecture-ch01-03-review-pages")
+OUTPUT_PDF = os.path.join(REPO_ROOT, "outputs", "04-llm-architecture-ch01-04-review.pdf")
+PAGE_IMAGE_DIR = os.path.join(REPO_ROOT, "outputs", "04-llm-architecture-ch01-04-review-pages")
 
 REQUIRED_TOOLS = ["quarto", "pdfinfo", "pdftotext", "pdffonts", "pdftoppm"]
 
@@ -59,12 +55,14 @@ def main():
     r = run([
         sys.executable, "scripts/generate_build_note.py",
         "--output", "workbooks/04-llm-architecture/includes/build-version-note.qmd",
-        "--pilot-status", "Three-chapter pilot (Chapters 1-3 of 8) -- Chapters 4-8 are planned but not drafted; Chapter 3 defers multi-head latent attention (MLA), see outline.yaml's ch3.drafting_note",
-        "--registry-note", "src-19, src-20, src-21, src-22, src-23, src-24 (primary sources for Ch.1-3) last verified 2026-09-22; see sources/registry.yaml",
+        "--pilot-status", "Four-chapter pilot (Chapters 1-4 of 8) -- Chapters 5-8 are planned but not drafted; Chapter 4 resolves MLA's placement (see outline.yaml's ch4.drafting_note) and covers recurrent/SSM/linear-attention only as a taxonomy forward reference",
+        "--registry-note", "src-19, src-20, src-21, src-22, src-23, src-24, src-25, src-26, src-27 (primary sources for Ch.1-4) last verified 2026-09-22; see sources/registry.yaml",
         "--provenance-note", "Tied-embeddings usage (Chapter 2) has no dedicated primary source; the sandwich-norm claim (Chapter 2) leans on a secondary source rather than a model's own technical report. Both are tracked sourcing gaps, not unsupported claims.",
-        "--provenance-note", "All worked-example numbers in Chapters 1-3 (attention weights, parameter counts, KV-cache sizes) are computed by version-controlled project scripts and checked by the project's automated test suite, not hand-derived.",
+        "--provenance-note", "All worked-example numbers in Chapters 1-4 (attention weights, parameter counts, KV-cache sizes, receptive fields) are computed by version-controlled project scripts and checked by the project's automated test suite, not hand-derived.",
         "--provenance-note", "Figures are generated from version-controlled scripts using a fixed visual-style configuration, not drawn freehand; each figure's caption credits its scholarly/technical source where one applies.",
-        "--provenance-note", "Chapter 3's KV-cache and attention-projection-parameter figures/formulas are LOGICAL, theoretical minimums, not measured GPU memory -- they exclude allocator overhead, page metadata, fragmentation, and framework buffers.",
+        "--provenance-note", "Chapter 3's and Chapter 4's KV-cache/latent-cache/attention-projection-parameter figures and formulas are LOGICAL, theoretical minimums, not measured GPU memory -- they exclude allocator overhead, page metadata, fragmentation, and framework buffers.",
+        "--provenance-note", "Chapter 4's MLA content (compression formula, decoupled-RoPE reasoning, cache-per-token table) was verified directly against DeepSeek-V2's full paper text ([@src-27], Sections 2.1.1-2.1.4 and Table 1), not a search-result snippet.",
+        "--provenance-note", "Chapter 4 does not cite a primary source for recurrent/SSM/linear-attention mechanics (a tracked, disclosed sourcing gap) and deliberately keeps that family at the taxonomy level rather than teaching mechanics without one.",
     ])
     if r.returncode != 0:
         sys.exit(1)

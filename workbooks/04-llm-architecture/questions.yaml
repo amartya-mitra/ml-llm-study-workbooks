@@ -353,3 +353,104 @@ questions:
     explanation: "Evaluation criteria: does the answer name the specific mechanism (linear dependence on H_kv) rather than a vague 'less memory' claim; does it proactively name at least one thing that does not shrink, rather than needing to be prompted for it?"
     common_wrong_answer: "A weak answer says only 'GQA uses less memory' without naming what specifically does not shrink -- a systems-flavored interviewer will very likely follow up asking exactly that."
     source_ids: ["src-21", "src-10"]
+
+  # ---------------------------------------------------------------------
+  # q-04-ch4-*: Chapter 4 (Reducing Attention Cost: Windows, Sparsity,
+  # and Latent KV Representations) question bank.
+  # ---------------------------------------------------------------------
+
+  - id: "q-04-ch4-001"
+    workbook: "04-llm-architecture"
+    chapter: "reducing-attention-cost"
+    topic: "Score-matrix vs. KV-cache growth"
+    difficulty: "intro"
+    question_type: "recall"
+    prompt: "As retained context S grows, what grows quadratically and what grows linearly?"
+    expected_answer: "The attention score matrix grows quadratically (O(S^2)); the KV-cache grows linearly in S."
+    explanation: "Full attention's score matrix has S^2 entries per head, but the KV-cache formula (Chapter 3) is linear in S -- these are different growth curves, and neither implies the other."
+    common_wrong_answer: "A common wrong answer assumes both the score matrix and the KV-cache scale the same way (both quadratic, or both linear)."
+    source_ids: ["src-19", "src-10"]
+
+  - id: "q-04-ch4-002"
+    workbook: "04-llm-architecture"
+    chapter: "reducing-attention-cost"
+    topic: "Why MLA needs a separately-cached rotary component"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "Why must MLA retain a separately-cached rotary component alongside its compressed latent, rather than rotating the latent directly?"
+    expected_answer: "Rotating the compressed latent directly would couple the up-projection W^UK to a position-specific rotation matrix that can no longer be folded into W^Q, forcing every prior key to be recomputed at each decode step. The decoupled rotary component carries positional information separately, preserving matrix absorption."
+    explanation: "This is DeepSeek-V2's own stated reasoning for decoupled RoPE: RoPE is position-sensitive, and coupling it into the up-projection breaks the reassociation that matrix absorption depends on."
+    common_wrong_answer: "A common wrong answer assumes positional information could simply be added to the latent the way a learned absolute positional embedding is added to a token embedding."
+    source_ids: ["src-27"]
+
+  - id: "q-04-ch4-003"
+    workbook: "04-llm-architecture"
+    chapter: "reducing-attention-cost"
+    topic: "MLA reconstruction is not mandatory"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "Does an optimized MLA implementation have to reconstruct full K and V tensors every decode step?"
+    expected_answer: "No. Reconstructing full K/V is always a conceptually valid derivation, but an optimized implementation may instead absorb W^UK into W^Q and W^UV into W^O, computing attention directly from the cached latent without ever materializing full K/V."
+    explanation: "Matrix absorption is an available optimization enabled by the reassociation q^T(W^UK c) = (q^T W^UK) c, not a requirement -- both the reconstruct-then-attend path and the absorbed path are valid; only the reconstruct path treats K/V as materialized objects."
+    common_wrong_answer: "A common wrong answer treats explicit K/V reconstruction as mandatory for any MLA implementation."
+    source_ids: ["src-27"]
+
+  - id: "q-04-ch4-004"
+    workbook: "04-llm-architecture"
+    chapter: "reducing-attention-cost"
+    topic: "Sliding windows still permit indirect long-range influence"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: a sliding window means information older than W tokens can never affect the current representation."
+    expected_answer: "False, for a stacked model: one layer's direct window is W, but stacking L windowed layers gives an indirect effective reach of L x W -- older information can still propagate through earlier layers."
+    explanation: "The receptive-field formula (L x W) is exactly this stacking argument; a single-layer model would make the claim true, but no real decoder is one layer."
+    common_wrong_answer: "A common wrong answer confuses one layer's direct window with the whole model's effective (indirect, multi-layer) reach."
+    source_ids: ["src-25"]
+
+  - id: "q-04-ch4-005"
+    workbook: "04-llm-architecture"
+    chapter: "reducing-attention-cost"
+    topic: "Cache compression is not latency reduction"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: compressing the cache by 4x makes decoding 4x faster."
+    expected_answer: "False. Compressing the cache reduces stored bytes; end-to-end decode latency also depends on compute, kernel implementation, and whatever else is bottlenecking that step -- a 4x cache cut is not a guaranteed 4x latency cut."
+    explanation: "This is the same category of error Chapter 3 flagged for GQA (memory savings misread as a proportional speed claim), now applied to cache compression generally."
+    common_wrong_answer: "A common wrong answer equates a memory ratio directly with a latency ratio."
+    source_ids: ["src-27", "src-10"]
+
+  - id: "q-04-ch4-006"
+    workbook: "04-llm-architecture"
+    chapter: "reducing-attention-cost"
+    topic: "GQA vs. MLA cache calculation"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "For L=24, H_q=16, d_head=128: using DeepSeek-V2's ratio (d_c=4*d_head, d_rope=0.5*d_head), compute the MLA cache elements per token and compare to GQA at H_kv=4."
+    expected_answer: "MLA elements/token = (d_c+d_rope)*L = (512+64)*24 = 13,824. GQA at H_kv=4: 2*H_kv*d_head*L = 2*4*128*24 = 24,576. Ratio = 0.5625 -- MLA is about 1.8x smaller here."
+    explanation: "Direct application of both formulas to the same L/d_head, with every assumption stated, verified programmatically."
+    common_wrong_answer: "A common wrong answer forgets GQA's factor of 2 (keys and values), which MLA's single joint latent does not have, understating the GQA number by half."
+    source_ids: ["src-27", "src-21"]
+
+  - id: "q-04-ch4-007"
+    workbook: "04-llm-architecture"
+    chapter: "reducing-attention-cost"
+    topic: "Applied exercise: combining mechanisms for long-context, high-concurrency, old-token retrieval"
+    difficulty: "stretch"
+    question_type: "design"
+    prompt: "A workload needs long context, high concurrency, and occasional retrieval of very old tokens. Explain why a pure sliding window may be insufficient here, and what combination of mechanisms could help."
+    expected_answer: "A pure sliding window only gives indirect access (L x W) to old tokens, which can fail to reach a token far outside that reach at high S. Combining a sliding window with occasional global layers/tokens restores direct access to specific old positions; adding GQA or MLA then reduces the memory cost of retaining that longer effective history at high concurrency."
+    explanation: "This exercise requires combining chapter 4's three strategies (fewer positions, smaller representation) rather than picking just one, since the workload's requirements (long-range retrieval AND high concurrency) each map to a different mechanism."
+    common_wrong_answer: "A weak answer picks one single mechanism (e.g. 'just use MLA') without addressing the long-range direct-retrieval requirement a pure compression or head-sharing mechanism does not solve."
+    source_ids: ["src-25", "src-27"]
+
+  - id: "q-04-ch4-008"
+    workbook: "04-llm-architecture"
+    chapter: "reducing-attention-cost"
+    topic: "Interview-style: comparing GQA, sliding-window, and MLA"
+    difficulty: "stretch"
+    question_type: "explanation"
+    prompt: "Interview-style question: \"Compare GQA, sliding-window attention, and MLA. What resource does each primarily reduce, and what does each give up or complicate?\" What does a strong answer include?"
+    expected_answer: "GQA primarily reduces KV-cache memory/bandwidth by sharing K/V heads, at some representational cost. Sliding-window attention reduces both compute and memory by restricting connectivity, at the cost of only indirect long-range access. MLA reduces memory/bandwidth by compressing what is stored per token, at the cost of implementation complexity (a separately-cached rotary component, optional matrix absorption)."
+    explanation: "Evaluation criteria: does the answer name a distinct primary benefit and a distinct cost for each of the three, rather than collapsing any two into 'they all just save memory'?"
+    common_wrong_answer: "A weak answer states that all three mechanisms save memory without distinguishing their different costs or their different effects on compute and connectivity."
+    source_ids: ["src-21", "src-25", "src-27"]

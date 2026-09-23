@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="290" viewBox="0 0 960 290">
+  <title>Three efficiency strategies: different axes, not one continuum</title>
+  <defs></defs>
+  <rect x="0" y="0" width="960" height="290" fill="#ffffff"/>
+  <text x="155.0" y="24" font-family="Helvetica, Arial, sans-serif" font-size="19" font-weight="bold" fill="#111111" text-anchor="middle">1. Fewer positions</text>
+  <rect x="10" y="60" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="30" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="50" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="70" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="90" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="110" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="10" y="80" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="30" y="80" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="50" y="80" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="70" y="80" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="90" y="80" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="110" y="80" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="10" y="100" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="30" y="100" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="50" y="100" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="70" y="100" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="90" y="100" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="110" y="100" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="10" y="120" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="30" y="120" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="50" y="120" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="70" y="120" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="90" y="120" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="110" y="120" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="10" y="140" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="30" y="140" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="50" y="140" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="70" y="140" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="90" y="140" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="110" y="140" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="10" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="30" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="50" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="70" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="90" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="110" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <text x="70.0" y="200" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="middle">full</text>
+  <rect x="160" y="60" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="180" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="200" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="220" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="240" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="260" y="60" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="160" y="80" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="180" y="80" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="200" y="80" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="220" y="80" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="240" y="80" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="260" y="80" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="160" y="100" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="180" y="100" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="200" y="100" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="220" y="100" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="240" y="100" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="260" y="100" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="160" y="120" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="180" y="120" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="200" y="120" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="220" y="120" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="240" y="120" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="260" y="120" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="160" y="140" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="180" y="140" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="200" y="140" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="220" y="140" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="240" y="140" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="260" y="140" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="160" y="160" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="180" y="160" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="200" y="160" width="18" height="18" rx="1" fill="#eeeeee" stroke="#999999" stroke-width="0.75"/>
+  <rect x="220" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="240" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <rect x="260" y="160" width="18" height="18" rx="1" fill="#0072B2" stroke="#999999" stroke-width="0.75"/>
+  <text x="220.0" y="200" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="middle">local/sparse</text>
+  <text x="155.0" y="225" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">same # heads scored, fewer pairs</text>
+  <text x="480.0" y="24" font-family="Helvetica, Arial, sans-serif" font-size="19" font-weight="bold" fill="#111111" text-anchor="middle">2. Smaller per-token state</text>
+  <text x="480.0" y="60" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">one retained token</text>
+  <rect x="345.0" y="80" width="22" height="22" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="371.0" y="80" width="22" height="22" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="397.0" y="80" width="22" height="22" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <rect x="423.0" y="80" width="22" height="22" rx="3" fill="#0072B2" stroke="#333333" stroke-width="1.2"/>
+  <text x="384.0" y="122" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="middle">full: K/V per head</text>
+  <rect x="575.0" y="80" width="40" height="22" rx="5" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="595.0" y="122" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="middle">MLA: one latent</text>
+  <text x="480.0" y="150" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">different WHAT is stored, not fewer pairs scored</text>
+  <text x="805.0" y="24" font-family="Helvetica, Arial, sans-serif" font-size="19" font-weight="bold" fill="#111111" text-anchor="middle">3. Replace growing state</text>
+  <rect x="675.0" y="116" width="16" height="14" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1"/>
+  <rect x="697.0" y="108" width="16" height="22" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1"/>
+  <rect x="719.0" y="100" width="16" height="30" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1"/>
+  <rect x="741.0" y="92" width="16" height="38" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1"/>
+  <text x="708.0" y="150" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="middle">cache grows with S</text>
+  <rect x="847.0" y="108" width="16" height="22" rx="6" fill="#888888" stroke="#333333" stroke-width="1"/>
+  <rect x="869.0" y="108" width="16" height="22" rx="6" fill="#888888" stroke="#333333" stroke-width="1"/>
+  <rect x="891.0" y="108" width="16" height="22" rx="6" fill="#888888" stroke="#333333" stroke-width="1"/>
+  <rect x="913.0" y="108" width="16" height="22" rx="6" fill="#888888" stroke="#333333" stroke-width="1"/>
+  <text x="880.0" y="150" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="middle">state stays fixed size</text>
+  <text x="805.0" y="178" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">taxonomy only -- mechanism not shown</text>
+  <rect x="20" y="250" width="16" height="16" rx="2" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="44" y="263" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">scored / stored per-head</text>
+  <rect x="300" y="250" width="16" height="16" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="324" y="263" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">compressed / computed</text>
+  <rect x="560" y="250" width="16" height="16" rx="2" fill="#888888" stroke="#333333" stroke-width="1.5"/>
+  <text x="584" y="263" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">fixed-size / inactive-growth</text>
+</svg>

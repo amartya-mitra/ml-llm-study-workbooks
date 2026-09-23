@@ -1,0 +1,50 @@
+{
+  "assumptions": {
+    "L": 32,
+    "H_q": 32,
+    "d_head": 128,
+    "d_model": 4096,
+    "S": 8192,
+    "B": 1,
+    "bytes_per_elem": 2,
+    "numeric_format": "bf16",
+    "note": "Base config identical to Chapter 3's worked example. d_c and d_rope follow DeepSeek-V2's own reported ratio (d_c = 4*d_head, d_rope = 0.5*d_head), not an invented toy."
+  },
+  "gqa": {
+    "H_kv": 8,
+    "cache_per_sequence": {
+      "bytes": 1073741824,
+      "mib": 1024.0,
+      "gib": 1.0
+    }
+  },
+  "mha_reference": {
+    "H_kv": 32,
+    "cache_per_sequence": {
+      "bytes": 4294967296,
+      "mib": 4096.0,
+      "gib": 4.0
+    }
+  },
+  "mla": {
+    "d_c": 512,
+    "d_rope": 64,
+    "cache_per_sequence": {
+      "bytes": 301989888,
+      "mib": 288.0,
+      "gib": 0.2812
+    },
+    "equivalent_gqa_groups": 2.25
+  },
+  "ratios": {
+    "mla_vs_gqa": 0.2812,
+    "mla_vs_mha": 0.0703,
+    "gqa_vs_mha": 0.25
+  },
+  "caveats": [
+    "Logical/theoretical minimums only -- exclude allocator overhead, page metadata, fragmentation, attention workspaces, framework buffers.",
+    "Cache compression is not the same as end-to-end latency improvement.",
+    "Model quality and training behavior are outside this arithmetic.",
+    "GQA and MLA cache different representations (per-head K/V copies vs. a shared joint latent) -- this ratio is a size comparison, not a claim of equivalence."
+  ]
+}
