@@ -11,7 +11,7 @@
 working_title: "Modern LLM Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models"
 target_reader: "technically experienced ML practitioner or researcher; knows standard deep learning and linear algebra and the vanilla Transformer; not fluent yet in modern efficiency mechanisms (GQA, MLA, MoE routing, hybrid attention stacks)"
 page_ceiling: 65
-estimated_total_pages: 56
+estimated_total_pages: 55  # ch3 revised 9 -> 8 pages when MLA was deferred out of it (2026-09-23); see ch3.drafting_note
 
 chapters:
   - id: "ch1"
@@ -99,47 +99,58 @@ chapters:
   - id: "ch3"
     number: 3
     title: "Attention head structure and cache-efficient variants"
-    purpose: "Walk MHA -> MQA -> GQA -> MLA as one progression along a single axis (how K/V heads are shared), building the KV-cache-size formula incrementally so it is derived once, where it is motivated, rather than repeated later."
+    purpose: "Walk MHA -> MQA -> GQA as one progression along a single axis (how K/V heads are shared), building the KV-cache-size formula incrementally so it is derived once, where it is motivated, rather than repeated later."
+    drafting_note: "As actually drafted (2026-09-23), this chapter covers MHA/MQA/GQA only. MLA was descoped from chapter 3 by the drafting task's explicit instruction (tighter 7-8 page budget than this file's original 9-page estimate, plus an explicit 'do not substantially teach MLA' constraint) -- see outline.md's 'Drafting-time adjustment' section and reports/04_ch03_draft_report.md for the full rationale. MLA's mechanism, formula, worked example, and figure (originally planned here) are preserved below under `deferred_content` rather than deleted, so no planning work is lost -- but MLA's future chapter placement is explicitly NOT yet decided and must be resolved before ch. 6 is drafted, not defaulted by omission."
     prerequisites: ["ch1", "ch2"]
     learning_objectives:
       - "Write the KV-cache memory formula for MHA and identify each term's origin"
       - "Derive how MQA and GQA each reduce that formula, and by what factor"
-      - "Explain MLA's low-rank latent compression and why it is a different reduction mechanism than head-sharing"
       - "State the quality/memory/implementation-complexity tradeoff for each variant, not just the memory number"
     core_concepts:
       - "multi-head attention (MHA) tensor shapes for Q, K, V and the resulting KV-cache"
       - "multi-query attention (MQA): one K/V head shared by all query heads"
       - "grouped-query attention (GQA): a middle ground, G key/value heads shared across H query heads"
-      - "multi-head latent attention (MLA): compress K/V into a shared low-rank latent, reconstruct per-head at attention time"
       - "why KV-cache size, not just parameter count, is the quantity these mechanisms are optimizing"
     required_equations:
       - "KV-cache size (bytes) = 2 (K and V) x n_layers x n_kv_heads x d_head x seq_len x batch x bytes_per_element, stated with every assumption named (per Stage 9 notation rules)"
       - "GQA cache reduction factor relative to MHA: n_kv_heads / n_query_heads"
-      - "MLA latent dimension vs. reconstructed per-head KV dimension, and where the compression ratio comes from"
+      - "attention projection parameter formulas (P_Q, P_K, P_V, P_O) and why only P_K/P_V shrink with H_kv"
     worked_examples:
       - "compute MHA KV-cache memory for a concrete config (matches example-plan.yaml's 'calculate MHA KV-cache memory')"
-      - "recompute the same config under GQA with a stated group size and compare (matches 'recalculate with GQA')"
-      - "recompute under MLA's stated latent dimension and compare against the GQA number on the same config (matches 'compare GQA with MLA assumptions')"
+      - "recompute the same config under GQA and MQA and compare (matches 'recalculate with GQA', extended to MQA)"
+      - "compare K/V projection parameter savings against the complete Q+K+V+O attention block (matches Stage 6 of the drafting task, not a pre-existing example-plan.yaml entry)"
     planned_figures:
       - "MHA vs. MQA vs. GQA head-sharing diagram (query heads fanning into shared K/V heads)"
       - "tensor-shape walkthrough: Q/K/V shapes at each stage for one config, MHA vs. GQA"
-      - "KV-cache growth over decode steps (extends the existing kv_cache_demo.py figure with a GQA variant)"
-      - "MLA compression and reconstruction (latent vector in, per-head K/V out)"
+      - "KV-cache scaling comparison (MHA vs. GQA vs. MQA, bytes labeled directly)"
     planned_tables:
-      - "MHA vs. MQA vs. GQA vs. MLA: query heads, KV heads (or latent dim), cache bytes per token, one qualitative quality note each, sourced to a real model that uses it"
+      - "MHA vs. MQA vs. GQA: query heads, KV heads, logical KV-cache size, K/V projection parameters, representation flexibility, implementation considerations, common motivation"
     misconception_checks:
+      - "\"GQA reduces the number of query heads\" — false; H_q is unchanged, only H_kv changes"
       - "\"GQA just makes attention faster\" — false, or at least imprecise; GQA's primary win is KV-cache *memory* and the memory-bandwidth it takes to read that cache, not FLOPs, which barely change"
-      - "\"MLA is GQA with more groups\" — false; MLA compresses into a shared latent and reconstructs, a different mechanism than sharing whole K/V heads across query groups"
+      - "\"Reducing KV heads reduces every attention FLOP by the same factor\" — false; query-side computation is untouched"
+      - "\"The KV-cache formula gives exact observed GPU memory usage\" — false; it is a logical/theoretical minimum, excluding allocator overhead, fragmentation, and workspace buffers"
+      - "\"MQA is universally superior because it uses the least cache\" — false; it is a tradeoff against representational flexibility, not a strict win"
     short_questions:
       - "calculation: KV-cache bytes for a stated MHA config"
-      - "calculation: same config under GQA with group size g"
-      - "compare_and_contrast: what does MLA compress that GQA does not?"
+      - "calculation: same config under GQA and MQA with a stated group size"
       - "misconception_diagnosis: does GQA primarily save FLOPs or memory bandwidth?"
-    applied_exercise: "Given a serving memory budget and a fixed context length, work backward to the maximum concurrent batch size under MHA vs. GQA vs. MLA for the same base model size (matches 'choose an architecture under a serving-memory constraint')."
+      - "misconception_diagnosis: does GQA change the number of query heads?"
+    applied_exercise: "Given a serving workload with long contexts and high concurrency, compare a candidate MHA model and a candidate GQA model, acknowledging cache memory is not the only deployment factor (matches the drafting task's Stage 11 design exercise; narrower than example-plan.yaml's original three-way MHA/GQA/MLA version, since MLA is deferred)."
     interview_lens: "KV-cache arithmetic under a stated attention variant is one of the most common 'do the math live' LLM systems-interview questions; this chapter is built to make that arithmetic automatic."
-    primary_sources: ["src-20", "src-21", "src-27"]
+    primary_sources: ["src-20", "src-21"]
     secondary_sources: ["src-14", "src-10"]
-    estimated_pages: 9
+    estimated_pages: 8
+    deferred_content:
+      note: "Preserved from the original ch3 plan, NOT drafted in this pass -- placement chapter TBD (see drafting_note above)."
+      learning_objectives: ["Explain MLA's low-rank latent compression and why it is a different reduction mechanism than head-sharing"]
+      core_concepts: ["multi-head latent attention (MLA): compress K/V into a shared low-rank latent, reconstruct per-head at attention time"]
+      required_equations: ["MLA latent dimension vs. reconstructed per-head KV dimension, and where the compression ratio comes from"]
+      worked_examples: ["recompute under MLA's stated latent dimension and compare against the GQA number on the same config (matches example-plan.yaml's 'compare GQA with MLA assumptions')"]
+      planned_figures: ["MLA compression and reconstruction (latent vector in, per-head K/V out)"]
+      misconception_checks: ["\"MLA is GQA with more groups\" — false; MLA compresses into a shared latent and reconstructs, a different mechanism than sharing whole K/V heads across query groups"]
+      short_questions: ["compare_and_contrast: what does MLA compress that GQA does not?"]
+      primary_sources: ["src-27"]
 
   - id: "ch4"
     number: 4

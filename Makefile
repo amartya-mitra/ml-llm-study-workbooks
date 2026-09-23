@@ -1,7 +1,7 @@
 PYTHON ?= python3
 
 .PHONY: validate validate-registry validate-questions figures workbooks \
-        render-sample review-ch01-02 test check-links clean
+        render-sample review-ch01-02 review-ch01-03 test check-links clean
 
 # Run every offline (non-network) validation check.
 validate: validate-registry validate-questions
@@ -29,8 +29,17 @@ render-sample:
 # render via Quarto/Typst, copy to outputs/, then run the
 # pdfinfo/pdftotext/pdffonts/pdftoppm inspection pipeline (requires
 # quarto + poppler-utils on PATH -- activate the ml-workbooks conda env).
+# SUPERSEDED as a live target now that index.qmd includes Chapter 3 --
+# running this now renders the same 3-chapter document and would
+# mislabel it; kept only so outputs/04-llm-architecture-ch01-02-review.pdf's
+# frozen historical artifact and build script remain traceable. Use
+# review-ch01-03 instead.
 review-ch01-02:
 	$(PYTHON) scripts/build_ch01_02_review.py
+
+# Build the Chapters 1-3 review PDF (see scripts/build_ch01_03_review.py).
+review-ch01-03:
+	$(PYTHON) scripts/build_ch01_03_review.py
 
 # Network-dependent: checks that every sources/registry.yaml URL responds.
 check-links:

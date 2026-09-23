@@ -1,57 +1,65 @@
 # Page budget for Workbook 04 (Modern LLM Architecture), tracked across
-# the two-chapter review pilot and projected forward to the full
+# the three-chapter review pilot and projected forward to the full
 # eight-chapter workbook. Authored by hand (see shared/_yaml_lite.py for
 # the supported YAML subset -- no anchors/aliases/flow-mappings).
 #
 # "actual" sections below are measured directly from
-# outputs/04-llm-architecture-ch01-02-review.pdf after the post-review
-# revision pass (pdfinfo/pdftotext, US Letter, this project's standard
-# margins/fonts -- see the Build and Version Note for the exact build).
-# "provisional" sections are estimates for not-yet-drafted chapters and
-# will be replaced with actuals as each chapter is drafted and rendered.
+# outputs/04-llm-architecture-ch01-03-review.pdf (pdfinfo/pdftotext, US
+# Letter, this project's standard margins/fonts -- see the Build and
+# Version Note for the exact build). "provisional" sections are
+# estimates for not-yet-drafted chapters and will be replaced with
+# actuals as each chapter is drafted and rendered.
 
 schema_version: 1
 
 pilot_actual:
-  measured_from: "outputs/04-llm-architecture-ch01-02-review.pdf"
-  total_pages: 26
-  total_words: 11732
+  measured_from: "outputs/04-llm-architecture-ch01-03-review.pdf"
+  total_pages: 35
+  total_words: 16397
   sections:
     - name: "front_matter"
       description: "Title page, how-to-use, pilot-scope note, notation quick reference"
       pages: 2
-      notes: "Shares a page boundary with Chapter 1's opening (Chapter 1's heading starts partway down page 3), so this is a rounded count, not a clean page range."
+      notes: "Shares a page boundary with Chapter 1's opening (Chapter 1's heading starts partway down page 3). The table of contents grew to fill all of page 1's remaining space plus page 2 once Chapter 3's ~12 subsections were added, but this did not push front matter past 2 whole pages."
     - name: "chapter_1"
       description: "Chapter 1: Transformer Refresher, instructional content only"
       pages: 10
-      notes: "Starts partway down page 3, ends partway down page 12. Grew from the pre-revision pilot's combined 17-page Ch.1+Ch.2 instructional total mainly because of the corrected KV-cache explanation (longer, more precise prose) and the mandatory fresh-page break before Chapter 2."
+      notes: "Starts partway down page 3, ends partway down page 12. Unchanged from the Chapters 1-2 revision pass -- no Chapter 1 content was touched while drafting Chapter 3."
     - name: "chapter_2"
       description: "Chapter 2: Anatomy of a Modern Decoder, instructional content only"
       pages: 9
-      notes: "Starts fresh on page 13 (deliberate page break per review feedback), ends partway down page 21."
-    - name: "answer_key"
-      description: "Answer Key: Chapter 1 + Answer Key: Chapter 2, combined"
-      pages: 4
-      notes: "Answer Key: Chapter 1 starts fresh on page 22 (deliberate break); Answer Key: Chapter 2 begins mid-page on page 23 (no forced break -- the transition is a natural continuation of the same 'answer key' material, not a major navigation boundary)."
+      notes: "Starts fresh on page 13, ends partway down page 21. Unchanged from the Chapters 1-2 revision pass."
+    - name: "chapter_3"
+      description: "Chapter 3: Attention Head Structure and Cache-Efficient Variants, instructional content only"
+      pages: 7
+      notes: "Starts fresh on page 22 (deliberate break, consistent with Chapter 2's treatment), ends partway down page 28. Lands exactly at the 7-page PREFERRED budget (hard maximum was 8) -- achieved primarily by deferring multi-head latent attention (MLA) out of this chapter (see outline.yaml's ch3.drafting_note) and using 3 figures instead of the originally-planned 4. 4 of the chapter's 5 required misconceptions became full boxed callouts; the 5th (FLOPs not reduced proportionally) is a concise inline correction inside the decode-time-computation paragraph."
+    - name: "answer_key_chapter_1"
+      description: "Answer Key: Chapter 1 only"
+      pages: 1.6
+      notes: "Starts fresh on page 29 (deliberate break, consistent with the Chapters 1-2 revision pass), continues partway into page 30."
+    - name: "answer_key_chapter_2"
+      description: "Answer Key: Chapter 2 only"
+      pages: 2.0
+      notes: "Begins mid-page on page 30 (no forced break -- same 'answer key' family as Chapter 1's), continues to partway through page 32."
+    - name: "answer_key_chapter_3"
+      description: "Answer Key: Chapter 3 only"
+      pages: 1.6
+      notes: "Begins mid-page on page 32 (no forced break), continues through page 33, ends partway into page 34. Lands under the 2-page hard maximum, close to (though slightly above) the 1-1.5 preferred range; tightened once already (redundant 'Why'/'Interview criteria' paragraphs merged into their 'Answer' paragraphs) to move off the hard ceiling -- further tightening was not pursued because it would have started cutting content Stage 8 of the original Chapters 1-2 task explicitly flagged as worth preserving in full (this chapter's analog: the GQA-cache-cost interview question's reasoning)."
     - name: "build_note_and_bibliography"
       description: "Build and Version Note (with its Provenance subsection) plus the auto-appended Bibliography"
-      pages: 1
-      notes: "The build note ends and the Bibliography begins on page 25/26; Typst's native (citeproc:false) bibliography is always appended at the absolute end of the document regardless of source order, so this section's position is fixed by the toolchain, not a content choice."
-  pre_revision_reference:
-    total_pages: 24
-    instructional_pages_ch1_ch2: 17
-    total_words: 11400
-    note: "Approximate figures from the pre-revision review bundle (outputs/review-bundle-04-ch01-02/manifest.txt), before this pass's KV-cache correction, prefill qualification, RMSNorm epsilon, path removal, question relabeling, page breaks, and figure-legibility fixes."
+      pages: 1.8
+      notes: "The build note ends and the Bibliography begins on page 34; Typst's native (citeproc:false) bibliography is always appended at the absolute end of the document regardless of source order and does not force its own fresh page -- it simply continues wherever the build note ends, spilling from page 34 onto page 35 here."
+  pre_ch3_reference:
+    total_pages: 26
+    instructional_pages_ch1_ch2: 19
+    total_words: 11732
+    note: "Chapters 1-2 pilot actuals immediately before Chapter 3 was drafted (see reports/04_ch01_02_draft_report.md's revision section). Chapter 3 added exactly 9 pages (7 instructional + ~1.6 answer-key + a ~0.4-page table-of-contents growth spillover), taking the total from 26 to 35."
 
 full_workbook_projection:
   preferred_total_pages: [60, 68]
   hard_ceiling_total_pages: 72
-  hard_ceiling_note: "Exceeding 72 requires explicit approval, per the task instructions governing this revision. Page growth must come from adding chapters, not from ever shrinking fonts, figures, margins, or writing space (AGENTS.md-adjacent constraint from the task)."
-  chapters_3_to_8_provisional:
-    - chapter: 3
-      topic: "Attention head structure and cache-efficient variants"
-      instructional_pages: [7, 8]
-      estimated_answer_key_pages: [1.5, 2]
+  hard_ceiling_note: "Exceeding 72 requires explicit approval. Page growth must come from adding chapters, not from ever shrinking fonts, figures, margins, or writing space."
+  chapters_4_to_8_provisional:
     - chapter: 4
       topic: "Restricting attention's reach"
       instructional_pages: [6, 7]
@@ -72,10 +80,13 @@ full_workbook_projection:
       topic: "Synthesis / practice chapter"
       instructional_pages: [4, 5]
       estimated_answer_key_pages: [1, 1]
-  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of ~2 answer-key pages per 9 instructional pages (Chapters 1-2 actual), applied to each later chapter's smaller provisional instructional-page budget. Will be replaced by actuals as each chapter is drafted."
+  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-3 (actual), applied to each later chapter's smaller provisional instructional-page budget. Chapter 3's own actual ratio (~1.6 answer-key pages per 7 instructional pages, ~0.23) came in more efficient than the ratio these chapter-4-8 estimates assume (~0.21-0.25, similar) -- so these estimates are not revised down further, kept as a conservative planning number."
   projection_arithmetic:
-    pilot_actual_total: 26
-    chapters_3_to_8_instructional_range: [33, 39]
-    chapters_3_to_8_answer_key_range: [7.5, 9]
-    projected_full_total_range: [66.5, 74]
-  flagged_risk: "The high end of the projected full-workbook range (~74 pages) exceeds the 72-page hard ceiling. This is a projection, not a current overage -- only Chapters 1-2 are drafted -- but it means Chapters 3-8 cannot all land at the top of their provisional instructional-page ranges with proportionally-sized answer keys and still stay under the ceiling without approval. Track actuals chapter-by-chapter as each is drafted, and treat the top of each chapter's range as a budget to justify exceeding, not a default."
+    pilot_actual_total: 35
+    chapters_4_to_8_instructional_range: [26, 31]
+    chapters_4_to_8_answer_key_range: [6, 7]
+    projected_full_total_range: [67, 73]
+  flagged_risk: "The high end of the projected full-workbook range (~73 pages) still exceeds the 72-page hard ceiling, essentially unchanged from the Chapters 1-2 projection (was ~74). Chapter 3 landing at the low end of its own provisional range (8.6 total vs. an originally-estimated 8.5-10) is a mildly encouraging data point, but not yet enough evidence to lower Chapters 4-8's estimates. Concrete scope reductions to consider before or during Chapter 4's drafting, in priority order: (1) hold every remaining chapter to at most 2-3 figures, following Chapter 3's 3-figure precedent rather than each chapter's original 3-4-figure plan; (2) box at most 2 of any chapter's required misconceptions per its own drafting task, addressing the rest as concise inline corrections (Chapter 3's approach); (3) if a later chapter's blueprint bundles two mechanisms that don't share a formula (unlike MHA/MQA/GQA's shared KV-cache formula), consider deferring the less central one the way MLA was deferred out of Chapter 3, rather than covering both shallowly. Report this explicitly before Chapter 4 is drafted, per the task governing this chapter."
+
+chapter_3_specific:
+  mla_deferral_note: "Chapter 3 as drafted (2026-09-23) covers MHA/MQA/GQA only. Multi-head latent attention (MLA), originally planned for this chapter per outline.yaml's pre-2026-09-23 content, was deliberately deferred -- see outline.yaml's ch3.drafting_note and outline.md's 'Drafting-time adjustment' section for the full rationale. MLA's future chapter placement is NOT yet decided and must be resolved before Chapter 6 (its current source, DeepSeek-V2/V3, is also Chapter 6's case-study source) is drafted."

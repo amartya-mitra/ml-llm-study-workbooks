@@ -1,16 +1,19 @@
-::: {.callout-important title="This is a two-chapter pilot, not the complete workbook"}
-This document contains **only Chapters 1 and 2** of *Modern LLM
+::: {.callout-important title="This is a three-chapter pilot, not the complete workbook"}
+This document contains **only Chapters 1, 2, and 3** of *Modern LLM
 Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
 Models* (workbook 04 of the ML/LLM Study Workbooks series). Chapters
-3-8 -- attention head structure and cache-efficient variants, restricting
-attention's reach, mixture-of-experts models, case studies, architecture
--> systems consequences, and a synthesis/practice chapter -- are planned
-but **not drafted**. Nothing in this document should be read as
-implying those chapters exist yet.
+4-8 -- restricting attention's reach, mixture-of-experts models, case
+studies, architecture -> systems consequences, and a synthesis/practice
+chapter -- are planned but **not drafted**. Nothing in this document
+should be read as implying those chapters exist yet. Chapter 3 also
+does not yet cover multi-head latent attention (MLA); that mechanism
+was deliberately deferred out of chapter 3's drafting pass (see
+`outline.yaml`'s `ch3.drafting_note`) and its eventual chapter
+placement is not yet decided.
 
 This is a review artifact: it exists to establish the workbook's
 explanatory depth, visual language, page density, question style, and
-citation style before the remaining six chapters are drafted at scale.
+citation style before the remaining chapters are drafted at scale.
 Treat any rough edge you find as exactly the kind of thing this pilot
 is meant to surface early.
 :::

@@ -1,6 +1,6 @@
 ---
 title: "Modern LLM Architecture"
-subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Two-Chapter Review Pilot"
+subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Three-Chapter Review Pilot"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -33,9 +33,10 @@ applied exercise, an interview-style question, a chapter recap, and
 sources. Short questions appear near the concept they test, with space
 left for written answers if you're using this as a workbook rather than
 only a reading; full solutions are collected in the answer key
-(@sec-solutions-ch1, @sec-solutions-ch2) rather than revealed inline, so
-you can attempt each question before checking it. A notation quick
-reference (@sec-notation) covers every symbol Chapters 1-2 use.
+(@sec-solutions-ch1, @sec-solutions-ch2, @sec-solutions-ch3) rather than
+revealed inline, so you can attempt each question before checking it. A
+notation quick reference (@sec-notation) covers every symbol Chapters
+1-3 use.
 
 {{< include includes/draft-scope-note.qmd >}}
 
@@ -53,8 +54,16 @@ reference (@sec-notation) covers every symbol Chapters 1-2 use.
 #pagebreak()
 ```
 
+{{< include chapters/03-attention-head-structure.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
 {{< include solutions/01-transformer-refresher-solutions.qmd >}}
 
 {{< include solutions/02-modern-decoder-solutions.qmd >}}
+
+{{< include solutions/03-attention-head-structure-solutions.qmd >}}
 
 {{< include includes/build-version-note.qmd >}}

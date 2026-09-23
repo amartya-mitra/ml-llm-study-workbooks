@@ -118,6 +118,39 @@ target to inflate").
 8. **Ch. 8** (synthesis) — must be last; it is explicitly a worksheet
    over the preceding seven chapters and cannot be written first.
 
+## Drafting-time adjustment: MLA deferred out of chapter 3 (2026-09-23)
+
+The chapter-3 drafting task explicitly scoped chapter 3 to MHA, MQA,
+and GQA only, and explicitly excluded substantially teaching MLA in
+that pass ("do not substantially teach: MLA..."), with a tighter
+instructional-page budget (7 preferred / 8 hard maximum) than this
+outline's own estimate (9 pages) assumed. This is a real conflict with
+this file's and `outline.yaml`'s original chapter-3 scope (MHA → MQA →
+GQA → MLA as one progression). Per the drafting task's own instruction
+to preserve intended learning goals while documenting the adjustment
+rather than silently relocating material, the resolution taken was:
+
+- Chapter 3, as actually drafted, covers MHA/MQA/GQA and the KV-cache
+  formula they share, ending with one brief, unnamed-mechanism forward
+  reference to a further latent-compression technique "chapter 6's
+  case studies will name" — not a taught mechanism.
+- MLA's full mechanism (low-rank latent compression, its own cache
+  formula, its own worked example and figure) is **not yet placed** in
+  a specific future chapter. The most natural homes are a short
+  addition to chapter 3 in a later revision (so the KV-cache-formula
+  chapter still owns every head-structure/compression mechanism) or a
+  dedicated slice of chapter 6's case studies (since DeepSeek-V2/V3 are
+  already chapter 6's case-study source for MLA). This decision is
+  deliberately left open rather than guessed at now — see
+  `reports/04_ch03_draft_report.md` for the full rationale — and must
+  be made explicitly before chapter 6 is drafted, not defaulted by
+  omission.
+- This also resolves the estimated-page mismatch: chapter 3's estimate
+  above (9 pages) assumed MLA content that is no longer in chapter 3 as
+  drafted; the actual chapter is ~7-8 pages, consistent with dropping
+  roughly a figure, a worked example, and a table row's worth of MLA
+  material relative to the original estimate.
+
 ## Explicit non-goals (scope fences, checked again at Stage 10)
 
 - Not a full inference-serving/inference-engineering textbook (that is

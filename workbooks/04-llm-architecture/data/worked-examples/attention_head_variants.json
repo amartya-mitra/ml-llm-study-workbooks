@@ -1,0 +1,82 @@
+{
+  "assumptions": {
+    "L": 32,
+    "H_q": 32,
+    "d_head": 128,
+    "d_model": 4096,
+    "S": 8192,
+    "B_base": 1,
+    "B_extension": 16,
+    "bytes_per_elem": 2,
+    "numeric_format": "bf16",
+    "note": "H_q, d_head, and d_model are identical across all three variants; only H_kv changes."
+  },
+  "variants": {
+    "mha": {
+      "H_kv": 32,
+      "kv_cache_B1": {
+        "bytes": 4294967296,
+        "mib": 4096.0,
+        "gib": 4.0
+      },
+      "kv_cache_B16": {
+        "bytes": 68719476736,
+        "mib": 65536.0,
+        "gib": 64.0
+      },
+      "P_Q": 16777216,
+      "P_K": 16777216,
+      "P_V": 16777216,
+      "P_O": 16777216,
+      "kv_only_params_per_layer": 33554432,
+      "total_attn_params_per_layer": 67108864,
+      "cache_reduction_vs_mha": 1.0,
+      "kv_param_reduction_vs_mha": 1.0,
+      "total_attn_param_reduction_vs_mha": 1.0
+    },
+    "gqa": {
+      "H_kv": 8,
+      "kv_cache_B1": {
+        "bytes": 1073741824,
+        "mib": 1024.0,
+        "gib": 1.0
+      },
+      "kv_cache_B16": {
+        "bytes": 17179869184,
+        "mib": 16384.0,
+        "gib": 16.0
+      },
+      "P_Q": 16777216,
+      "P_K": 4194304,
+      "P_V": 4194304,
+      "P_O": 16777216,
+      "kv_only_params_per_layer": 8388608,
+      "total_attn_params_per_layer": 41943040,
+      "cache_reduction_vs_mha": 0.25,
+      "kv_param_reduction_vs_mha": 0.25,
+      "total_attn_param_reduction_vs_mha": 0.625
+    },
+    "mqa": {
+      "H_kv": 1,
+      "kv_cache_B1": {
+        "bytes": 134217728,
+        "mib": 128.0,
+        "gib": 0.125
+      },
+      "kv_cache_B16": {
+        "bytes": 2147483648,
+        "mib": 2048.0,
+        "gib": 2.0
+      },
+      "P_Q": 16777216,
+      "P_K": 524288,
+      "P_V": 524288,
+      "P_O": 16777216,
+      "kv_only_params_per_layer": 1048576,
+      "total_attn_params_per_layer": 34603008,
+      "cache_reduction_vs_mha": 0.03125,
+      "kv_param_reduction_vs_mha": 0.03125,
+      "total_attn_param_reduction_vs_mha": 0.515625
+    }
+  }
+}

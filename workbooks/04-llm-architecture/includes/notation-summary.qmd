@@ -2,19 +2,22 @@
 
 This project maintains a full, growing symbol table across all eight
 workbooks; later chapters introduce mechanisms this pilot doesn't cover
-(KV-cache size, expert counts, and others start in Chapter 3 onward).
-The subset below is everything Chapters 1-2 actually use -- flip back
-here if a symbol in an equation isn't immediately obvious.
+(expert counts and others start in Chapter 5 onward). The subset below
+is everything Chapters 1-3 actually use -- flip back here if a symbol
+in an equation isn't immediately obvious.
 
 | Symbol | Name | Meaning |
 |---|---|---|
 | $B$ | batch size | number of independent sequences processed together |
-| $S$ | sequence length | number of tokens in the current sequence |
+| $S$ | sequence length | number of tokens retained in the KV-cache |
+| $T_q$ | query positions (current step) | number of new positions a step computes queries for ($T_q = S$ during prefill, $T_q = 1$ for an ordinary decode step) |
 | $V$ | vocabulary size | number of distinct token ids; also the output-head's logit width |
 | $d_{\text{model}}$ | hidden dimension | width of the residual stream, constant across every block |
-| $H_q$ | query heads | number of attention query heads (the "q" matters starting Chapter 3) |
+| $H_q$ | query heads | number of attention query heads |
+| $H_{kv}$ | key/value heads | number of attention key/value heads ($H_{kv} = H_q$ for MHA, $H_{kv} = 1$ for MQA, $1 < H_{kv} < H_q$ for GQA) |
 | $d_{\text{head}}$ | head dimension | width of one attention head, $d_{\text{model}} / H_q$ |
 | $L$ | number of layers | count of decoder blocks stacked |
 | $d_{\text{ff}}$ | feed-forward expansion dimension | width of a feed-forward sublayer's hidden projection |
+| $\text{bytes\_per\_elem}$ | bytes per cached element | storage width of one stored number (e.g. 2 for bf16); stated explicitly per calculation, never assumed |
 
-: Notation used in Chapters 1-2 only; later chapters extend this table {#tbl-notation}
+: Notation used in Chapters 1-3 only; later chapters extend this table {#tbl-notation}

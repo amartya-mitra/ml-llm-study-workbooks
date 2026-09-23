@@ -1,0 +1,108 @@
+## Answer Key: Chapter 3 {#sec-solutions-ch3}
+
+Full solutions to Chapter 3's "Check your understanding" questions
+(@sec-ch3).
+
+**1. Explain. What is the one structural difference between MHA,
+MQA, and GQA -- and what stays identical across all three?**
+
+*Answer.* The one difference is $H_{kv}$: MHA sets $H_{kv} = H_q$
+(every query head has its own key/value head), MQA sets $H_{kv} = 1$
+(all query heads share one), and GQA sets $1 < H_{kv} < H_q$ (groups of
+query heads each share one). $H_q$ itself, the query projection's
+shape, the output projection's shape, and the number of query-side
+attention computations are identical across all three.
+
+*Common trap:* describing MHA/MQA/GQA as three unrelated mechanisms
+rather than three points on the same $H_{kv}$ axis.
+
+**2. Calculation. For $H_q = 8$ query heads and $H_{kv} = 2$ key/value
+heads, what is the group size, and how many query heads share each
+key/value head?**
+
+*Answer.* Group size $= H_q / H_{kv} = 8 / 2 = 4$. Each key/value head
+is shared by 4 query heads.
+
+*Common trap:* dividing $H_{kv}$ by $H_q$ instead of $H_q$ by $H_{kv}$,
+which gives a fraction instead of a head count.
+
+**3. Calculation. Write the shapes of $Q$ and $K$ for $B=1$, $T_q=1$,
+$S=100$, $H_q=16$, $H_{kv}=4$, $d_{\text{head}}=64$.**
+
+*Answer.* $Q: (1, 1, 16, 64)$. $K: (1, 100, 4, 64)$.
+
+*Common trap:* using $S$ in place of $T_q$ for $Q$'s second axis (or
+vice versa for $K$) -- $Q$'s position axis is how many *new* positions
+this step computes queries for, while $K$/$V$'s position axis is how
+many positions are *retained* in the cache.
+
+**4. Quick check. Which two of $P_Q$, $P_K$, $P_V$, $P_O$ change when
+$H_{kv}$ changes, holding $H_q$ and $d_{\text{head}}$ fixed?**
+
+*Answer.* $P_K$ and $P_V$. $P_Q = d_{\text{model}} H_q d_{\text{head}}$
+and $P_O = H_q d_{\text{head}} d_{\text{model}}$ depend only on $H_q$
+(and $d_{\text{head}}$/$d_{\text{model}}$), not $H_{kv}$.
+
+*Common trap:* assuming all four projections shrink together, since
+they are all part of "the attention block."
+
+**5. Misconception check. "GQA reduces the number of query heads."**
+
+*Answer.* False. $H_q$ is unchanged by GQA (or MQA) -- only $H_{kv}$
+changes; @fig-head-sharing draws the same number of query heads in
+every panel. This misconception usually comes from conflating "fewer
+heads are involved in some sense" with "fewer query heads
+specifically," when what actually shrinks is the key/value side only.
+
+**6. Misconception check. "If GQA cuts a model's KV-cache memory by
+4x, the whole model becomes 4x smaller."**
+
+*Answer.* False. @tbl-proj-params-worked shows the complete attention
+block (including the unchanged $P_Q$ and $P_O$) shrinks by only 1.6x
+here, not 4x, and the feed-forward sublayers are untouched by $H_{kv}$
+entirely. The cache formula and the model's total parameter count
+share one input ($H_{kv}$) but respond to it very differently -- the
+cache formula has no $Q$/$O$/MLP terms to hold anything back, while the
+parameter count does.
+
+**7. Calculation. For $L=24$, $H_q=16$ (MHA, so $H_{kv}=H_q=16$),
+$d_{\text{head}}=128$, $S=4096$, $B=1$, bf16: compute the logical
+KV-cache size in bytes and MiB.**
+
+*Answer.* $M_{KV} = 2 \times 1 \times 4096 \times 24 \times 16 \times
+128 \times 2 = 805{,}306{,}368$ bytes $= 768$ MiB exactly (verified
+programmatically; see the Build and Version Note).
+
+*Common trap:* forgetting the factor of 2 for keys and values, which
+would understate the answer by exactly half (384 MiB).
+
+**8. Design exercise (applied exercise). Compare a candidate MHA model
+and a candidate GQA model for a long-context, high-concurrency serving
+workload.**
+
+*Answer.* At the same base size and $S$, the GQA candidate's
+per-sequence cache is smaller by the ratio $H_{kv,\text{GQA}}/H_q$ (per
+@eq-kv-cache), which at high concurrency directly increases how many
+sequences fit in a fixed memory budget -- usually the dominant
+argument for GQA here. But the MHA candidate could still win on
+task-specific quality (if trained, not just uptrained, with full
+per-head capacity) or serving-stack maturity. A complete answer
+performs the ratio comparison *and* names a concrete non-cache factor,
+not a vague "it depends."
+
+**9. Interview practice. "Walk me through why GQA reduces KV-cache
+cost, and tell me what it does not automatically make cheaper."**
+
+*Answer.* A strong answer: (1) names $H_{kv}$, not $H_q$, as the
+quantity GQA changes; (2) states @eq-kv-cache's linear dependence on
+$H_{kv}$ as the mechanism; (3) proactively names what does *not*
+shrink proportionally -- $P_Q$/$P_O$, the number of query-side
+attention computations, and the complete attention block's total
+parameter count (per @tbl-proj-params-worked).
+
+*Interview criteria:* does the answer name the specific mechanism
+rather than a vague "less memory" claim, and proactively name at least
+one thing that stays fixed size rather than needing to be prompted for
+it? Stopping at "GQA uses less memory" is the common trap here -- a
+systems-flavored interviewer will very likely ask exactly that
+follow-up.

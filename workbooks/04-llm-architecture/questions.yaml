@@ -238,3 +238,118 @@ questions:
     explanation: "Evaluation criteria: does the answer correctly describe the parallel-branch-plus-multiply structure (not a sequential deepening); does it proactively raise the parameter cost tradeoff rather than needing to be prompted for it, since a systems-flavored interviewer is very likely to ask a follow-up about cost if the candidate doesn't raise it first."
     common_wrong_answer: "A weak answer describes the gating mechanism correctly but stops there, never mentioning that it costs anything extra in parameters -- an interviewer probing for systems awareness will consider this an incomplete answer even if the mechanism description was accurate."
     source_ids: ["src-24"]
+
+  # ---------------------------------------------------------------------
+  # q-04-ch3-*: Chapter 3 (Attention Head Structure and Cache-Efficient
+  # Variants) question bank. MHA/MQA/GQA only -- MLA is deferred out of
+  # this chapter (see outline.yaml's ch3.drafting_note); no question here
+  # tests MLA.
+  # ---------------------------------------------------------------------
+
+  - id: "q-04-ch3-001"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "MHA vs. MQA vs. GQA: the one structural difference"
+    difficulty: "intro"
+    question_type: "explanation"
+    prompt: "What is the one structural difference between MHA, MQA, and GQA -- and what stays identical across all three?"
+    expected_answer: "The one difference is H_kv: MHA sets H_kv = H_q (every query head has its own key/value head), MQA sets H_kv = 1 (all query heads share one), and GQA sets 1 < H_kv < H_q (groups of query heads each share one). H_q itself, the query projection's shape, the output projection's shape, and the number of query-side attention computations are identical across all three."
+    explanation: "MHA/MQA/GQA are three points on the same H_kv axis, not three unrelated mechanisms. Everything that depends on H_q alone (not H_kv) is untouched by moving along that axis."
+    common_wrong_answer: "A common wrong answer describes MHA/MQA/GQA as three unrelated mechanisms rather than three points on the same H_kv axis."
+    source_ids: ["src-19", "src-20", "src-21"]
+
+  - id: "q-04-ch3-002"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "GQA group size"
+    difficulty: "intro"
+    question_type: "calculation"
+    prompt: "For H_q = 8 query heads and H_kv = 2 key/value heads, what is the group size, and how many query heads share each key/value head?"
+    expected_answer: "Group size = H_q / H_kv = 8 / 2 = 4. Each key/value head is shared by 4 query heads."
+    explanation: "The simple equal-group presentation of GQA requires H_kv to divide H_q evenly; the group size is that quotient."
+    common_wrong_answer: "A common wrong answer divides H_kv by H_q instead of H_q by H_kv, giving a fraction instead of a head count."
+    source_ids: ["src-21"]
+
+  - id: "q-04-ch3-003"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "Q/K tensor shapes under GQA"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "Write the shapes of Q and K for B=1, T_q=1, S=100, H_q=16, H_kv=4, d_head=64."
+    expected_answer: "Q: (1, 1, 16, 64). K: (1, 100, 4, 64)."
+    explanation: "Q's shape is (B, T_q, H_q, d_head); K/V's shape is (B, S, H_kv, d_head). T_q is how many new positions this step computes queries for; S is how many positions are retained in the cache -- these are different quantities even though both are 'sequence-like' axes."
+    common_wrong_answer: "A common wrong answer uses S in place of T_q for Q's second axis (or vice versa for K), conflating the current step's query count with the cache's retained length."
+    source_ids: ["src-19", "src-21"]
+
+  - id: "q-04-ch3-004"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "Which projection parameters depend on H_kv"
+    difficulty: "core"
+    question_type: "recall"
+    prompt: "Which two of P_Q, P_K, P_V, P_O change when H_kv changes, holding H_q and d_head fixed?"
+    expected_answer: "P_K and P_V. P_Q = d_model * H_q * d_head and P_O = H_q * d_head * d_model depend only on H_q (and d_head/d_model), not H_kv."
+    explanation: "Of the four attention projection matrices, only the two that produce K and V scale with H_kv; the query and output projections scale with H_q alone."
+    common_wrong_answer: "A common wrong answer assumes all four projections shrink together, since they are all described as part of 'the attention block.'"
+    source_ids: ["src-19", "src-21"]
+
+  - id: "q-04-ch3-005"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "GQA does not reduce query heads"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: \"GQA reduces the number of query heads.\""
+    expected_answer: "False. H_q is unchanged by GQA (or MQA) -- only H_kv changes."
+    explanation: "The head-sharing figure draws the same number of query heads in every panel (MHA, GQA, MQA); only the number of key/value heads those query heads fan into changes."
+    common_wrong_answer: "This misconception comes from conflating 'fewer heads are involved in some sense' with 'fewer query heads specifically,' when what actually shrinks is the key/value side only."
+    source_ids: ["src-21"]
+
+  - id: "q-04-ch3-006"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "Cache reduction does not imply proportional model-size reduction"
+    difficulty: "stretch"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: \"if GQA cuts a model's KV-cache memory by 4x, the whole model becomes 4x smaller.\""
+    expected_answer: "False. The complete attention block (which also includes the unchanged P_Q and P_O) shrinks by far less than 4x, and the feed-forward sublayers are untouched by H_kv entirely -- the model as a whole shrinks by much less than the cache does."
+    explanation: "The KV-cache formula and the model's total parameter count are two different quantities that share one input (H_kv) but respond to it very differently: the cache formula has no Q/O/MLP terms to hold anything back, while the parameter count does."
+    common_wrong_answer: "A common wrong answer assumes the cache-size reduction ratio applies uniformly to the whole model, rather than only to the K/V projections and the cache itself."
+    source_ids: ["src-10", "src-21"]
+
+  - id: "q-04-ch3-007"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "KV-cache memory calculation under MHA"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "For L=24, H_q=16 (MHA, so H_kv=H_q=16), d_head=128, S=4096, B=1, bf16: compute the logical KV-cache size in bytes and MiB."
+    expected_answer: "M_KV = 2 * 1 * 4096 * 24 * 16 * 128 * 2 = 805,306,368 bytes = 768 MiB exactly."
+    explanation: "Direct application of the KV-cache formula, with every assumption (B, S, L, H_kv, d_head, bytes_per_elem) stated explicitly, per notation.yaml's formula_assumption_checklist."
+    common_wrong_answer: "A common wrong answer forgets the factor of 2 for keys and values, understating the result by exactly half (384 MiB)."
+    source_ids: ["src-19", "src-10"]
+
+  - id: "q-04-ch3-008"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "Applied exercise: choosing between an MHA and a GQA candidate for a serving workload"
+    difficulty: "stretch"
+    question_type: "design"
+    prompt: "A serving workload needs long contexts and high concurrency. Candidate model A uses MHA; candidate B uses GQA, both otherwise the same size and context length. Compare their per-sequence cache cost, then name at least one deployment factor besides cache memory that could still favor the MHA candidate."
+    expected_answer: "At the same base size and context length S, the GQA candidate's per-sequence KV-cache is smaller by the ratio H_kv_GQA / H_q, which at high concurrency directly increases how many concurrent sequences fit in a fixed memory budget. But cache size is not the only factor: the MHA candidate could still win on task-specific quality if it was trained (not just uptrained) with full per-head representational capacity, or if the serving stack's support for GQA is less mature. A complete answer performs the actual ratio comparison and names a concrete non-cache factor."
+    explanation: "This exercise applies the chapter's KV-cache formula to a comparative design decision, while resisting the temptation to treat cache size as the only variable that matters."
+    common_wrong_answer: "A weak answer asserts GQA 'is better for this workload' without performing the ratio comparison, or names no concrete non-cache factor at all."
+    source_ids: ["src-10", "src-11", "src-21"]
+
+  - id: "q-04-ch3-009"
+    workbook: "04-llm-architecture"
+    chapter: "attention-head-structure"
+    topic: "Interview-style: why GQA reduces cache cost, and what it does not"
+    difficulty: "stretch"
+    question_type: "explanation"
+    prompt: "Interview-style question: \"Walk me through why GQA reduces KV-cache cost, and tell me what it does not automatically make cheaper.\" What does a strong answer include, and what should it avoid?"
+    expected_answer: "A strong answer: (1) names H_kv, not H_q, as the quantity GQA changes; (2) states the KV-cache formula's linear dependence on H_kv as the mechanism; (3) explicitly names what does not shrink proportionally -- P_Q/P_O (unchanged, since they depend on H_q), the number of query-side attention computations, and the complete attention block's total parameter count. A strong answer avoids stopping at 'GQA uses less memory' without naming what stays the same size."
+    explanation: "Evaluation criteria: does the answer name the specific mechanism (linear dependence on H_kv) rather than a vague 'less memory' claim; does it proactively name at least one thing that does not shrink, rather than needing to be prompted for it?"
+    common_wrong_answer: "A weak answer says only 'GQA uses less memory' without naming what specifically does not shrink -- a systems-flavored interviewer will very likely follow up asking exactly that."
+    source_ids: ["src-21", "src-10"]

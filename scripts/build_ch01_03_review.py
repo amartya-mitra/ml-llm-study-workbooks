@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
-"""Build the Chapters 1-2 review PDF end to end:
+"""Build the Chapters 1-3 review PDF end to end:
 
     1. regenerate every figure (root + workbook-local)
     2. regenerate the build/version note with the current git commit
     3. render workbooks/04-llm-architecture/index.qmd via Quarto/Typst
-    4. copy the result to outputs/04-llm-architecture-ch01-02-review.pdf
+    4. copy the result to outputs/04-llm-architecture-ch01-03-review.pdf
        (preserving any prior copy, per AGENTS.md)
     5. run pdfinfo / pdftotext / pdffonts / pdftoppm and print the results
 
-This is the single documented command behind `make review-ch01-02`.
-Requires the `ml-workbooks` conda env active (quarto + poppler-utils).
+This supersedes scripts/build_ch01_02_review.py now that
+workbooks/04-llm-architecture/index.qmd includes Chapter 3 --
+re-running the old script would render the same (now 3-chapter)
+index.qmd but mislabel the output as "ch01-02", so use this script
+(and `make review-ch01-03`) instead. The old script and its frozen
+outputs/04-llm-architecture-ch01-02-review.pdf artifact are left in
+place as a historical checkpoint, not deleted.
 
-SUPERSEDED (2026-09-23): workbooks/04-llm-architecture/index.qmd now
-includes Chapter 3 as well, so running this script renders the same
-3-chapter document and would mislabel its output as "ch01-02". Use
-scripts/build_ch01_03_review.py (`make review-ch01-03`) instead. This
-script and outputs/04-llm-architecture-ch01-02-review.pdf are left in
-place as a frozen historical checkpoint, not deleted.
+Requires the `ml-workbooks` conda env active (quarto + poppler-utils).
 """
 import datetime
 import os
@@ -27,8 +27,8 @@ import sys
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 WB04 = os.path.join(REPO_ROOT, "workbooks", "04-llm-architecture")
 INDEX_QMD = os.path.join(WB04, "index.qmd")
-OUTPUT_PDF = os.path.join(REPO_ROOT, "outputs", "04-llm-architecture-ch01-02-review.pdf")
-PAGE_IMAGE_DIR = os.path.join(REPO_ROOT, "outputs", "04-llm-architecture-ch01-02-review-pages")
+OUTPUT_PDF = os.path.join(REPO_ROOT, "outputs", "04-llm-architecture-ch01-03-review.pdf")
+PAGE_IMAGE_DIR = os.path.join(REPO_ROOT, "outputs", "04-llm-architecture-ch01-03-review-pages")
 
 REQUIRED_TOOLS = ["quarto", "pdfinfo", "pdftotext", "pdffonts", "pdftoppm"]
 
@@ -56,11 +56,12 @@ def main():
     r = run([
         sys.executable, "scripts/generate_build_note.py",
         "--output", "workbooks/04-llm-architecture/includes/build-version-note.qmd",
-        "--pilot-status", "Two-chapter pilot (Chapters 1-2 of 8) -- Chapters 3-8 are planned but not drafted",
-        "--registry-note", "src-19, src-22, src-23, src-24 (primary sources for Ch.1-2) last verified 2026-09-22; see sources/registry.yaml",
+        "--pilot-status", "Three-chapter pilot (Chapters 1-3 of 8) -- Chapters 4-8 are planned but not drafted; Chapter 3 defers multi-head latent attention (MLA), see outline.yaml's ch3.drafting_note",
+        "--registry-note", "src-19, src-20, src-21, src-22, src-23, src-24 (primary sources for Ch.1-3) last verified 2026-09-22; see sources/registry.yaml",
         "--provenance-note", "Tied-embeddings usage (Chapter 2) has no dedicated primary source; the sandwich-norm claim (Chapter 2) leans on a secondary source rather than a model's own technical report. Both are tracked sourcing gaps, not unsupported claims.",
-        "--provenance-note", "All worked-example numbers in Chapters 1-2 (attention weights, parameter counts) are computed by version-controlled project scripts and checked by the project's automated test suite, not hand-derived.",
+        "--provenance-note", "All worked-example numbers in Chapters 1-3 (attention weights, parameter counts, KV-cache sizes) are computed by version-controlled project scripts and checked by the project's automated test suite, not hand-derived.",
         "--provenance-note", "Figures are generated from version-controlled scripts using a fixed visual-style configuration, not drawn freehand; each figure's caption credits its scholarly/technical source where one applies.",
+        "--provenance-note", "Chapter 3's KV-cache and attention-projection-parameter figures/formulas are LOGICAL, theoretical minimums, not measured GPU memory -- they exclude allocator overhead, page metadata, fragmentation, and framework buffers.",
     ])
     if r.returncode != 0:
         sys.exit(1)
@@ -100,7 +101,7 @@ def main():
 
     os.makedirs(PAGE_IMAGE_DIR, exist_ok=True)
     toppm = subprocess.run(
-        ["pdftoppm", "-png", "-r", "130", OUTPUT_PDF, os.path.join(PAGE_IMAGE_DIR, "page")],
+        ["pdftoppm", "-png", "-r", "170", OUTPUT_PDF, os.path.join(PAGE_IMAGE_DIR, "page")],
         capture_output=True, text=True,
     )
     if toppm.returncode != 0:

@@ -1,0 +1,310 @@
+## Chapter 3: Attention Head Structure and Cache-Efficient Variants {#sec-ch3}
+
+*Why Fewer Key/Value Heads Means a Smaller Cache -- Not a Smaller Model*
+
+### Learning objectives
+
+By the end of this chapter you should be able to:
+
+- Distinguish query-head count ($H_q$) from key/value-head count
+  ($H_{kv}$), and write $Q$/$K$/$V$'s shapes before and after splitting
+  into heads.
+- Explain how multiple query heads can share a key/value head, and
+  distinguish MHA, MQA, and GQA structurally on that one axis.
+- Calculate a decoder's logical KV-cache size under stated assumptions,
+  and state which projection parameters change when $H_{kv}$ changes
+  (and which don't).
+- Explain why reducing $H_{kv}$ lowers cache memory and memory traffic
+  without reducing every part of attention computation by the same
+  factor.
+- Identify tradeoffs among MHA, MQA, and GQA without claiming any one
+  is universally best, and distinguish an architecture-level cache
+  calculation from measured serving-memory usage.
+
+### Why this matters
+
+Chapters 1-2 gave every block one query head per key/value head,
+without saying that was a choice. It is. The number of key/value heads
+a model uses is an independent design knob from the number of query
+heads, and it is the single knob most responsible for how much memory
+autoregressive decoding needs per active sequence. Get this chapter's
+distinction wrong and two very different mistakes follow: overstating
+what changes (claiming a smaller cache means a proportionally smaller
+or faster model) or understating it (missing that cache memory, not
+FLOPs, is usually the actual serving bottleneck this chapter is about).
+
+### Mental model or analogy
+
+::: {.callout-note title="Analogy"}
+Queries are readers asking different questions; keys are index entries
+used to decide where to look; values are the information retrieved at
+that index entry. Standard attention (MHA) gives every reader their
+own private index and information store. MQA makes all readers share
+one shared index and store. GQA gives each *group* of readers a shared
+index and store -- a middle ground between the two.
+
+**Where this breaks down:** keys and values are learned vector
+projections, not literal documents. Sharing a key/value head changes
+how much distinct *representational capacity* the model has to work
+with, not merely how many copies of a document are stored -- two
+readers sharing an index can no longer each shape that index around
+only their own question.
+:::
+
+### Visual overview
+
+![MHA, GQA, and MQA shown with the same $H_q = 8$ query heads in every
+panel -- nothing removes a query head. What changes is how many
+key/value heads those query heads fan into: 8 (no sharing), 2 (groups
+of 4 share one), or 1 (all share one). Source: mechanism per
+[@src-20; @src-21].](figures/rendered/fig-mha-mqa-gqa-head-sharing.svg){#fig-head-sharing}
+
+### Technical core
+
+This chapter uses $H_q$ (query heads), $H_{kv}$ (key/value heads),
+$d_{\text{head}}$ (head dimension, with $d_{\text{model}} = H_q \,
+d_{\text{head}}$), $S$ (tokens retained in the cache), $T_q$ (query
+positions processed in the *current* step -- $T_q = S$ during prefill,
+$T_q = 1$ for an ordinary decode step), $L$ (layers), and
+$\text{bytes\_per\_elem}$ (storage width per cached number, e.g. 2 for
+bf16). Logical shapes, head axis explicit (physical memory layouts
+vary by implementation):
+
+$$
+Q: (B, T_q, H_q, d_{\text{head}}), \qquad
+K: (B, S, H_{kv}, d_{\text{head}}), \qquad
+V: (B, S, H_{kv}, d_{\text{head}})
+$$ {#eq-qkv-head-shapes}
+
+**MHA, MQA, GQA: one axis, three points.** Standard multi-head
+attention (MHA, [@src-19]) sets $H_{kv} = H_q$: every query head has
+its own key/value head. Multi-query attention (MQA, [@src-20]) sets
+$H_{kv} = 1$: every query head shares the same single key/value head.
+Grouped-query attention (GQA, [@src-21]) sets $1 < H_{kv} < H_q$: query
+heads are split into $H_q / H_{kv}$ equal groups (this simple
+equal-group presentation requires $H_{kv}$ to divide $H_q$), each group
+sharing one key/value head. @fig-head-sharing shows all three at
+$H_q = 8$.
+
+::: {.callout-warning title="Common misconception"}
+**"GQA reduces the number of query heads."** It does not. $H_q$ is
+untouched by any of these three variants -- @fig-head-sharing draws the
+same 8 query heads in every panel. Only $H_{kv}$ changes.
+:::
+
+**What stays fixed, what changes.** Across MHA/MQA/GQA at the same
+$H_q$ and $d_{\text{head}}$: the query projection's shape, the
+per-head attention *output* shape, the concatenated output width, and
+the output projection width are all unchanged -- every one of them
+depends on $H_q$, not $H_{kv}$. What changes is the $K$/$V$
+projections' output width and, per position, how many $K$/$V$ vectors
+get stored. @fig-tensor-shape-gqa marks the one shape that differs.
+
+![Only $K$/$V$'s head axis ($H_{kv}$) shrinks between MHA and GQA;
+$Q$'s shape is untouched.](figures/rendered/fig-tensor-shape-gqa.svg){#fig-tensor-shape-gqa}
+
+**Projection parameters.** Ignoring biases, per layer:
+
+$$
+P_Q = d_{\text{model}} \, H_q \, d_{\text{head}}, \quad
+P_K = d_{\text{model}} \, H_{kv} \, d_{\text{head}}, \quad
+P_V = d_{\text{model}} \, H_{kv} \, d_{\text{head}}, \quad
+P_O = H_q \, d_{\text{head}} \, d_{\text{model}}
+$$ {#eq-attn-proj-params}
+
+Only $P_K$ and $P_V$ depend on $H_{kv}$; $P_Q$ and $P_O$ depend only on
+$H_q$. Shrinking $H_{kv}$ shrinks two of these four terms, not all
+four -- the worked example below turns this into a concrete ratio.
+
+**KV-cache size.** The quantity these mechanisms actually optimize is
+not parameter count but cache memory:
+
+$$
+M_{KV} = 2 \, B \, S \, L \, H_{kv} \, d_{\text{head}} \,
+\text{bytes\_per\_elem}
+$$ {#eq-kv-cache}
+
+where the factor 2 counts keys *and* values. This is a **logical,
+theoretical minimum** -- per AGENTS.md's distinction between logical
+and measured memory, it explicitly excludes allocator overhead,
+block/page metadata, fragmentation, temporary attention workspaces,
+framework buffers, duplicated or padded storage, sharding-specific
+per-device layouts, prefix-sharing effects, and any cache quantization
+not already reflected in $\text{bytes\_per\_elem}$.
+
+::: {.callout-warning title="Common misconception"}
+**"The KV-cache formula gives exact observed GPU memory usage."** It
+does not. @eq-kv-cache is a logical minimum computed from a config;
+what `nvidia-smi` or a profiler reports also includes every exclusion
+listed above, and will always be larger.
+:::
+
+**Decode-time computation.** At each decode step, $T_q$ new query
+positions are computed (ordinarily $T_q = 1$; chunked prefill and
+speculative-decoding verification -- both later topics, named here only
+as forward references -- can make $T_q > 1$). Every one of the $H_q$
+query heads still produces its own attention scores; a shared
+key/value head is simply reused (logically broadcast) across every
+query head in its group. Reducing $H_{kv}$ principally reduces what
+gets *stored* and *moved* -- it does not reduce the number of
+query-side dot products, so it is not accurate to say GQA makes
+attention some fixed multiple faster; the win this chapter is about is
+memory and memory-bandwidth, not FLOPs.
+
+### Worked example
+
+**KV-cache memory.** Base config: $L = 32$, $H_q = 32$,
+$d_{\text{head}} = 128$ (so $d_{\text{model}} = 4096$), $S = 8192$,
+$B = 1$, bf16 ($\text{bytes\_per\_elem} = 2$) -- verified
+programmatically (see the Build and Version Note):
+
+| Variant | $H_{kv}$ | @eq-kv-cache result | vs. MHA |
+|---|---|---|---|
+| MHA | 32 | 4,294,967,296 B = 4 GiB | 1x |
+| GQA | 8 | 1,073,741,824 B = 1 GiB | 0.25x (4x smaller) |
+| MQA | 1 | 134,217,728 B = 128 MiB | 0.03125x (32x smaller) |
+
+: KV-cache size for one sequence at $S=8192$; the reduction factor equals $H_{kv,\text{variant}} / H_{kv,\text{MHA}}$ exactly {#tbl-kv-cache-worked}
+
+![The same three numbers as @tbl-kv-cache-worked -- bar height is
+log2-scaled so the smallest bar stays visible; the printed values are
+the actual linear byte
+counts.](figures/rendered/fig-kv-cache-scaling.svg){#fig-kv-cache-scaling}
+
+Cache size scales *linearly* in each of $B$, $S$, $L$, $H_{kv}$, and
+$\text{bytes\_per\_elem}$ -- e.g. at $B = 16$ active sequences instead
+of 1, every number in @tbl-kv-cache-worked simply multiplies by 16 (4
+GiB $\to$ 64 GiB for MHA, 1 GiB $\to$ 16 GiB for GQA, 128 MiB $\to$ 2
+GiB for MQA); nothing about the formula's *shape* changes.
+
+**Projection parameters, same config.** Per layer, from @eq-attn-proj-params:
+
+| Variant | $P_Q$ | $P_K$+$P_V$ | $P_O$ | Total ($Q$+$K$+$V$+$O$) | $K$+$V$ vs. MHA | Total vs. MHA |
+|---|---|---|---|---|---|---|
+| MHA | 16,777,216 | 33,554,432 | 16,777,216 | 67,108,864 | 1x | 1x |
+| GQA | 16,777,216 | 8,388,608 | 16,777,216 | 41,943,040 | 0.25x | 0.625x |
+| MQA | 16,777,216 | 1,048,576 | 16,777,216 | 34,603,008 | 0.03125x | 0.516x |
+
+: Per-layer attention parameters for the same base config -- $K$+$V$ shrinks by exactly the cache-reduction ratio, but the complete attention block (which also includes $Q$ and $O$, both fixed) shrinks by much less {#tbl-proj-params-worked}
+
+GQA's $K$+$V$ parameters drop by exactly 4x, matching its cache
+reduction -- but the *complete* attention block (adding the unchanged
+$P_Q$ and $P_O$) drops by only 1.6x (to 0.625 of MHA's total), and MQA's
+32x $K$+$V$ reduction becomes less than a 2x reduction (0.516x) once
+$Q$ and $O$ are included. This is @eq-attn-proj-params's point made
+concrete: $K$/$V$ savings do not translate one-for-one into
+whole-model or whole-attention-block savings.
+
+::: {.callout-warning title="Common misconception"}
+**"If GQA cuts KV-cache memory by 4x, the whole model becomes 4x
+smaller."** @tbl-proj-params-worked shows why not: the complete
+attention block's parameters (which include the unchanged $Q$ and $O$
+projections) shrink by only 1.6x here, and the feed-forward sublayers
+(chapters 1-2) are untouched by $H_{kv}$ entirely.
+:::
+
+### Compare and contrast
+
+| | MHA | GQA | MQA |
+|---|---|---|---|
+| $H_{kv}$ | $H_{kv} = H_q$ | $1 < H_{kv} < H_q$ | $H_{kv} = 1$ |
+| $K$/$V$ sharing | none | groups of $H_q/H_{kv}$ query heads | all query heads |
+| Logical KV-cache size | largest (1x) | intermediate (config-dependent) | smallest (1x/$H_q$) |
+| $K$/$V$ projection params | largest | intermediate | smallest |
+| Representation flexibility | most (every head has its own $K$/$V$) | reduced, tunable via group size | least |
+| Implementation considerations | simplest; no grouping logic | requires choosing a group size that divides $H_q$ | simplest sharing case; largest capacity reduction |
+| Common motivation | small models, or when cache memory isn't the bottleneck | a tunable memory/flexibility tradeoff point | maximum cache/bandwidth savings when acceptable |
+
+: MHA vs. GQA vs. MQA, compared without ranking one as strictly best -- each row is a tradeoff, not a verdict {#tbl-variant-comparison}
+
+::: {.callout-warning title="Common misconception"}
+**"MQA is universally superior because it uses the least cache."**
+Least cache is not the only deployment factor. MQA gives every query
+head the least representational flexibility of the three (all of them
+share one key/value head, with no group boundary at all), which is
+exactly the tradeoff [@src-21] introduces GQA to soften -- reducing $H_{kv}$
+buys memory at a flexibility cost, and where that cost is acceptable is
+model- and workload-dependent, not a fixed rule.
+:::
+
+### Check your understanding
+
+Full solutions are in the answer key (@sec-solutions-ch3):
+
+1. **Explain.** What is the one structural difference between MHA,
+   MQA, and GQA -- and what stays identical across all three?
+   ________________________________________________
+2. **Calculation.** For $H_q = 8$ query heads and $H_{kv} = 2$ key/value
+   heads, what is the group size, and how many query heads share each
+   key/value head? ________________________________________________
+3. **Calculation.** Write the shapes of $Q$ and $K$ (per @eq-qkv-head-shapes)
+   for $B=1$, $T_q=1$, $S=100$, $H_q=16$, $H_{kv}=4$, $d_{\text{head}}=64$.
+   ________________________________________________
+4. **Quick check.** Which two of $P_Q$, $P_K$, $P_V$, $P_O$ change when
+   $H_{kv}$ changes, holding $H_q$ and $d_{\text{head}}$ fixed?
+   ________________________________________________
+5. **Misconception check.** True or false, and why: "GQA reduces the
+   number of query heads." ________________________________________________
+6. **Misconception check.** True or false, and why: "if GQA cuts a
+   model's KV-cache memory by 4x, the whole model becomes 4x smaller."
+   ________________________________________________
+7. **Calculation.** For $L=24$, $H_q=16$ (all used as $H_{kv}$, i.e.
+   MHA), $d_{\text{head}}=128$, $S=4096$, $B=1$, bf16: compute the
+   logical KV-cache size in bytes and MiB using @eq-kv-cache.
+   ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+A serving workload needs long contexts and high concurrency. Candidate
+model A uses MHA; candidate B uses GQA, both otherwise the same size
+and $S$. Using @eq-kv-cache, compare their per-sequence cache cost at
+your own chosen (long) $S$ and (large) $B$, then explicitly name at
+least one deployment factor besides cache memory (e.g. representation
+flexibility, implementation maturity, quality at the model's specific
+task) that could still favor the MHA candidate despite its larger
+cache. A serving decision is not a cache-size comparison alone.
+
+### Interview lens
+
+*"Walk me through why GQA reduces KV-cache cost, and tell me what it
+does not automatically make cheaper."* A strong answer names $H_{kv}$
+(not $H_q$) as the changing quantity, states @eq-kv-cache's linear
+dependence on $H_{kv}$, and explicitly names what does *not* shrink
+proportionally: the query and output projections ($P_Q$, $P_O$), the
+number of query-side attention computations, and (per
+@tbl-proj-params-worked) the complete attention block's total
+parameter count. An answer that only says "it uses less memory"
+without naming what stays fixed is incomplete for a systems-flavored
+interview.
+
+### Chapter recap
+
+- $H_q$ and $H_{kv}$ are independent: MHA sets $H_{kv}=H_q$, MQA sets
+  $H_{kv}=1$, GQA sets $1<H_{kv}<H_q$ -- the same head-sharing axis at
+  three points, never fewer query heads.
+- Only the $K$/$V$ projections' shape and the KV-cache size depend on
+  $H_{kv}$; $Q$'s shape, the output projection, and the number of
+  query-side attention computations depend on $H_q$ alone.
+- The KV-cache formula ($2 \times B \times S \times L \times H_{kv}
+  \times d_{\text{head}} \times \text{bytes\_per\_elem}$) is a logical
+  minimum, not a measured GPU-memory number.
+- $K$/$V$ parameter and cache savings do not translate one-for-one into
+  whole-model or whole-attention-block savings, and reducing $H_{kv}$
+  does not proportionally cut attention FLOPs.
+- None of MHA, GQA, or MQA is universally best -- each trades cache
+  memory against representational flexibility differently.
+
+### Sources and further reading
+
+Primary sources for this chapter: [@src-19] for the MHA baseline,
+[@src-20] for MQA, [@src-21] for GQA (including its uptraining recipe
+for converting an existing MHA checkpoint, reported at roughly 5% of
+original pretraining compute -- their own reported figure, not a
+universal constant). Secondary/supporting: [@src-14] for cross-model
+framing, [@src-10] for the KV-cache memory formula's systems framing.
+A further latent-compression technique that shrinks the cache by a
+different mechanism than head-sharing exists and is left for a later
+chapter's case studies, not covered here.
