@@ -1,0 +1,40 @@
+{
+  "assumptions": {
+    "num_tokens": 6,
+    "num_experts": 4,
+    "routing_style": "top-1",
+    "assignments": [
+      0,
+      0,
+      0,
+      1,
+      2,
+      3
+    ],
+    "capacity_factor": 1.2
+  },
+  "counts_per_expert": {
+    "0": 3,
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "nominal_balanced_load": 1.5,
+  "capacity_per_expert": 2,
+  "overflow_per_expert": {
+    "0": 1,
+    "1": 0,
+    "2": 0,
+    "3": 0
+  },
+  "total_overflow_tokens": 1,
+  "most_loaded_expert": 0,
+  "most_loaded_expert_count": 3,
+  "load_ratio_vs_nominal": {
+    "0": 2.0,
+    "1": 0.6667,
+    "2": 0.6667,
+    "3": 0.6667
+  },
+  "note": "Capacity factor and overflow handling (drop vs. reroute) are implementation-dependent in real systems; this is one concrete, checkable instantiation, not a claim about any specific real serving system."
+}

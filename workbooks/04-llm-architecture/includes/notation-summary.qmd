@@ -1,10 +1,9 @@
 ## Notation quick reference {#sec-notation}
 
 This project maintains a full, growing symbol table across all eight
-workbooks; later chapters introduce mechanisms this pilot doesn't cover
-(expert counts and others start in Chapter 5 onward). The subset below
-is everything Chapters 1-4 actually use -- flip back here if a symbol
-in an equation isn't immediately obvious.
+workbooks; later chapters introduce mechanisms this pilot doesn't
+cover. The subset below is everything Chapters 1-5 actually use --
+flip back here if a symbol in an equation isn't immediately obvious.
 
 | Symbol | Name | Meaning |
 |---|---|---|
@@ -21,5 +20,10 @@ in an equation isn't immediately obvious.
 | $\text{bytes\_per\_elem}$ | bytes per cached element | storage width of one stored number (e.g. 2 for bf16); stated explicitly per calculation, never assumed |
 | $d_c$ | MLA KV compression dimension | width of MLA's shared, jointly-compressed latent for keys and values (one per token per layer, not one per head) |
 | $d_{\text{rope}}$ | MLA decoupled rotary dimension | per-head width of MLA's separately-retained rotary component, cached alongside the compressed latent |
+| $E$ | routed expert count | number of routed experts in a mixture-of-experts layer |
+| $k$ | selected experts per token | number of routed experts a router activates per token (top-$k$) |
+| $p_e$ | parameters per routed expert | parameter count of one routed expert (assumed equal-sized) |
+| $p_s$ | shared-expert parameters | parameter count of an always-active shared-expert path (0 if none) |
+| $p_{\text{base}}$ | non-expert (base) parameters | everything outside the routed bank and shared expert -- attention, embeddings, norms, router; always active |
 
-: Notation used in Chapters 1-4 only; later chapters extend this table {#tbl-notation}
+: Notation used in Chapters 1-5 only; later chapters extend this table {#tbl-notation}

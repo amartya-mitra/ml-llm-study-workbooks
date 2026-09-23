@@ -1,0 +1,255 @@
+## Chapter 5: Mixture of Experts: More Parameters, Selective Compute {#sec-ch5}
+
+*Total, Active, Compute, and Communication Are Four Different Questions*
+
+### Learning objectives
+
+By the end of this chapter you should be able to:
+
+- Distinguish a dense feed-forward block from a sparse MoE block, and
+  explain the roles of the router, experts, top-$k$ selection, routing
+  weights, and an optional shared expert.
+- Calculate total and active parameters for the routed-expert bank
+  *and* for the complete model, and explain why these are not the same
+  ratio.
+- Explain why sparse activation does not make unused expert weights
+  disappear from memory, and describe load imbalance, expert capacity,
+  and what a load-balancing loss penalizes (without guaranteeing
+  balance).
+- Distinguish MoE sparsity (which *parameters* activate) from sparse
+  attention (Chapter 4's which *positions* are scored), and explain why
+  expert parallelism introduces device-to-device communication.
+- Compare model capacity, computation, memory footprint, and
+  communication as four separate quantities.
+
+### Why this matters
+
+Every mechanism so far has changed *how* a fixed set of parameters is
+used per token. MoE changes *which* parameters get used at all.
+Getting this chapter's central distinction wrong -- treating "fewer
+active parameters" as "fewer stored parameters," or as "proportionally
+less compute," or as "no communication cost" -- is the single most
+common MoE misreading, and this chapter is built to prevent exactly
+that.
+
+### Visual overview
+
+![MoE replaces the feed-forward sublayer, not attention: a router
+selects a subset of experts per token; unselected experts are stored
+but not used for that
+token.](figures/rendered/fig-dense-vs-moe.svg){#fig-dense-vs-moe}
+
+### Technical core
+
+**From dense to sparse.** Chapter 2's gated feed-forward block sends
+every token through the *same* parameters. A sparse MoE layer replaces
+that single block with a **router** that scores $E$ **routed experts**,
+selects the top-$k$ for each token, runs only those experts, and
+**combines** their outputs with routing weights before returning the
+result to the residual stream. Exact routing/combination rules vary by
+architecture; this chapter's formulation is representative, not
+universal.
+
+**Routing.** For a token representation $x$:
+
+$$
+r = W_r x, \qquad p = \text{softmax}(r), \qquad T(x) = \text{TopK}(p, k)
+$$ {#eq-router}
+
+$r$ are the router logits, $p$ the per-expert probabilities, and $T(x)$
+the selected top-$k$ index set. The combined output is:
+
+$$
+y(x) = \sum_{e \in T(x)} \alpha_e(x) \cdot \text{Expert}_e(x)
+$$ {#eq-moe-combine}
+
+with $\alpha_e(x)$ a routing weight (often, but not always, the
+normalized $p_e$). Not every production MoE normalizes weights, handles
+capacity, or adds auxiliary losses identically.
+
+**Total vs. active parameters.** With $p_e$ parameters per routed
+expert, an optional always-active shared-expert path of $p_s$
+parameters, and $p_{\text{base}}$ for everything else (attention,
+embeddings, norms, the router):
+
+$$
+\underbrace{E \, p_e}_{\text{routed total}}, \quad
+\underbrace{k \, p_e}_{\text{routed active}}, \qquad
+\underbrace{p_{\text{base}} + E p_e + p_s}_{\text{model total}}, \quad
+\underbrace{p_{\text{base}} + k p_e + p_s}_{\text{model active}}
+$$ {#eq-total-active}
+
+$E/k$ is the routed-expert-bank's *own* ratio -- it is **not** the
+complete model's total/active ratio, since $p_{\text{base}}$ and $p_s$
+are active regardless of routing. Published "A-B" model notation
+(e.g. "236B-21B") is convention-dependent; check official
+documentation before assuming what it counts. Active parameters are
+also not identical to exact FLOP counts (the router itself costs
+compute too).
+
+::: {.callout-warning title="Common misconception"}
+**"A 64-expert top-2 MoE activates only 2/64 of the whole model."** It
+does not, unless the statement is explicitly restricted to the routed
+expert bank. Attention, embeddings, normalization, the router, and any
+shared expert stay active regardless -- @eq-total-active's model-level
+ratio is always closer to 1 than $E/k$ is.
+:::
+
+![For one token, only $k$ of $E$ routed experts are active; base
+parameters and any shared expert are active regardless; all $E$
+experts remain stored either
+way.](figures/rendered/fig-moe-total-vs-active.svg){#fig-moe-total-vs-active}
+
+::: {.callout-warning title="Common misconception"}
+**"Inactive experts consume no memory."** They do. An expert not
+selected for a given token is still a stored weight matrix that must
+fit in memory -- sparsity is about *compute*, not *storage*.
+:::
+
+**Load balancing and capacity.** Without constraints, many tokens may
+route to a few popular experts, overloading them while others sit
+idle -- wasting capacity and risking *routing collapse* (reduced
+specialization). Systems bound this with a **capacity factor** (how
+many tokens an expert can take before **overflow**, handled by
+dropping or rerouting, implementation-dependent) and an **auxiliary
+load-balancing loss** that *encourages*, but does not *guarantee*,
+balanced routing in any given batch.
+
+**Shared experts.** Some transformations are useful for most tokens;
+an always-active shared expert can capture that shared knowledge,
+reducing pressure on routed experts to duplicate it -- DeepSeekMoE
+adds shared experts while *reducing* routed top-$k$ activation to hold
+total active compute roughly constant ([@src-36]). Shared experts are
+not universally necessary; their benefit depends on architecture and
+training.
+
+**Expert parallelism.** Routed experts may be split across devices, so
+tokens must be dispatched to whichever device holds their selected
+expert and results returned -- an **all-to-all** exchange, in plain
+terms: every device may need to send tokens to, and receive results
+from, every other device. Uneven routing produces uneven device
+workloads, and this communication can offset the sparse-compute
+benefit MoE is chasing. Fewer active expert parameters does **not**
+mean all expert weights fit on one device -- total storage and active
+computation answer different questions. (Collective-communication
+algorithms and cluster topology are out of scope here.)
+
+![Tokens dispatch to whichever device holds their selected expert;
+routing can be imbalanced (E1 here gets 3 of 6 tokens), and results
+must return to their originating
+token.](figures/rendered/fig-moe-routing-parallelism.svg){#fig-moe-routing-parallelism}
+
+### Worked example
+
+**Parameters.** $E=8$, $k=2$, $p_e = p_s = 100\text{M}$,
+$p_{\text{base}} = 1.2\text{B}$ (verified programmatically; see the
+Build and Version Note):
+
+| Quantity | Total | Active | Ratio |
+|---|---|---|---|
+| Routed expert bank | 800M | 200M | 4.0 ($=E/k$) |
+| Complete model | 2.1B | 1.5B | 1.4 |
+
+: $E/k=4$, but the complete model's ratio is 1.4 -- $p_{\text{base}}$ and $p_s$ stay active either way {#tbl-moe-params-worked}
+
+**Routing imbalance.** 6 tokens, top-1, 4 experts (matching
+@fig-moe-routing-parallelism): assignment $\{E_1{:}3, E_2{:}1,
+E_3{:}1, E_4{:}1\}$ against a nominal balanced load of 1.5/expert. At
+capacity factor 1.2 (capacity $=2$ per expert, verified
+programmatically), $E_1$ overflows by 1 token. Neither this ratio nor
+this overflow count is a universal law -- both depend on the specific
+config and routing outcome, not stated here as one.
+
+### Compare and contrast
+
+| | Dense FFN | Routed MoE | MoE + shared expert |
+|---|---|---|---|
+| Expert paths/token | 1 (always) | $k$ of $E$ | $k$ of $E$, plus 1 shared |
+| Total parameters | smallest | largest | largest |
+| Active parameters | equals total | $\ll$ total (bank-level) | $\ll$ total (bank-level) |
+| Routing required? | no | yes | yes |
+| Load-balancing concern | none | yes | yes |
+| Distributed communication | none extra | all-to-all (if expert-parallel) | all-to-all (if expert-parallel) |
+| Principal benefit | simplicity | more capacity, compute roughly held | also reduces routed redundancy |
+| Principal complication | none | routing, imbalance, communication | also costs always-active compute |
+
+: MoE does not automatically mean lower latency, lower memory, better quality, or balanced routing -- each row is a tradeoff {#tbl-moe-comparison}
+
+### Check your understanding
+
+Full solutions are in the answer key (@sec-solutions-ch5):
+
+1. **Explain.** What distinguishes a dense feed-forward block from
+   a sparse MoE block? ________________________________________________
+2. **Explain.** Why are active model parameters not the same as
+   active *routed-expert-bank* parameters? ________________________________________________
+3. **Compare.** Is MoE sparsity the same axis as Chapter 4's sparse
+   attention? ________________________________________________
+4. **Misconception check.** True or false: a 64-expert top-2 MoE
+   activates only 2/64 of the whole model. ________________________________________________
+5. **Misconception check.** True or false: inactive experts consume no
+   memory. ________________________________________________
+6. **Calculation.** For $E=16$, $k=4$, $p_e=50\text{M}$, no shared
+   expert, $p_{\text{base}}=2\text{B}$: compute the routed-bank and
+   complete-model total/active parameters and ratios.
+   ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+A serving team must choose between a dense model and a MoE model with
+the same *active* parameter count. Using this chapter's total/active
+distinction (not benchmark numbers), predict which has the larger
+serving memory footprint, and state the one architectural fact that
+makes your answer certain regardless of which specific models are
+compared.
+
+### Interview lens
+
+*"A model has 64 experts and activates 2 per token. Explain what that
+tells you -- and what it does not tell you -- about parameters, FLOPs,
+memory, and communication."* A strong answer states that it tells you
+the *routed-expert-bank's* activation ratio (2/64), but not the whole
+model's total/active ratio (base and shared-expert parameters are
+unaffected), not exact FLOPs (routing and combination cost something
+too), not memory footprint (all 64 experts must still be stored), and
+not communication cost (which depends on how routing lands across
+devices, not on $k$ or $E$ alone).
+
+### Chapter recap
+
+- MoE replaces the feed-forward sublayer with a router, top-$k$
+  selected experts, and a weighted combination -- attention is
+  unchanged.
+- $E/k$ is the routed-expert-bank's own total/active ratio, not the
+  complete model's -- base and shared-expert parameters stay active
+  regardless of routing.
+- Inactive experts are still stored; sparsity changes compute, not
+  memory footprint.
+- Load-balancing losses encourage, but do not guarantee, balanced
+  routing; capacity factors and overflow handling are
+  implementation-dependent.
+- Shared experts trade always-active compute for reduced redundancy
+  across routed experts -- not a universal requirement.
+- Expert parallelism's all-to-all communication is an unavoidable
+  architectural consequence once experts are distributed, and can
+  offset the sparse-compute benefit.
+- Model capacity, computation, memory footprint, and communication are
+  four separate quantities -- no single number answers all four.
+
+### Sources and further reading
+
+Primary sources: [@src-28] (sparsely-gated MoE and its top-$k$ routing
+and load-balancing losses), [@src-29] (top-2 gating, its auxiliary
+load-balancing loss, and expert-parallel sharding), [@src-30] (top-1
+routing and a different load-balancing loss form -- these formulations
+are genuinely not equivalent, not restated here as one "the" loss),
+[@src-36] (DeepSeekMoE's shared-expert motivation and compute
+tradeoff, verified against the paper's full text, not a snippet).
+Secondary/supporting: [@src-14]. Detailed distributed-training
+implementation, collective-communication algorithms, kernel
+optimization, inference-engine configuration, expert quantization,
+model-specific benchmark comparisons, post-training, and a survey of
+routing research are all out of scope for this chapter.

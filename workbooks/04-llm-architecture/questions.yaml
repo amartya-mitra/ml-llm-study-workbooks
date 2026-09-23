@@ -454,3 +454,104 @@ questions:
     explanation: "Evaluation criteria: does the answer name a distinct primary benefit and a distinct cost for each of the three, rather than collapsing any two into 'they all just save memory'?"
     common_wrong_answer: "A weak answer states that all three mechanisms save memory without distinguishing their different costs or their different effects on compute and connectivity."
     source_ids: ["src-21", "src-25", "src-27"]
+
+  # ---------------------------------------------------------------------
+  # q-04-ch5-*: Chapter 5 (Mixture of Experts: More Parameters,
+  # Selective Compute) question bank.
+  # ---------------------------------------------------------------------
+
+  - id: "q-04-ch5-001"
+    workbook: "04-llm-architecture"
+    chapter: "mixture-of-experts"
+    topic: "Dense feed-forward vs. sparse MoE"
+    difficulty: "intro"
+    question_type: "explanation"
+    prompt: "What distinguishes a dense feed-forward block from a sparse MoE block?"
+    expected_answer: "Dense: every token uses the same feed-forward parameters. MoE: a router selects the top-k of E experts per token, and only the selected experts run for that token."
+    explanation: "The router, top-k selection, and combination step are the entire structural difference -- MoE replaces the feed-forward sublayer, not attention."
+    common_wrong_answer: "A common wrong answer describes MoE as changing attention, or as simply 'a bigger FFN,' missing that the router/selection mechanism is the actual difference."
+    source_ids: ["src-28"]
+
+  - id: "q-04-ch5-002"
+    workbook: "04-llm-architecture"
+    chapter: "mixture-of-experts"
+    topic: "Active model parameters vs. active bank parameters"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "Why are active model parameters not the same as active routed-expert-bank parameters?"
+    expected_answer: "Active model parameters include p_base (and p_s, if any), which stay active regardless of routing; active bank parameters (k * p_e) count only the routed experts. The two quantities differ because p_base and p_s are outside the routed bank entirely."
+    explanation: "This is the chapter's central distinction: E/k is a bank-level ratio, not a whole-model ratio."
+    common_wrong_answer: "A common wrong answer assumes the whole model's active fraction equals k/E, ignoring p_base and p_s."
+    source_ids: ["src-28", "src-33"]
+
+  - id: "q-04-ch5-003"
+    workbook: "04-llm-architecture"
+    chapter: "mixture-of-experts"
+    topic: "MoE sparsity vs. sparse attention"
+    difficulty: "core"
+    question_type: "compare_and_contrast"
+    prompt: "Is MoE sparsity the same axis as Chapter 4's sparse attention?"
+    expected_answer: "No. MoE sparsity is about which parameters (feed-forward experts) activate per token; sparse attention is about which positions are scored in the attention computation. They are orthogonal axes that can combine in the same model."
+    explanation: "Both use the word 'sparse,' but one is a parameter-activation axis (this chapter) and the other is a connectivity-pattern axis (chapter 4) -- conflating them is a common source of confusion."
+    common_wrong_answer: "A common wrong answer assumes 'sparse' means the same mechanism wherever it appears, treating MoE and sparse attention as the same idea."
+    source_ids: ["src-28", "src-26"]
+
+  - id: "q-04-ch5-004"
+    workbook: "04-llm-architecture"
+    chapter: "mixture-of-experts"
+    topic: "64-expert top-2 MoE does not activate only 2/64 of the whole model"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: a 64-expert top-2 MoE activates only 2/64 of the whole model."
+    expected_answer: "False, unless the statement is explicitly restricted to the routed expert bank. Attention, embeddings, normalization, the router, and any shared expert stay active regardless of routing, so the whole-model active ratio is always closer to 1 than E/k=2/64 is."
+    explanation: "This is the chapter's headline misconception, addressed directly by the total-vs-active-parameters equations and worked example."
+    common_wrong_answer: "A common wrong answer applies the routed-bank ratio directly to the whole model's parameter count."
+    source_ids: ["src-28", "src-33"]
+
+  - id: "q-04-ch5-005"
+    workbook: "04-llm-architecture"
+    chapter: "mixture-of-experts"
+    topic: "Inactive experts still consume memory"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false, and why: inactive experts consume no memory."
+    expected_answer: "False. An expert not selected for a given token is still a stored weight matrix that must fit in memory -- sparsity is about compute, not storage."
+    explanation: "Total parameters (all E experts) determine serving memory footprint regardless of which k are active for any single token."
+    common_wrong_answer: "A common wrong answer equates 'not activated for this token' with 'not stored at all.'"
+    source_ids: ["src-28"]
+
+  - id: "q-04-ch5-006"
+    workbook: "04-llm-architecture"
+    chapter: "mixture-of-experts"
+    topic: "Total/active parameter calculation"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "For E=16, k=4, p_e=50 million, no shared expert, p_base=2 billion: compute the routed-bank and complete-model total/active parameters and ratios."
+    expected_answer: "Bank: total = 16*50M = 800M, active = 4*50M = 200M, ratio = 4.0. Model: total = 2B+800M = 2.8B, active = 2B+200M = 2.2B, ratio ~= 1.27."
+    explanation: "Direct application of the chapter's formulas, verified programmatically -- the bank ratio (4.0, equal to E/k) and the model ratio (1.27) are deliberately different."
+    common_wrong_answer: "A common wrong answer applies the bank ratio (4.0) to the complete model's total, giving a wrong active-parameter estimate."
+    source_ids: ["src-28"]
+
+  - id: "q-04-ch5-007"
+    workbook: "04-llm-architecture"
+    chapter: "mixture-of-experts"
+    topic: "Applied exercise: dense vs. MoE serving memory at matched active parameters"
+    difficulty: "stretch"
+    question_type: "design"
+    prompt: "A serving team must choose between a dense model and a MoE model with the same active parameter count. Predict which has the larger serving memory footprint, and state the one architectural fact that makes your answer certain regardless of which specific models are compared."
+    expected_answer: "The MoE model has the larger serving memory footprint. The certain fact: serving memory must hold (most of) total parameters regardless of which are active for any one token, and a MoE model's total is by construction larger than its active count, while a dense model's total equals its active count exactly."
+    explanation: "This is a structural, architecture-level fact (not a benchmark comparison) -- it holds for any dense/MoE pair matched on active parameters, not just specific published models."
+    common_wrong_answer: "A weak answer tries to reason from typical published model sizes rather than the structural total-vs-active relationship, which holds regardless of specific numbers."
+    source_ids: ["src-28", "src-33"]
+
+  - id: "q-04-ch5-008"
+    workbook: "04-llm-architecture"
+    chapter: "mixture-of-experts"
+    topic: "Interview-style: what 64 experts, top-2 does and does not tell you"
+    difficulty: "stretch"
+    question_type: "explanation"
+    prompt: "Interview-style question: \"A model has 64 experts and activates 2 per token. Explain what that tells you -- and what it does not tell you -- about parameters, FLOPs, memory, and communication.\" What does a strong answer include?"
+    expected_answer: "2/64 tells you the routed bank's activation ratio only. It does not tell you: the whole model's total/active ratio (base/shared parameters are unaffected); exact FLOPs (routing and combination cost something too); memory footprint (all 64 experts are still stored); or communication cost (depends on how routing actually lands across devices, not on k/E alone)."
+    explanation: "Evaluation criteria: does the answer address all four quantities (parameters, FLOPs, memory, communication) rather than stopping after one or two, and does it correctly scope what 2/64 actually measures (the bank, not the whole model)?"
+    common_wrong_answer: "A weak answer treats 2/64 as directly telling you the model's overall compute/memory savings, without separating the four quantities."
+    source_ids: ["src-28", "src-29", "src-33"]

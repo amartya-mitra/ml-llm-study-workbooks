@@ -11,7 +11,7 @@
 working_title: "Modern LLM Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models"
 target_reader: "technically experienced ML practitioner or researcher; knows standard deep learning and linear algebra and the vanilla Transformer; not fluent yet in modern efficiency mechanisms (GQA, MLA, MoE routing, hybrid attention stacks)"
 page_ceiling: 65
-estimated_total_pages: 54  # ch3 revised 9 -> 8 pages (MLA deferred out); ch4 revised 7 -> 6 pages (retitled, MLA absorbed in); both 2026-09-23, see ch3/ch4 drafting_note fields
+estimated_total_pages: 51  # ch3 9->8 (MLA deferred out); ch4 7->6 (retitled, MLA absorbed); ch5 8->5 (scoped down, systems depth deferred); all 2026-09-23, see ch3/ch4/ch5 drafting_note fields
 
 chapters:
   - id: "ch1"
@@ -196,47 +196,53 @@ chapters:
 
   - id: "ch5"
     number: 5
-    title: "Mixture-of-experts models"
-    purpose: "Explain sparse conditional computation as an orthogonal axis to everything in chapters 3-4: which parameters activate per token, not how attention is structured."
+    title: "Mixture of experts: more parameters, selective compute"
+    drafting_note: "SCOPED DOWN (2026-09-23) from the original plan: figures 6->3 (dropped 'expert-parallel communication' as its own figure -- folded into figure C alongside routing -- and dropped the real-model active-vs-total bar chart, since Stage 1 of the drafting task excludes model-specific benchmark comparisons); estimated_pages 8->5, matching the drafting task's tighter 5-preferred/6-hard-maximum instructional budget. Expert parallelism is covered only as a brief, architecture-level consequence (Stage 9), not the systems-level treatment the original plan implied -- collective-communication algorithms, kernel optimization, inference-engine configuration, expert quantization, model-specific benchmark comparisons, post-training, and routing-research surveys are all explicitly out of scope for this chapter (deferred to workbook 05/06 or a future revision). See reports/04_ch05_draft_report.md."
+    purpose: "Explain sparse conditional computation as an orthogonal axis to everything in chapters 3-4: which parameters activate per token, not how attention is structured. Central lesson: total parameters, active parameters, compute, and distributed communication are four separate quantities, not restatements of each other."
     prerequisites: ["ch1", "ch2"]
     learning_objectives:
-      - "Contrast a dense feed-forward layer with a routed MoE layer at the level of what computation each token actually touches"
-      - "Explain top-k router selection and compute active vs. total parameters for a stated MoE config"
-      - "Explain why load balancing is necessary and what an auxiliary load-balancing loss is trying to prevent"
-      - "State what a shared expert is for, and why expert parallelism is a natural consequence of this architecture, not an optional add-on"
+      - "Distinguish a dense feed-forward block from a sparse MoE block"
+      - "Explain the roles of the router, experts, top-k selection, routing weights, and optional shared experts"
+      - "Calculate total expert parameters and active expert parameters for a stated config"
+      - "Explain why active expert parameters are not the same as total active model parameters"
+      - "Explain why sparse activation does not mean unused expert weights disappear from memory"
+      - "Describe load imbalance and expert-capacity constraints, and what a load-balancing loss is trying to prevent without guaranteeing balance"
+      - "Distinguish MoE sparsity (which parameters activate) from sparse attention (ch. 4's which positions are scored)"
+      - "Explain why expert parallelism introduces device-to-device communication, at the architecture-consequence level only"
+      - "Compare model capacity, computation, memory footprint, and communication as four separate quantities"
     core_concepts:
       - "dense vs. sparse (routed) feed-forward layers"
-      - "router and top-k expert selection per token"
-      - "active parameters vs. total parameters"
-      - "expert capacity and token dropping/overflow"
-      - "load balancing and auxiliary losses"
-      - "shared experts (always-active, alongside routed ones)"
-      - "expert parallelism as a distribution strategy this architecture specifically enables"
+      - "router, top-k expert selection, routing weights, and expert outputs, per token"
+      - "total vs. active parameters, at both the routed-expert-bank level and the complete-model level -- E/k is not the whole-model total/active ratio"
+      - "expert capacity, overflow/token-dropping, and load imbalance, at the implementation-dependent level"
+      - "load-balancing auxiliary losses: what they penalize, without claiming they guarantee balanced routing"
+      - "shared experts (always-active alongside routed ones): motivation and compute tradeoff"
+      - "expert parallelism as an unavoidable architectural consequence (brief, architecture-level only; systems depth deferred)"
     required_equations:
-      - "active parameters per token = shared-expert params + k x (per-expert routed params), given top-k routing over E experts"
-      - "router load-balancing auxiliary loss, at the definitional level (what it penalizes, not a from-scratch derivation)"
+      - "router: r = W_r x, p = softmax(r), T(x) = TopK(p, k); combined output y(x) = sum over e in T(x) of alpha_e(x) * Expert_e(x)"
+      - "routed-expert-bank total = E * p_e, active per token = k * p_e; with a shared-expert path, total expert-related = E*p_e + p_s, active = k*p_e + p_s; complete-model total = p_base + E*p_e + p_s, active = p_base + k*p_e + p_s"
     worked_examples:
-      - "calculate active MoE parameters per token for a stated (E experts, k selected, shared experts, per-expert size) config (matches example-plan.yaml)"
-      - "reason about expert imbalance: given a skewed routing distribution, compute the effective utilization and the throughput consequence (matches 'reason about expert imbalance')"
+      - "script-backed toy parameter example (E=8, k=2, p_e=100M, p_s=100M, p_base=1.2B): total/active for the routed-expert bank and for the complete model, showing E/k=4 does NOT imply a 4x whole-model total/active ratio"
+      - "tiny routing-imbalance example: a small batch of tokens, top-1 or top-2 assignments, counts per expert vs. nominal balanced load"
     planned_figures:
-      - "dense MLP vs. routed MoE layer, side by side"
-      - "token-to-expert routing (a small batch of tokens, a router, top-k arrows into a subset of experts)"
-      - "expert-parallel communication (all-to-all token dispatch/combine across devices)"
-      - "active vs. total parameters bar comparison for two or three real MoE models"
+      - "dense FFN vs. sparse MoE, same input tokens in both panels, router/top-k/recombination shown, explicit that MoE replaces the feed-forward sublayer, not attention"
+      - "total vs. active parameters: dense/base, full routed-expert bank, selected experts, optional shared expert, distinguishing stored/active-for-this-token/inactive-for-this-token"
+      - "routing and expert parallelism combined: tokens assigned across experts/devices, one imbalanced pattern, token dispatch/return flow -- not a detailed networking diagram"
     planned_tables:
-      - "dense vs. MoE: total params, active params per token, training compute per token, serving memory footprint, one real model example each"
+      - "dense FFN vs. routed MoE vs. MoE with shared experts: expert paths per token, total parameters, active parameters, routing required, load-balancing concern, distributed communication, principal benefit, principal complication -- qualified language, no 'MoE automatically means lower latency/better quality' claims"
     misconception_checks:
-      - "\"A MoE model with N total parameters costs as much to run as a dense N-parameter model\" — false; inference compute tracks active parameters, though serving memory still has to hold (most of) the total"
-      - "\"Load balancing is only a training-time concern\" — mostly false in the way it matters for serving too: skewed routing at inference time still creates uneven load across expert-parallel devices"
+      - "\"A 64-expert top-2 MoE activates only 2/64 of the whole model\" — false; only the routed-expert bank's ratio, not the whole model's, since attention/embeddings/norms/router/(shared experts) stay active"
+      - "\"Inactive experts consume no memory\" — false; unused-this-token expert weights are still stored and must fit in memory"
     short_questions:
-      - "calculation: active parameters per token for a stated MoE config"
-      - "design: given a skewed router, what serving-side consequence follows, and what architectural or serving choice mitigates it?"
-      - "misconception_diagnosis: does a MoE model's total parameter count predict its inference cost?"
-    applied_exercise: "Given two model cards, one dense and one MoE with the same active-parameter count, predict which has the larger serving memory footprint and why, then check the reasoning against each model's published config."
-    interview_lens: "\"Explain why a MoE model can have 8x the parameters of a dense model but not 8x the inference cost\" is close to a canonical MoE interview question this chapter directly targets."
-    primary_sources: ["src-28", "src-29", "src-30", "src-33"]
-    secondary_sources: ["src-14", "src-17", "src-31", "src-34"]
-    estimated_pages: 8
+      - "quick check x3: dense-vs-MoE distinction; why active != total model active; MoE sparsity vs. sparse attention (ch. 4)"
+      - "misconception_diagnosis x2: the two required boxed misconceptions above, each with a paired quiz item"
+      - "calculation: total/active expert parameters for a stated config"
+      - "design: routing/load-imbalance exercise given a small skewed batch"
+    applied_exercise: "Design exercise applying the total/active/compute/communication distinction to a stated serving scenario."
+    interview_lens: "\"A model has 64 experts and activates 2 per token. Explain what that tells you -- and what it does not tell you -- about parameters, FLOPs, memory, and communication.\""
+    primary_sources: ["src-28", "src-29", "src-30", "src-36"]
+    secondary_sources: ["src-14", "src-31"]
+    estimated_pages: 5
 
   - id: "ch6"
     number: 6

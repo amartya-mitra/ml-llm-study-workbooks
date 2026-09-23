@@ -519,3 +519,17 @@ sources:
     access_status: "verified via WebSearch (title, authors, arXiv ID, dates, and the 12B/52B parameter plus 256K context claims all corroborated against the paper's own abstract per search snippet)"
     license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate the paper, do not copy figures"
     notes: "Submitted 2024-03-28, updated 2024-07-03. A newer 'Jamba 1.5' report also exists (arXiv:2408.12570) with a larger scaled-up version — NOT verified this session; this is an open decision for whoever drafts ch. 4/ch. 6 (use the original architecture-defining paper, or re-verify and switch to 1.5) rather than a silent substitution. AI21's own blog post 'Attention was never enough: Tracing the rise of hybrid LLMs' is an official company source, not an independent secondary source, if it is ever cited."
+
+  - id: "src-36"
+    title: "DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models"
+    url: "https://arxiv.org/abs/2401.06066"
+    authors: "Damai Dai, Chengqi Deng, Chenggang Zhao, and additional authors (DeepSeek-AI)"
+    resource_type: "original research paper (arXiv:2401.06066; ACL 2024)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["mixture-of-experts", "shared-experts", "expert-specialization", "routing"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for ch. 5's shared-experts section: defines fine-grained expert segmentation and shared-expert isolation, with the exact motivation (shared experts capture common knowledge, reducing redundancy across routed experts) and the tradeoff that routed top-k activation count is reduced to hold total active compute constant when shared experts are added"
+    last_verified: "2026-09-23"
+    access_status: "verified via WebFetch of the full HTML text (arxiv.org/html/2401.06066v1), confirming the shared-expert motivation quote, the exact configs (2B model: 1 shared/63 routed; 16B: 2 shared/64 routed; 145B: 4 shared/128 routed), and the compute-held-constant tradeoff statement directly from the paper's own text, not a snippet or blog summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Dated 2024-01-11, published ACL 2024 (2024.acl-long.70). This is the paper DeepSeek-V2/V3's own shared-expert design descends from (DeepSeek-V2's report cites it as 'Dai et al., 2024') -- used here instead of DeepSeek-V3 (src-33) for the shared-expert claim specifically, since this is the architecture-defining source, not a downstream user of the idea."

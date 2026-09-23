@@ -1,0 +1,47 @@
+## Answer Key: Chapter 5 {#sec-solutions-ch5}
+
+Full solutions to Chapter 5's "Check your understanding" questions
+(@sec-ch5).
+
+**1. Explain.** *Answer.* Dense: every token uses the same feed-forward
+parameters. MoE: a router selects top-$k$ of $E$ experts per token;
+only the selected experts run.
+
+**2. Explain.** *Answer.* Active model parameters include $p_{\text{base}}$
+(and $p_s$, if any) which stay active regardless of routing; active
+*bank* parameters ($k p_e$) count only the routed experts.
+
+**3. Compare.** *Answer.* No. MoE sparsity is *which parameters* activate
+(feed-forward); sparse attention (Ch. 4) is *which positions* are
+scored. Orthogonal axes.
+
+**4. Misconception check.** *Answer.* False, unless restricted to the
+routed bank. $p_{\text{base}}$/$p_s$ stay active, so the whole-model
+ratio is always closer to 1 than $E/k$.
+
+**5. Misconception check.** *Answer.* False. Unselected experts are
+still stored weights that must fit in memory -- sparsity affects
+compute, not storage. *Common trap:* equating "not activated" with
+"not stored."
+
+**6. Calculation.** *Answer.* Bank: total $=16{\times}50\text{M}=800\text{M}$,
+active $=4{\times}50\text{M}=200\text{M}$, ratio $4.0$. Model: total
+$=2\text{B}+800\text{M}=2.8\text{B}$, active $=2\text{B}+200\text{M}=2.2\text{B}$,
+ratio $\approx 1.27$ (verified programmatically).
+
+**7. Design exercise (applied exercise).** *Answer.* The MoE model has
+the larger serving memory footprint. The certain fact: serving memory
+must hold (most of) *total* parameters regardless of which are active
+for any one token, and a MoE model's total is by construction larger
+than its active count -- while the dense model's total equals its
+active count exactly. *Interview criteria:* does the answer name this
+structural fact rather than guessing from typical model sizes?
+
+**8. Interview practice.** *Answer.* 2/64 tells you the *routed bank's*
+activation ratio only. It does not tell you: the whole model's
+total/active ratio (base/shared parameters are unaffected); exact
+FLOPs (routing and combination cost something too); memory footprint
+(all 64 experts are still stored); or communication cost (depends on
+how routing actually lands across devices, not on $k$/$E$ alone).
+*Interview criteria:* does the answer address all four (parameters,
+FLOPs, memory, communication) rather than stopping after one or two?

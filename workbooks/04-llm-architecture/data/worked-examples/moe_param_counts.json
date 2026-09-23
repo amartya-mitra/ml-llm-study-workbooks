@@ -1,0 +1,29 @@
+{
+  "assumptions": {
+    "E": 8,
+    "k": 2,
+    "p_e": 100000000,
+    "p_s": 100000000,
+    "p_base": 1200000000,
+    "note": "Decimal (SI) billions/millions throughout -- no binary units here, since this is a parameter count, not a byte count."
+  },
+  "routed_expert_bank": {
+    "total": 800000000,
+    "active": 200000000,
+    "total_active_ratio": 4.0
+  },
+  "expert_related": {
+    "total": 900000000,
+    "active": 300000000,
+    "total_active_ratio": 3.0
+  },
+  "complete_model": {
+    "total": 2100000000,
+    "active": 1500000000,
+    "total_active_ratio": 1.4,
+    "total_billions": 2.1,
+    "active_billions": 1.5
+  },
+  "e_over_k": 4.0,
+  "teaching_point": "E/k (routed-expert-bank ratio) does NOT equal the complete model's total/active ratio, because p_base and p_s are active regardless of routing."
+}

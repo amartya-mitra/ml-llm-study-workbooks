@@ -1,10 +1,10 @@
 # Page budget for Workbook 04 (Modern LLM Architecture), tracked across
-# the four-chapter review pilot and projected forward to the full
+# the five-chapter review pilot and projected forward to the full
 # eight-chapter workbook. Authored by hand (see shared/_yaml_lite.py for
 # the supported YAML subset -- no anchors/aliases/flow-mappings).
 #
 # "actual" sections below are measured directly from
-# outputs/04-llm-architecture-ch01-04-review.pdf (pdfinfo/pdftotext, US
+# outputs/04-llm-architecture-ch01-05-review.pdf (pdfinfo/pdftotext, US
 # Letter, this project's standard margins/fonts -- see the Build and
 # Version Note for the exact build). "provisional" sections are
 # estimates for not-yet-drafted chapters and will be replaced with
@@ -13,65 +13,69 @@
 schema_version: 1
 
 pilot_actual:
-  measured_from: "outputs/04-llm-architecture-ch01-04-review.pdf"
-  total_pages: 44
-  total_words: 20375
+  measured_from: "outputs/04-llm-architecture-ch01-05-review.pdf"
+  total_pages: 50
+  total_words: 23835
   sections:
     - name: "front_matter"
       description: "Title page, how-to-use, pilot-scope note, notation quick reference"
       pages: 4
-      notes: "Grew from 2 to 4 pages when Chapter 4 was added: the table of contents now needs a full 2 pages (Chapter 4 added ~12 more subsection entries), and the notation quick-reference table (now 13 symbols, +d_c/+d_rope) no longer fits sharing a page with Chapter 1's opening -- it now takes its own page 4, with Chapter 1 starting fresh at the top of page 5."
+      notes: "Unchanged since Chapter 4 was added -- Chapter 5's ~11 subsection entries fit within the existing 2-page table of contents without pushing it further, and the notation table's 5 new symbols (E, k, p_e, p_s, p_base -- E and k already existed, only the p_* symbols are new) fit on the existing notation page."
     - name: "chapter_1"
       description: "Chapter 1: Transformer Refresher, instructional content only"
       pages: 9
-      notes: "Starts fresh on page 5 (previously shared page 3 with the notation table's tail; that half-page moved into front_matter above), ends partway down page 13. Content itself is unchanged since the Chapters 1-2 revision pass."
+      notes: "Unchanged since Chapter 4 was drafted."
     - name: "chapter_2"
       description: "Chapter 2: Anatomy of a Modern Decoder, instructional content only"
       pages: 9
-      notes: "Starts fresh on page 14, ends partway down page 22. Unchanged since the Chapters 1-2 revision pass."
+      notes: "Unchanged since Chapter 4 was drafted."
     - name: "chapter_3"
       description: "Chapter 3: Attention Head Structure and Cache-Efficient Variants, instructional content only"
       pages: 7
-      notes: "Starts fresh on page 23, ends partway down page 29. Unchanged since Chapter 3 was drafted -- still exactly at its 7-page preferred budget."
+      notes: "Unchanged since Chapter 3 was drafted -- still exactly at its 7-page preferred budget."
     - name: "chapter_4"
       description: "Chapter 4: Reducing Attention Cost: Windows, Sparsity, and Latent KV Representations, instructional content only"
       pages: 7
-      notes: "Starts fresh on page 30 (deliberate break), ends at the bottom of page 36 -- exactly at the 7-page HARD MAXIMUM, not the 6-page preferred target. Three rounds of word-level trims (merging redundant interview-lens/applied-exercise phrasing, tightening the sources paragraph and one recap bullet) reduced the overflow from a full paragraph down to about two lines, but could not eliminate it without either cutting the recurrent/SSM/linear-attention sourcing disclosure entirely or beginning to compress the technical content itself -- neither was judged an acceptable tradeoff for one page. This is disclosed as a real (if narrow) miss against the preferred target, not silently absorbed; the hard maximum (7) was not exceeded."
+      notes: "Unchanged since Chapter 4 was drafted -- still at its 7-page hard maximum (disclosed miss against the 6-page preferred target)."
+    - name: "chapter_5"
+      description: "Chapter 5: Mixture of Experts: More Parameters, Selective Compute, instructional content only"
+      pages: 5
+      notes: "Starts fresh on page 37 (deliberate break), ends at the bottom of page 41 -- lands EXACTLY at the 5-page PREFERRED budget (hard maximum was 6), the best-fitting chapter in the pilot so far. Achieved by scoping tightly to the task's explicit exclusions (no distributed-training implementation, collective-communication algorithms, kernel optimization, inference-engine configuration, expert quantization, model-specific benchmarks, post-training, or routing-research surveys) and combining the routing and expert-parallelism figures into one (Figure C) rather than two separate figures."
     - name: "answer_key_chapter_1"
       description: "Answer Key: Chapter 1 only"
       pages: 1.6
-      notes: "Unchanged since Chapter 3 was drafted; starts fresh on page 37."
+      notes: "Unchanged since Chapter 3 was drafted; starts fresh on page 42."
     - name: "answer_key_chapter_2"
       description: "Answer Key: Chapter 2 only"
       pages: 2.0
-      notes: "Unchanged since Chapter 3 was drafted; begins mid-page on page 38."
+      notes: "Unchanged since Chapter 3 was drafted; begins mid-page on page 43."
     - name: "answer_key_chapter_3"
       description: "Answer Key: Chapter 3 only"
       pages: 1.6
-      notes: "Unchanged since Chapter 3 was drafted; begins mid-page on page 40."
+      notes: "Unchanged since Chapter 3 was drafted; begins mid-page on page 45."
     - name: "answer_key_chapter_4"
       description: "Answer Key: Chapter 4 only"
       pages: 1.0
-      notes: "Begins mid-page on page 42 (no forced break), ends partway into page 43. Lands almost exactly at the 1-page PREFERRED budget (hard maximum was 1.5) -- the tightest answer key in the pilot so far, achieved by using the Answer/Common-trap two-field structure for every item with no 'Why'/'Interview criteria' fields except where Stage 11 explicitly asked for interview evaluation criteria (items 7 and 8)."
+      notes: "Unchanged since Chapter 4 was drafted; begins mid-page on page 47."
+    - name: "answer_key_chapter_5"
+      description: "Answer Key: Chapter 5 only"
+      pages: 0.69
+      notes: "Begins mid-page on page 48 (no forced break), ends well before the bottom of the same page. Lands well UNDER the 0.75-page preferred budget (hard maximum was 1.0) -- the tightest answer key in the pilot, achieved with a minimal Answer/Common-trap structure (most items have no 'Common trap' field at all) appropriate for a chapter with only 8 check-your-understanding-derived answer items, the fewest of any chapter so far."
     - name: "build_note_and_bibliography"
       description: "Build and Version Note (with its Provenance subsection) plus the auto-appended Bibliography"
-      pages: 1.8
-      notes: "The build note ends and the Bibliography begins on page 43; Typst's native (citeproc:false) bibliography does not force its own fresh page -- it continues wherever the build note ends, spilling from page 43 onto page 44 here."
-  pre_ch4_reference:
-    total_pages: 35
-    instructional_pages_ch1_ch2_ch3: 26
-    total_words: 16397
-    note: "Chapters 1-3 pilot actuals immediately before Chapter 4 was drafted (see reports/04_ch03_draft_report.md). Chapter 4 added exactly 9 pages (7 instructional + 1.0 answer-key + a 1-page table-of-contents/notation-table spillover into front matter), taking the total from 35 to 44."
+      pages: 2.1
+      notes: "The build note ends and the Bibliography begins on page 48; Typst's native (citeproc:false) bibliography does not force its own fresh page -- it continues wherever the build note ends, spilling from page 48 through page 50 here. Grew slightly from Chapter 4's 1.8 pages because of one new Provenance bullet (Chapter 5's DeepSeekMoE sourcing note) and 4 new bibliography entries (sources 12-15)."
+  pre_ch5_reference:
+    total_pages: 44
+    instructional_pages_ch1_ch2_ch3_ch4: 32
+    total_words: 20375
+    note: "Chapters 1-4 pilot actuals immediately before Chapter 5 was drafted (see reports/04_ch04_draft_report.md). Chapter 5 added exactly 6 pages (5 instructional + 0.69 answer-key + a ~0.3-page build-note/bibliography growth from the new source), taking the total from 44 to 50."
 
 full_workbook_projection:
   preferred_total_pages: [60, 68]
   hard_ceiling_total_pages: 72
   hard_ceiling_note: "Exceeding 72 requires explicit approval. Page growth must come from adding chapters, not from ever shrinking fonts, figures, margins, or writing space."
-  chapters_5_to_8_provisional:
-    - chapter: 5
-      topic: "Mixture-of-experts models"
-      instructional_pages: [6, 6.5]
-      estimated_answer_key_pages: [1, 1.3]
+  chapters_6_to_8_provisional:
     - chapter: 6
       topic: "Case studies (architecture at real-model scale)"
       instructional_pages: [5, 5.5]
@@ -84,14 +88,14 @@ full_workbook_projection:
       topic: "Synthesis / practice chapter"
       instructional_pages: [4, 4.5]
       estimated_answer_key_pages: [1, 1]
-  provisional_revision_note: "REVISED (2026-09-23, after Chapter 4): the previous chapters_4_to_8_provisional ranges (see reports/04_ch04_draft_report.md Section 6) projected a 67-73 page full-workbook total, exceeding the 72-page hard ceiling on the high end -- a real, disclosed overage the task governing Chapter 4 required be resolved before proceeding. Resolution taken (per that task's explicit instruction: 'do not shrink typography; reduce the planned scope of later chapters'): tightened chapters 5-8's high-end instructional and answer-key estimates downward, using Chapters 3-4's now-demonstrated discipline (3 figures per chapter, at most 2 boxed misconceptions, tight answer-key field structure) as the justification rather than an unfounded guess. Low ends were left unchanged; only the high ends (the actual source of the overage) were tightened."
-  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-4 (actual). Chapter 4's own ratio (1.0 answer-key page per 7 instructional pages, ~0.14) was the most efficient yet, ahead of Chapter 3's ~0.23 -- both inform the tightened chapters 5-8 estimates above."
+  provisional_revision_note: "Chapter 5 landed at 5.69 total pages (5 instructional + 0.69 answer-key), UNDER even its own already-tight 5.75-7.8 provisional range from reports/04_ch04_draft_report.md -- the best-fitting chapter yet, alongside Chapter 3's exact preferred-budget hit. This is strong evidence the chapters_6_to_8_provisional ranges below (carried over unchanged from the post-Chapter-4 revision) are achievable without further tightening; they are NOT loosened back up despite the good news, since the point of a budget is to hold regardless of any one chapter's good outcome."
+  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-5 (actual). Chapter 5's own ratio (0.69 answer-key page per 5 instructional pages, ~0.14) matches Chapter 4's efficient ~0.14 ratio -- both inform the chapters 6-8 estimates above, which remain deliberately conservative relative to this observed efficiency."
   projection_arithmetic:
-    pilot_actual_total: 44
-    chapters_5_to_8_instructional_range: [20, 22]
-    chapters_5_to_8_answer_key_range: [4, 4.7]
-    projected_full_total_range: [68, 70.7]
-  ceiling_status: "Within the 72-page hard ceiling on both ends of the revised projection (68-70.7), per Stage 13's requirement that the projection remain at or below 72 after this chapter. This depends on chapters 5-8 actually holding to the tightened high ends above, not the wider ranges used before Chapter 4 -- treat the tightened high ends as real budgets to justify exceeding, not defaults to relax back toward."
+    pilot_actual_total: 50
+    chapters_6_to_8_instructional_range: [14, 15.5]
+    chapters_6_to_8_answer_key_range: [3, 3.4]
+    projected_full_total_range: [67, 68.9]
+  ceiling_status: "Within the 72-page hard ceiling on both ends (67-68.9), and now also within the 60-68 PREFERRED range at the low end. This depends on chapters 6-8 actually holding to the provisional ranges above; Chapter 5's strong result is encouraging but not a license to relax them."
 
 chapter_3_specific:
   mla_deferral_note: "RESOLVED (2026-09-23): MLA's placement, left open when Chapter 3 was drafted, is Chapter 4 -- see outline.yaml's ch3.drafting_note and ch4.drafting_note, and reports/04_ch04_draft_report.md."
@@ -99,3 +103,7 @@ chapter_3_specific:
 chapter_4_specific:
   mla_sourcing_note: "Chapter 4's MLA content (compression formula, decoupled-RoPE reasoning, KV-cache-per-token comparison table) was verified directly against DeepSeek-V2's full paper text ([@src-27], arXiv:2405.04434, Sections 2.1.1-2.1.4 and Table 1), fetched and read in full during drafting -- not inferred from an abstract or a search-result snippet, per this chapter's Stage 12 instruction."
   recurrent_family_sourcing_gap: "Chapter 4 names recurrent/SSM/linear-attention as a third efficiency-strategy family (learning objective 9) but does not teach its mechanics and does not cite a primary source for it -- consistent with source-coverage.yaml's pre-existing source_needed flag for this mechanism (see reports/04_source_audit.md). This is an intentional, disclosed scope boundary, not an oversight."
+
+chapter_5_specific:
+  scope_reduction_note: "Chapter 5 was scoped down from outline.yaml's original 8-page/4-figure plan to 5 preferred pages and 3 figures -- see outline.yaml's ch5.drafting_note. Systems-level material (distributed-training implementation, collective-communication algorithms, kernel optimization, inference-engine configuration, expert quantization, model-specific benchmark comparisons, post-training, routing-research surveys) is entirely deferred, not taught even briefly, except for one architecture-level paragraph on expert parallelism's all-to-all communication."
+  shared_experts_sourcing_note: "Chapter 5's shared-experts claim (motivation and compute tradeoff) was verified directly against DeepSeekMoE's full paper text ([@src-36], arXiv:2401.06066, fetched and read in full), not DeepSeek-V3's report (a downstream user of the idea) and not a snippet or blog summary. src-36 was newly added to sources/registry.yaml, shared/bibliography.bib, and source-coverage.yaml this session."

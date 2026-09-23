@@ -230,6 +230,16 @@ claims:
     freshness_risk: "stable mechanism-level claim; src-29 frames it as a compiler/sharding abstraction, src-31 as an end-to-end training+inference system — cite whichever framing ch. 5/ch. 7 actually uses, not both interchangeably"
     notes: ""
 
+  - chapter: "ch5"
+    topic: "shared experts: motivation and compute tradeoff"
+    proposed_claim: "Shared experts are always-active experts intended to capture common knowledge and reduce redundancy across routed experts; to hold total active compute constant, adding shared experts is compensated by reducing the number of routed experts activated per token."
+    importance: "core"
+    primary_source_ids: ["src-36"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable mechanism-level claim, dated to this paper's specific configs (2B/16B/145B) if those specific numbers are ever cited"
+    notes: "Verified 2026-09-23 directly from the DeepSeekMoE paper's full HTML text (Section on shared-expert isolation), not a snippet -- see sources/registry.yaml src-36 and reports/04_ch05_draft_report.md. This is the architecture-defining source for shared experts, distinct from src-33 (DeepSeek-V3), which is a downstream user of the idea, not its origin."
+
   - chapter: "ch6"
     topic: "Llama 3 (dense case study)"
     proposed_claim: "The largest Llama 3 model is a 405B-parameter dense decoder-only Transformer with 128K context."

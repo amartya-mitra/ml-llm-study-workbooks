@@ -1,17 +1,20 @@
-::: {.callout-important title="This is a four-chapter pilot, not the complete workbook"}
-This document contains **only Chapters 1 through 4** of *Modern LLM
+::: {.callout-important title="This is a five-chapter pilot, not the complete workbook"}
+This document contains **only Chapters 1 through 5** of *Modern LLM
 Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
 Models* (workbook 04 of the ML/LLM Study Workbooks series). Chapters
-5-8 -- mixture-of-experts models, case studies, architecture -> systems
-consequences, and a synthesis/practice chapter -- are planned but
-**not drafted**. Nothing in this document should be read as implying
-those chapters exist yet. Multi-head latent attention (MLA), briefly
-deferred out of Chapter 3's drafting pass, is now covered in Chapter 4
-alongside sliding-window and sparse attention, as three distinct
-attention-cost-reduction strategies (see `outline.yaml`'s `ch4.drafting_note`).
-Chapter 4 covers recurrent/state-space/linear-attention alternatives
-only as a brief taxonomy and forward reference, not their mechanics,
-pending adequate primary sourcing.
+6-8 -- case studies, architecture -> systems consequences, and a
+synthesis/practice chapter -- are planned but **not drafted**. Nothing
+in this document should be read as implying those chapters exist yet.
+Multi-head latent attention (MLA), briefly deferred out of Chapter 3's
+drafting pass, is now covered in Chapter 4 alongside sliding-window
+and sparse attention. Chapter 4 covers recurrent/state-space/linear-attention
+alternatives only as a brief taxonomy and forward reference, pending
+adequate primary sourcing. Chapter 5 covers mixture-of-experts
+architecture only -- detailed distributed-training implementation,
+collective-communication algorithms, kernel optimization,
+inference-engine configuration, expert quantization, model-specific
+benchmark comparisons, post-training, and routing-research surveys are
+all deferred to later workbooks or a future revision.
 
 This is a review artifact: it exists to establish the workbook's
 explanatory depth, visual language, page density, question style, and

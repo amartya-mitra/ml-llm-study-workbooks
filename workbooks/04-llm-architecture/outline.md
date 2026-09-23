@@ -83,12 +83,12 @@ here would blow the page budget and the "don't drift into a full
 | 2 | Anatomy of a modern decoder | RoPE, RMSNorm, SwiGLU, norm placement, tied embeddings — convention vs. requirement | 7 |
 | 3 | Attention head structure and cache-efficient variants | MHA → MQA → GQA, with the KV-cache-size formula built up mechanism by mechanism (MLA moved to ch. 4) | 8 |
 | 4 | Reducing attention cost: windows, sparsity, and latent KV representations | Three non-interchangeable efficiency axes: fewer attended positions (sliding-window/sparse/local+global), smaller stored representation per position (MLA), and replacing growing state entirely (recurrent/SSM/linear, taxonomy + forward reference only) | 6 |
-| 5 | Mixture-of-experts models | Routing, active vs. total params, load balancing, expert parallelism | 8 |
+| 5 | Mixture of experts: more parameters, selective compute | Routing, total vs. active params, load balancing, shared experts, expert parallelism as a brief architectural consequence (systems depth deferred) | 5 |
 | 6 | Modern architecture case studies | Real dense / MoE / MLA / hybrid models, compared on architecture not benchmark marketing | 8 |
 | 7 | From architecture to systems consequences | Architecture-vs-runtime distinction, training communication, inference memory bandwidth, latency vs. throughput, why FLOPs ≠ wall-clock | 7 |
 | 8 | Synthesis and practice | Worksheet, worked calculations, design scenarios, misconception diagnosis, interview questions, compact visual reference | 6 |
 
-**Total estimated pages: 54** (ceiling is 65; ~11 pages of margin
+**Total estimated pages: 51** (ceiling is 65; ~14 pages of margin
 reserved for front matter, a table of contents, and drafting overrun —
 deliberately not spent in advance, per "the length is a ceiling, not a
 target to inflate").
@@ -159,6 +159,33 @@ This also resolves the estimated-page mismatch: chapter 3's original
 estimate (9 pages) assumed MLA content that is no longer in chapter 3;
 chapter 4's estimate below is revised to include the MLA content it
 absorbed.
+
+## Drafting-time adjustment: chapter 5 scoped down to fit a tighter budget
+
+**2026-09-23 (chapter 5 drafted):** the chapter-5 drafting task set a
+5-preferred/6-hard-maximum instructional-page budget, tighter than
+this outline's original 8-page estimate, and explicitly excluded
+several topics the original plan's figure/table list implied:
+detailed distributed-training implementation, collective-communication
+algorithms, kernel optimization, inference-engine configuration,
+expert quantization, model-specific benchmark comparisons,
+post-training, and routing-research surveys. Expert parallelism is
+kept at the level of "an unavoidable architectural consequence,"
+briefly explained, not a systems-level treatment.
+
+The resolution: dropped the "expert-parallel communication" figure as
+its own panel (folded into the routing figure) and the "active vs.
+total parameters bar chart for real MoE models" figure (would have
+required model-specific benchmark comparisons, out of scope) — figure
+count 4 → 3. `estimated_pages` revised 8 → 5. The chapter's central
+lesson, per the task governing it, is that total parameters, active
+parameters, compute, and distributed communication are four separate
+quantities, not restatements of each other — this replaces the
+original plan's looser "active vs. total parameters" framing with a
+sharper, four-way distinction. See `reports/04_ch05_draft_report.md`
+for the full rationale, and `sources/registry.yaml`'s `src-36`
+(DeepSeekMoE, added this session) for the shared-experts section's
+primary source.
 
 ## Explicit non-goals (scope fences, checked again at Stage 10)
 

@@ -121,9 +121,9 @@ terms:
     source_ids: ["src-29"]
 
   - term: "Shared expert"
-    short_definition: "An expert that is always active for every token, alongside the routed top-k experts, used to capture common computation that shouldn't depend on routing."
+    short_definition: "An expert that is always active for every token, alongside the routed top-k experts, used to capture common knowledge and reduce redundancy across routed experts. Adding shared experts is typically compensated by reducing routed top-k activation, to hold total active compute roughly constant."
     chapter: "ch5"
-    source_ids: []
+    source_ids: ["src-36"]
 
   - term: "Expert parallelism"
     short_definition: "Distributing different experts of a MoE layer across different devices, requiring an all-to-all communication step to dispatch tokens to their selected experts and combine results."
