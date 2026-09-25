@@ -1,4 +1,4 @@
-## Reading Modern LLM Architectures: Three Designs, Three Sets of Tradeoffs {#sec-ch6}
+## Reading Modern LLM Architectures: Three Designs, Three Sets of `#linebreak()`{=typst}Tradeoffs {#sec-ch6}
 
 *A Ten-Question Checklist, Applied to Three Real Model Families*
 

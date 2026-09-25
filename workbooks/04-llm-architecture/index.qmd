@@ -1,6 +1,6 @@
 ---
 title: "Modern LLM Architecture"
-subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Complete Content Draft (Release Candidate 3)"
+subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Complete Content Draft (Release Candidate 4)"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true

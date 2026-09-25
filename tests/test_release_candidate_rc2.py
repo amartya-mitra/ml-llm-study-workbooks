@@ -191,15 +191,17 @@ class TestChapter4OrphanAndTitleFixes(unittest.TestCase):
 
     CH4_PATH = os.path.join(CHAPTERS_DIR, "04-reducing-attention-cost.qmd")
 
-    def test_chapter4_title_has_no_manual_linebreak_and_no_stale_prefix(self):
+    def test_chapter4_title_has_no_stale_chapter_prefix(self):
         """RC3 removed the 'Chapter 4: ' prefix from the heading text
         (Typst's auto-numbering supplies the leading '4' instead), which
-        shortened the title enough that Typst's own hyphenation now
-        breaks cleanly at 'Rep-/resentations' without needing the manual
-        #linebreak() RC2 required to dodge a 'La-tent' break."""
+        avoided RC2's "La-tent" break -- but RC3's own render still
+        hyphenated "Representations" as "Rep-/resentations" at the
+        line wrap, a defect not caught at the time. RC4 reintroduced an
+        explicit #linebreak() after "Sparsity," to fix it -- see
+        tests/test_release_candidate_rc4.py for that regression
+        coverage."""
         with open(self.CH4_PATH) as f:
             first_line = f.readline()
-        self.assertNotIn("#linebreak()", first_line)
         self.assertNotIn("Chapter 4:", first_line)
         self.assertIn("Latent KV Representations", first_line)
 
@@ -222,12 +224,13 @@ class TestReleaseStatusLanguage(unittest.TestCase):
     actual status, not silently carry over RC1's 'not yet happened'
     language once the editorial pass is complete."""
 
-    def test_index_subtitle_says_release_candidate_3(self):
+    def test_index_subtitle_says_release_candidate_4(self):
         with open(INDEX_QMD) as f:
             text = f.read()
-        self.assertIn("Release Candidate 3", text)
+        self.assertIn("Release Candidate 4", text)
         self.assertNotIn("Release Candidate 1", text)
         self.assertNotIn("Release Candidate 2", text)
+        self.assertNotIn("Release Candidate 3", text)
 
     def test_draft_scope_note_does_not_claim_qa_not_yet_happened(self):
         with open(DRAFT_SCOPE_QMD) as f:

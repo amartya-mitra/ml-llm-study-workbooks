@@ -1,4 +1,4 @@
-::: {.callout-important title="Complete content draft — release candidate 3"}
+::: {.callout-important title="Complete content draft — release candidate 4"}
 This document contains **all eight chapters** of *Modern LLM
 Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
 Models* (workbook 04 of the ML/LLM Study Workbooks series) -- a
@@ -7,11 +7,14 @@ drafted, illustrated, and validated individually; a whole-book
 editorial, cross-reference, and visual-production pass then completed
 release candidate 2 (a notation-table layout defect, an orphan page, a
 title line-break, and the chapter/answer-key numbering scheme were
-each found and corrected). This revision fixes three further
-acceptance findings: Chapter 1 now begins on its own fresh page,
-each chapter's rendered title carries exactly one leading number
-instead of two, and the notation reference's cache-size row now
-matches the symbols the equations actually use. Treat this as a
+each found and corrected), and release candidate 3 fixed a further
+three acceptance findings (Chapter 1's fresh page break, duplicated
+chapter-title numbering, and the notation reference's cache-size
+symbols). This revision fixes one more: two chapter titles that wrap
+across two lines (Chapters 4 and 7) were hyphenating a word mid-break
+("Rep-/resentations", "Com-/munication"); all four titles that wrap to
+two lines (Chapters 4, 6, 7, and 8) now use an explicit phrase-level
+line break instead of automatic hyphenation. Treat this as a
 complete, reviewed content draft -- still not a final, professionally
 copy-edited book, since no substitute exists for an independent human
 proofread pass beyond what this project's own automated and visual
