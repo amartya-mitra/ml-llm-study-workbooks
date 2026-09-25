@@ -127,19 +127,37 @@ examples:
     skill_tested: "design"
     source_ids: ["src-21", "src-27", "src-28", "src-33"]
 
-  - id: "ex-cumulative-composite-config"
+  - id: "ex-looped-vs-unrolled-depth"
     chapter: "ch8"
-    title: "Cumulative: compute KV-cache size and active parameters for a composite, unseen config"
+    title: "L_distinct=22, T_passes=2 looped stack vs. a conventional 44-distinct-block stack"
     chains_from: null
-    given: "A new, unseen model config combining a stated attention variant (ch. 3), a stated sparsity/hybrid choice (ch. 4), and dense-or-MoE structure (ch. 5), not matching any of the ch. 6 case studies."
+    given: "A looped stack with L_distinct=22 distinct transformer blocks, T_passes=2 passes through the full stack, and a conventional (unrolled) stack of 44 distinct blocks -- both compared under a simplified equal-per-block-size assumption."
     steps:
-      - "identify which formula variant from ch. 3 applies given the stated attention variant"
-      - "compute KV-cache size per token"
-      - "compute active and total parameters given the stated dense/MoE structure"
-      - "state one systems consequence (ch. 7) that follows from this specific combination"
-    expected_result: "a fully worked composite answer chaining ch. 3, 5, and 7's methods on a config the reader has not seen before"
+      - "compute L_effective = L_distinct * T_passes for the looped stack"
+      - "compare distinct block sets: looped=22 vs. conventional=44"
+      - "compare block applications per token: looped=44 vs. conventional=44 (equal)"
+      - "state why embeddings/output heads/routers prevent the complete-model ratio from being exactly one half, even though the block-parameter ratio is exactly one half under the equal-block assumption"
+      - "state the KV-cache caveat: separate pass-specific cache entries may make cache requirements comparable to 44 block applications unless an additional cache-reuse mechanism is used"
+    expected_result: "L_effective=44; a distinct-block-parameter ratio of exactly 0.5 (looped/conventional) under the equal-block assumption; identical block-application counts (44=44); and an explicit statement that this is NOT an exact wall-clock or complete-model-parameter prediction"
+    skill_tested: "calculation"
+    source_ids: ["src-38", "src-40", "src-42"]
+
+  - id: "ex-cumulative-design-scenario"
+    chapter: "ch8"
+    title: "Cumulative design exercise: long-context, weight-memory-constrained, moderate-concurrency multi-GPU serving"
+    chains_from: null
+    given: "A team wants a long-context model under a weight-memory constraint, but can afford additional computation for difficult tokens; serving must support moderate concurrency on multiple GPUs. Candidate mechanisms: GQA, MLA, sliding/local attention, MoE, hybrid recurrent layers, looped depth, adaptive recursion."
+    steps:
+      - "propose one combination of mechanisms from the candidate list"
+      - "state its weight-memory effect (ch. 5/ch. 8's total-vs-distinct-parameter distinction)"
+      - "state its cache/state effect (ch. 3/ch. 4/ch. 6/ch. 8's cache formulas and caveats)"
+      - "state its compute effect (ch. 7's arithmetic-intensity framing; ch. 8's block-applications-still-execute caveat)"
+      - "state its communication effect (ch. 5's expert-parallel all-to-all; ch. 7's parallelism overview)"
+      - "name one training complication and one thing that must still be benchmarked"
+      - "state one tradeoff that cannot be inferred from the architecture alone"
+    expected_result: "one defensible design with all six effects stated explicitly, not a single 'best' answer -- the answer key provides one defensible design, one alternative, evaluation criteria, and common overclaims to avoid"
     skill_tested: "design"
-    source_ids: []
+    source_ids: ["src-21", "src-27", "src-28", "src-35", "src-38", "src-40"]
 
 count_check:
   requested_examples: ["calculate MHA KV-cache memory", "recalculate with GQA", "compare GQA with MLA assumptions", "calculate active MoE parameters per token", "reason about expert imbalance", "compare sliding-window and global receptive fields", "choose an architecture under a serving-memory constraint"]

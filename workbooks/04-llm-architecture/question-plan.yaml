@@ -208,7 +208,35 @@ quick_questions:
     source_ids: ["src-10"]
     difficulty: "stretch"
 
-  # --- ch8: Synthesis and practice (no new quick questions — this chapter IS the cumulative/interview question set below) ---
+  # --- ch8: Emerging directions and architecture synthesis (target 5-6 total across quick questions, applied exercise, and interview lens; planned 6) ---
+  - chapter: "ch8"
+    topic: "computing L_effective from L_distinct and T_passes"
+    skill_tested: "recall"
+    expected_reasoning: "compute L_effective = L_distinct * T_passes and state that L_distinct, not L_effective, governs distinct block-parameter storage"
+    likely_misconception: "assuming effective depth and distinct parameter count are the same quantity"
+    source_ids: ["src-38", "src-40"]
+    difficulty: "intro"
+  - chapter: "ch8"
+    topic: "weight sharing does not imply a shared KV-cache"
+    skill_tested: "recall"
+    expected_reasoning: "state that shared block weights across passes do not imply a single shared KV-cache -- each pass may produce different K/V from a different hidden state, requiring separate cache entries unless a specific architecture adds cache reuse"
+    likely_misconception: "assuming weight sharing automatically reduces cache/state memory in proportion to the reduction in distinct parameters"
+    source_ids: ["src-40"]
+    difficulty: "core"
+  - chapter: "ch8"
+    topic: "distinct-block-parameter ratio for a looped vs. unrolled stack"
+    skill_tested: "calculation"
+    expected_reasoning: "given L_distinct=22, T_passes=2 (looped) vs. 44 distinct blocks (conventional), compute the distinct-block-parameter ratio (0.5 under an equal-per-block-size assumption) while keeping block-application counts equal (44=44)"
+    likely_misconception: "concluding the complete-model parameter ratio is also exactly one half, ignoring embeddings/output heads/routers"
+    source_ids: ["src-38", "src-40", "src-42"]
+    difficulty: "core"
+  - chapter: "ch8"
+    topic: "looping does not give a larger model's depth at a smaller model's compute/cache cost"
+    skill_tested: "misconception_diagnosis"
+    expected_reasoning: "identify that distinct parameter storage may be smaller, but block applications still execute (compute is not reduced) and pass-specific K/V or state may still be required (cache is not automatically shared) -- the chapter's headline misconception check"
+    likely_misconception: "believing reusing the same layers gives the depth of a larger model at the compute and cache cost of the smaller model"
+    source_ids: ["src-38", "src-40", "src-42"]
+    difficulty: "stretch"
 
 misconception_checks:
   # One per major concept, cross-referencing outline.yaml's per-chapter
@@ -262,6 +290,10 @@ misconception_checks:
     concept: "FLOPs and latency"
     statement: "the architecture with fewer theoretical FLOPs must be faster"
     correction: "wall-clock performance also depends on arithmetic intensity, memory traffic, communication, batching, kernels, scheduling, and hardware utilization -- any one of which can dominate over raw FLOPs"
+  - chapter: "ch8"
+    concept: "looped depth vs. a larger model"
+    statement: "reusing the same layers gives the depth of a larger model at the compute and cache cost of the smaller model"
+    correction: "false in three parts: distinct parameter storage may be smaller, but block applications still execute (compute is not reduced), and pass-specific K/V or state may still be required (cache is not automatically shared)"
 
 applied_exercises:
   # One per chapter, restating outline.yaml's applied_exercise field with
@@ -295,9 +327,9 @@ applied_exercises:
     skill_tested: "design"
     source_ids: ["src-21", "src-27", "src-28", "src-33"]
   - chapter: "ch8"
-    exercise: "Given a full, unseen model card, complete the architecture comparison worksheet end to end."
+    exercise: "Given a long-context, weight-memory-constrained, moderate-concurrency multi-GPU serving scenario, propose a combination of mechanisms and justify it across weight-memory, cache/state, compute, and communication effects, one training complication, one thing that must be benchmarked, and one tradeoff that cannot be inferred from architecture alone."
     skill_tested: "design"
-    source_ids: []
+    source_ids: ["src-21", "src-27", "src-28", "src-35", "src-38", "src-40"]
 
 cumulative_review_questions:
   - id: "cr-01"
@@ -394,6 +426,10 @@ interview_style_questions:
     prompt_summary: "What's the difference between what quantization changes and what a genuinely smaller model changes?"
     skill_tested: "compare_and_contrast"
     spans_chapters: ["ch7"]
+  - id: "iv-09"
+    prompt_summary: "Compare scaling a transformer by adding distinct layers, looping a shared stack, and using adaptive recursion. Discuss parameters, computation, KV state, batching, and implementation complexity."
+    skill_tested: "compare_and_contrast"
+    spans_chapters: ["ch8"]
 
 count_check:
   quick_questions_per_chapter_target: "2-4"
@@ -405,11 +441,11 @@ count_check:
     ch5: 4
     ch6: 4
     ch7: 4
-    ch8: 0
-  ch8_note: "ch. 8 has no dedicated quick questions by design — it IS the cumulative/interview question set, per outline.yaml's own description of ch. 8 as introducing no new concepts"
-  misconception_checks_count: 12
+    ch8: 4
+  ch8_note: "RESCOPED (2026-09-25): ch. 8 now has 4 dedicated quick questions of its own, since it is the primary_home for recurrent depth/looped transformers (config/series-topic-roadmap.yaml), not a no-new-concepts capstone -- it still also carries the cumulative/interview question set below."
+  misconception_checks_count: 13
   applied_exercises_count: 8
   cumulative_review_target: "10-15"
   cumulative_review_actual: 12
   interview_style_target: "6-10"
-  interview_style_actual: 8
+  interview_style_actual: 9

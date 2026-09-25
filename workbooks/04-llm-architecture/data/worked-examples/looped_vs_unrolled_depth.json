@@ -1,0 +1,28 @@
+{
+  "assumptions": {
+    "L_distinct": 22,
+    "T_passes": 2,
+    "p_per_block": 50000000,
+    "p_non_block": 500000000,
+    "note": "p_per_block and p_non_block are illustrative, not a specific real model's config -- equal-per-block-size assumption."
+  },
+  "L_effective": 44,
+  "conventional_L_distinct": 44,
+  "block_applications": {
+    "looped": 44,
+    "conventional": 44,
+    "equal": true
+  },
+  "block_parameter_storage": {
+    "looped": 1100000000,
+    "conventional": 2200000000,
+    "ratio_looped_over_conventional": 0.5,
+    "matches_one_over_T_passes": true
+  },
+  "complete_model_parameters": {
+    "looped": 1600000000,
+    "conventional": 2700000000,
+    "ratio_looped_over_conventional": 0.592593,
+    "strictly_greater_than_block_only_ratio": true
+  }
+}

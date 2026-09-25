@@ -1,12 +1,18 @@
-::: {.callout-important title="This is a seven-chapter pilot, not the complete workbook"}
-This document contains **only Chapters 1 through 7** of *Modern LLM
+::: {.callout-important title="Complete content draft — pending whole-book editorial and visual QA"}
+This document contains **all eight chapters** of *Modern LLM
 Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
-Models* (workbook 04 of the ML/LLM Study Workbooks series). Chapter 8
--- a synthesis/practice chapter -- is planned but **not drafted**.
-Nothing in this document should be read as implying it exists yet.
+Models* (workbook 04 of the ML/LLM Study Workbooks series) -- a
+release candidate, not the final edition. Every chapter has been
+drafted, illustrated, and validated individually as it was written;
+what has **not** yet happened is a single whole-book editorial and
+visual quality pass across all eight chapters together (consistent
+terminology, cross-reference accuracy, page-break aesthetics, and a
+final proofread). Treat this as a complete content draft, not a
+finished book.
+
 Multi-head latent attention (MLA), briefly deferred out of Chapter 3's
-drafting pass, is now covered in Chapter 4 alongside sliding-window
-and sparse attention. Chapter 4 covers recurrent/state-space/linear-attention
+drafting pass, is covered in Chapter 4 alongside sliding-window and
+sparse attention. Chapter 4 covers recurrent/state-space/linear-attention
 alternatives only as a brief taxonomy and forward reference; Chapter 6
 adds the primary source that taxonomy was pending (Gu and Dao's
 selective state-space mechanism) once a hybrid case study needed it.
@@ -15,24 +21,25 @@ distributed-training implementation, collective-communication
 algorithms, kernel optimization, inference-engine configuration,
 expert quantization, model-specific benchmark comparisons,
 post-training, and routing-research surveys are all deferred to later
-workbooks or a future revision. Chapter 6 selects exactly three
-real, pinned model families (Llama 3 405B, DeepSeek-V3, Jamba) as
-case studies -- it is not a survey of every current model, not a
-benchmark ranking, and not a release-history timeline; each model's
-architecture facts are dated and traceable to that model's own
-technical report, not restated as permanent or "latest" facts.
-Chapter 7 synthesizes systems consequences already implied by
-Chapters 2-6 (a resource ledger, prefill-vs-decode, an
+workbooks. Chapter 6 selects exactly three real, pinned model families
+(Llama 3 405B, DeepSeek-V3, Jamba) as case studies -- not a survey of
+every current model, not a benchmark ranking, and not a release-history
+timeline. Chapter 7 synthesizes systems consequences already implied
+by Chapters 2-6 (a resource ledger, prefill-vs-decode, an
 architecture-to-systems consequence map, and a minimal parallelism
-overview); it previews looped depth in one row only (full treatment
-deferred to Chapter 8) and cross-references multi-token prediction and
-speculative decoding without teaching either mechanism -- both are
+overview) and previews looped depth in one row only. Chapter 8 gives
+looped depth/recurrent depth its full treatment (this workbook's
+assigned primary home for that topic) and closes with a 10-question
+synthesis framework -- it does not teach multi-token prediction's
+training mechanics or the speculative-decoding algorithm, both
 assigned to future workbooks in this series' own cross-workbook topic
-roadmap, not taught here.
+roadmap. Public reporting has associated recurrent depth with a model
+referred to as "GPT-6 Astra"; no official technical source confirms
+this, and this workbook does not treat that proprietary architecture
+as verified anywhere it is mentioned.
 
 This is a review artifact: it exists to establish the workbook's
 explanatory depth, visual language, page density, question style, and
-citation style before the remaining chapter is drafted at scale. Treat
-any rough edge you find as exactly the kind of thing this pilot is
-meant to surface early.
+citation style. Treat any rough edge you find as exactly the kind of
+thing a pre-editorial-pass draft is meant to surface.
 :::

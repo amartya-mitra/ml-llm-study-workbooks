@@ -70,14 +70,14 @@ class TestWorkbook04Blueprint(unittest.TestCase):
             self.assertGreater(len(c["learning_objectives"]), 0, msg=f"{c['id']} has no learning objectives")
 
     def test_figure_count_within_stage7_target_range(self):
-        # Ceiling raised 18->19->20 (2026-09-23, 2026-09-25): Chapters 6
-        # and 7 each had their own drafting task mandate exactly 2
-        # figures, one more than each chapter's original single-figure
-        # plan -- a disclosed, deliberate increase, not scope creep.
-        # See figure-plan.yaml's figure_count_check.revision_note.
+        # Ceiling raised 18->19->20->21 (2026-09-23, 2026-09-25 x2):
+        # Chapters 6, 7, and 8 each had their own drafting task mandate
+        # exactly 2 figures, one more than each chapter's original
+        # single-figure plan -- a disclosed, deliberate increase, not
+        # scope creep. See figure-plan.yaml's figure_count_check.revision_note.
         count = len(self.figure_plan["figures"])
         self.assertGreaterEqual(count, 12)
-        self.assertLessEqual(count, 20)
+        self.assertLessEqual(count, 21)
         self.assertEqual(count, self.figure_plan["figure_count_check"]["planned_count"])
 
     def test_every_figure_has_an_attribution_decision(self):
@@ -98,14 +98,12 @@ class TestWorkbook04Blueprint(unittest.TestCase):
         chapter_ids = {c["id"] for c in self.outline["chapters"]}
         for ch_id in chapter_ids:
             count = per_chapter.get(ch_id, 0)
-            # ch8 is a deliberate exception (see question-plan.yaml's ch8_note):
-            # it is the cumulative/interview capstone and introduces no new
-            # quick questions of its own.
-            if ch_id == "ch8":
-                self.assertEqual(count, 0)
-            else:
-                self.assertGreaterEqual(count, 2, msg=f"{ch_id} has fewer than 2 quick questions")
-                self.assertLessEqual(count, 4, msg=f"{ch_id} has more than 4 quick questions")
+            # RESCOPED (2026-09-25): ch8 is no longer a no-new-concepts
+            # capstone -- it is the primary_home for recurrent depth /
+            # looped transformers (config/series-topic-roadmap.yaml) and
+            # now has its own quick questions like every other chapter.
+            self.assertGreaterEqual(count, 2, msg=f"{ch_id} has fewer than 2 quick questions")
+            self.assertLessEqual(count, 4, msg=f"{ch_id} has more than 4 quick questions")
 
     def test_all_referenced_source_ids_exist_in_registry(self):
         for label, data in [

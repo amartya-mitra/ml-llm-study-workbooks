@@ -13,9 +13,9 @@
 schema_version: 1
 
 pilot_actual:
-  measured_from: "outputs/04-llm-architecture-ch01-07-review.pdf"
-  total_pages: 62
-  total_words: 30231
+  measured_from: "outputs/04-modern-llm-architecture-workbook-rc1.pdf"
+  total_pages: 68
+  total_words: 33415
   sections:
     - name: "front_matter"
       description: "Title page, how-to-use, pilot-scope note, notation quick reference"
@@ -77,10 +77,23 @@ pilot_actual:
       description: "Answer Key: Chapter 7 only"
       pages: 0.68
       notes: "Items 1-4 begin at the bottom of page 59 (no forced break, sharing the page with Chapter 6's answer-key tail); items 5-6 continue onto page 60, ending before the bottom of that page. Lands within the 0.75-page HARD MAXIMUM -- a disclosed miss against the 0.5-page preferred target, tightened once (from an initial ~0.95-page draft) by compressing all six answers, especially the multi-part design-exercise and interview-practice items."
+    - name: "chapter_8"
+      description: "Chapter 8: Emerging Directions and Architecture Synthesis: Looped Depth, Design Tradeoffs, and How to Read What Comes Next, instructional content only"
+      pages: 5
+      notes: "Starts fresh on page 52 (deliberate break), ends at the bottom of page 56 -- lands EXACTLY at the 5-page HARD MAXIMUM (preferred target was 4 pages), a disclosed miss -- matching Chapter 6's pattern, not Chapter 7's. Two figures (looped-vs-unrolled depth, architecture decision map), two verified examples (Mixture-of-Recursions, Nanbeige4.2-3B), a fixed-vs-adaptive-computation table, a worked arithmetic example, an MTP bridge callout, the 10-question synthesis framework, one boxed misconception, and a cumulative design exercise did not compress into 4 pages without cutting a required element -- tightened once (figure spacing, a shortened intro paragraph, and fixing a two-column list-rendering bug found only by visual inspection) before accepting the hard-max result. See outline.yaml's ch8.drafting_note and reports/04_ch08_draft_report.md."
+    - name: "answer_key_chapter_8"
+      description: "Answer Key: Chapter 8 only"
+      pages: 0.65
+      notes: "Begins mid-page on page 65 (no forced break, sharing the page with Chapter 7's answer-key tail and the start of the Build and Version Note), ending comfortably before the bottom of that same page. Lands within the 0.75-page HARD MAXIMUM -- a disclosed miss against the 0.5-page preferred target, reached only after a substantial compression pass (the initial draft's item 5 alone spilled across two pages, roughly 1.3 pages total for the whole answer key -- cut by roughly half by tightening every item, especially the design-exercise and interview-practice answers)."
     - name: "build_note_and_bibliography"
       description: "Build and Version Note (with its Provenance subsection) plus the auto-appended Bibliography"
-      pages: 2.6
-      notes: "The build note ends and the Bibliography begins on page 61; Typst's native (citeproc:false) bibliography does not force its own fresh page -- it continues wherever the build note ends, spilling from page 61 through page 62 here. Grew from Chapter 6's 2.4 pages because of three new Provenance bullets (Chapter 7's resource-ledger/logical-vs-measured note, the series-topic-roadmap note, and the MTP/speculative-decoding scope-fence note) and twelve new bibliography entries (src-38..src-49, the series-wide topic roadmap's sources)."
+      pages: 2.4
+      notes: "The build note ends and the Bibliography begins on page 67; Typst's native (citeproc:false) bibliography does not force its own fresh page -- it continues wherever the build note ends, spilling from page 65 (shared with ch8's answer key) through page 68 here. Grew slightly from Chapter 7's 2.6 pages because of two new Provenance bullets (Chapter 8's looped-depth/Astra-uncertainty note and the MTP-bridge-scope-fence note) despite no new bibliography entries (all of Chapter 8's citations reuse sources already registered in the series-topic-roadmap session)."
+  pre_ch8_reference:
+    total_pages: 62
+    instructional_pages_ch1_through_ch7: 46
+    total_words: 30231
+    note: "Chapters 1-7 pilot actuals immediately before Chapter 8 was drafted (see reports/04_ch07_draft_report.md). Chapter 8 added exactly 6 pages (5 instructional + 0.65 answer-key + a ~0.35-page build-note growth), taking the total from 62 to 68 -- this is workbook 04's FINAL content chapter; no chapters remain provisional."
   pre_ch7_reference:
     total_pages: 57
     instructional_pages_ch1_through_ch6: 42
@@ -100,20 +113,27 @@ pilot_actual:
 full_workbook_projection:
   preferred_total_pages: [60, 68]
   hard_ceiling_total_pages: 72
-  hard_ceiling_note: "Exceeding 72 requires explicit approval. Page growth must come from adding chapters, not from ever shrinking fonts, figures, margins, or writing space."
-  chapter_8_provisional:
-    - chapter: 8
-      topic: "Synthesis / practice chapter, plus the recurrent-depth/looped-transformer emerging-architecture treatment deferred from ch. 7's preview (per config/series-topic-roadmap.yaml)"
-      instructional_pages: [4, 5]
-      estimated_answer_key_pages: [1, 1]
-  provisional_revision_note: "Chapter 7 landed at 4.68 total pages (4 instructional, exactly at its PREFERRED target -- the best-fitting chapter since Chapter 5 -- + 0.68 answer-key, a disclosed miss against the 0.5-page preferred target but within the 0.75 hard maximum). The remaining chapter_8_provisional range above is nudged up slightly (4.5 -> 5 instructional pages hard end) versus the old chapters_7_to_8_provisional's ch. 8 estimate, since ch. 8 must now absorb the full looped-depth/recurrent-depth treatment ch. 7 explicitly deferred to it (config/series-topic-roadmap.yaml), not just a synthesis/practice chapter -- a disclosed, deliberate widening, not silent scope creep."
-  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-7 (actual). Chapter 7's own ratio (0.68 answer-key page per 4 instructional pages, ~0.17) is close to Chapters 4-6's ~0.13-0.14 ratio -- informs the chapter 8 estimate above, which remains deliberately conservative relative to this observed efficiency."
+  hard_ceiling_note: "Exceeding 72 requires explicit approval. Page growth must come from adding chapters, not from ever shrinking fonts, figures, margins, or writing space. For this specific release candidate, an additional, TIGHTER 70-page ceiling also applies (see release_candidate_v1 below) -- both are satisfied."
+  chapter_8_provisional: []
+  status: "COMPLETE (2026-09-25): Chapter 8 was workbook 04's final content chapter. No chapters remain provisional -- 'pilot_actual' above is now the complete-workbook actual, not a projection. This section is retained for historical traceability of the projection process across Chapters 5-8, not as a live estimate."
+  provisional_revision_note: "Chapter 7 landed at 4.68 total pages (4 instructional, exactly at its PREFERRED target, + 0.68 answer-key). Chapter 8 then landed at 5.65 total pages (5 instructional, at its hard maximum like Chapter 6, + 0.65 answer-key) -- within its own final provisional range (chapter_8_instructional_range/chapter_8_answer_key_range below, both hit at or under the stated hard ends)."
+  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-7 (actual, before ch. 8 was drafted). Chapter 8's own actual ratio (0.65/5 = 0.13) landed within the range this basis predicted."
   projection_arithmetic:
-    pilot_actual_total: 62
+    pilot_actual_total: 68
     chapter_8_instructional_range: [4, 5]
+    chapter_8_actual_instructional: 5
     chapter_8_answer_key_range: [1, 1]
+    chapter_8_actual_answer_key: 0.65
     projected_full_total_range: [67, 68]
-  ceiling_status: "Within the 72-page hard ceiling on both ends (67-68), and within the 60-68 PREFERRED range on both ends too -- the best-positioned projection in the pilot so far. This depends on Chapter 8 actually holding to the provisional range above, including its now-widened allowance for the looped-depth/recurrent-depth material ch. 7 deferred to it."
+    actual_full_total: 68
+  ceiling_status: "ACTUAL complete-workbook total is 68 pages -- within the 72-page general hard ceiling, within this release candidate's own tighter 70-page ceiling, and at the top edge of (not exceeding) the 60-68 PREFERRED range. No further projection is needed; workbook 04's content is complete as of Chapter 8."
+
+release_candidate_v1:
+  pdf_path: "outputs/04-modern-llm-architecture-workbook-rc1.pdf"
+  status: "Complete content draft, NOT the final edition -- a whole-book editorial and visual QA pass across all eight chapters together has not yet been performed (see includes/draft-scope-note.qmd)."
+  hard_ceiling_total_pages: 70
+  actual_total_pages: 68
+  ceiling_status: "Within the 70-page release-candidate ceiling (68 <= 70)."
 
 chapter_3_specific:
   mla_deferral_note: "RESOLVED (2026-09-23): MLA's placement, left open when Chapter 3 was drafted, is Chapter 4 -- see outline.yaml's ch3.drafting_note and ch4.drafting_note, and reports/04_ch04_draft_report.md."
@@ -138,3 +158,12 @@ chapter_7_specific:
   mtp_speculative_decoding_scope_fence: "Chapter 7 adds only a short cross-reference stating that an MTP module MAY become an inference-time draft mechanism for speculative decoding -- neither mechanism is taught. Both are assigned to future workbooks (05 for MTP's training-time treatment, 06 for speculative decoding) per config/series-topic-roadmap.yaml, registered this session alongside 12 new sources (src-38 through src-49)."
   diagnosis_exercise_sourcing_note: "Chapter 7's two-model diagnosis exercise (Model A: dense GQA; Model B: MoE + MLA) reuses ch. 3's GQA KV-cache formula and ch. 4's MLA cache formula and ch. 5's total/active-parameter formula VERBATIM -- no new formula was derived for this chapter, per that day's drafting task's own instruction to avoid another long arithmetic derivation. Both models are hypothetical/illustrative, not a real model's published config."
   page_budget_result_note: "Chapter 7 landed at exactly its 4-page instructional PREFERRED target (not just the 5-page hard maximum) and 0.68 answer-key pages (within the 0.75 hard maximum, over the 0.5 preferred target, tightened once from an initial ~0.95-page draft) -- the best-fitting chapter since Chapter 5's exact preferred-budget hit. Two visual bugs (a figure canvas-width overflow; two internal-path-leakage occurrences in learner-facing prose) were found only by rendering every page to PNG and inspecting them, not by any automated test, and were fixed before this chapter was considered complete."
+
+chapter_8_specific:
+  scope_note: "Chapter 8 was rescoped from a no-new-concepts review/practice capstone (the pre-existing outline.yaml plan) to this workbook's primary_home for recurrent depth/looped transformers (config/series-topic-roadmap.yaml), plus a compact synthesis framework and cumulative design exercise -- see outline.yaml's ch8.drafting_note and reports/04_ch08_draft_report.md. This is the LAST content chapter of workbook 04."
+  looped_depth_full_treatment_note: "Chapter 8 gives looped depth/recurrent depth its full mechanism-level treatment, resolving the deferral both Chapter 4 (taxonomy-only mention) and Chapter 7 (one-row systems preview) had disclosed. L_distinct/T_passes/L_effective notation was added to notation.yaml; three new glossary terms were added to glossary.yaml. Two verified examples were used, deliberately chosen for contrasting loop policies: Mixture-of-Recursions (src-40, a RESEARCH PROPOSAL with adaptive per-token routing) and Nanbeige4.2-3B (src-42, a RELEASED, OPEN-WEIGHT model with a FIXED two-pass loop) -- these are not treated as the same design."
+  astra_uncertainty_note: "Per this session's explicit instruction, Chapter 8 includes a visible callout stating that public reporting has associated recurrent depth with 'GPT-6 Astra,' but that no official technical source confirms this architecture, and that this workbook does not treat that proprietary architecture as verified. This exact language is also verified present by an automated test (tests/test_ch08_worked_examples.py's test_astra_uncertainty_language_present)."
+  mtp_bridge_note: "Chapter 8's MTP bridge (a short callout, not a full teaching) reuses src-43 (already verified in the series-topic-roadmap session) and explicitly distinguishes MTP (a training-time design choice) from the complete speculative-decoding algorithm (acceptance/rejection, lossless-distribution guarantees, draft-model scheduling) -- assigned to workbooks 5 and 6 respectively, per config/series-topic-roadmap.yaml. No new sources were needed for this bridge."
+  worked_example_sourcing_note: "Chapter 8's looped-vs-unrolled-depth worked example (L_distinct=22, T_passes=2) deliberately matches Nanbeige4.2-3B's own reported loop policy (src-42) for the LOOP-COUNT numbers, but uses illustrative (not Nanbeige's own verified) per-block/non-block parameter-size assumptions for the complete-model-ratio calculation -- this distinction is stated explicitly in the chapter text and the worked-example script's own docstring, so the real, verified loop-policy fact is not conflated with the illustrative arithmetic built on top of it."
+  page_budget_miss_note: "Chapter 8 landed at its 5-page instructional hard maximum (not the 4-page preferred target, matching Chapter 6's pattern rather than Chapter 7's) and 0.65 answer-key pages (within the 0.75 hard maximum, over the 0.5 preferred target) -- both disclosed misses, not silent scope creep. The answer key needed a substantial compression pass: the initial draft's design-exercise answer alone spilled across two pages (~1.3 pages total for the whole answer key) before being cut roughly in half. A list-rendering bug (an attempted two-column 10-question list collapsed into one confusing line under Typst) was found only by visual inspection and fixed by using a single ordered list instead."
+  workbook_completion_note: "Chapter 8 is workbook 04's final content chapter. The complete-workbook actual is 68 pages (33,415 words), within the general 72-page hard ceiling, within this release's own tighter 70-page ceiling, and at the top of the 60-68 preferred range. See reports/04_release_candidate_report.md for the full completion record."

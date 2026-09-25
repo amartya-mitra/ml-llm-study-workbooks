@@ -11,7 +11,7 @@
 working_title: "Modern LLM Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models"
 target_reader: "technically experienced ML practitioner or researcher; knows standard deep learning and linear algebra and the vanilla Transformer; not fluent yet in modern efficiency mechanisms (GQA, MLA, MoE routing, hybrid attention stacks)"
 page_ceiling: 65
-estimated_total_pages: 44  # ch3 9->8 (MLA deferred out); ch4 7->6 (retitled, MLA absorbed); ch5 8->5 (scoped down, systems depth deferred); ch6 8->4 (rescoped to 3 case studies + reading checklist); ch7 7->4 (rescoped to resource ledger + consequence map + parallelism overview); 2026-09-23/2026-09-25, see ch3/ch4/ch5/ch6/ch7 drafting_note fields
+estimated_total_pages: 42  # ch3 9->8 (MLA deferred out); ch4 7->6 (retitled, MLA absorbed); ch5 8->5 (scoped down, systems depth deferred); ch6 8->4 (rescoped to 3 case studies + reading checklist); ch7 7->4 (rescoped to resource ledger + consequence map + parallelism overview); ch8 6->4 (rescoped from no-new-concepts capstone to looped-depth primary home + synthesis framework); 2026-09-23/2026-09-25, see ch3/ch4/ch5/ch6/ch7/ch8 drafting_note fields
 
 chapters:
   - id: "ch1"
@@ -325,29 +325,41 @@ chapters:
 
   - id: "ch8"
     number: 8
-    title: "Synthesis and practice"
-    purpose: "Consolidate chapters 1-7 into a single worksheet-style capstone: comparison, calculation, design judgment, and a compact visual reference — no new mechanisms introduced."
+    title: "Emerging directions and architecture synthesis: looped depth, design tradeoffs, and how to read what comes next"
+    drafting_note: "RESCOPED (2026-09-25) per that day's drafting task: ch8 is no longer a no-new-concepts review capstone -- it is the primary_home for recurrent depth/looped transformers (config/series-topic-roadmap.yaml), teaching that mechanism at full depth (L_distinct/T_passes/L_effective notation, fixed-vs-adaptive computation, the KV-cache caveat) using two verified examples (Mixture-of-Recursions, Nanbeige4.2-3B), a short MTP bridge (not a re-teaching of ch. 7's cross-reference, but pointing forward to workbooks 05/06), and a 10-question architecture-reading synthesis framework applied to a cumulative design exercise -- replacing the old worksheet-only plan. estimated_pages 6->4 (5 hard maximum). Figures 1->2 (looped-vs-unrolled depth; an architecture decision map organizing ch. 1-7's mechanisms plus looped depth and MTP by the resource/behavior each changes) -- the old 'compact visual reference sheet' (small multiples of every prior figure) is dropped, since the decision map now serves that consolidating role without needing six miniaturized redraws. See reports/04_ch08_draft_report.md."
+    purpose: "Teach recurrent depth/looped transformers at full mechanism depth (this workbook's assigned primary home per the series-wide topic roadmap), then synthesize chapters 1-7 into a compact architecture-reading framework and one cumulative design exercise -- not a no-new-concepts worksheet capstone."
     prerequisites: ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7"]
     learning_objectives:
-      - "Complete an architecture-comparison worksheet spanning every mechanism covered, unaided"
-      - "Answer a cumulative set of design and misconception-diagnosis questions that require combining mechanisms from more than one chapter"
-      - "Use the compact visual reference to reconstruct any single chapter's core diagram from memory"
+      - "Distinguish distinct block parameters from effective block applications (L_distinct, T_passes, L_effective) and explain why depth-wise weight sharing does not reduce compute or automatically reduce/share KV-cache state"
+      - "Distinguish depth recurrence (looped transformers) from sequence recurrence (RNN/Mamba-style state) and from fixed-vs-adaptive computation (fixed loop count, adaptive halting, token-level recursion routing), and distinguish a paper's described behavior from a released implementation's actual behavior"
+      - "Apply a 10-question architecture-reading synthesis framework to a new, unseen model, cross-referencing chapters 1-7 by name instead of re-deriving their mechanisms"
+      - "Propose a defensible combination of mechanisms for a stated design constraint, state which of its effects follow from architecture alone and which still require benchmarking, and state the standing caution that public reporting about a specific proprietary model's architecture (e.g. rumors about GPT-6 Astra) is not treated as verified fact"
     core_concepts:
-      - "no new concepts — this chapter is explicitly a review/practice capstone"
-    required_equations: []
+      - "L_effective = L_distinct * T_passes for a fixed full-stack loop -- distinct parameter storage vs. effective computation depth are different quantities"
+      - "shared block weights do not imply shared intermediate activations or a single shared KV-cache across passes -- each pass may need its own cache entries unless a specific architecture adds cache-reuse"
+      - "fixed loop count vs. adaptive halting vs. token-level recursion routing, and why a released implementation's actual execution path may differ from a paper's described early-exit behavior"
+      - "the MTP bridge: multi-token prediction as a training-time objective (workbook 05) that may or may not become an inference-time speculative-decoding draft source (workbook 06) -- not taught here"
+      - "a 10-question synthesis framework (reused to read any new model, not a new catalog of models)"
+    required_equations:
+      - "L_effective = L_distinct * T_passes (fixed full-stack loop; per-pass or per-token variants are described qualitatively, not derived further)"
     worked_examples:
-      - "one cumulative worked example that chains: pick an attention variant (ch. 3) + a sparsity/hybrid choice (ch. 4) + dense-or-MoE (ch. 5), then compute both KV-cache size and active parameters for the composite config"
+      - "looped (L_distinct=22, T_passes=2, L_effective=44) vs. a conventional 44-distinct-block stack: distinct block-parameter storage, block applications per token, and the KV-cache caveat, verified programmatically"
+      - "cumulative design exercise: given a long-context, weight-memory-constrained, moderate-concurrency multi-GPU serving scenario, propose a combination from {GQA, MLA, sliding/local attention, MoE, hybrid recurrent layers, looped depth, adaptive recursion} and state its weight-memory/cache/compute/communication effects, training complication, and what must still be benchmarked"
     planned_figures:
-      - "compact visual reference sheet (one page, small multiples of every major diagram from ch. 1-7, redrawn at reference scale)"
-    planned_tables:
-      - "architecture comparison worksheet: blank grid the reader fills in for a new, unseen model, cross-referencing the case-study table's column headers from ch. 6"
+      - "looped vs. unrolled depth: 22 distinct blocks used once, the same 22 blocks used twice with a return path, and an unrolled view of 44 block applications with repeated weight identities -- distinguishing distinct parameter sets, block applications, evolving hidden states, and pass-specific cache/state"
+      - "architecture decision map: GQA/MQA, MLA, local/sparse attention, MoE, hybrid recurrence, looped depth, and MTP, each organized by the resource/behavior it primarily changes, with MTP shown with a bridge arrow to workbook 5 (training objective) and workbook 6 (optional speculative-drafting use) rather than a resource-dimension row"
+    planned_tables: []
     misconception_checks:
-      - "cumulative: a mixed set drawing one misconception check from each of ch. 2-7, restated in a new scenario rather than repeated verbatim"
+      - "\"Reusing the same layers gives the depth of a larger model at the compute and cache cost of the smaller model\" — false in three parts: distinct parameter storage may be smaller, block applications still execute (compute is not reduced), and pass-specific K/V or state may still be required (cache is not automatically shared)"
     short_questions:
-      - "10-15 cumulative review questions spanning ch. 1-7 (full bank in question-plan.yaml)"
-      - "6-10 interview-style questions spanning ch. 1-7 (full bank in question-plan.yaml)"
-    applied_exercise: "Given a full, unseen model card, complete the architecture comparison worksheet end to end: attention variant, cache size, dense-or-MoE and active parameters, normalization/positional scheme, and one predicted systems consequence."
-    interview_lens: "This chapter's cumulative questions are deliberately styled as a compressed mock interview loop over the whole workbook."
-    primary_sources: []
-    secondary_sources: ["src-14", "src-15"]
-    estimated_pages: 6
+      - "recall: given L_distinct and T_passes, compute L_effective and state which of the two governs distinct block-parameter storage"
+      - "recall: does weight sharing across passes imply a single shared KV-cache across those passes?"
+      - "calculation: given a stated L_distinct/T_passes and a conventional unrolled-depth comparison, compute the distinct-block-parameter ratio between the two"
+      - "misconception_diagnosis: does looping give the depth of a larger model at the smaller model's compute and cache cost?"
+      - "compare_and_contrast: apply the synthesis framework to a new, unseen model and compare it against one ch. 6 case study"
+      - "interview-style: compare scaling by adding distinct layers, looping a shared stack, and using adaptive recursion, across parameters, computation, KV state, batching, and implementation complexity"
+    applied_exercise: "Given a long-context, weight-memory-constrained, moderate-concurrency multi-GPU serving scenario, propose a combination of mechanisms from ch. 1-8 and justify it across weight-memory, cache/state, compute, and communication effects, one training complication, one thing that must be benchmarked, and one tradeoff that cannot be inferred from architecture alone."
+    interview_lens: "\"Compare scaling a transformer by adding distinct layers, looping a shared stack, and using adaptive recursion. Discuss parameters, computation, KV state, batching, and implementation complexity.\" is a direct systems-interview prompt this chapter's looped-depth section and synthesis framework are built to answer."
+    primary_sources: ["src-38", "src-40", "src-42"]
+    secondary_sources: ["src-14", "src-15", "src-39", "src-41", "src-43", "src-46", "src-47", "src-48", "src-49"]
+    estimated_pages: 4

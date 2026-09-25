@@ -154,3 +154,18 @@ terms:
     short_definition: "Storing/computing weights or activations at reduced numeric precision (e.g. int8, fp8); changes measured memory and speed without changing the architecture graph itself."
     chapter: "ch7"
     source_ids: ["src-11"]
+
+  - term: "Looped transformer / recurrent depth"
+    short_definition: "A depth-recurrence architecture that applies the same block(s) more than once to an evolving hidden state (L_effective = L_distinct * T_passes), instead of stacking additional distinct blocks; distinct from sequence recurrence (RNN/Mamba-style state carried across token positions)."
+    chapter: "ch8"
+    source_ids: ["src-38", "src-40", "src-42"]
+
+  - term: "Fixed loop count vs. adaptive halting vs. token-level recursion routing"
+    short_definition: "Three different policies for how many passes a looped architecture runs: every token gets the same fixed number of passes; the model estimates whether another pass is needed (adaptive halting); or different token positions receive different effective depths (token-level recursion routing)."
+    chapter: "ch8"
+    source_ids: ["src-38", "src-40", "src-42"]
+
+  - term: "Distinct parameters vs. effective block applications"
+    short_definition: "Distinct parameters (L_distinct) is how many different sets of block weights are stored; effective block applications (L_effective) is how many times a block runs against the hidden state. Weight sharing lowers the first without lowering the second -- compute still happens for every application, and cache/state is not automatically shared across passes."
+    chapter: "ch8"
+    source_ids: ["src-38", "src-40"]

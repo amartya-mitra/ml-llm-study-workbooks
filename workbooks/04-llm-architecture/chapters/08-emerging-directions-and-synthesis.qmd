@@ -1,0 +1,234 @@
+## Chapter 8: Emerging Directions and Architecture Synthesis: Looped Depth, Design Tradeoffs, and How to Read What Comes Next {#sec-ch8}
+
+*One More Tradeoff, Then a Framework for Every Tradeoff After It*
+
+### Learning objectives
+
+By the end of this chapter you should be able to:
+
+- Distinguish distinct block parameters from effective block
+  applications ($L_{\text{distinct}}$, $T_{\text{passes}}$,
+  $L_{\text{effective}}$), and explain why depth-wise weight sharing
+  does not reduce compute or automatically reduce/share KV-cache
+  state.
+- Distinguish depth recurrence (looped transformers) from sequence
+  recurrence (ch. 6's Mamba/SSM state) and from fixed-vs-adaptive
+  computation, and distinguish a paper's described behavior from a
+  released implementation's actual behavior.
+- Apply a 10-question synthesis framework to a new, unseen model,
+  citing chapters 1-7 by name instead of re-deriving their mechanisms.
+- Propose a defensible mechanism combination for a stated design
+  constraint, stating which effects follow from architecture alone and
+  which still require benchmarking.
+
+### Why architecture keeps evolving
+
+Chapters 2 through 7 each taught one tradeoff: a resource traded for a
+complication. New mechanisms keep appearing faster than any workbook
+can catalog, so this closing chapter teaches one more tradeoff family
+(looped depth) at full depth, then gives a compact, reusable framework
+for reading whatever comes next, rather than a wider catalog.
+
+### Recurrent depth / looped transformers
+
+A looped transformer applies **depth recurrence**: the same block
+weights run repeatedly over an *evolving hidden state*. This is not
+**sequence recurrence** (ch. 6's Mamba/SSM state, carried across token
+*positions*, [@src-37]) -- the two are called "recurrent" casually but
+are different mechanisms.
+
+$$
+L_{\text{effective}} = L_{\text{distinct}} \times T_{\text{passes}}
+$$
+
+$L_{\text{distinct}}$ (distinct block sets stored) and
+$L_{\text{effective}}$ (block applications executed) answer different
+questions: reusing weights across $T_{\text{passes}}$ lowers
+$L_{\text{distinct}}$ relative to $L_{\text{effective}}$, but compute
+still happens for every application, and shared weights imply neither
+shared intermediate activations nor one shared KV-cache across passes
+-- each pass may need its own cache entries unless an architecture
+adds cache reuse deliberately.
+
+![Looped vs. unrolled depth. Panels 1-2 use the same 22 distinct
+blocks; panel 2 just runs them twice. Panel 3's unrolled view shows 44
+block applications, but applications sharing a color share the same
+underlying weights -- distinct parameters (22) and block applications
+(44) are different counts. Per-application cache icons are schematic,
+not a claim that caches are
+shared.](figures/rendered/fig-looped-vs-unrolled-depth.svg){#fig-looped-vs-unrolled-depth}
+
+**Two verified examples, different loop policies.** Mixture-of-Recursions
+([@src-40], Bae et al., 2025) is a *research proposal*: a router
+assigns adaptive, per-token recursion depth, and the paper itself poses
+a caching choice ("recursion-wise caching" vs. "recursive sharing")
+with different memory consequences -- weight sharing alone does not
+resolve which one a real deployment uses. Nanbeige4.2-3B ([@src-42],
+2026-07-27) is a *released, open-weight model*: a fixed two-pass loop
+over a 22-layer stack (44 total block applications), chosen to raise
+effective depth under a fixed parameter budget, not per-token adaptive.
+These are not the same design -- do not treat "looped" as one policy.
+
+::: {.callout-note}
+Public reporting has associated recurrent depth with "GPT-6 Astra,"
+but no official technical source confirms this architecture -- this
+workbook does not treat that proprietary architecture as verified.
+:::
+
+### Fixed versus adaptive computation
+
+| Design | Idea | Benefit | Complication |
+|---|---|---|---|
+| Fixed loop count | every token gets the same passes | simple, predictable batching | no conditional savings |
+| Adaptive halting | model estimates whether another pass helps | conditional compute | training stability, variable execution paths |
+| Token-level recursion routing | different positions get different depths | fine-grained conditional compute | routing decisions, batching inefficiency, cache management |
+
+: Adaptive methods do not always save compute -- a released implementation may compute all passes before selecting an exit even when a paper describes early exit {#tbl-fixed-vs-adaptive}
+
+### Worked example: looped vs. conventional depth
+
+$L_{\text{distinct}}=22$, $T_{\text{passes}}=2$ (matching Nanbeige4.2-3B's
+own reported loop policy), so $L_{\text{effective}}=44$, compared
+against a conventional 44-distinct-block stack. Illustrative equal-
+per-block-size assumption (verified programmatically, not Nanbeige's
+own exact per-block parameter split):
+
+| Quantity | Looped | Conventional | Ratio |
+|---|---|---|---|
+| Distinct blocks | 22 | 44 | -- |
+| Block applications/token | 44 | 44 | 1.0 (equal) |
+| Block-parameter storage | 1.1B | 2.2B | 0.5 |
+| Complete-model parameters | 1.6B | 2.7B | 0.59 |
+
+: Block-parameter ratio is exactly $1/T_{\text{passes}}$; the complete-model ratio is NOT exactly 0.5 -- embeddings/output heads/routers add the same mass to both totals {#tbl-looped-worked-example}
+
+Cache caveat: separate pass-specific cache entries may make cache
+requirements comparable to 44 block applications, not 22, unless an
+additional cache-reuse mechanism is used (ch. 7's cache/state
+category).
+
+### MTP: a bridge, not a destination
+
+::: {.callout-note}
+Standard training predicts token $t{+}1$; multi-token prediction adds
+objectives/modules for further offsets ([@src-43]). These auxiliary
+components may be removed at inference, or -- a separate design
+choice -- repurposed to propose draft tokens. Proposing tokens does
+not by itself define the complete speculative-decoding algorithm
+(acceptance/rejection, lossless-distribution guarantees, draft-model
+scheduling): that belongs to a future inference workbook. MTP's
+*training* treatment belongs to a future pretraining workbook. Neither
+is taught here.
+:::
+
+### Architecture synthesis framework
+
+For any new model, ask:
+
+1. What is reused?
+2. What is activated conditionally?
+3. What state grows with context?
+4. What state is compressed or bounded?
+5. How many distinct parameters are stored?
+6. How many block/module applications run per token?
+7. What communication is introduced?
+8. Which behavior is architecture-defined?
+9. Which behavior depends on training?
+10. Which claimed benefit still needs benchmarking?
+
+![Every mechanism from ch. 1-7, plus looped depth, sits under the one
+resource/behavior it primarily changes. MTP bridges off the map to two
+future workbooks instead of sitting under a resource-axis header --
+it is a training-time choice, not itself the speculative-decoding
+algorithm.](figures/rendered/fig-architecture-decision-map.svg){#fig-architecture-decision-map}
+
+::: {.callout-warning title="Common misconception"}
+**"Reusing the same layers gives the depth of a larger model at the
+compute and cache cost of the smaller model."** False in three parts:
+distinct parameter storage may be smaller, block applications still
+execute (compute is not reduced), and pass-specific K/V or state may
+still be required (cache is not automatically shared).
+:::
+
+### Check your understanding
+
+Full solutions are in the answer key (@sec-solutions-ch8):
+
+1. **Quick check.** Given $L_{\text{distinct}}=12$ and
+   $T_{\text{passes}}=3$, compute $L_{\text{effective}}$, and state
+   which of the two governs distinct block-parameter storage.
+   ________________________________________________
+2. **Quick check.** Does weight sharing across passes imply a single
+   shared KV-cache across those passes? ________________________________________________
+3. **Calculation.** For $L_{\text{distinct}}=22$, $T_{\text{passes}}=2$
+   vs. 44 conventional distinct blocks, state the distinct-block-parameter
+   ratio and the block-application counts for both.
+   ________________________________________________
+4. **Misconception check.** True or false: reusing the same layers
+   gives the depth of a larger model at the compute and cache cost of
+   the smaller model. ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+A team wants a long-context model under a weight-memory constraint,
+but can afford additional computation for difficult tokens; serving
+must support moderate concurrency on multiple GPUs. Candidate
+mechanisms: GQA, MLA, sliding/local attention, MoE, hybrid recurrent
+layers, looped depth, adaptive recursion. Propose one combination and
+state: its weight-memory, cache/state, compute, and communication
+effects; one training complication; one thing that must be
+benchmarked; and one tradeoff that cannot be inferred from the
+architecture alone. There is no single correct combination.
+
+### Interview lens
+
+*"Compare scaling a transformer by adding distinct layers, looping a
+shared stack, and using adaptive recursion. Discuss parameters,
+computation, KV state, batching, and implementation complexity."* A
+strong answer keeps distinct parameters, block applications, and
+cache/state as three separate quantities across all three scaling
+choices, and names batching/implementation complexity as separate,
+non-architectural costs.
+
+### Chapter recap
+
+@fig-architecture-decision-map is this workbook's visual recap: every
+mechanism from chapters 2-7, plus looped depth, in one place.
+
+- $L_{\text{effective}} = L_{\text{distinct}} \times T_{\text{passes}}$
+  -- distinct parameters and effective compute are different
+  quantities; weight sharing lowers the first, not the second.
+- Shared weights across passes do not imply a shared KV-cache; cache
+  reuse across passes is an additional, separate design decision.
+- Fixed loop counts, adaptive halting, and token-level recursion
+  routing are three different policies with different training and
+  serving complications -- a paper's described behavior and a released
+  implementation's actual behavior are not guaranteed to match.
+- MTP is a training-time bridge to two future workbooks, not itself
+  the speculative-decoding algorithm.
+- The 10-question framework reads any new model without re-deriving
+  chapters 1-7's mechanisms.
+- Architecture constrains but does not determine benchmark quality or
+  latency alone -- this has been every chapter's closing caution, and
+  it is this workbook's last one too.
+
+### Sources and further reading
+
+Primary sources: [@src-40] (Mixture-of-Recursions' adaptive per-token
+routing and its own KV-caching-strategy comparison, verified via
+full-text extraction), [@src-42] (Nanbeige4.2-3B's fixed two-pass loop
+policy, verified via full-text extraction), [@src-38] (Universal
+Transformers' original depth-wise weight sharing and adaptive
+per-position halting, 2018). Secondary/supporting: [@src-14], [@src-15]
+(visual scoping), [@src-39], [@src-41] (further recurrent-depth
+sources, not detailed here), [@src-43] (MTP), [@src-46], [@src-47],
+[@src-48], [@src-49] (Raschka's expert-explanatory framing and
+source-discovery aid -- not a substitute for the primary sources
+above, and not treated as confirming any specific proprietary
+architecture). A full derivation of adaptive-halting training
+objectives, MTP's training mechanics, and the speculative-decoding
+algorithm are all out of scope -- assigned to future workbooks per
+this series' own cross-workbook topic roadmap.

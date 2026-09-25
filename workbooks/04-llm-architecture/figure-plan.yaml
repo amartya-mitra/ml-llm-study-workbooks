@@ -297,23 +297,38 @@ figures:
     grayscale_behavior: "qualitative markers use distinct symbols (not color alone) so the matrix survives grayscale printing"
     accessibility_description: "A six-row, five-column matrix. Each row is a mechanism (GQA/MQA, MLA, sliding attention, MoE, hybrid recurrent layers, looped depth); each column is a resource dimension (weight memory, cache/state memory, compute, communication, implementation complexity); each cell holds a small qualitative symbol, not a number. The looped-depth row is marked as a preview, deferred in full to chapter 8."
 
-  - id: "fig-compact-visual-reference"
+  - id: "fig-looped-vs-unrolled-depth"
     chapter: "ch8"
-    teaching_purpose: "Give the reader one page that reconstructs the shape of every prior chapter's core diagram from memory, as the capstone's promised compact reference."
-    learner_takeaway: "Every mechanism in this workbook reduces to one small diagram — this page is the complete set, at a glance."
-    diagram_type: "small multiples (one shrunk version of each prior core figure)"
-    objects_and_relationships: "Miniaturized versions of fig-decoder-block-anatomy, fig-mha-mqa-gqa-head-sharing, fig-mla-compression-reconstruction, fig-sliding-window-vs-global, fig-dense-mlp-vs-moe, and fig-architecture-to-consequence-map, arranged in reading order."
-    required_labels: ["one short label per panel naming its chapter"]
+    teaching_purpose: "Make the distinct-parameters-vs-effective-block-applications distinction (Stage 3/7 of ch. 8's drafting task) visible: the same 22 blocks used twice look different from 44 distinct blocks only in which weights are stored, not in how many times a block runs."
+    learner_takeaway: "Looping halves distinct block-parameter storage relative to an unrolled stack of the same effective depth, but block applications (and therefore compute) stay the same -- and each pass may still need its own cache/state entries."
+    diagram_type: "three-panel comparison (left: single pass; middle: looped with a return path; right: unrolled view)"
+    objects_and_relationships: "Left panel: 22 distinct blocks, used once each. Middle panel: the same 22 distinct blocks with a return arrow showing a second pass through the identical weights, hidden state evolving between passes. Right panel: an unrolled view of 44 block applications, with repeated-weight-identity markers showing which of the 44 applications share the same underlying weights, plus a small cache/state icon per application noting pass-specific state."
+    required_labels: ["distinct parameter set (per block)", "block application (per pass)", "evolving hidden state (arrow between passes)", "pass-specific cache/state icon"]
+    underlying_calculation: "L_effective = L_distinct * T_passes, instantiated at L_distinct=22, T_passes=2, L_effective=44 (ch. 8's worked example)"
+    source_inspiration: "src-38 (Universal Transformers), src-40 (Mixture-of-Recursions), src-42 (Nanbeige4.2-3B) -- concept only (repeated block application over evolving hidden states), not any of their own figures"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-38, src-40, src-42 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 3.5in"
+    grayscale_behavior: "distinct-weight-identity markers use a repeating pattern/shape as well as color so the unrolled panel's repeated identities survive grayscale printing"
+    accessibility_description: "Three panels left to right: 22 distinct blocks used once; the same 22 blocks with an arrow looping back for a second pass; an unrolled row of 44 block applications where every application sharing the same underlying weights is marked with the same pattern, each with a small icon noting whether its cache/state is shared or pass-specific."
+
+  - id: "fig-architecture-decision-map"
+    chapter: "ch8"
+    teaching_purpose: "Consolidate chapters 1-7's mechanisms (plus looped depth and MTP) into one map organized by the resource or behavior each primarily changes, replacing the old plan's six-panel miniature-redraw reference sheet with a single organizing view."
+    learner_takeaway: "Every mechanism this workbook covers changes exactly one primary resource/behavior axis -- GQA/MQA changes KV-head sharing, MLA changes the KV representation, MoE changes which feed-forward parameters activate, and so on -- and MTP is a training-time objective with only an optional, separate bridge to inference-time drafting, not a resource-axis mechanism itself."
+    diagram_type: "categorized map (mechanism nodes grouped under resource/behavior headers)"
+    objects_and_relationships: "Seven mechanism nodes (GQA/MQA, MLA, local/sparse attention, MoE, hybrid recurrence, looped depth, MTP) each placed under the one resource/behavior header it primarily changes (KV-head sharing; latent KV representation; attended positions; conditional feed-forward parameters; sequence-state mechanism; depth-wise weight reuse; future-token training targets). MTP additionally has two bridge arrows leading off the map to 'Workbook 5: training objective' and 'Workbook 6: optional speculative-drafting use.'"
+    required_labels: ["mechanism name (node)", "resource/behavior header (per group)", "MTP's two bridge-arrow destinations, explicitly not labeled as the same mechanism as speculative decoding"]
     underlying_calculation: null
-    source_inspiration: "none — a composite of this workbook's own prior original figures, not any third-party source"
-    must_be_redrawn: false
-    attribution_requirement: "none beyond whatever each constituent figure already cites individually"
-    intended_printed_dimensions: "full page (6.5in x 9in), six small panels"
-    grayscale_behavior: "inherits each constituent figure's already-verified grayscale legibility"
-    accessibility_description: "A grid of six small panels, each a shrunk version of an earlier chapter's main diagram, labeled with that chapter's topic."
+    source_inspiration: "none -- an original organizing diagram synthesizing this workbook's own chapters 1-7 plus config/series-topic-roadmap.yaml's assignments (internal file, not shown on the figure itself)"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-21, src-27, src-25, src-28, src-35, src-37, src-38, src-40, src-42, src-43 in the caption's source line (one per mechanism's own primary source)"
+    intended_printed_dimensions: "full page width (6.5in) x 4in"
+    grayscale_behavior: "resource/behavior group headers distinguished by border style as well as color; MTP's bridge arrows use a distinct dashed style so they read as 'elsewhere,' not as part of the resource-axis grouping"
+    accessibility_description: "A map with seven boxed mechanism names, each placed under one of seven header labels naming the resource or behavior it changes. A seventh box (MTP) has two dashed arrows leaving the map toward two off-map labels reading 'workbook 5: training objective' and 'workbook 6: optional speculative-drafting use,' visually distinguished from the other six mechanisms' single-axis placement."
 
 figure_count_check:
-  planned_count: 20
+  planned_count: 21
   stage_7_target_range: "12-18"
   within_range: false
-  revision_note: "RESOLVED (2026-09-23, updated 2026-09-25): ch. 6's task-mandated figure contract (Stage 7 of that day's drafting task: 'exactly 2' figures -- architecture cards AND a separate qualitative tradeoff map) raised the workbook-wide planned count from 18 to 19. Ch. 7's own task then split its single planned figure into two (a memory/state lifecycle diagram AND a separate architecture-to-systems consequence map), raising the count again from 19 to 20 -- two over the original 12-18 target range across both chapters. This is a disclosed, deliberate increase driven by each chapter's own explicit 'exactly 2 figures' requirement, not scope creep; see outline.yaml's ch6/ch7.drafting_note fields and reports/04_ch06_draft_report.md / reports/04_ch07_draft_report.md."
+  revision_note: "RESOLVED (2026-09-23, updated 2026-09-25 x2): ch. 6's task-mandated figure contract (Stage 7 of that day's drafting task: 'exactly 2' figures -- architecture cards AND a separate qualitative tradeoff map) raised the workbook-wide planned count from 18 to 19. Ch. 7's own task then split its single planned figure into two (a memory/state lifecycle diagram AND a separate architecture-to-systems consequence map), raising the count again from 19 to 20. Ch. 8's task then replaced its single planned figure (a six-panel miniature-reference sheet) with two (looped-vs-unrolled depth AND an architecture decision map), raising the count a third time from 20 to 21 -- three over the original 12-18 target range across three chapters. This is a disclosed, deliberate increase driven by each chapter's own explicit 'exactly 2 figures' requirement, not scope creep; see outline.yaml's ch6/ch7/ch8.drafting_note fields and reports/04_ch06_draft_report.md / reports/04_ch07_draft_report.md / reports/04_ch08_draft_report.md."

@@ -1,0 +1,52 @@
+## Answer Key: Chapter 8 {#sec-solutions-ch8}
+
+Full solutions to Chapter 8's "Check your understanding" questions
+(@sec-ch8).
+
+**1. Quick check.** *Answer.* $L_{\text{effective}} = 12 \times 3 = 36$.
+$L_{\text{distinct}}$ (12) governs distinct block-parameter storage.
+
+**2. Quick check.** *Answer.* No -- each pass may produce different
+K/V from an evolved hidden state, needing separate cache entries
+unless a specific cache-reuse mechanism is added.
+
+**3. Calculation.** *Answer.* Distinct-block-parameter ratio $=
+22/44=0.5$. Block applications: looped $=44=$ conventional -- looping
+does not reduce how many times a block runs.
+
+**4. Misconception check.** *Answer.* False, in three parts: distinct
+storage may be smaller, compute is not reduced (block applications
+still execute), and cache is not automatically shared (pass-specific
+K/V may still be required). *Common trap:* treating the 0.5
+block-parameter ratio as also the compute/cache ratio.
+
+**5. Design exercise (applied exercise).** *Answer.* **One design:**
+GQA attention layers + hybrid recurrent layers for most of the stack
+(bounds cache/state without growing weight memory) + looped/adaptive-recursion
+depth for extra compute on hard tokens. MoE is excluded --
+it grows total weight storage, the wrong resource here. *Effects:*
+weight-memory bounded by distinct parameters only; cache/state bounded
+by the recurrent layers; compute added conditionally, not uniformly;
+communication limited to ordinary tensor/pipeline parallelism (no
+expert routing). *Training complication:* adaptive-halting/routing
+stability. *Must benchmark:* serving latency/throughput at target
+concurrency and hardware. *Cannot infer from architecture alone:*
+whether adaptive recursion's compute savings reach wall-clock gains.
+**Alternative:** MLA instead of recurrent layers (compressed but still
+growing cache) plus a modest MoE if some weight growth is acceptable.
+*Evaluation criteria:* states all four effects separately, names a
+training complication, names something to benchmark, names a limit on
+architecture-alone inference. *Overclaims to avoid:* an exact latency
+number; calling the design "optimal"; guaranteeing adaptive recursion's
+savings at serving time.
+
+**6. Interview practice.** *Answer.* Adding distinct layers grows
+parameters and compute together, with simple batching. Looping lowers
+distinct parameters while compute (effective block applications) stays
+equal to the unrolled depth, plus the pass-specific cache caveat.
+Adaptive recursion lowers distinct parameters similarly but makes
+per-token compute variable, adding routing/halting decisions, batching
+inefficiency, and cache-management complexity beyond the other two.
+*Interview criteria:* keeps parameters/compute/KV state separate across
+all three choices; names batching/complexity as non-architectural
+costs.

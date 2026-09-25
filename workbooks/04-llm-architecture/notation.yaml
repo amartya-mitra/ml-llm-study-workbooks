@@ -89,6 +89,18 @@ symbols:
     name: "KV-cache size"
     meaning: "total bytes occupied by the key/value cache for one sequence, per the formula in ch. 3"
     unit: "bytes"
+  - symbol: "L_distinct"
+    name: "distinct transformer blocks"
+    meaning: "the number of DIFFERENT sets of block weights actually stored (ch. 8) -- distinct from L (ch. 1's total layer count), which for a looped stack counts distinct blocks, not block applications"
+    unit: "count"
+  - symbol: "T_passes"
+    name: "passes through the shared block/stack"
+    meaning: "how many times a looped architecture applies its L_distinct blocks to the (evolving) hidden state, for a fixed full-stack loop (ch. 8)"
+    unit: "count"
+  - symbol: "L_effective"
+    name: "effective block applications"
+    meaning: "L_effective = L_distinct * T_passes for a fixed full-stack loop (ch. 8) -- the quantity that governs compute (every application still runs), NOT the quantity that governs distinct block-parameter storage (L_distinct governs that)"
+    unit: "count"
 
 formula_assumption_checklist:
   - "Is this a per-token, per-sequence, or per-batch quantity? State which."

@@ -320,6 +320,56 @@ claims:
     freshness_risk: "stable mechanism-level claim"
     notes: ""
 
+  - chapter: "ch8"
+    topic: "depth-wise weight sharing and adaptive per-position halting (Universal Transformer)"
+    proposed_claim: "A looped transformer applies a shared transformation across positions and recurrent time-steps, and can add a dynamic per-position halting mechanism letting the model choose the number of refinement steps per symbol."
+    importance: "core"
+    primary_source_ids: ["src-38"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable -- a 2018 architecture-defining paper, not a fast-changing model-specific claim"
+    notes: "Verified 2026-09-25 directly against the arXiv PDF's abstract and Section 1/2.1 (full-text extraction, not a search snippet) -- see sources/registry.yaml src-38."
+
+  - chapter: "ch8"
+    topic: "per-token recursion routing and KV-cache implications (Mixture-of-Recursions)"
+    proposed_claim: "A router can assign dynamic per-token recursion depths (expert-choice or token-choice routing); dynamic-depth models face a KV-cache-consistency choice between 'recursion-wise caching' (only currently-selected tokens' keys are cached at that depth) and 'recursive sharing' -- these are different caching strategies with different memory consequences, not automatically resolved by weight sharing alone."
+    importance: "core"
+    primary_source_ids: ["src-40"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "stable mechanism-level claim (2025 paper); do not treat its reported throughput/FLOPs numbers as a general law for all looped architectures"
+    notes: "Verified 2026-09-25 directly against the arXiv PDF's Section 2.2.2 'KV Caching Strategies: Recursion-wise Caching vs. Recursive Sharing' (full-text extraction) -- see sources/registry.yaml src-40. This is the primary source for ch. 8's KV-cache caveat specifically."
+
+  - chapter: "ch8"
+    topic: "a fixed (non-adaptive) loop count in a shipped, open-weight model (Nanbeige4.2-3B)"
+    proposed_claim: "Nanbeige4.2-3B adopts a Looped Transformer architecture with a fixed two-pass loop over its layer stack, explicitly framed as improving effective depth/reasoning capacity under a fixed parameter budget -- a fixed loop count, not adaptive halting or per-token routing."
+    importance: "core"
+    primary_source_ids: ["src-42"]
+    explanatory_source_ids: []
+    status: "supported"
+    freshness_risk: "explicitly model-specific and dated (arXiv v2, 2026-07-27); state the version whenever this figure is cited"
+    notes: "Verified 2026-09-25 directly against the arXiv PDF's own text ('Nanbeige4.2-3B adopts a Looped Transformer architecture... A two-pass...') -- see sources/registry.yaml src-42. Used as ch. 8's fixed-loop-count example, contrasted with Mixture-of-Recursions' (src-40) adaptive per-token depth -- the two are not treated as the same design."
+
+  - chapter: "ch8"
+    topic: "MTP as a training-time objective, distinct from speculative decoding"
+    proposed_claim: "Multi-token prediction (independent-heads or causal-chain design) is a training-time objective/module design; whether an MTP module is later repurposed as an inference-time speculative-decoding draft source is a separate, optional design choice, not implied by MTP alone."
+    importance: "core"
+    primary_source_ids: ["src-43"]
+    explanatory_source_ids: ["src-49"]
+    status: "supported"
+    freshness_risk: "stable distinction; the specific claim that MTP 'can therefore remain a training-only objective or become part of the inference system' is src-49's own framing, attributed as such"
+    notes: "Reuses src-43 (already verified in the series-topic-roadmap session, 2026-09-25) and src-49 (Raschka's MTP gallery page) -- this is the short bridge ch. 8 gives before pointing to workbooks 05/06, not a full teaching of either mechanism."
+
+  - chapter: "ch8"
+    topic: "GPT-6 Astra's architecture is unconfirmed"
+    proposed_claim: "Public reporting has associated recurrent depth with a model referred to as 'GPT-6 Astra,' but no official technical source from that model's own developer confirms this architecture; the workbook treats it as unconfirmed, not verified fact."
+    importance: "core"
+    primary_source_ids: []
+    explanatory_source_ids: ["src-46", "src-47"]
+    status: "fast_changing"
+    freshness_risk: "explicitly a standing caution about an unverified, evolving rumor -- must not be upgraded to a confirmed fact in any future revision without an official primary source"
+    notes: "src-46/src-47 (Raschka, verified 2026-09-25 in the series-topic-roadmap session) themselves present this claim as third-party-reported speculation, not OpenAI's own disclosure. No primary source exists for this claim by design -- it is registered as explicitly unconfirmed, not as a sourcing gap to be closed."
+
 removed_or_descoped_claims:
   - claim: "A full derivation of Mamba/SSM selective-state-space recurrence equations."
     reason: "Explicitly descoped in outline.md's non-goals: this workbook treats linear/recurrent attention at the intuition-and-tradeoff level, not the differential-equation level. Removing this avoids both a page-budget blowout and a sourcing gap the project would otherwise have to fully close (see the 'source_needed' entry above for the mechanism-level claim that IS in scope)."

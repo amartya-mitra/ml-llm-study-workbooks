@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="357" viewBox="0 0 1080 357">
+  <title>Looped vs. unrolled depth</title>
+  <defs><marker id="arrow-555555" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker></defs>
+  <rect x="0" y="0" width="1080" height="357" fill="#ffffff"/>
+  <text x="185.0" y="22" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">22 distinct blocks,</text>
+  <text x="185.0" y="40" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">single pass</text>
+  <rect x="30" y="55" width="110" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="30" y="78" width="110" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="30" y="101" width="110" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="30" y="124" width="110" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <text x="85.0" y="160" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">x22 distinct blocks</text>
+  <text x="85.0" y="178" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="middle">22 block applications</text>
+  <text x="555.0" y="22" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">Same 22 blocks,</text>
+  <text x="555.0" y="40" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">looped (2 passes)</text>
+  <rect x="400.0" y="55" width="110" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="400.0" y="78" width="110" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="400.0" y="101" width="110" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="400.0" y="124" width="110" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <line x1="535.0" y1="142" x2="535.0" y2="55" stroke="#555555" stroke-width="2" marker-end="url(#arrow-555555)"/>
+  <line x1="510.0" y1="142" x2="535.0" y2="142" stroke="#555555" stroke-width="2"/>
+  <line x1="510.0" y1="55" x2="535.0" y2="55" stroke="#555555" stroke-width="2"/>
+  <text x="545.0" y="103.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">pass 2:</text>
+  <text x="545.0" y="118.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">same weights,</text>
+  <text x="545.0" y="133.5" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="start">hidden state evolves</text>
+  <text x="455.0" y="160" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">x22 distinct blocks</text>
+  <text x="455.0" y="178" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="middle">44 block applications</text>
+  <text x="955.0" y="22" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">Unrolled view:</text>
+  <text x="955.0" y="40" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">44 block applications</text>
+  <rect x="790.0" y="55" width="70" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="868.0" y="55" width="14" height="18" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <rect x="790.0" y="78" width="70" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="868.0" y="78" width="14" height="18" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <rect x="790.0" y="101" width="70" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="868.0" y="101" width="14" height="18" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <rect x="790.0" y="124" width="70" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="868.0" y="124" width="14" height="18" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="825.0" y="159" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="middle">pass 1 (x22)</text>
+  <rect x="790.0" y="171" width="70" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="868.0" y="171" width="14" height="18" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <rect x="790.0" y="194" width="70" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="868.0" y="194" width="14" height="18" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <rect x="790.0" y="217" width="70" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="868.0" y="217" width="14" height="18" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <rect x="790.0" y="240" width="70" height="18" rx="4" fill="#0072B2" stroke="#333333" stroke-width="1.3"/>
+  <rect x="868.0" y="240" width="14" height="18" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="825.0" y="275" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#555555" text-anchor="middle">pass 2 (x22, same weights)</text>
+  <rect x="20" y="297" width="16" height="16" rx="2" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="44" y="310" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">distinct weight identity (same shade = same weights)</text>
+  <rect x="20" y="323" width="16" height="16" rx="2" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="44" y="336" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#111111" text-anchor="start">pass-specific cache/state icon (schematic -- not asserted shared)</text>
+</svg>
