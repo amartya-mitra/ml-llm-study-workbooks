@@ -321,7 +321,7 @@ generating token 5 did not touch positions 1 through 4 at all.
 
 ### Check your understanding
 
-Full solutions are in the answer key (@sec-solutions-ch1), not below,
+Full solutions are in [Answer Key: Chapter 1](#sec-solutions-ch1), not below,
 so you can attempt these before checking:
 
 1. **Quick check.** What does the residual stream carry from one block to

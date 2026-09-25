@@ -273,7 +273,7 @@ same-sized matrix, not a rough estimate.
 
 ### Check your understanding
 
-Full solutions are in the answer key (@sec-solutions-ch2):
+Full solutions are in [Answer Key: Chapter 2](#sec-solutions-ch2):
 
 1. **Calculation.** For a query/key pair at positions 1 and 0 (relative
    offset 1), and a second pair at positions 3 and 2 (also relative

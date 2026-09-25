@@ -133,7 +133,7 @@ how well, how cheaply, or how reliably the resulting model performs.
 
 ### Check your understanding
 
-Full solutions are in the answer key (@sec-solutions-ch6):
+Full solutions are in [Answer Key: Chapter 6](#sec-solutions-ch6):
 
 1. **Quick check.** Given $H_q=128$ and $H_{kv}=8$ (Llama 3's
    configuration), what GQA group size does this imply, and is this

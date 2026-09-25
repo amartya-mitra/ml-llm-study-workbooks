@@ -135,6 +135,16 @@ release_candidate_v1:
   actual_total_pages: 68
   ceiling_status: "Within the 70-page release-candidate ceiling (68 <= 70)."
 
+release_candidate_v2:
+  pdf_path: "outputs/04-modern-llm-architecture-workbook-rc2.pdf"
+  status: "Complete content draft (release candidate 2) -- a whole-book editorial, cross-reference, and visual-production pass across all eight chapters has been completed over RC1. See includes/draft-scope-note.qmd and reports/04_release_candidate_2_report.md."
+  hard_ceiling_total_pages: 72
+  preferred_total_pages: [67, 69]
+  actual_total_pages: 69
+  actual_total_words: 33881
+  ceiling_status: "Within the 72-page general hard ceiling and within the 67-69 preferred range (69 pages, at the top edge)."
+  page_count_change_note: "RC2 is 1 page SHORTER than RC1 (69 vs. 68 -- net -1 after the notation-table split from one 18-row table to three 8-row tables added pages, offset by trimming Chapter 4's recap/sources prose by roughly a line each to close the orphan-page gap, plus incidental reflow from the Chapter 3/Chapter 7 sourcing-consistency fixes). Not the result of any font, figure, or margin shrink."
+
 chapter_3_specific:
   mla_deferral_note: "RESOLVED (2026-09-23): MLA's placement, left open when Chapter 3 was drafted, is Chapter 4 -- see outline.yaml's ch3.drafting_note and ch4.drafting_note, and reports/04_ch04_draft_report.md."
 

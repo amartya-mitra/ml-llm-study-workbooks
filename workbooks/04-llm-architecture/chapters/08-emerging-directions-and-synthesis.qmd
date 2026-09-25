@@ -152,7 +152,7 @@ still be required (cache is not automatically shared).
 
 ### Check your understanding
 
-Full solutions are in the answer key (@sec-solutions-ch8):
+Full solutions are in [Answer Key: Chapter 8](#sec-solutions-ch8):
 
 1. **Quick check.** Given $L_{\text{distinct}}=12$ and
    $T_{\text{passes}}=3$, compute $L_{\text{effective}}$, and state

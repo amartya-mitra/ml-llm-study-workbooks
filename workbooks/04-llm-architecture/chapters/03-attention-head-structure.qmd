@@ -229,7 +229,7 @@ model- and workload-dependent, not a fixed rule.
 
 ### Check your understanding
 
-Full solutions are in the answer key (@sec-solutions-ch3):
+Full solutions are in [Answer Key: Chapter 3](#sec-solutions-ch3):
 
 1. **Explain.** What is the one structural difference between MHA,
    MQA, and GQA -- and what stays identical across all three?
@@ -306,5 +306,5 @@ original pretraining compute -- their own reported figure, not a
 universal constant). Secondary/supporting: [@src-14] for cross-model
 framing, [@src-10] for the KV-cache memory formula's systems framing.
 A further latent-compression technique that shrinks the cache by a
-different mechanism than head-sharing exists and is left for a later
-chapter's case studies, not covered here.
+different mechanism than head-sharing exists and is left for the next
+chapter, not covered here.

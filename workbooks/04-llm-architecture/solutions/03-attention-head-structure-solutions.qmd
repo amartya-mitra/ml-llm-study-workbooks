@@ -1,4 +1,4 @@
-## Answer Key: Chapter 3 {#sec-solutions-ch3}
+## Answer Key: Chapter 3 {#sec-solutions-ch3 .unnumbered}
 
 Full solutions to Chapter 3's "Check your understanding" questions
 (@sec-ch3).

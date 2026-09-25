@@ -177,7 +177,7 @@ config and routing outcome, not stated here as one.
 
 ### Check your understanding
 
-Full solutions are in the answer key (@sec-solutions-ch5):
+Full solutions are in [Answer Key: Chapter 5](#sec-solutions-ch5):
 
 1. **Explain.** What distinguishes a dense feed-forward block from
    a sparse MoE block? ________________________________________________

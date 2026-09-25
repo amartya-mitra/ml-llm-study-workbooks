@@ -1,4 +1,4 @@
-## Chapter 4: Reducing Attention Cost: Windows, Sparsity, and Latent KV Representations {#sec-ch4}
+## Chapter 4: Reducing Attention Cost: Windows, Sparsity, `#linebreak()`{=typst}and Latent KV Representations {#sec-ch4}
 
 *Three Different Problems, Not One Knob*
 
@@ -206,7 +206,7 @@ this arithmetic, and runtime overhead is excluded throughout.
 
 ### Check your understanding
 
-Full solutions are in the answer key (@sec-solutions-ch4):
+Full solutions are in [Answer Key: Chapter 4](#sec-solutions-ch4):
 
 1. **Quick check.** As retained context $S$ grows, what grows
    quadratically and what grows linearly? ________________________________________________
@@ -253,8 +253,8 @@ does not collapse any two into the same mechanism.
 - Attending to fewer positions (windows, sparsity) and storing less
   per position (MLA) are independent axes; sparse attention does not
   automatically shrink the cache.
-- Sliding-window's direct reach is $W$; stacked layers reach $L \times
-  W$ indirectly -- not unrestricted global attention.
+- Sliding-window's reach is $W$; stacked layers reach $L \times W$
+  indirectly -- not unrestricted global attention.
 - MLA compresses $K$/$V$ jointly into one latent per token (plus a
   rotary component); GQA shares whole per-head copies instead --
   different mechanisms, occasionally comparable sizes.
@@ -267,9 +267,8 @@ does not collapse any two into the same mechanism.
 ### Sources and further reading
 
 Primary sources: [@src-25] (sliding-window), [@src-26] (sparse
-attention), [@src-27] (MLA -- compression formula, decoupled-RoPE
-reasoning, and cache-per-token table verified against the paper's full
-text, Sections 2.1.1-2.1.4 and Table 1, not a snippet).
-Secondary/supporting: [@src-14]. This
-chapter keeps recurrent/SSM/linear-attention at the taxonomy level,
-without a primary source for its mechanics.
+attention), [@src-27] (MLA's compression, decoupled-RoPE, and
+cache-per-token table, verified against Sections 2.1.1-2.1.4 and
+Table 1).
+Secondary/supporting: [@src-14]. Recurrent/SSM/linear-attention stays
+taxonomy-level, without a primary source for its mechanics.

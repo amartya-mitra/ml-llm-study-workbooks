@@ -1,14 +1,19 @@
-::: {.callout-important title="Complete content draft — pending whole-book editorial and visual QA"}
+::: {.callout-important title="Complete content draft — release candidate 2"}
 This document contains **all eight chapters** of *Modern LLM
 Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
 Models* (workbook 04 of the ML/LLM Study Workbooks series) -- a
-release candidate, not the final edition. Every chapter has been
-drafted, illustrated, and validated individually as it was written;
-what has **not** yet happened is a single whole-book editorial and
-visual quality pass across all eight chapters together (consistent
-terminology, cross-reference accuracy, page-break aesthetics, and a
-final proofread). Treat this as a complete content draft, not a
-finished book.
+release candidate, not the final edition. Every chapter was first
+drafted, illustrated, and validated individually; this revision then
+completed a whole-book editorial, cross-reference, and visual-production
+pass across all eight chapters together: a notation-table layout
+defect, an orphan page, a title line-break, and the chapter/answer-key
+numbering scheme were each found and corrected, and terminology,
+cross-references, and page breaks were checked across the assembled
+document rather than chapter by chapter in isolation. Treat this as a
+complete, reviewed content draft -- still not a final, professionally
+copy-edited book, since no substitute exists for an independent human
+proofread pass beyond what this project's own automated and visual
+checks can catch.
 
 Multi-head latent attention (MLA), briefly deferred out of Chapter 3's
 drafting pass, is covered in Chapter 4 alongside sliding-window and
@@ -40,6 +45,7 @@ as verified anywhere it is mentioned.
 
 This is a review artifact: it exists to establish the workbook's
 explanatory depth, visual language, page density, question style, and
-citation style. Treat any rough edge you find as exactly the kind of
-thing a pre-editorial-pass draft is meant to surface.
+citation style. If you still find a rough edge, it is exactly the kind
+of thing this pass was built to surface -- report it rather than
+assuming it was already caught.
 :::

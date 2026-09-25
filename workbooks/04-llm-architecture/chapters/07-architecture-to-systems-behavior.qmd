@@ -83,8 +83,10 @@ ch. 8.](figures/rendered/fig-architecture-to-consequence-map.svg){#fig-architect
 An auxiliary multi-token-prediction module (a training-time design,
 [@src-43]) may itself become an inference-time draft mechanism for
 speculative decoding -- a serving technique this workbook does not
-teach; both are covered in depth in a future inference workbook, per
-this series' own cross-workbook topic roadmap.
+teach. Multi-token prediction's own training treatment belongs to a
+future pretraining workbook; speculative decoding belongs to a future
+inference workbook -- two different destinations, per this series'
+own cross-workbook topic roadmap.
 
 ### Parallelism, briefly
 
@@ -108,7 +110,7 @@ which can dominate over raw FLOPs.
 
 ### Check your understanding
 
-Full solutions are in the answer key (@sec-solutions-ch7):
+Full solutions are in [Answer Key: Chapter 7](#sec-solutions-ch7):
 
 1. **Quick check.** Which resource-ledger category does the KV-cache
    belong to, and which category does an optimizer's momentum/variance
