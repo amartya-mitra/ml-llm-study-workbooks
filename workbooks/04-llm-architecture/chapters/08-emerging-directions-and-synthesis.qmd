@@ -1,4 +1,4 @@
-## Chapter 8: Emerging Directions and Architecture Synthesis: Looped Depth, Design Tradeoffs, and How to Read What Comes Next {#sec-ch8}
+## Emerging Directions and Architecture Synthesis: Looped Depth, Design Tradeoffs, and How to Read What Comes Next {#sec-ch8}
 
 *One More Tradeoff, Then a Framework for Every Tradeoff After It*
 

@@ -1,6 +1,6 @@
 ---
 title: "Modern LLM Architecture"
-subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Complete Content Draft (Release Candidate 2)"
+subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Complete Content Draft (Release Candidate 3)"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -45,6 +45,10 @@ quick reference](#sec-notation) covers every symbol Chapters 1-8 use.
 {{< include includes/draft-scope-note.qmd >}}
 
 {{< include includes/notation-summary.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
 
 {{< include chapters/01-transformer-refresher.qmd >}}
 

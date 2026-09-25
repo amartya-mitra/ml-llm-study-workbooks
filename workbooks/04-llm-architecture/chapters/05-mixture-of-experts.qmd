@@ -1,4 +1,4 @@
-## Chapter 5: Mixture of Experts: More Parameters, Selective Compute {#sec-ch5}
+## Mixture of Experts: More Parameters, Selective Compute {#sec-ch5}
 
 *Total, Active, Compute, and Communication Are Four Different Questions*
 

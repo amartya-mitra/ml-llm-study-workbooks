@@ -1,4 +1,4 @@
-## Chapter 3: Attention Head Structure and Cache-Efficient Variants {#sec-ch3}
+## Attention Head Structure and Cache-Efficient Variants {#sec-ch3}
 
 *Why Fewer Key/Value Heads Means a Smaller Cache -- Not a Smaller Model*
 

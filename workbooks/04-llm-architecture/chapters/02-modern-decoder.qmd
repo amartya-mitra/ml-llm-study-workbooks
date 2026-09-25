@@ -1,4 +1,4 @@
-## Chapter 2: Anatomy of a Modern Decoder {#sec-ch2}
+## Anatomy of a Modern Decoder {#sec-ch2}
 
 *The Components Behind Today's LLMs*
 

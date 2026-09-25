@@ -41,7 +41,12 @@ class TestDocumentHierarchyNumbering(unittest.TestCase):
         for i, fname in enumerate(CHAPTER_FILES, start=1):
             with open(os.path.join(CHAPTERS_DIR, fname)) as f:
                 first_line = f.readline()
-            self.assertIn(f"Chapter {i}:", first_line, msg=f"{fname}'s heading does not say 'Chapter {i}:'")
+            self.assertIn(f"#sec-ch{i}", first_line, msg=f"{fname}'s heading is missing its #sec-ch{i} anchor")
+            # RC3: the heading text itself must NOT repeat "Chapter N:" --
+            # Typst's auto-numbering already prepends the leading numeral,
+            # so a literal "Chapter N:" in the title text would render as
+            # a duplicated "N Chapter N: ..." (the RC3 acceptance finding).
+            self.assertNotIn(f"Chapter {i}:", first_line, msg=f"{fname}'s heading still repeats 'Chapter {i}:' -- would double-render the number")
             # Chapter headings themselves must NOT be marked unnumbered --
             # they are exactly the headings Typst should number 1-8.
             self.assertNotIn(".unnumbered", first_line, msg=f"{fname}'s chapter heading must stay numbered")
@@ -149,18 +154,30 @@ class TestNotationTableStructure(unittest.TestCase):
                 msg=f"notation table part {i} has {row_count} rows, exceeding the empirically-safe {self.MAX_SAFE_ROWS_PER_TABLE}",
             )
 
-    def test_all_24_notation_symbols_still_present(self):
-        """No symbol may be dropped while fixing the layout."""
+    def test_all_notation_symbols_still_present(self):
+        """No symbol may be dropped while fixing the layout. RC3 replaced
+        the unused KV_bytes entry with M_KV/M_MLA (the symbols the
+        equations actually use) and added the sliding-window width W."""
         with open(NOTATION_QMD) as f:
             text = f.read()
         expected_symbols = [
             "$B$", "$S$", "$T_q$", "$V$", "$d_{\\text{model}}$", "$H_q$", "$H_{kv}$", "$d_{\\text{head}}$",
-            "$L$", "$d_{\\text{ff}}$", "bytes\\_per\\_elem", "$d_c$", "$d_{\\text{rope}}$", "KV\\_bytes", "$E$", "$k$",
+            "$L$", "$d_{\\text{ff}}$", "bytes\\_per\\_elem", "$d_c$", "$d_{\\text{rope}}$",
+            "$M_{KV}$", "$M_{\\text{MLA}}$", "$W$", "$E$", "$k$",
             "$p_e$", "$p_s$", "$p_{\\text{base}}$", "$P_{\\text{total}}$", "$P_{\\text{active}}$",
             "$L_{\\text{distinct}}$", "$T_{\\text{passes}}$", "$L_{\\text{effective}}$",
         ]
         for sym in expected_symbols:
             self.assertIn(sym, text, msg=f"notation symbol {sym!r} missing from notation-summary.qmd")
+
+    def test_kv_bytes_symbol_fully_retired(self):
+        """RC3 fix: KV_bytes was defined but never used by any equation
+        or prose in Chapters 1-8 -- it must not reappear anywhere in the
+        notation reference now that M_KV/M_MLA replace it."""
+        with open(NOTATION_QMD) as f:
+            text = f.read()
+        self.assertNotIn("KV\\_bytes", text)
+        self.assertNotIn("KV_bytes", text)
 
     def test_notation_tables_have_repeated_column_headers(self):
         with open(NOTATION_QMD) as f:
@@ -174,10 +191,16 @@ class TestChapter4OrphanAndTitleFixes(unittest.TestCase):
 
     CH4_PATH = os.path.join(CHAPTERS_DIR, "04-reducing-attention-cost.qmd")
 
-    def test_chapter4_title_uses_explicit_linebreak_not_bare_wrap(self):
+    def test_chapter4_title_has_no_manual_linebreak_and_no_stale_prefix(self):
+        """RC3 removed the 'Chapter 4: ' prefix from the heading text
+        (Typst's auto-numbering supplies the leading '4' instead), which
+        shortened the title enough that Typst's own hyphenation now
+        breaks cleanly at 'Rep-/resentations' without needing the manual
+        #linebreak() RC2 required to dodge a 'La-tent' break."""
         with open(self.CH4_PATH) as f:
             first_line = f.readline()
-        self.assertIn("#linebreak()", first_line, msg="Chapter 4's title should force a break at a phrase boundary")
+        self.assertNotIn("#linebreak()", first_line)
+        self.assertNotIn("Chapter 4:", first_line)
         self.assertIn("Latent KV Representations", first_line)
 
     def test_chapter4_sources_paragraph_is_reasonably_short(self):
@@ -199,11 +222,12 @@ class TestReleaseStatusLanguage(unittest.TestCase):
     actual status, not silently carry over RC1's 'not yet happened'
     language once the editorial pass is complete."""
 
-    def test_index_subtitle_says_release_candidate_2(self):
+    def test_index_subtitle_says_release_candidate_3(self):
         with open(INDEX_QMD) as f:
             text = f.read()
-        self.assertIn("Release Candidate 2", text)
+        self.assertIn("Release Candidate 3", text)
         self.assertNotIn("Release Candidate 1", text)
+        self.assertNotIn("Release Candidate 2", text)
 
     def test_draft_scope_note_does_not_claim_qa_not_yet_happened(self):
         with open(DRAFT_SCOPE_QMD) as f:
@@ -214,15 +238,22 @@ class TestReleaseStatusLanguage(unittest.TestCase):
     def test_build_note_generator_does_not_overclaim_clean_state(self):
         with open(BUILD_NOTE_GENERATOR) as f:
             text = f.read()
-        self.assertIn("Source commit used to render this PDF", text)
+        # RC3: the commit SHA moved out of the learner-facing template
+        # entirely (a PDF can't name the commit that includes its own
+        # build); git_commit_or_precommit's honest dirty-tree wording
+        # must still exist in the SOURCE, just no longer embedded in
+        # `content`.
+        self.assertIn("this build was rendered with additional, not-yet-committed changes", text)
         # The maintainer-facing docstring may still say "do not hand-edit"
         # (that instruction is for whoever edits this script); the
         # LEARNER-FACING generated template (the f-string literal
-        # assigned to `content`) must not repeat it, per Stage 5.
+        # assigned to `content`) must not repeat it, per Stage 5, and
+        # per RC3 must not contain a raw commit SHA reference either.
         template_start = text.index('content = f"""')
         template_text = text[template_start:]
         self.assertNotIn("hand-edit", template_text)
         self.assertNotIn("scripts/generate_build_note.py", template_text)
+        self.assertNotIn("commit", template_text.lower())
 
 
 @unittest.skipUnless(os.path.exists(RC2_PDF), "RC2 PDF not built in this environment -- run scripts/build_release_candidate_v2.py first")

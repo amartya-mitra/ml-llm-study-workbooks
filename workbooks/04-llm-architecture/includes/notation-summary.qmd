@@ -25,7 +25,9 @@ flip back here if a symbol in an equation isn't immediately obvious.
 | $\text{bytes\_per\_elem}$ | bytes per cached element | storage width of one stored number (e.g. 2 for bf16); stated explicitly per calculation, never assumed |
 | $d_c$ | MLA KV compression dimension | width of MLA's shared, jointly-compressed latent for keys and values (one per token per layer, not one per head) |
 | $d_{\text{rope}}$ | MLA decoupled rotary dimension | per-head width of MLA's separately-retained rotary component, cached alongside the compressed latent |
-| $\text{KV\_bytes}$ | KV-cache size | total bytes occupied by the key/value cache for one sequence |
+| $M_{KV}$ | KV-cache size (MHA/MQA/GQA) | logical, theoretical-minimum cache bytes for one sequence under standard head-sharing attention (ch. 3's cache-size equation) |
+| $M_{\text{MLA}}$ | MLA cache size | logical, theoretical-minimum cache bytes for one sequence under MLA's compressed latent (ch. 4's cache-size equation) |
+| $W$ | sliding-window width | number of positions a windowed attention layer directly attends to; stacked layers reach $L \times W$ indirectly |
 | $E$ | routed expert count | number of routed experts in a mixture-of-experts layer |
 | $k$ | selected experts per token | number of routed experts a router activates per token (top-$k$) |
 

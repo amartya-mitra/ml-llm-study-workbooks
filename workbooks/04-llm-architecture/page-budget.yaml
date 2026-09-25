@@ -145,6 +145,16 @@ release_candidate_v2:
   ceiling_status: "Within the 72-page general hard ceiling and within the 67-69 preferred range (69 pages, at the top edge)."
   page_count_change_note: "RC2 is 1 page SHORTER than RC1 (69 vs. 68 -- net -1 after the notation-table split from one 18-row table to three 8-row tables added pages, offset by trimming Chapter 4's recap/sources prose by roughly a line each to close the orphan-page gap, plus incidental reflow from the Chapter 3/Chapter 7 sourcing-consistency fixes). Not the result of any font, figure, or margin shrink."
 
+release_candidate_v3:
+  pdf_path: "outputs/04-modern-llm-architecture-workbook-rc3.pdf"
+  status: "Complete content draft (release candidate 3) -- a small acceptance-fix pass over RC2: Chapter 1 now starts on its own fresh page, each chapter title renders with exactly one leading number (the redundant 'Chapter N:' prefix was removed from the heading text itself), the notation reference's cache-size row now names M_KV and M_MLA (the symbols the equations actually use) plus the sliding-window width W, and the Build and Version Note no longer contains any repository-internal path or raw registry ID. See reports/04_release_candidate_3_report.md."
+  hard_ceiling_total_pages: 72
+  preferred_total_pages: [67, 69]
+  actual_total_pages: 69
+  actual_total_words: 33739
+  ceiling_status: "Within the 72-page general hard ceiling and within the 67-69 preferred range (69 pages, at the top edge -- unchanged from RC2)."
+  page_count_change_note: "RC3 stayed at 69 pages, the SAME as RC2, despite adding a full page break before Chapter 1 and 2 net rows to the notation reference (Table 2 grew from 8 to 10 rows). Removing the redundant 'Chapter N: ' prefix from all 8 chapter titles shortened each title enough to offset both additions -- this was not anticipated in advance (up to 70 pages was pre-approved) but is a favorable outcome, not a font/figure/margin shrink."
+
 chapter_3_specific:
   mla_deferral_note: "RESOLVED (2026-09-23): MLA's placement, left open when Chapter 3 was drafted, is Chapter 4 -- see outline.yaml's ch3.drafting_note and ch4.drafting_note, and reports/04_ch04_draft_report.md."
 
