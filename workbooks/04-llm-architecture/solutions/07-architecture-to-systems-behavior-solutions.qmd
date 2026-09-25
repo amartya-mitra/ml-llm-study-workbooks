@@ -1,0 +1,46 @@
+## Answer Key: Chapter 7 {#sec-solutions-ch7}
+
+Full solutions to Chapter 7's "Check your understanding" questions
+(@sec-ch7).
+
+**1. Quick check.** *Answer.* The KV-cache is request-specific,
+persistent inference state -- it grows with retained context/
+concurrency, not architecture alone. An optimizer's momentum/variance
+state is training-only -- it does not exist at inference time.
+
+**2. Quick check.** *Answer.* Implementation-dependent -- a temporary
+attention-kernel workspace varies by serving engine/kernel, not
+architecture, unlike weight or cache memory.
+
+**3. Compare.** *Answer.* Prefill processes every prompt position in
+parallel, often compute-heavy (high arithmetic intensity). Decode
+processes one new position at a time, repeatedly rereading retained
+state -- often memory-bandwidth-sensitive (low arithmetic intensity).
+Neither is universal: larger batches raise intensity and can shift
+decode back toward compute-bound, but also multiply cache state.
+
+**4. Misconception check.** *Answer.* False. Wall-clock performance
+also depends on arithmetic intensity, memory traffic, communication,
+batching, kernels, scheduling, and hardware utilization -- any one can
+dominate over raw FLOPs. *Common trap:* treating fewer FLOPs as a
+guaranteed latency win.
+
+**5. Design exercise (applied exercise).** *Answer.* (a) Model B uses
+less logical cache -- MLA's compressed latent is about 0.28x Model A's
+GQA cache at the same context/concurrency (verified programmatically).
+(b) Model B has more total weight storage -- its MoE total is about
+1.2x Model A's dense 7B, though Model B's *active* parameters (~2.8B)
+are well below its own total. (c) Model B introduces expert
+communication (all-to-all, ch. 5); Model A introduces none. (d)
+Neither model's latency follows from these logical quantities alone --
+batching, kernel implementation, hardware, and actual routing
+distribution still need benchmarking. *Interview criteria:* keeps
+cache, weight storage, and communication as three separate
+comparisons, not one "which model is better" verdict.
+
+**6. Interview practice.** *Answer.* A strong walk-through separates
+the five resource-ledger categories, applies the consequence map
+mechanism by mechanism, and explicitly refuses to predict latency,
+throughput, or a quality ranking from architecture alone -- naming
+benchmarking as the missing step. *Interview criteria:* names specific
+categories/mechanisms rather than "it depends"; refuses to overclaim.

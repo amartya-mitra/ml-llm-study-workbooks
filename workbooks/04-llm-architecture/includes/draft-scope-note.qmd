@@ -1,13 +1,12 @@
-::: {.callout-important title="This is a six-chapter pilot, not the complete workbook"}
-This document contains **only Chapters 1 through 6** of *Modern LLM
+::: {.callout-important title="This is a seven-chapter pilot, not the complete workbook"}
+This document contains **only Chapters 1 through 7** of *Modern LLM
 Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
-Models* (workbook 04 of the ML/LLM Study Workbooks series). Chapters
-7-8 -- architecture -> systems consequences, and a synthesis/practice
-chapter -- are planned but **not drafted**. Nothing in this document
-should be read as implying those chapters exist yet. Multi-head latent
-attention (MLA), briefly deferred out of Chapter 3's drafting pass, is
-now covered in Chapter 4 alongside sliding-window and sparse
-attention. Chapter 4 covers recurrent/state-space/linear-attention
+Models* (workbook 04 of the ML/LLM Study Workbooks series). Chapter 8
+-- a synthesis/practice chapter -- is planned but **not drafted**.
+Nothing in this document should be read as implying it exists yet.
+Multi-head latent attention (MLA), briefly deferred out of Chapter 3's
+drafting pass, is now covered in Chapter 4 alongside sliding-window
+and sparse attention. Chapter 4 covers recurrent/state-space/linear-attention
 alternatives only as a brief taxonomy and forward reference; Chapter 6
 adds the primary source that taxonomy was pending (Gu and Dao's
 selective state-space mechanism) once a hybrid case study needed it.
@@ -22,10 +21,18 @@ case studies -- it is not a survey of every current model, not a
 benchmark ranking, and not a release-history timeline; each model's
 architecture facts are dated and traceable to that model's own
 technical report, not restated as permanent or "latest" facts.
+Chapter 7 synthesizes systems consequences already implied by
+Chapters 2-6 (a resource ledger, prefill-vs-decode, an
+architecture-to-systems consequence map, and a minimal parallelism
+overview); it previews looped depth in one row only (full treatment
+deferred to Chapter 8) and cross-references multi-token prediction and
+speculative decoding without teaching either mechanism -- both are
+assigned to future workbooks in this series' own cross-workbook topic
+roadmap, not taught here.
 
 This is a review artifact: it exists to establish the workbook's
 explanatory depth, visual language, page density, question style, and
-citation style before the remaining chapters are drafted at scale.
-Treat any rough edge you find as exactly the kind of thing this pilot
-is meant to surface early.
+citation style before the remaining chapter is drafted at scale. Treat
+any rough edge you find as exactly the kind of thing this pilot is
+meant to surface early.
 :::

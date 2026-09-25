@@ -1,6 +1,6 @@
 ---
 title: "Modern LLM Architecture"
-subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Six-Chapter Review Pilot"
+subtitle: "A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models -- Seven-Chapter Review Pilot"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -34,10 +34,10 @@ sources. Short questions appear near the concept they test, with space
 left for written answers if you're using this as a workbook rather than
 only a reading; full solutions are collected in the answer key
 (@sec-solutions-ch1, @sec-solutions-ch2, @sec-solutions-ch3,
-@sec-solutions-ch4, @sec-solutions-ch5, @sec-solutions-ch6) rather than
-revealed inline, so you can attempt each question before checking it.
-A notation quick reference (@sec-notation) covers every symbol
-Chapters 1-6 use.
+@sec-solutions-ch4, @sec-solutions-ch5, @sec-solutions-ch6,
+@sec-solutions-ch7) rather than revealed inline, so you can attempt
+each question before checking it. A notation quick reference
+(@sec-notation) covers every symbol Chapters 1-7 use.
 
 {{< include includes/draft-scope-note.qmd >}}
 
@@ -79,6 +79,12 @@ Chapters 1-6 use.
 #pagebreak()
 ```
 
+{{< include chapters/07-architecture-to-systems-behavior.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
 {{< include solutions/01-transformer-refresher-solutions.qmd >}}
 
 {{< include solutions/02-modern-decoder-solutions.qmd >}}
@@ -90,5 +96,7 @@ Chapters 1-6 use.
 {{< include solutions/05-mixture-of-experts-solutions.qmd >}}
 
 {{< include solutions/06-case-studies-solutions.qmd >}}
+
+{{< include solutions/07-architecture-to-systems-behavior-solutions.qmd >}}
 
 {{< include includes/build-version-note.qmd >}}

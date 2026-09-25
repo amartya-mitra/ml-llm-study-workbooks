@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="518" viewBox="0 0 1080 518">
+  <title>Architecture-to-systems consequence map</title>
+  <defs></defs>
+  <rect x="0" y="0" width="1080" height="518" fill="#ffffff"/>
+  <text x="540.0" y="24" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="middle">Qualitative markers only -- no cell is a measurement</text>
+  <rect x="10" y="40" width="210" height="60" rx="4" fill="#eeeeee" stroke="#333333" stroke-width="1.2"/>
+  <text x="115.0" y="75.0" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#111111" text-anchor="middle">Mechanism</text>
+  <rect x="220.0" y="40" width="166.0" height="60" rx="4" fill="#eeeeee" stroke="#333333" stroke-width="1.2"/>
+  <text x="303.0" y="64" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">Weight</text>
+  <text x="303.0" y="82" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">memory</text>
+  <rect x="390.0" y="40" width="166.0" height="60" rx="4" fill="#eeeeee" stroke="#333333" stroke-width="1.2"/>
+  <text x="473.0" y="64" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">Cache/state</text>
+  <text x="473.0" y="82" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">memory</text>
+  <rect x="560.0" y="40" width="166.0" height="60" rx="4" fill="#eeeeee" stroke="#333333" stroke-width="1.2"/>
+  <text x="643.0" y="64" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">Compute</text>
+  <rect x="730.0" y="40" width="166.0" height="60" rx="4" fill="#eeeeee" stroke="#333333" stroke-width="1.2"/>
+  <text x="813.0" y="64" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">Communi-</text>
+  <text x="813.0" y="82" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">cation</text>
+  <rect x="900.0" y="40" width="166.0" height="60" rx="4" fill="#eeeeee" stroke="#333333" stroke-width="1.2"/>
+  <text x="983.0" y="64" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">Impl.</text>
+  <text x="983.0" y="82" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="middle">complexity</text>
+  <rect x="10" y="100" width="210" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="115.0" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">GQA / MQA</text>
+  <rect x="220.0" y="100" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="303.0" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">same</text>
+  <rect x="390.0" y="100" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="473.0" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">lower</text>
+  <rect x="560.0" y="100" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="643.0" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">~same</text>
+  <rect x="730.0" y="100" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="813.0" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">none new</text>
+  <rect x="900.0" y="100" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="983.0" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">low</text>
+  <rect x="10" y="158" width="210" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="115.0" y="192.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">MLA</text>
+  <rect x="220.0" y="158" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="303.0" y="192.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">similar</text>
+  <rect x="390.0" y="158" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="473.0" y="192.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">much lower</text>
+  <rect x="560.0" y="158" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="643.0" y="192.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">higher</text>
+  <rect x="730.0" y="158" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="813.0" y="192.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">none new</text>
+  <rect x="900.0" y="158" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="983.0" y="192.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">higher</text>
+  <rect x="10" y="216" width="210" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="115.0" y="250.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">Sliding / local attn.</text>
+  <rect x="220.0" y="216" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="303.0" y="250.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">same</text>
+  <rect x="390.0" y="216" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="473.0" y="250.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">bounded</text>
+  <rect x="560.0" y="216" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="643.0" y="250.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">lower</text>
+  <rect x="730.0" y="216" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="813.0" y="250.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">none new</text>
+  <rect x="900.0" y="216" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="983.0" y="250.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">moderate</text>
+  <rect x="10" y="274" width="210" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="115.0" y="308.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">MoE</text>
+  <rect x="220.0" y="274" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="303.0" y="308.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">much higher</text>
+  <rect x="390.0" y="274" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="473.0" y="308.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">same</text>
+  <rect x="560.0" y="274" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="643.0" y="308.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">lower (active)</text>
+  <rect x="730.0" y="274" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="813.0" y="308.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">new (all-to-all)</text>
+  <rect x="900.0" y="274" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="983.0" y="308.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">higher</text>
+  <rect x="10" y="332" width="210" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="115.0" y="355.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">Hybrid</text>
+  <text x="115.0" y="375.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">recurrent layers</text>
+  <rect x="220.0" y="332" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="303.0" y="366.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">same/lower</text>
+  <rect x="390.0" y="332" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="473.0" y="366.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">much lower</text>
+  <rect x="560.0" y="332" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="643.0" y="366.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">~comparable</text>
+  <rect x="730.0" y="332" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="813.0" y="366.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">none new</text>
+  <rect x="900.0" y="332" width="166.0" height="58" rx="3" fill="#f7f7f7" stroke="#333333" stroke-width="1"/>
+  <text x="983.0" y="366.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">higher</text>
+  <rect x="10" y="390" width="210" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="115.0" y="413.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">Looped depth (preview</text>
+  <text x="115.0" y="433.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">-- ch. 8)</text>
+  <rect x="220.0" y="390" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="303.0" y="424.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">lower</text>
+  <rect x="390.0" y="390" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="473.0" y="424.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">not auto-reduced</text>
+  <rect x="560.0" y="390" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="643.0" y="424.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">NOT reduced</text>
+  <rect x="730.0" y="390" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="813.0" y="424.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">none new</text>
+  <rect x="900.0" y="390" width="166.0" height="58" rx="3" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+  <text x="983.0" y="424.0" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#111111" text-anchor="middle">preview only</text>
+  <text x="10" y="473" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="start">Looped depth&#x27;s row previews only -- see chapter 8 for the full mechanism.</text>
+  <text x="10" y="495" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" fill="#555555" text-anchor="start">MTP/speculative decoding are cross-referenced in the text, not shown as a row here (not a main architecture change).</text>
+</svg>

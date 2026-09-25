@@ -149,6 +149,54 @@ workbooks:
         coverage: "primary"
         role: "core_narrative_source"
         chapters: ["ch4", "ch6"]
+      - id: "src-36"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch5"]
+      - id: "src-37"
+        coverage: "primary"
+        role: "core_narrative_source"
+        chapters: ["ch6"]
+      - id: "src-38"
+        coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch8"]
+      - id: "src-39"
+        coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch8"]
+      - id: "src-40"
+        coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch8"]
+      - id: "src-41"
+        coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch8"]
+      - id: "src-42"
+        coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch8"]
+      - id: "src-43"
+        coverage: "supporting"
+        role: "core_narrative_source"
+        chapters: ["ch8"]
+      - id: "src-46"
+        coverage: "discovery"
+        role: "visual_reference_source"
+        chapters: ["ch8"]
+      - id: "src-47"
+        coverage: "discovery"
+        role: "visual_reference_source"
+        chapters: ["ch8"]
+      - id: "src-48"
+        coverage: "discovery"
+        role: "visual_reference_source"
+        chapters: ["ch8"]
+      - id: "src-49"
+        coverage: "discovery"
+        role: "visual_reference_source"
+        chapters: ["ch7", "ch8"]
 
   - id: "05-llm-training"
     sources:
@@ -160,6 +208,10 @@ workbooks:
         coverage: "supporting"
       - id: "src-18"
         coverage: "supporting"
+      - id: "src-43"
+        coverage: "primary"
+      - id: "src-33"
+        coverage: "supporting"
 
   - id: "06-llm-inference"
     sources:
@@ -168,6 +220,12 @@ workbooks:
       - id: "src-10"
         coverage: "supporting"
       - id: "src-12"
+        coverage: "supporting"
+      - id: "src-44"
+        coverage: "primary"
+      - id: "src-45"
+        coverage: "primary"
+      - id: "src-49"
         coverage: "supporting"
 
   - id: "07-llm-post-training"

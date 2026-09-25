@@ -13,9 +13,9 @@
 schema_version: 1
 
 pilot_actual:
-  measured_from: "outputs/04-llm-architecture-ch01-06-review.pdf"
-  total_pages: 57
-  total_words: 27312
+  measured_from: "outputs/04-llm-architecture-ch01-07-review.pdf"
+  total_pages: 62
+  total_words: 30231
   sections:
     - name: "front_matter"
       description: "Title page, how-to-use, pilot-scope note, notation quick reference"
@@ -69,10 +69,23 @@ pilot_actual:
       description: "Answer Key: Chapter 6 only"
       pages: 0.67
       notes: "Item 1 begins at the bottom of page 53 (no forced break); items 2-6 continue on page 54, ending before the bottom of that page. Lands within the 0.75-page HARD MAXIMUM but over the 0.5-page preferred target -- a disclosed miss, tightened once already (from an initial ~0.87-page draft) by compressing the multi-part design-exercise and interview-practice answers."
+    - name: "chapter_7"
+      description: "Chapter 7: From Architecture to Systems Behavior: Memory, Compute, Communication, and Throughput, instructional content only"
+      pages: 4
+      notes: "Starts fresh on page 48 (deliberate break), ends at the bottom of page 51 -- lands EXACTLY at the 4-page PREFERRED budget (hard maximum was 5), the best-fitting chapter since Chapter 5. Two figures (memory/state lifecycle, architecture-to-systems consequence map), two compact tables (logical-vs-measured resource ledger, parallelism overview), one boxed misconception, and a two-model diagnosis applied exercise (reusing ch. 3/ch. 5's own formulas, not a new derivation) all fit within budget after one fix (a figure canvas-width overflow) and two internal-path-leakage fixes found only by visual page inspection -- see outline.yaml's ch7.drafting_note and reports/04_ch07_draft_report.md."
+    - name: "answer_key_chapter_7"
+      description: "Answer Key: Chapter 7 only"
+      pages: 0.68
+      notes: "Items 1-4 begin at the bottom of page 59 (no forced break, sharing the page with Chapter 6's answer-key tail); items 5-6 continue onto page 60, ending before the bottom of that page. Lands within the 0.75-page HARD MAXIMUM -- a disclosed miss against the 0.5-page preferred target, tightened once (from an initial ~0.95-page draft) by compressing all six answers, especially the multi-part design-exercise and interview-practice items."
     - name: "build_note_and_bibliography"
       description: "Build and Version Note (with its Provenance subsection) plus the auto-appended Bibliography"
-      pages: 2.4
-      notes: "The build note ends and the Bibliography begins on page 55; Typst's native (citeproc:false) bibliography does not force its own fresh page -- it continues wherever the build note ends, spilling from page 55 through page 57 here. Grew from Chapter 5's 2.1 pages because of two new Provenance bullets (Chapter 6's model-verification and case-study-scope notes) and one new bibliography entry (src-37, the Mamba paper)."
+      pages: 2.6
+      notes: "The build note ends and the Bibliography begins on page 61; Typst's native (citeproc:false) bibliography does not force its own fresh page -- it continues wherever the build note ends, spilling from page 61 through page 62 here. Grew from Chapter 6's 2.4 pages because of three new Provenance bullets (Chapter 7's resource-ledger/logical-vs-measured note, the series-topic-roadmap note, and the MTP/speculative-decoding scope-fence note) and twelve new bibliography entries (src-38..src-49, the series-wide topic roadmap's sources)."
+  pre_ch7_reference:
+    total_pages: 57
+    instructional_pages_ch1_through_ch6: 42
+    total_words: 27312
+    note: "Chapters 1-6 pilot actuals immediately before Chapter 7 was drafted (see reports/04_ch06_draft_report.md). Chapter 7 added exactly 5 pages (4 instructional + 0.68 answer-key + a ~0.2-page build-note/bibliography growth from the 12 new roadmap sources), taking the total from 57 to 62."
   pre_ch6_reference:
     total_pages: 50
     instructional_pages_ch1_through_ch5: 37
@@ -88,23 +101,19 @@ full_workbook_projection:
   preferred_total_pages: [60, 68]
   hard_ceiling_total_pages: 72
   hard_ceiling_note: "Exceeding 72 requires explicit approval. Page growth must come from adding chapters, not from ever shrinking fonts, figures, margins, or writing space."
-  chapters_7_to_8_provisional:
-    - chapter: 7
-      topic: "Architecture -> systems consequences"
-      instructional_pages: [5, 5.5]
-      estimated_answer_key_pages: [1, 1.2]
+  chapter_8_provisional:
     - chapter: 8
-      topic: "Synthesis / practice chapter"
-      instructional_pages: [4, 4.5]
+      topic: "Synthesis / practice chapter, plus the recurrent-depth/looped-transformer emerging-architecture treatment deferred from ch. 7's preview (per config/series-topic-roadmap.yaml)"
+      instructional_pages: [4, 5]
       estimated_answer_key_pages: [1, 1]
-  provisional_revision_note: "Chapter 6 landed at 5.67 total pages (5 instructional, exactly at its hard maximum, + 0.67 answer-key, within its hard maximum), a disclosed miss against its own 4-instructional/0.5-answer-key preferred targets -- unlike Chapter 5's under-budget result, this is evidence the remaining chapters_7_to_8_provisional ranges below should NOT be tightened further; they are carried over unchanged from the post-Chapter-5 revision, not loosened either, since the point of a budget is to hold regardless of any one chapter's outcome in either direction."
-  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-6 (actual). Chapter 6's own ratio (0.67 answer-key page per 5 instructional pages, ~0.13) is close to Chapter 4's and Chapter 5's efficient ~0.14 ratio -- all three inform the chapters 7-8 estimates above, which remain deliberately conservative relative to this observed efficiency."
+  provisional_revision_note: "Chapter 7 landed at 4.68 total pages (4 instructional, exactly at its PREFERRED target -- the best-fitting chapter since Chapter 5 -- + 0.68 answer-key, a disclosed miss against the 0.5-page preferred target but within the 0.75 hard maximum). The remaining chapter_8_provisional range above is nudged up slightly (4.5 -> 5 instructional pages hard end) versus the old chapters_7_to_8_provisional's ch. 8 estimate, since ch. 8 must now absorb the full looped-depth/recurrent-depth treatment ch. 7 explicitly deferred to it (config/series-topic-roadmap.yaml), not just a synthesis/practice chapter -- a disclosed, deliberate widening, not silent scope creep."
+  estimated_answer_key_pages_basis: "Scaled from the pilot's observed ratio of answer-key pages to instructional pages across Chapters 1-7 (actual). Chapter 7's own ratio (0.68 answer-key page per 4 instructional pages, ~0.17) is close to Chapters 4-6's ~0.13-0.14 ratio -- informs the chapter 8 estimate above, which remains deliberately conservative relative to this observed efficiency."
   projection_arithmetic:
-    pilot_actual_total: 57
-    chapters_7_to_8_instructional_range: [9, 10]
-    chapters_7_to_8_answer_key_range: [2, 2.2]
-    projected_full_total_range: [68, 69.2]
-  ceiling_status: "Within the 72-page hard ceiling on both ends (68-69.2). The low end (68) sits at the top of the 60-68 PREFERRED range and the high end (69.2) is marginally over it -- not a hard-ceiling breach, but Chapters 7-8 should not be allowed to grow beyond their provisional ranges above without revisiting this projection."
+    pilot_actual_total: 62
+    chapter_8_instructional_range: [4, 5]
+    chapter_8_answer_key_range: [1, 1]
+    projected_full_total_range: [67, 68]
+  ceiling_status: "Within the 72-page hard ceiling on both ends (67-68), and within the 60-68 PREFERRED range on both ends too -- the best-positioned projection in the pilot so far. This depends on Chapter 8 actually holding to the provisional range above, including its now-widened allowance for the looped-depth/recurrent-depth material ch. 7 deferred to it."
 
 chapter_3_specific:
   mla_deferral_note: "RESOLVED (2026-09-23): MLA's placement, left open when Chapter 3 was drafted, is Chapter 4 -- see outline.yaml's ch3.drafting_note and ch4.drafting_note, and reports/04_ch04_draft_report.md."
@@ -122,3 +131,10 @@ chapter_6_specific:
   mamba_sourcing_gap_resolved_note: "Chapter 4 (see chapter_4_specific.recurrent_family_sourcing_gap above) deliberately deferred teaching recurrent/SSM mechanics pending a primary source. Chapter 6 resolves that gap: Gu and Dao's Mamba paper (src-37, arXiv:2312.00752) was added to sources/registry.yaml, shared/bibliography.bib, and source-coverage.yaml, verified via full-text PDF extraction, and confirmed (via Jamba's own reference [17]) to be the exact mechanism Jamba's non-attention layers use -- not Mamba-2 or Gated DeltaNet, which are not treated as synonyms."
   model_verification_note: "All three case-study models' architecture facts (Llama 3 405B's Table 3/Section 3.2.1; DeepSeek-V3's Section 4.2; Jamba's full text plus its non-gated Hugging Face config.json) were verified this session by downloading the primary-source PDF and extracting its full text (pdftotext + grep), not by trusting a search snippet or a fetch tool's own summary -- consistent with this workbook's established sourcing standard. The Llama 3 405B config.json on Hugging Face is gated (HTTP 401) and was not used."
   page_budget_miss_note: "Chapter 6 landed at its 5-page instructional hard maximum (not the 4-page preferred target) and 0.67 answer-key pages (within the 0.75 hard maximum, over the 0.5 preferred target) -- both disclosed misses, not silent scope creep. See the chapter_6/answer_key_chapter_6 section notes above for what was tightened (table merge, prose trims, figure spacing) and reports/04_ch06_draft_report.md for the full account."
+
+chapter_7_specific:
+  scope_note: "Chapter 7 rescoped from a quantization/paging/continuous-batching answer-key table (the pre-existing outline.yaml plan) to a resource ledger, a prefill-vs-decode contrast, an architecture-to-systems consequence map (with a one-row looped-depth PREVIEW only), a minimal parallelism overview, and a two-model diagnosis exercise -- see outline.yaml's ch7.drafting_note and reports/04_ch07_draft_report.md."
+  looped_depth_preview_note: "Chapter 7's looped-depth row is explicitly a preview, not a teaching -- full mechanism-level treatment (depth-wise weight sharing, distinct-vs-effective parameters, fixed vs. adaptive loop counts, KV-cache implications) is deferred to Chapter 8, per config/series-topic-roadmap.yaml. The chapter's own text and both its figures state this explicitly, not just this tracking file."
+  mtp_speculative_decoding_scope_fence: "Chapter 7 adds only a short cross-reference stating that an MTP module MAY become an inference-time draft mechanism for speculative decoding -- neither mechanism is taught. Both are assigned to future workbooks (05 for MTP's training-time treatment, 06 for speculative decoding) per config/series-topic-roadmap.yaml, registered this session alongside 12 new sources (src-38 through src-49)."
+  diagnosis_exercise_sourcing_note: "Chapter 7's two-model diagnosis exercise (Model A: dense GQA; Model B: MoE + MLA) reuses ch. 3's GQA KV-cache formula and ch. 4's MLA cache formula and ch. 5's total/active-parameter formula VERBATIM -- no new formula was derived for this chapter, per that day's drafting task's own instruction to avoid another long arithmetic derivation. Both models are hypothetical/illustrative, not a real model's published config."
+  page_budget_result_note: "Chapter 7 landed at exactly its 4-page instructional PREFERRED target (not just the 5-page hard maximum) and 0.68 answer-key pages (within the 0.75 hard maximum, over the 0.5 preferred target, tightened once from an initial ~0.95-page draft) -- the best-fitting chapter since Chapter 5's exact preferred-budget hit. Two visual bugs (a figure canvas-width overflow; two internal-path-leakage occurrences in learner-facing prose) were found only by rendering every page to PNG and inspecting them, not by any automated test, and were fixed before this chapter was considered complete."

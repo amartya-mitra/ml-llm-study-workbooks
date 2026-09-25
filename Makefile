@@ -2,7 +2,7 @@ PYTHON ?= python3
 
 .PHONY: validate validate-registry validate-questions figures workbooks \
         render-sample review-ch01-02 review-ch01-03 review-ch01-04 review-ch01-05 \
-        review-ch01-06 test check-links clean
+        review-ch01-06 review-ch01-07 test check-links clean
 
 # Run every offline (non-network) validation check.
 validate: validate-registry validate-questions
@@ -60,8 +60,15 @@ review-ch01-05:
 	$(PYTHON) scripts/build_ch01_05_review.py
 
 # Build the Chapters 1-6 review PDF (see scripts/build_ch01_06_review.py).
+# SUPERSEDED as a live target now that index.qmd includes Chapter 7 --
+# use review-ch01-07 instead; kept for traceability of the frozen
+# outputs/04-llm-architecture-ch01-06-review.pdf artifact.
 review-ch01-06:
 	$(PYTHON) scripts/build_ch01_06_review.py
+
+# Build the Chapters 1-7 review PDF (see scripts/build_ch01_07_review.py).
+review-ch01-07:
+	$(PYTHON) scripts/build_ch01_07_review.py
 
 # Network-dependent: checks that every sources/registry.yaml URL responds.
 check-links:

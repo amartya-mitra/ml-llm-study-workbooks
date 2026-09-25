@@ -1,20 +1,19 @@
 ## Build and Version Note
 
-- **Generated:** 2026-09-23
-- **Git commit:** `82540ca5be62b9733ae158db8b3ffb5e6c7a217e (pre-commit -- working tree had uncommitted changes at build time)`
-- **Source-registry verification date referenced by this build:** src-19..src-37 (primary sources for Ch.1-6) last verified 2026-09-22/2026-09-23; see sources/registry.yaml
-- **Pilot status:** Six-chapter pilot (Chapters 1-6 of 8) -- Chapters 7-8 are planned but not drafted; Chapter 6 selects exactly three pinned model families as case studies, not a survey of every current model (see outline.yaml's ch6.drafting_note)
+- **Generated:** 2026-09-25
+- **Git commit:** `2c48fb811f6792b26e8bc832704c3c317ff6c25e (pre-commit -- working tree had uncommitted changes at build time)`
+- **Source-registry verification date referenced by this build:** src-19..src-49 (primary/roadmap sources for Ch.1-7 and the series-wide topic roadmap) last verified 2026-09-22..2026-09-25; see sources/registry.yaml
+- **Pilot status:** Seven-chapter pilot (Chapters 1-7 of 8) -- Chapter 8 is planned but not drafted; Chapter 7 previews looped depth in one row only and cross-references (does not teach) multi-token prediction/speculative decoding (see outline.yaml's ch7.drafting_note and config/series-topic-roadmap.yaml)
 
 ### Provenance
 
 - Tied-embeddings usage (Chapter 2) has no dedicated primary source; the sandwich-norm claim (Chapter 2) leans on a secondary source rather than a model's own technical report. Both are tracked sourcing gaps, not unsupported claims.
-- All worked-example numbers in Chapters 1-6 (attention weights, parameter counts, KV-cache sizes, receptive fields, MoE parameter/routing counts, the ch. 6 hypothetical-config GQA group size and expert fraction) are computed by version-controlled project scripts and checked by the project's automated test suite, not hand-derived.
+- All worked-example numbers in Chapters 1-7 (attention weights, parameter counts, KV-cache sizes, receptive fields, MoE parameter/routing counts, ch. 6's hypothetical-config GQA group size, ch. 7's two-model resource diagnosis) are computed by version-controlled project scripts and checked by the project's automated test suite, not hand-derived.
 - Figures are generated from version-controlled scripts using a fixed visual-style configuration, not drawn freehand; each figure's caption credits its scholarly/technical source where one applies.
-- Chapter 3's and Chapter 4's KV-cache/latent-cache/attention-projection-parameter figures and formulas are LOGICAL, theoretical minimums, not measured GPU memory -- they exclude allocator overhead, page metadata, fragmentation, and framework buffers.
-- Chapter 4's MLA content (compression formula, decoupled-RoPE reasoning, cache-per-token table) was verified directly against DeepSeek-V2's full paper text ([@src-27], Sections 2.1.1-2.1.4 and Table 1), not a search-result snippet.
-- Chapter 5's shared-experts claim was verified directly against DeepSeekMoE's full paper text ([@src-36], arXiv:2401.06066), not a snippet or blog summary; detailed distributed-training implementation, collective-communication algorithms, kernel optimization, inference-engine configuration, expert quantization, model-specific benchmark comparisons, post-training, and routing-research surveys are all deferred.
-- Chapter 6's three case-study models (Llama 3 405B [@src-32], DeepSeek-V3 [@src-33], Jamba [@src-35]) and the Mamba mechanism source [@src-37] were each verified by downloading the primary source PDF and extracting its full text (pdftotext), not by trusting a search snippet or a fetch tool's own summary -- resolving the sourcing gap Chapter 4 had left open for the recurrent/SSM mechanism family. The Llama 3 405B config.json on Hugging Face is gated and was not used; all Llama 3 figures come from the paper's own Table 3 and Section 3.2.1 text.
-- Chapter 6 selects exactly three model families (one dense, one sparse-MoE-with-compressed-attention, one hybrid) as representative case studies, not an exhaustive survey; Mixtral remains registered only as a ch. 5-adjacent supporting reference, not a fourth main case study.
+- Chapter 3's and Chapter 4's KV-cache/latent-cache/attention-projection-parameter figures and formulas are LOGICAL, theoretical minimums, not measured GPU memory -- they exclude allocator overhead, page metadata, fragmentation, and framework buffers. Chapter 7's resource ledger makes this logical-vs-measured distinction explicit as its own table.
+- Chapter 6's three case-study models and the Mamba mechanism source were each verified by downloading the primary source PDF and extracting its full text (pdftotext), not by trusting a search snippet or a fetch tool's own summary.
+- This session also created config/series-topic-roadmap.yaml and reports/series_topic_roadmap.md, registering 12 new sources (src-38..src-49) for three cross-workbook topics (recurrent depth/looped transformers, multi-token prediction, speculative decoding) that Chapter 7 only previews or cross-references -- their full treatment is assigned to future chapters/workbooks, not drafted this session. No official source confirms any specific proprietary model's architecture (e.g. 'GPT-6 Astra'); any such claim is treated as unconfirmed.
+- Chapter 7 folds quantization/paging/continuous-batching into its resource-ledger framing (runtime vs. architecture) rather than keeping a standalone table; MTP and speculative decoding are each given only a short cross-reference, not a taught mechanism, per that chapter's own scope fence.
 
 This note is generated by `scripts/generate_build_note.py` at build
 time -- do not hand-edit `includes/build-version-note.qmd`; regenerate

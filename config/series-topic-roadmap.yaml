@@ -1,0 +1,155 @@
+# Series-wide topic roadmap: cross-workbook assignment for topics that
+# span more than one workbook in the ML/LLM Study Workbooks series.
+#
+# This file is a DECISION RECORD, not a drafting plan for any single
+# workbook. It exists so that when workbook 04/05/06/02 are each drafted
+# (on their own schedules), nobody has to re-decide where a topic's
+# primary treatment lives, what depth is appropriate at each mention,
+# or which sources back which claim -- and so no chapter accidentally
+# duplicates another chapter's primary treatment or teaches a mechanism
+# it was never assigned.
+#
+# Created: 2026-09-25, alongside workbook 04 chapter 7's drafting task.
+# See reports/series_topic_roadmap.md for the prose rationale behind
+# each decision below.
+#
+# Schema (per topic):
+#   id                  - short slug
+#   display_name        - human-readable topic name
+#   primary_home        - the ONE workbook+location that teaches this
+#                          topic's full mechanism-level depth
+#   secondary_mentions   - list of {workbook, depth, note} -- every other
+#                          place this topic is touched, and how deep
+#   interview_treatment  - {workbook, depth, note}
+#   required_concepts    - the specific sub-concepts the primary
+#                          treatment must cover (from the drafting task)
+#   source_requirements   - {primary_source_ids, explanatory_source_ids,
+#                          unverified_candidate_ids, source_notes}
+#   required_distinctions - things this topic must NOT be conflated with
+#   caveats              - standing cautions that apply wherever this
+#                          topic is mentioned, anywhere in the series
+#   status                - "not_yet_drafted" until the primary_home
+#                          location is actually written
+
+schema_version: 1
+
+topics:
+  - id: "recurrent-depth-looped-transformers"
+    display_name: "Recurrent depth / looped transformers"
+    primary_home:
+      workbook: "04-llm-architecture"
+      location: "ch8 (or a compact emerging-architectures appendix)"
+      depth: "full mechanism-level treatment"
+      note: "Not yet drafted. Workbook 04 ch7 (drafted this session) includes only a one-row, systems-oriented PREVIEW in its architecture-to-systems consequence map -- explicitly deferring the full explanation to ch8, per that chapter's own scope fence."
+    secondary_mentions:
+      - workbook: "06-llm-inference"
+        depth: "brief"
+        note: "Cache and latency consequences only -- how a mostly-fixed-parameter, repeated-block-application model's serving behavior differs from an unrolled-depth model of the same parameter count. Not yet drafted."
+      - workbook: "04-llm-architecture"
+        depth: "one-row preview"
+        note: "Chapter 7's architecture-to-systems consequence map (drafted this session) includes looped depth as one row: weight sharing across repeated block applications, distinct parameters vs. effective block applications, and the explicit caveat that looping does not eliminate the repeated compute and does not automatically share/reduce KV-cache state across passes."
+    interview_treatment:
+      workbook: "02-ml-interviews"
+      depth: "conceptual and calculation questions"
+      note: "Not yet drafted. Likely questions: distinguish depth recurrence from sequence recurrence; compute distinct-parameter counts vs. effective block applications for a stated loop count; explain why a fixed-loop model's decode-time compute does not shrink even though its parameter count does."
+    required_concepts:
+      - "depth-wise weight sharing"
+      - "distinct parameters versus effective block applications"
+      - "fixed loop counts"
+      - "adaptive halting"
+      - "per-token recursion routing"
+      - "compute versus parameter-storage tradeoff"
+      - "sequence recurrence versus depth recurrence"
+      - "KV-cache implications across repeated block applications"
+    source_requirements:
+      primary_source_ids: ["src-38", "src-39", "src-40", "src-41", "src-42"]
+      explanatory_source_ids: ["src-46", "src-47", "src-48"]
+      unverified_candidate_ids: []
+      source_notes: "src-38 (Universal Transformers, 2018) is the primary source for depth-wise weight sharing and adaptive (per-position) halting -- the earliest of the five. src-39 (Geiping et al.) is the primary source for the compute-vs-parameter-storage tradeoff framing at larger scale (3.5B params, test-time-unrolled). src-40 (Mixture-of-Recursions) is the primary source for BOTH per-token recursion routing (a more sophisticated successor to Universal Transformers' ACT) AND the KV-cache-implications concept specifically -- its own 'recursion-wise caching vs. recursive sharing' comparison is the most directly on-point source for that one required concept. src-41 (Ouro) is a second large-scale (7.7T-token) looped-pretraining primary source. src-42 (Nanbeige4.2-3B) is the primary source for a FIXED (not adaptive) loop count in a shipped, open-weight model -- do not treat MoR's adaptive depth and Nanbeige's fixed depth as the same design. src-46/src-47/src-48 (Raschka) are expert-explanatory/visual-reference sources useful for framing and figure-scoping, NOT a substitute for the five primary papers on any specific mechanism claim."
+    required_distinctions:
+      - "Depth recurrence (looping the same block over the same tokens) is NOT the same as sequence recurrence (an RNN's or Mamba's/SSM's token-by-token hidden state, src-37) -- both are called 'recurrent' in casual usage but are different mechanisms."
+      - "An adaptive per-token halting/routing mechanism (Universal Transformers' ACT, Mixture-of-Recursions' router) is NOT the same as a fixed loop count applied uniformly to every token (Nanbeige4.2-3B) -- do not present one as a special case of the other without checking which a given model actually uses."
+      - "Looped weight sharing reduces DISTINCT stored parameters; it does NOT reduce the compute of the repeated block applications, and it does NOT automatically reduce or share KV-cache/recurrent state across passes unless the specific architecture says so (per Mixture-of-Recursions' own caching-strategy comparison)."
+    caveats:
+      - "Treat any claim about an undocumented proprietary model's architecture (e.g. 'GPT-6 Astra uses looped transformers') as UNCONFIRMED unless an official technical source from that model's own developer exists. As of this session's research, no such official OpenAI source was found for GPT-6 Astra -- src-46/src-47 themselves present the claim as third-party-reported speculation, not confirmed fact. Do not upgrade this to a verified fact in any future workbook text."
+    status: "primary_home_not_yet_drafted; ch7_preview_drafted_2026-09-25"
+
+  - id: "multi-token-prediction"
+    display_name: "Multi-token prediction (MTP)"
+    primary_home:
+      workbook: "05-llm-training"
+      location: "a pretraining-objectives chapter (not yet planned in detail)"
+      depth: "full mechanism-level treatment (training-time)"
+      note: "Not yet drafted."
+    secondary_mentions:
+      - workbook: "04-llm-architecture"
+        depth: "concise emerging-architecture note"
+        note: "Planned for ch8 (not yet drafted). Workbook 04 ch7 (drafted this session) adds only a short cross-reference stating that an auxiliary MTP module MAY become an inference-time draft mechanism -- not a main architecture row, and not a teaching of the mechanism itself."
+      - workbook: "06-llm-inference"
+        depth: "brief, as a drafting mechanism"
+        note: "Use of an MTP module as an internal speculative-decoding draft source (as opposed to an independent draft model). Not yet drafted."
+    interview_treatment:
+      workbook: "02-ml-interviews"
+      depth: "not explicitly scoped by this roadmap pass"
+      note: "The drafting task's interview-treatment instruction for this topic covered looped-depth and speculative decoding explicitly, not MTP by name -- MTP interview questions would naturally fall under either workbook 05's or workbook 06's own interview-lens sections rather than requiring a dedicated workbook 02 entry; revisit when workbook 05/06 are drafted."
+    required_concepts:
+      - "predicting multiple future offsets"
+      - "auxiliary heads or modules"
+      - "loss construction"
+      - "independent versus causal-chain MTP designs"
+      - "training-only use"
+      - "parameter and compute implications"
+    source_requirements:
+      primary_source_ids: ["src-43", "src-33"]
+      explanatory_source_ids: ["src-49"]
+      unverified_candidate_ids: []
+      source_notes: "src-43 (Gloeckle et al., the original MTP paper) defines the INDEPENDENT-heads design: n independent output heads on a shared trunk, one auxiliary loss per future offset, only the next-token head kept at inference. src-33 (DeepSeek-V3, already registered for workbook 04 ch. 6) is the primary source for the CAUSAL-CHAIN design: DeepSeek-V3's own MTP module conditions each predicted offset on the previous module's output (multi-token prediction depth D=1 in the paper's own notation) -- a materially different implementation from Gloeckle et al.'s, not a restatement of it. src-49 (Raschka's MTP gallery page) is an expert-explanatory source for the training-vs-inference-use distinction and for scoping which additional models (Qwen3-Next, Step 3.5 Flash, Nemotron 3 Super) use MTP variants -- those three model-specific claims are NOT independently verified and must be checked before workbook 05/06 cites them for anything beyond 'this source says so.'"
+    required_distinctions:
+      - "MTP is a training-time objective/module design choice. It is NOT itself synonymous with speculative decoding (an inference-time serving technique) -- an MTP module CAN be repurposed as a draft source for speculative decoding, but does not have to be, and having MTP heads does not imply a model is served with speculative decoding."
+      - "Gloeckle et al.'s independent-heads design and DeepSeek-V3's causal-chain design are two different MTP architectures, not two names for the same thing -- state which one a specific model uses rather than describing 'MTP' as a single fixed mechanism."
+    caveats:
+      - "Reported inference-throughput gains from MTP-derived drafting depend on the serving engine, batch size, and hardware, not on the training loss alone (per src-49's own framing) -- do not present a training-time MTP result as an inference-time latency/throughput guarantee."
+    status: "primary_home_not_yet_drafted; ch7_short_cross_reference_drafted_2026-09-25"
+
+  - id: "speculative-decoding"
+    display_name: "Speculative decoding"
+    primary_home:
+      workbook: "06-llm-inference"
+      location: "an inference-serving-techniques chapter (not yet planned in detail)"
+      depth: "full algorithmic and systems treatment"
+      note: "Not yet drafted."
+    secondary_mentions:
+      - workbook: "04-llm-architecture"
+        depth: "short cross-reference only, at the point MTP is introduced"
+        note: "Workbook 04 ch7 (drafted this session) does not teach the speculative-decoding algorithm; it only notes, alongside the MTP cross-reference, that this is where an MTP module's inference-time use will be covered in depth (workbook 06)."
+    interview_treatment:
+      workbook: "02-ml-interviews"
+      depth: "systems and tradeoff questions"
+      note: "Not yet drafted. Likely questions: proposal/verification/acceptance walk-through; why acceptance rate and draft cost trade off against each other; why speculative decoding's benefit shrinks as batch size grows; the lossless-distribution guarantee and the assumptions it depends on."
+    required_concepts:
+      - "proposal"
+      - "verification"
+      - "acceptance"
+      - "rejection and resampling"
+      - "independent draft models"
+      - "self-speculative methods"
+      - "MTP-assisted drafting"
+      - "acceptance rate"
+      - "draft cost"
+      - "batch-size effects"
+      - "hardware and serving-engine dependence"
+      - "latency versus throughput"
+      - "lossless-distribution guarantees under the relevant algorithmic assumptions"
+    source_requirements:
+      primary_source_ids: ["src-44", "src-45"]
+      explanatory_source_ids: ["src-49"]
+      unverified_candidate_ids: []
+      implementation_companion_candidates: ["vLLM docs", "SGLang docs", "TensorRT-LLM docs -- none registered yet; add when workbook 06 is actually drafted, and register as an implementation companion, not as the algorithm's sole source, per the drafting task's own instruction"]
+      source_notes: "src-44 (Leviathan et al.) and src-45 (Chen et al.) are CO-FOUNDATIONAL -- published within about two months of each other in early 2023, each independently deriving a proposal/verification/acceptance scheme with a lossless-distribution guarantee. Workbook 06 should credit both by name, not present one as derivative of the other. Both were verified via full-text PDF extraction this session, confirming: Leviathan et al.'s 'without changing the distribution' framing, and Chen et al.'s 'modified rejection sampling scheme which preserves the distribution of the target model' plus its acceptance-rate framing."
+    required_distinctions:
+      - "Speculative decoding is an inference-time SERVING technique. It does not change training, and it is not itself an architecture -- an MTP module (a training-time design choice, see multi-token-prediction topic) is only ONE possible source of draft tokens; an independent smaller draft model or a self-speculative method (drafting from the same model's own earlier layers/state) are others."
+      - "Do not present the lossless-distribution guarantee as unconditional -- both foundational papers state it holds under specific algorithmic assumptions (matching sampling procedures / a correct rejection-sampling implementation), not as a property that survives any implementation."
+    caveats:
+      - "Do not cite vendor serving-engine marketing claims (e.g. a specific framework's headline speedup number) as neutral, hardware-independent performance evidence -- acceptance rate, draft cost, batch size, and hardware all affect the realized speedup, per the required-concepts list above."
+      - "Workbook 04 must NOT teach this algorithm in any depth -- confirmed satisfied by ch7 as drafted this session (short cross-reference only)."
+    status: "primary_home_not_yet_drafted; ch7_short_cross_reference_drafted_2026-09-25"

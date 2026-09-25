@@ -1,0 +1,62 @@
+{
+  "assumptions": {
+    "shared_workload": {
+      "S": 32768,
+      "concurrency": 64,
+      "bytes_per_elem": 2
+    },
+    "model_a": {
+      "L": 32,
+      "H_kv": 8,
+      "d_head": 128,
+      "params_total": 7000000000
+    },
+    "model_b": {
+      "L": 32,
+      "d_c": 512,
+      "d_rope": 64,
+      "E": 64,
+      "k": 8,
+      "p_e": 100000000,
+      "p_base": 2000000000
+    }
+  },
+  "model_a": {
+    "params_total": 7000000000,
+    "params_active": 7000000000,
+    "cache_per_sequence": {
+      "bytes": 4294967296,
+      "mib": 4096.0,
+      "gib": 4.0
+    },
+    "cache_all_sequences": {
+      "bytes": 274877906944,
+      "mib": 262144.0,
+      "gib": 256.0
+    },
+    "cross_device_communication": "none (no routed experts to distribute)"
+  },
+  "model_b": {
+    "params_total": 8400000000,
+    "params_active": 2800000000,
+    "cache_per_sequence": {
+      "bytes": 1207959552,
+      "mib": 1152.0,
+      "gib": 1.125
+    },
+    "cache_all_sequences": {
+      "bytes": 77309411328,
+      "mib": 73728.0,
+      "gib": 72.0
+    },
+    "cross_device_communication": "all-to-all dispatch/combine (expert-parallel routed experts, ch. 5)"
+  },
+  "comparison": {
+    "lower_logical_cache": "model_b",
+    "cache_ratio_b_over_a": 0.28125,
+    "higher_total_weight_storage": "model_b",
+    "total_params_ratio_b_over_a": 1.2,
+    "introduces_expert_communication": "model_b",
+    "latency_conclusion": "Neither model's latency can be concluded from these logical quantities alone -- batching, kernel implementation, hardware, and the actual routing distribution at serving time all still need to be benchmarked (see ch. 7's own text)."
+  }
+}

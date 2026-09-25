@@ -1,0 +1,182 @@
+## Chapter 7: From Architecture to Systems Behavior: Memory, Compute, Communication, and Throughput {#sec-ch7}
+
+*Five Resources, Two Operating Modes, One Refusal to Guess*
+
+### Learning objectives
+
+By the end of this chapter you should be able to:
+
+- Separate weight memory, KV-cache/state memory, activation memory,
+  temporary workspace, optimizer state, and communication as distinct
+  resource categories, and explain why training and inference have
+  different memory profiles.
+- Explain why prefill and decode stress hardware differently, and
+  distinguish latency, throughput, and goodput.
+- Trace the systems consequences (memory, compute, communication,
+  implementation complexity) of GQA/MQA, MLA, sliding-window
+  attention, MoE, and hybrid recurrent layers.
+- State what cannot be inferred about wall-clock performance from
+  theoretical FLOPs or an architecture diagram alone.
+
+### Why this matters
+
+Chapters 2 through 6 taught what an architecture *is*. This chapter
+asks what that architecture *costs* to run -- and insists on keeping
+five different resources (weights, cache/state, activations,
+communication, and temporary workspace) separate, since collapsing
+them into one number is the most common way a memory or performance
+estimate goes wrong. This chapter synthesizes consequences already
+implied by chapters 2-6; it is not a training-systems or
+inference-serving textbook.
+
+### The resource ledger
+
+No single formula covers every resource a model touches. Weights
+persist across both training and inference. Activations, gradients,
+and optimizer state exist only during training. The KV-cache or
+recurrent state (ch. 3, ch. 6) is request-specific: it grows and
+shrinks with which sequences are currently being served, not with the
+architecture alone. Temporary kernel workspace is
+implementation-dependent -- it varies by serving engine, not by
+architecture.
+
+![Six resources, four lifecycles: persistent across training and
+inference (weights); training-only (activations, gradients, optimizer
+state); request-specific (inference KV/recurrent state); and
+implementation-dependent (temporary
+workspace).](figures/rendered/fig-memory-state-lifecycle.svg){#fig-memory-state-lifecycle}
+
+| Resource | Logical (architecture) quantity | Measured (runtime) quantity |
+|---|---|---|
+| Weights | parameter count $\times$ bytes/elem (ch. 2, ch. 5) | allocated model memory (profiler) |
+| KV-cache / recurrent state | ch. 3/ch. 6 formula | profiler reading, includes allocator overhead |
+| Communication | bytes/step implied by a parallelism strategy | measured network/interconnect traffic |
+
+: A logical estimate and its measured counterpart are never the same number -- allocator overhead, fragmentation, and framework buffers separate them {#tbl-logical-vs-measured}
+
+### Prefill versus decode
+
+Prefill processes every prompt position at once and can expose
+substantial parallel matrix work -- it is often compute-heavy. Decode
+processes one new position at a time, repeatedly reading the retained
+KV-cache or recurrent state -- it is often memory-bandwidth-sensitive,
+since a single new token's FLOPs are small relative to the bytes
+moved rereading that state. Neither claim is universal: larger batches
+raise arithmetic intensity and can shift decode back toward
+compute-bound, but they also multiply cache state, and long contexts
+increase cache traffic regardless of batch size. Architecture and
+serving engine interact -- this chapter states tendencies, not laws.
+
+### Architecture-to-systems consequence map
+
+Every mechanism taught so far trades one resource for a complication
+elsewhere -- none improves every column below.
+
+![No mechanism improves every resource dimension. Qualitative markers
+only -- no cell is a measurement. The looped-depth row is a
+systems-oriented preview: weight sharing across repeated block
+applications lowers distinct parameter count, but does not
+automatically lower compute (the repeated applications still run) or
+cache/state size -- full explanation deferred to
+ch. 8.](figures/rendered/fig-architecture-to-consequence-map.svg){#fig-architecture-to-consequence-map}
+
+An auxiliary multi-token-prediction module (a training-time design,
+[@src-43]) may itself become an inference-time draft mechanism for
+speculative decoding -- a serving technique this workbook does not
+teach; both are covered in depth in a future inference workbook, per
+this series' own cross-workbook topic roadmap.
+
+### Parallelism, briefly
+
+| Type | Resource pressure addressed | Communication introduced |
+|---|---|---|
+| Data | replicates computation across data partitions | gradient synchronization |
+| Tensor | splits large matrix ops across devices | activation/gradient all-reduce per layer |
+| Pipeline | assigns layer ranges to different devices | activations forwarded between stages |
+| Expert | distributes routed experts (ch. 5) | token dispatch/combine (all-to-all) |
+| Sequence/context | distributes sequence-length computation/state | state exchanged across sequence shards |
+
+: Each type addresses one resource pressure and introduces its own communication shape -- not derived further here; see [@src-10] and a future training workbook {#tbl-parallelism-overview}
+
+::: {.callout-warning title="Common misconception"}
+**"The architecture with fewer theoretical FLOPs must be faster."** It
+need not be. Wall-clock performance also depends on arithmetic
+intensity, memory traffic, communication, batching, kernel
+implementation, scheduling, and hardware utilization -- any one of
+which can dominate over raw FLOPs.
+:::
+
+### Check your understanding
+
+Full solutions are in the answer key (@sec-solutions-ch7):
+
+1. **Quick check.** Which resource-ledger category does the KV-cache
+   belong to, and which category does an optimizer's momentum/variance
+   state belong to? ________________________________________________
+2. **Quick check.** Is a temporary attention-kernel workspace
+   training-only, inference-persistent, request-specific, or
+   implementation-dependent? ________________________________________________
+3. **Compare.** Contrast one prefill step and one decode step on the
+   same request, using the resource ledger and arithmetic intensity.
+   ________________________________________________
+4. **Misconception check.** True or false: the architecture with fewer
+   theoretical FLOPs must be faster. ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+Model A: dense, GQA ($H_q=32$, $H_{kv}=8$, 32 layers), 7B parameters,
+long retained context, high concurrency. Model B: MoE + MLA (64 routed
+experts, 8 active, $p_{\text{base}}=2\text{B}$; $d_c=512$,
+$d_{\text{rope}}=64$), same context length and concurrency as Model A,
+expert weights distributed across devices. Using only ch. 3's and ch.
+5's own formulas: (a) which model likely uses less logical cache; (b)
+which has more total weight storage; (c) which introduces expert
+communication; and (d) why latency cannot be concluded from any of
+this without benchmarking.
+
+### Interview lens
+
+*"Given an architecture report, how would you estimate likely serving
+bottlenecks, and which conclusions would you refuse to make without
+benchmarking?"* A strong answer separates the five resource-ledger
+categories, applies the architecture-to-systems consequence map
+mechanism by mechanism, and explicitly refuses to predict measured
+latency, throughput, or ranking from architecture facts alone.
+
+### Chapter recap
+
+- Five resource categories -- weight memory, cache/state memory,
+  activation memory, temporary workspace, and communication -- answer
+  different questions; no single formula covers all of them.
+- Logical/architectural estimates and measured runtime numbers are
+  never the same number.
+- Prefill is often compute-heavy; decode is often
+  memory-bandwidth-sensitive -- both are tendencies, not universal
+  laws, and batching/context length/serving engine all interact with
+  them.
+- Every mechanism trades one resource dimension for a complication
+  elsewhere; looped depth's weight-sharing benefit does not
+  automatically reduce compute or cache/state (full treatment: ch. 8).
+- An MTP module may become a speculative-decoding draft source, but
+  MTP and speculative decoding are not the same thing, and neither is
+  taught here.
+- Theoretical FLOPs are necessary but not sufficient to predict
+  wall-clock performance.
+
+### Sources and further reading
+
+Primary sources: [@src-10] (KV-cache math, attention FLOPs, and
+roofline/hardware-aware cost analysis -- the core narrative source for
+this chapter's resource ledger and prefill/decode framing), [@src-11],
+[@src-12] (inference-serving systems companions for the same
+distinctions). Secondary/supporting: [@src-17] (parallelism strategies,
+access partial -- cited only for the conceptual map, not a specific
+communication-volume claim), [@src-38], [@src-40], [@src-42] (the
+looped-depth preview row's sources, per this series' own
+cross-workbook topic roadmap), [@src-43], [@src-49] (the MTP
+cross-reference). A full derivation of communication-volume formulas,
+a serving-engine implementation guide, and the speculative-decoding
+algorithm itself are all out of scope for this chapter.

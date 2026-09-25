@@ -11,7 +11,7 @@
 working_title: "Modern LLM Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models"
 target_reader: "technically experienced ML practitioner or researcher; knows standard deep learning and linear algebra and the vanilla Transformer; not fluent yet in modern efficiency mechanisms (GQA, MLA, MoE routing, hybrid attention stacks)"
 page_ceiling: 65
-estimated_total_pages: 47  # ch3 9->8 (MLA deferred out); ch4 7->6 (retitled, MLA absorbed); ch5 8->5 (scoped down, systems depth deferred); ch6 8->4 (rescoped to 3 case studies + reading checklist); all 2026-09-23, see ch3/ch4/ch5/ch6 drafting_note fields
+estimated_total_pages: 44  # ch3 9->8 (MLA deferred out); ch4 7->6 (retitled, MLA absorbed); ch5 8->5 (scoped down, systems depth deferred); ch6 8->4 (rescoped to 3 case studies + reading checklist); ch7 7->4 (rescoped to resource ledger + consequence map + parallelism overview); 2026-09-23/2026-09-25, see ch3/ch4/ch5/ch6/ch7 drafting_note fields
 
 chapters:
   - id: "ch1"
@@ -283,41 +283,45 @@ chapters:
 
   - id: "ch7"
     number: 7
-    title: "From architecture to systems consequences"
-    purpose: "Close the loop from mechanism to consequence: what an architectural choice does and does not change about training communication, inference memory bandwidth, and observed latency/throughput — without becoming a training-systems or inference-serving textbook."
-    prerequisites: ["ch1", "ch2", "ch3", "ch5"]
+    title: "From architecture to systems behavior: memory, compute, communication, and throughput"
+    drafting_note: "RESCOPED (2026-09-25) per that day's drafting task: the chapter's organizing device changed from a quantization/paging/continuous-batching answer-key table to (1) a resource ledger separating weight/KV-cache/activation/optimizer/communication state, (2) a prefill-vs-decode operational contrast, (3) an architecture-to-systems consequence map covering GQA/MQA, MLA, sliding attention, MoE, hybrid recurrent layers, AND a one-row looped-depth preview (deferred in full to ch. 8, per config/series-topic-roadmap.yaml), (4) a minimal parallelism-type overview, and (5) a hypothetical two-model diagnosis exercise reusing ch. 3/5's own formulas rather than deriving new ones. Quantization/paging/continuous-batching are folded into the resource-ledger framing (runtime vs. architecture) rather than kept as a standalone table. estimated_pages 7->4 (5 hard maximum), matching the drafting task's tighter budget. MTP and speculative decoding are each given only a short, explicitly-deferred cross-reference (see config/series-topic-roadmap.yaml) -- the algorithm itself is not taught here. See reports/04_ch07_draft_report.md."
+    purpose: "Close the loop from mechanism to consequence: separate the resource categories an architecture choice actually changes (weight memory, KV-cache/state memory, compute, communication) from what a serving/training implementation changes on top of it, without becoming a training-systems or inference-serving textbook."
+    prerequisites: ["ch1", "ch2", "ch3", "ch5", "ch6"]
     learning_objectives:
-      - "State which serving-time techniques (quantization, paging/PagedAttention-style cache management, continuous batching) change measured memory/latency without changing the architecture itself, and why that distinction matters"
-      - "Explain why training communication volume depends on architecture choices (e.g. MoE's all-to-all dispatch) in a way dense models don't incur"
-      - "Explain why inference at small batch sizes is usually memory-bandwidth-bound, and why architectural FLOPs alone don't predict wall-clock latency"
-      - "Distinguish latency from throughput as separate, sometimes-conflicting optimization targets"
+      - "Separate weight memory, KV-cache memory, activation memory, temporary workspace, optimizer state, and communication as distinct resource categories, and explain why training and inference have different memory profiles"
+      - "Explain why prefill and decode stress hardware differently, and distinguish latency, throughput, and goodput"
+      - "Trace the systems consequences (memory/compute/communication/implementation complexity) of MHA/GQA/MQA, MLA, sliding-window attention, MoE, hybrid recurrent layers, and (at preview depth only) looped depth"
+      - "Explain why theoretical FLOPs alone do not determine wall-clock performance, and state what cannot be inferred from an architecture diagram without benchmarking"
     core_concepts:
-      - "architecture vs. runtime: quantization, KV-cache paging, and continuous batching as things that change measured performance without changing what the model architecturally is"
-      - "training communication volume as a function of architecture (MoE all-to-all, tensor/pipeline-parallel communication shape)"
-      - "inference memory bandwidth as the usual bottleneck at low batch size/decode time"
-      - "latency vs. throughput as distinct targets"
-      - "why theoretical FLOPs are necessary but not sufficient to predict wall-clock behavior"
+      - "a resource ledger: weight storage, persistent inference state, temporary computation state, training-only state, and cross-device communication as five distinct categories that no single memory formula captures at once"
+      - "logical/architectural quantities vs. measured runtime quantities -- never presented as the same number"
+      - "prefill (parallel, often compute-heavy) vs. decode (incremental, often memory-bandwidth-sensitive) as a qualified, not universal, operational contrast"
+      - "an architecture-to-systems consequence map: for each mechanism, its primary architectural change, likely resource benefit, new complication, and what cannot be predicted without measurement"
+      - "a minimal conceptual map of data/tensor/pipeline/expert/sequence parallelism, each addressing a specific resource pressure and introducing specific communication"
+      - "why theoretical FLOPs are necessary but not sufficient to predict wall-clock behavior (arithmetic intensity, memory traffic, batching, kernels, scheduling, hardware utilization all matter too)"
     required_equations:
-      - "arithmetic intensity sketch: FLOPs per byte moved, as the quantity that determines whether a step is compute-bound or memory-bandwidth-bound"
+      - "arithmetic intensity sketch: FLOPs per byte moved, as the quantity that determines whether a step is compute-bound or memory-bandwidth-bound (reused from the ch. 7 outline's original equation, not re-derived)"
     worked_examples:
-      - "for one ch. 6 case-study model, classify one prefill step and one decode step as compute-bound or memory-bandwidth-bound, and justify with the arithmetic-intensity sketch"
+      - "a two-model diagnosis exercise (Model A: dense GQA, long retained context, high concurrency; Model B: MoE+MLA, same context/concurrency, expert weights distributed across devices) -- estimate/compare logical weight storage, logical KV-cache storage, and active expert parameters using ch. 3/ch. 5's own formulas, identify the likely communication path, and state what cannot be concluded about latency without benchmarking"
     planned_figures:
-      - "architecture-to-training/inference consequence map (general version; ch. 6 shows this map instantiated on specific models)"
-      - "prefill (compute-bound) vs. decode (bandwidth-bound) intensity comparison"
+      - "memory and state lifecycle: weights, training activations, gradients, optimizer states, inference KV/recurrent state, and temporary workspace, each marked training-only / inference-persistent / request-specific / implementation-dependent"
+      - "architecture-to-systems consequence map: GQA/MQA, MLA, sliding attention, MoE, hybrid recurrent layers, and a looped-depth preview, mapped qualitatively to weight memory / cache-state memory / compute / communication / implementation complexity"
     planned_tables:
-      - "technique x layer: quantization / paging / continuous batching x {changes architecture? changes measured latency? changes measured memory?} — a direct answer key to the architecture-vs-runtime distinction"
+      - "resource ledger: category x {persists across requests? training-only? grows with context/concurrency? implementation-dependent?} -- a compact answer key to the logical-vs-measured, training-vs-inference distinction"
     misconception_checks:
-      - "\"Quantizing a model changes its architecture\" — false; it changes numerical precision of stored/computed values, not the architecture graph itself — worth stating explicitly since the two are often conflated in casual discussion"
-      - "\"A model with fewer FLOPs per token is always faster in production\" — false when the smaller-FLOPs model is more memory-bandwidth-bound than the alternative; wall-clock latency depends on which resource is the bottleneck"
+      - "\"The architecture with fewer theoretical FLOPs must be faster\" — false; wall-clock performance also depends on arithmetic intensity, memory traffic, communication, batching, kernels, scheduling, and hardware utilization, any one of which can dominate"
     short_questions:
-      - "misconception_diagnosis: does INT8 quantization change a model's architecture?"
-      - "explanation: why is single-request decode usually memory-bandwidth-bound rather than compute-bound?"
-      - "design: given a latency-sensitive vs. a throughput-sensitive serving scenario, which architectural knobs (from ch. 3-5) would you prioritize differently?"
-    applied_exercise: "Given a stated batch size, sequence length, and model config, estimate whether a decode step is compute-bound or memory-bandwidth-bound using the arithmetic-intensity sketch, and state what would have to change to flip the answer."
-    interview_lens: "\"Why doesn't halving FLOPs halve latency\" and \"what's the difference between what quantization changes and what a smaller model changes\" are both real systems-interview questions this chapter is built to answer without requiring inference-engineering depth."
-    primary_sources: ["src-10", "src-11"]
-    secondary_sources: ["src-12"]
-    estimated_pages: 7
+      - "recall: which resource category does the KV-cache belong to, and which category does an optimizer's momentum/variance state belong to?"
+      - "recall: is a temporary attention-kernel workspace training-only, inference-persistent, request-specific, or implementation-dependent?"
+      - "compare_and_contrast: contrast one prefill step and one decode step on the same request using the resource ledger and arithmetic intensity"
+      - "compare_and_contrast: pick two mechanisms from the consequence map with different communication implications and state why"
+      - "design: given the chapter's two-model diagnosis exercise, identify which model likely uses less logical cache, which has more total weight storage, and which introduces expert communication"
+      - "interview-style: given an architecture report, how would you estimate likely serving bottlenecks, and which conclusions would you refuse to make without benchmarking?"
+    applied_exercise: "Given the chapter's Model A/Model B diagnosis exercise, identify which architecture likely uses less logical cache, which has more total weight storage, which introduces expert communication, and state explicitly why latency cannot be concluded from these facts alone."
+    interview_lens: "\"Given an architecture report, how would you estimate likely serving bottlenecks, and which conclusions would you refuse to make without benchmarking?\" is a direct systems-interview prompt this chapter's resource ledger and consequence map are built to answer."
+    primary_sources: ["src-10", "src-11", "src-12"]
+    secondary_sources: ["src-17", "src-38", "src-40", "src-42", "src-43", "src-49"]
+    estimated_pages: 4
 
   - id: "ch8"
     number: 8

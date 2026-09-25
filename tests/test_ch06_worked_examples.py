@@ -346,13 +346,18 @@ class TestPageBudgetStructure(unittest.TestCase):
         self.assertLessEqual(proj[1], 72, msg=f"projected high end {proj[1]} exceeds the 72-page ceiling")
 
     def test_no_stale_chapter_6_provisional_entry(self):
-        """Chapter 6 is now actual, not provisional -- the projection
-        block must be renamed and must not still list chapter 6."""
+        """Chapter 6 (and, as of the ch. 7 session, chapter 7 too) is
+        now actual, not provisional -- whichever *_provisional key
+        currently exists in the projection block must not still list
+        either chapter as still-to-be-drafted."""
         d = self._load()
         proj = d["full_workbook_projection"]
-        self.assertIn("chapters_7_to_8_provisional", proj)
-        chapters_listed = [c["chapter"] for c in proj["chapters_7_to_8_provisional"]]
-        self.assertNotIn(6, chapters_listed)
+        provisional_keys = [k for k in proj if k.endswith("_provisional")]
+        self.assertTrue(provisional_keys, msg="no *_provisional key found in full_workbook_projection")
+        for key in provisional_keys:
+            chapters_listed = [c["chapter"] for c in proj[key]]
+            self.assertNotIn(6, chapters_listed, msg=f"{key} still lists chapter 6 as provisional")
+            self.assertNotIn(7, chapters_listed, msg=f"{key} still lists chapter 7 as provisional")
 
 
 class TestSourceRegistryAndCoverage(unittest.TestCase):

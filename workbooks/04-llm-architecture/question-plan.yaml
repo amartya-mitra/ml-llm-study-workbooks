@@ -178,26 +178,33 @@ quick_questions:
     source_ids: ["src-32", "src-33", "src-35"]
     difficulty: "core"
 
-  # --- ch7: From architecture to systems consequences (target 2-4; planned 3) ---
+  # --- ch7: From architecture to systems behavior (target 5-6 total across quick questions, applied exercise, and interview lens; planned 6) ---
   - chapter: "ch7"
-    topic: "does quantization change the architecture"
-    skill_tested: "misconception_diagnosis"
-    expected_reasoning: "state that quantization changes numerical precision, not the architecture graph — already the chapter's headline misconception check"
-    likely_misconception: "believing INT8 quantization changes what the model architecturally is"
-    source_ids: ["src-11", "src-12"]
+    topic: "which resource category the KV-cache belongs to"
+    skill_tested: "recall"
+    expected_reasoning: "identify the KV-cache as persistent inference state (grows with retained context/concurrency), distinct from weight storage, training-only optimizer state, and temporary workspace"
+    likely_misconception: "lumping the KV-cache in with weight storage as if both are fixed, request-independent quantities"
+    source_ids: ["src-10", "src-11"]
     difficulty: "intro"
   - chapter: "ch7"
-    topic: "why single-request decode is usually bandwidth-bound"
-    skill_tested: "explanation"
-    expected_reasoning: "reason from low arithmetic intensity at batch size 1 (few FLOPs relative to bytes moved reading the cache) to a memory-bandwidth-bound classification"
+    topic: "which resource category a temporary attention-kernel workspace belongs to"
+    skill_tested: "recall"
+    expected_reasoning: "identify a temporary kernel workspace as implementation-dependent (varies by serving engine/kernel), distinct from the four other resource-ledger categories"
+    likely_misconception: "assuming every memory consumer falls cleanly into weights, activations, or cache, with no implementation-dependent residual"
+    source_ids: ["src-11", "src-12"]
+    difficulty: "core"
+  - chapter: "ch7"
+    topic: "prefill vs. decode on the same request"
+    skill_tested: "compare_and_contrast"
+    expected_reasoning: "contrast prefill (parallel over prompt positions, often compute-heavy) against decode (incremental, repeatedly reading retained state, often memory-bandwidth-sensitive), using qualified ('often,' not 'always') language"
     likely_misconception: "believing decode is slow because of FLOPs, the same reasoning that applies to prefill"
     source_ids: ["src-10"]
     difficulty: "core"
   - chapter: "ch7"
-    topic: "FLOPs vs. wall-clock latency"
+    topic: "FLOPs vs. wall-clock latency (architecture consequence comparison, doubling as the headline misconception check)"
     skill_tested: "misconception_diagnosis"
-    expected_reasoning: "identify that a lower-FLOPs model can still be equally or more bandwidth-bound, so its wall-clock latency doesn't necessarily improve proportionally"
-    likely_misconception: "believing halving FLOPs halves latency"
+    expected_reasoning: "compare two architectures' theoretical FLOPs against their likely wall-clock latency, identifying that a lower-FLOPs model can still be equally or more bandwidth-bound (or communication-bound), so its latency doesn't necessarily improve proportionally -- the chapter's headline misconception check"
+    likely_misconception: "believing the architecture with fewer theoretical FLOPs must be faster"
     source_ids: ["src-10"]
     difficulty: "stretch"
 
@@ -248,17 +255,13 @@ misconception_checks:
     statement: "load balancing is only a training-time concern"
     correction: "skewed routing at inference time still creates uneven load across expert-parallel devices"
   - chapter: "ch6"
-    concept: "newer vs. better"
-    statement: "newer always means better on every axis"
-    correction: "case studies should surface at least one place where an older or simpler choice is still made deliberately, with the source's own stated reason"
-  - chapter: "ch7"
-    concept: "quantization and architecture"
-    statement: "quantizing a model changes its architecture"
-    correction: "it changes numerical precision of stored/computed values, not the architecture graph itself"
+    concept: "sophistication vs. quality"
+    statement: "a more sophisticated architecture is necessarily a better model"
+    correction: "quality depends on architecture together with data, training recipe, optimization, evaluation, and serving implementation -- not architecture alone"
   - chapter: "ch7"
     concept: "FLOPs and latency"
-    statement: "a model with fewer FLOPs per token is always faster in production"
-    correction: "wall-clock latency depends on which resource (compute or bandwidth) is the actual bottleneck"
+    statement: "the architecture with fewer theoretical FLOPs must be faster"
+    correction: "wall-clock performance also depends on arithmetic intensity, memory traffic, communication, batching, kernels, scheduling, and hardware utilization -- any one of which can dominate over raw FLOPs"
 
 applied_exercises:
   # One per chapter, restating outline.yaml's applied_exercise field with
@@ -288,9 +291,9 @@ applied_exercises:
     skill_tested: "design"
     source_ids: ["src-21", "src-28", "src-37"]
   - chapter: "ch7"
-    exercise: "Given a stated batch size, sequence length, and model config, estimate whether a decode step is compute-bound or memory-bandwidth-bound, and state what would flip the answer."
-    skill_tested: "calculation"
-    source_ids: ["src-10"]
+    exercise: "Given the chapter's Model A (dense GQA) / Model B (MoE + MLA) diagnosis exercise, identify which architecture likely uses less logical cache, which has more total weight storage, which introduces expert communication, and state explicitly why latency cannot be concluded from these facts alone."
+    skill_tested: "design"
+    source_ids: ["src-21", "src-27", "src-28", "src-33"]
   - chapter: "ch8"
     exercise: "Given a full, unseen model card, complete the architecture comparison worksheet end to end."
     skill_tested: "design"
@@ -380,8 +383,8 @@ interview_style_questions:
     skill_tested: "design"
     spans_chapters: ["ch6"]
   - id: "iv-06"
-    prompt_summary: "Why doesn't halving a model's FLOPs halve its serving latency?"
-    skill_tested: "explanation"
+    prompt_summary: "Given an architecture report, how would you estimate likely serving bottlenecks, and which conclusions would you refuse to make without benchmarking?"
+    skill_tested: "design"
     spans_chapters: ["ch7"]
   - id: "iv-07"
     prompt_summary: "Why would you mix attention types across layers instead of using one type everywhere?"
@@ -401,10 +404,10 @@ count_check:
     ch4: 3
     ch5: 4
     ch6: 4
-    ch7: 3
+    ch7: 4
     ch8: 0
   ch8_note: "ch. 8 has no dedicated quick questions by design — it IS the cumulative/interview question set, per outline.yaml's own description of ch. 8 as introducing no new concepts"
-  misconception_checks_count: 13
+  misconception_checks_count: 12
   applied_exercises_count: 8
   cumulative_review_target: "10-15"
   cumulative_review_actual: 12

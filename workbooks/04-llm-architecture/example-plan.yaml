@@ -113,19 +113,19 @@ examples:
     skill_tested: "design"
     source_ids: ["src-21", "src-28", "src-37"]
 
-  - id: "ex-compute-bound-vs-bandwidth-bound"
+  - id: "ex-two-model-resource-diagnosis"
     chapter: "ch7"
-    title: "Classify a prefill step and a decode step as compute-bound or memory-bandwidth-bound"
+    title: "Diagnose Model A (dense GQA) vs. Model B (MoE + MLA) using ch. 3/5's own formulas, not a new derivation"
     chains_from: null
-    given: "One case-study model's config, a stated batch size, and a stated sequence length for both a prefill pass and one decode step."
+    given: "Model A: dense, GQA, long retained context, high concurrency. Model B: MoE + MLA, same context length and concurrency as Model A, expert weights distributed across devices. Both given stated head counts / expert counts / parameter counts sufficient to reuse ch. 3's KV-cache formula and ch. 5's total-vs-active formula directly."
     steps:
-      - "estimate FLOPs and bytes-moved for the prefill pass; compute the arithmetic intensity (FLOPs/byte)"
-      - "repeat for one decode step"
-      - "compare each intensity against the hardware's own compute-to-bandwidth ratio (stated as a given) to classify each step"
-      - "state what would have to change (batch size, sequence length, or hardware) to flip either classification"
-    expected_result: "two intensity numbers, two bound/unbound classifications, and an explicit, falsifiable statement of what would flip each one"
-    skill_tested: "calculation"
-    source_ids: ["src-10"]
+      - "apply ch. 3's KV-cache-per-token formula to each model given its own H_kv (or MLA's d_c/d_rope) to compare logical cache size"
+      - "apply ch. 5's total-vs-active parameter formulas to Model B's MoE structure to state its total weight storage vs. Model A's dense total"
+      - "identify the likely communication path (Model B's expert-parallel all-to-all; Model A has none)"
+      - "state explicitly why latency cannot be concluded from these facts alone, and what would have to be benchmarked instead"
+    expected_result: "a logical-cache comparison, a total-weight-storage comparison, an identified communication path, and an explicit, falsifiable statement of what benchmarking (not arithmetic) would still be needed -- not a single long numerical derivation"
+    skill_tested: "design"
+    source_ids: ["src-21", "src-27", "src-28", "src-33"]
 
   - id: "ex-cumulative-composite-config"
     chapter: "ch8"

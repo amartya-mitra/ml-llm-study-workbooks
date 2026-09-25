@@ -267,20 +267,35 @@ figures:
     grayscale_behavior: "each model's marker uses a distinct shape as well as a color/pattern so the map survives grayscale printing"
     accessibility_description: "A two-axis diagram with three labeled markers, one per case-study model, placed at qualitative (not numeric) positions along each axis; axis endpoints are labeled with what they mean (e.g. 'mostly dense parameters' to 'mostly sparse/routed parameters')."
 
+  - id: "fig-memory-state-lifecycle"
+    chapter: "ch7"
+    teaching_purpose: "Make the resource-ledger distinction (Stage 5) visible as a diagram: which quantities are training-only, which persist across inference requests, which are request-specific, and which are implementation-dependent."
+    learner_takeaway: "Weights, activations, gradients, optimizer state, inference KV/recurrent state, and temporary workspace are six different lifecycle categories -- no single memory formula captures all of them, and conflating any two leads to a wrong capacity estimate."
+    diagram_type: "categorized inventory diagram (grouped boxes with lifecycle tags)"
+    objects_and_relationships: "Six labeled boxes (weights, training activations, gradients, optimizer states, inference KV/recurrent state, temporary workspace), each tagged with one of four lifecycle labels (training only / inference persistent / request-specific / implementation-dependent)."
+    required_labels: ["resource name (box)", "lifecycle tag (training only / inference persistent / request-specific / implementation-dependent)"]
+    underlying_calculation: null
+    source_inspiration: "src-10's and src-11's own framing of training-vs-inference memory categories (concept only, not their figures); original diagram"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-10, src-11 in the caption's source line"
+    intended_printed_dimensions: "full page width (6.5in) x 3.5in"
+    grayscale_behavior: "each lifecycle tag uses a distinct fill pattern as well as color so the categories survive grayscale printing"
+    accessibility_description: "Six labeled boxes arranged in a grid, each annotated with text stating whether that resource is training-only, persists across inference requests, is specific to one request, or depends on the serving implementation."
+
   - id: "fig-architecture-to-consequence-map"
     chapter: "ch7"
-    teaching_purpose: "Make the architecture-to-systems-consequence chain visible as a map, generalizing the specific instances already shown per-model in ch. 6."
-    learner_takeaway: "Each architecture choice traces to a specific, nameable systems consequence — this isn't a vague 'architecture matters' claim, it's a small number of specific, traceable links."
-    diagram_type: "map/graph diagram (nodes and directed edges)"
-    objects_and_relationships: "Architecture-choice nodes (attention variant, dense/MoE, sparsity pattern) connected by directed edges to systems-consequence nodes (training communication volume, inference memory bandwidth, serving concurrency limit)."
-    required_labels: ["architecture choice (node)", "systems consequence (node)", "edge label naming the specific mechanism (e.g. 'larger KV-cache -> lower max concurrency')"]
+    teaching_purpose: "Make the architecture-to-systems-consequence chain visible as a comparison matrix, generalizing the specific instances already shown per-model in ch. 6, and previewing (not teaching) looped depth ahead of ch. 8."
+    learner_takeaway: "Each architecture mechanism trades a specific resource dimension for a specific complication -- this isn't a vague 'architecture matters' claim, it's a small, traceable comparison across weight memory, cache/state memory, compute, communication, and implementation complexity, with qualitative markings only, never a fabricated number."
+    diagram_type: "comparison matrix (mechanisms x resource dimensions, qualitative markers)"
+    objects_and_relationships: "Six mechanism rows (GQA/MQA, MLA, sliding/local attention, MoE, hybrid recurrent layers, looped depth [preview only]) x five resource-dimension columns (weight memory, cache/state memory, compute, communication, implementation complexity), each cell a qualitative marker (reduces / increases / unchanged / new complication), not a number."
+    required_labels: ["mechanism name (row)", "resource dimension (column)", "qualitative marker per cell", "'preview only -- see ch. 8' annotation on the looped-depth row"]
     underlying_calculation: null
-    source_inspiration: "src-10's own framing of hardware-aware tradeoffs (concept only, not its figures)"
+    source_inspiration: "src-10's own framing of hardware-aware tradeoffs (concept only, not its figures); original diagram"
     must_be_redrawn: true
-    attribution_requirement: "cite src-10 in the caption's source line"
-    intended_printed_dimensions: "full page width (6.5in) x 4.5in"
-    grayscale_behavior: "architecture-choice nodes and consequence nodes distinguished by shape (rounded vs. rectangular) as well as color"
-    accessibility_description: "A set of rounded boxes on the left representing architecture choices and rectangular boxes on the right representing systems consequences, connected by labeled arrows that each name the specific mechanism linking one to the other."
+    attribution_requirement: "cite src-10, src-25, src-27, src-28, src-37, src-38, src-40, src-42 in the caption's source line (one per mechanism row's own primary source)"
+    intended_printed_dimensions: "full page width (6.5in) x 4in"
+    grayscale_behavior: "qualitative markers use distinct symbols (not color alone) so the matrix survives grayscale printing"
+    accessibility_description: "A six-row, five-column matrix. Each row is a mechanism (GQA/MQA, MLA, sliding attention, MoE, hybrid recurrent layers, looped depth); each column is a resource dimension (weight memory, cache/state memory, compute, communication, implementation complexity); each cell holds a small qualitative symbol, not a number. The looped-depth row is marked as a preview, deferred in full to chapter 8."
 
   - id: "fig-compact-visual-reference"
     chapter: "ch8"
@@ -298,7 +313,7 @@ figures:
     accessibility_description: "A grid of six small panels, each a shrunk version of an earlier chapter's main diagram, labeled with that chapter's topic."
 
 figure_count_check:
-  planned_count: 19
+  planned_count: 20
   stage_7_target_range: "12-18"
   within_range: false
-  revision_note: "RESOLVED (2026-09-23): ch. 6's task-mandated figure contract (Stage 7 of that day's drafting task: 'exactly 2' figures -- architecture cards AND a separate qualitative tradeoff map) replaced the original single-figure plan for ch. 6, raising the workbook-wide planned count from 18 to 19 -- one over the original 12-18 target range. This is a disclosed, deliberate increase driven by the current chapter's own explicit figure requirement, not scope creep; see outline.yaml's ch6.drafting_note and reports/04_ch06_draft_report.md."
+  revision_note: "RESOLVED (2026-09-23, updated 2026-09-25): ch. 6's task-mandated figure contract (Stage 7 of that day's drafting task: 'exactly 2' figures -- architecture cards AND a separate qualitative tradeoff map) raised the workbook-wide planned count from 18 to 19. Ch. 7's own task then split its single planned figure into two (a memory/state lifecycle diagram AND a separate architecture-to-systems consequence map), raising the count again from 19 to 20 -- two over the original 12-18 target range across both chapters. This is a disclosed, deliberate increase driven by each chapter's own explicit 'exactly 2 figures' requirement, not scope creep; see outline.yaml's ch6/ch7.drafting_note fields and reports/04_ch06_draft_report.md / reports/04_ch07_draft_report.md."

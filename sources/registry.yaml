@@ -547,3 +547,171 @@ sources:
     access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming the selective-SSM recurrence formulation (Delta, B, and C as input-dependent functions of the current token, Section 3.2), and the fixed-size-state-versus-growing-KV-cache framing directly from the paper's own text, not a search snippet or summary"
     license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate the paper, do not copy figures"
     notes: "Submitted 2023-12-01. Resolves the source gap flagged in reports/04_source_audit.md ('no primary source for the linear/recurrent (SSM-style) attention mechanism itself') — Jamba's own paper (reference [17]) confirms it uses exactly this Mamba mechanism, so this entry is cited for HOW the recurrent state update works, while src-35 remains the source for Jamba's specific architecture (layer interleaving, MoE placement, parameter counts). Full derivation of the SSM recurrence equations from first principles remains out of scope per outline.md's non-goals; ch. 6 cites only enough of this mechanism to interpret Jamba's architecture, not to re-derive it."
+
+  - id: "src-38"
+    title: "Universal Transformers"
+    url: "https://arxiv.org/abs/1807.03819"
+    authors: "Mostafa Dehghani, Stephan Gouws, Oriol Vinyals, Jakob Uszkoreit, Łukasz Kaiser"
+    resource_type: "original research paper (arXiv:1807.03819; ICLR 2019)"
+    workbook_categories: ["04-llm-architecture", "05-llm-training"]
+    topic_tags: ["looped-transformer", "recurrent-depth", "weight-sharing", "adaptive-halting", "roadmap"]
+    authority_type: "primary_technical"
+    expected_use: "roadmap primary source for depth-wise weight sharing and adaptive (per-position) halting -- the earliest primary source for the looped/recurrent-depth family; planned as a foundational citation for workbook 04 ch. 8's emerging-architectures treatment (not drafted this session)"
+    last_verified: "2026-09-25"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming the abstract's own framing ('a dynamic per-position halting mechanism') and the model description's explicit statement that the per-step transformation is 'shared across all positions and time-steps' (Section 1/2.1), not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted 2018-07-10, published ICLR 2019. Distinguishes depth recurrence (iterating the same block over the same sequence) from sequence recurrence (an RNN's token-by-token hidden state) -- the paper's own framing is 'combining the parallelizability and global receptive field of feed-forward sequence models like the Transformer with the recurrent inductive bias of RNNs.' This is the depth-recurrence family; it is NOT the same mechanism as Mamba/SSM sequence recurrence (src-37) -- the two must not be conflated."
+
+  - id: "src-39"
+    title: "Scaling up Test-Time Compute with Latent Reasoning: A Recurrent Depth Approach"
+    url: "https://arxiv.org/abs/2502.05171"
+    authors: "Jonas Geiping, Sean McLeish, Neel Jain, John Kirchenbauer, Siddharth Singh, Brian R. Bartoldson, Bhavya Kailkhura, Abhinav Bhatele, Tom Goldstein"
+    resource_type: "original research paper (arXiv:2502.05171)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["looped-transformer", "recurrent-depth", "weight-sharing", "test-time-compute", "roadmap"]
+    authority_type: "primary_technical"
+    expected_use: "roadmap primary source for the compute-vs-parameter-storage tradeoff in recurrent-depth models: a recurrent block iterated to arbitrary test-time depth, scaled to 3.5B parameters/800B tokens; planned for workbook 04 ch. 8 (not drafted this session)"
+    last_verified: "2026-09-25"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming the paper's own statement that 'due to the weight sharing inherent in our recurrent design, even our largest model is still small enough' (Section on parameter/compute efficiency), not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted 2025-02-07 (NeurIPS 2025). One of the primary sources Sebastian Raschka's looped-transformer explainer (src-46/src-47) cites; independently verified here, not treated as confirmed merely because a secondary source names it."
+
+  - id: "src-40"
+    title: "Mixture-of-Recursions: Learning Dynamic Recursive Depths for Adaptive Token-Level Computation"
+    url: "https://arxiv.org/abs/2507.10524"
+    authors: "Sangmin Bae, Yujin Kim, Reza Bayat, Sungnyun Kim, Jiyoun Ha, Tal Schuster, Adam Fisch, Hrayr Harutyunyan, Ziwei Ji, Aaron Courville, Se-Young Yun"
+    resource_type: "original research paper (arXiv:2507.10524; NeurIPS 2025)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["looped-transformer", "recurrent-depth", "per-token-routing", "kv-cache", "roadmap"]
+    authority_type: "primary_technical"
+    expected_use: "roadmap primary source for per-token recursion routing AND KV-cache implications across repeated block applications -- the paper's own 'recursion-wise KV caching' vs. 'recursive sharing' comparison is the most directly on-point source for this specific required concept; planned for workbook 04 ch. 8 (not drafted this session)"
+    last_verified: "2026-09-25"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming 'Dynamic-depth models often struggle with KV cache consistency during autoregressive decoding' and the Section 2.2.2 'KV Caching Strategies: Recursion-wise Caching vs. Recursive Sharing' comparison directly from the paper's own text, not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted 2025-07-14 (NeurIPS 2025). Uses a lightweight router for per-token recursion depth (expert-choice or token-choice routing), explicitly the 'adaptive halting'/'per-token recursion routing' concept in a more recent, more sophisticated form than Universal Transformers' (src-38) original ACT mechanism."
+
+  - id: "src-41"
+    title: "Scaling Latent Reasoning via Looped Language Models"
+    url: "https://arxiv.org/abs/2510.25741"
+    authors: "Rui-Jie Zhu, Zixuan Wang, Kai Hua, and additional authors (ByteDance Seed and collaborators)"
+    resource_type: "original research paper (arXiv:2510.25741)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["looped-transformer", "recurrent-depth", "weight-sharing", "roadmap"]
+    authority_type: "primary_technical"
+    expected_use: "roadmap primary source for the 'Ouro' looped-language-model family (1.4B/2.6B, up to 7.7T training tokens): a pretraining-time looped architecture whose reported advantage is attributed to 'knowledge manipulation,' not increased knowledge capacity; planned for workbook 04 ch. 8 (not drafted this session)"
+    last_verified: "2026-09-25"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming title, authors, and date directly from the paper's own header text, not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted 2025-10-29. This is the paper behind the 'Ouro' model family referenced in Sebastian Raschka's looped-transformer explainer (src-46/src-47/src-48); registered under its own arXiv title/id rather than only the model nickname, per this project's sourcing convention."
+
+  - id: "src-42"
+    title: "Nanbeige4.2-3B: Unlocking Agentic Capabilities in a Compact Model"
+    url: "https://arxiv.org/abs/2607.22083"
+    authors: "Nanbeige LLM Lab (Boss Zhipin)"
+    resource_type: "official technical report (arXiv:2607.22083)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["looped-transformer", "recurrent-depth", "weight-sharing", "fixed-loop-count", "roadmap"]
+    authority_type: "primary_technical"
+    expected_use: "roadmap primary source for a FIXED (not adaptive/per-token) loop count in a shipped, open-weight model: a two-pass looped transformer over a 22-layer stack, explicitly framed as improving 'effective depth and reasoning capacity under a fixed parameter budget'; planned for workbook 04 ch. 8 (not drafted this session)"
+    last_verified: "2026-09-25"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming 'To improve the effective depth and reasoning capacity under a fixed parameter budget, Nanbeige4.2-3B adopts a Looped Transformer architecture' and the 'two-pass' loop-depth-selection study directly from the paper's own text, not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted with a v2 dated 2026-07-27 (per the PDF's own arXiv header). The clearest available primary source for 'fixed loop counts' as a distinct sub-case from Mixture-of-Recursions' (src-40) adaptive per-token depth -- do not treat the two as interchangeable when drafting workbook 04 ch. 8."
+
+  - id: "src-43"
+    title: "Better & Faster Large Language Models via Multi-token Prediction"
+    url: "https://arxiv.org/abs/2404.19737"
+    authors: "Fabian Gloeckle, Badr Youbi Idrissi, Baptiste Rozière, David Lopez-Paz, Gabriel Synnaeve"
+    resource_type: "original research paper (arXiv:2404.19737; ICML 2024)"
+    workbook_categories: ["04-llm-architecture", "05-llm-training"]
+    topic_tags: ["multi-token-prediction", "auxiliary-loss", "training-objective", "roadmap"]
+    authority_type: "primary_technical"
+    expected_use: "roadmap primary source for multi-token prediction's foundational design: n INDEPENDENT output heads on a shared trunk, each predicting a different future offset, used as an auxiliary training-time loss with only the next-token head kept at inference; primary training treatment planned for workbook 05, architecture-bridge mention planned for workbook 04 ch. 8 (neither drafted this session)"
+    last_verified: "2026-09-25"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming 'n independent output heads implemented in terms of transformer layers... and a shared trunk' (Section 2) directly from the paper's own text, not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted 2024-04-30 (ICML 2024). This INDEPENDENT-heads design is a materially different MTP implementation from DeepSeek-V3's (src-33) sequential/causal-chain design (each MTP module conditions on the previous module's output, depth D=1 in DeepSeek-V3's own notation) -- the two are NOT the same MTP architecture and must not be treated as synonyms when drafting workbook 05/04 ch. 8. MTP is a training-time objective/module design; it is not itself speculative decoding (that distinction is required reading before drafting either topic)."
+
+  - id: "src-44"
+    title: "Fast Inference from Transformers via Speculative Decoding"
+    url: "https://arxiv.org/abs/2211.17192"
+    authors: "Yaniv Leviathan, Matan Kalman, Yossi Matias"
+    resource_type: "original research paper (arXiv:2211.17192; ICML 2023)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["speculative-decoding", "draft-model", "lossless-sampling", "roadmap"]
+    authority_type: "primary_technical"
+    expected_use: "roadmap primary (co-foundational) source for speculative decoding: proposes speculative execution with an approximation ('draft') model plus a modified sampling scheme that samples from the large ('target') model 'without changing the distribution'; primary treatment planned for workbook 06 (not drafted this session). Workbook 04 ch. 7 adds only a short cross-reference, per that chapter's own scope fence -- the algorithm itself is not taught there"
+    last_verified: "2026-09-25"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming 'using speculative execution and a novel sampling method, we can make exact decoding from the large models faster... without changing the distribution' directly from the paper's own abstract text, not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted 2022-11-30, revised 2023-05-18 (ICML 2023). Co-foundational with Chen et al. (src-45), published within about two months of each other in early 2023 -- both independently derived a proposal/verification/acceptance scheme with a lossless-distribution guarantee; workbook 06 should credit both, not treat one as derivative of the other."
+
+  - id: "src-45"
+    title: "Accelerating Large Language Model Decoding with Speculative Sampling"
+    url: "https://arxiv.org/abs/2302.01318"
+    authors: "Charlie Chen, Sebastian Borgeaud, Geoffrey Irving, Jean-Baptiste Lespiau, Laurent Sifre, John Jumper"
+    resource_type: "original research paper (arXiv:2302.01318)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["speculative-decoding", "draft-model", "rejection-sampling", "acceptance-rate", "roadmap"]
+    authority_type: "primary_technical"
+    expected_use: "roadmap primary (co-foundational) source for speculative decoding: introduces the 'modified rejection sampling scheme which preserves the distribution of the target model' and the acceptance-rate framing ('the expected acceptance rate of draft tokens is sufficient to offset the overhead'); primary treatment planned for workbook 06 (not drafted this session). Workbook 04 ch. 7 adds only a short cross-reference, per that chapter's own scope fence"
+    last_verified: "2026-09-25"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming the rejection-sampling and acceptance-rate quotes directly from the paper's own text (Section on the algorithm), not a search snippet or summary"
+    license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
+    notes: "Submitted 2023-02-02 (DeepMind). Benchmarked on Chinchilla (70B) with a reported 2-2.5x decoding speedup in a distributed setup -- a vendor/lab-reported number, to be cross-checked against independent measurements before workbook 06 states it as a general expectation rather than this paper's own reported result."
+
+  - id: "src-46"
+    title: "OpenAI's Astra, Looped Transformers, and the Reasoning-Obfuscation Debate (blog)"
+    url: "https://sebastianraschka.com/blog/2026/openai-astra-looped-transformers.html"
+    authors: "Sebastian Raschka, PhD"
+    resource_type: "blog post"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["looped-transformer", "recurrent-depth", "expert-explanatory", "roadmap"]
+    authority_type: "secondary_summary"
+    expected_use: "expert EXPLANATORY source only, not a primary-source substitute: surveys and contextualizes the looped-transformer/recurrent-depth literature (citing src-38/src-40/src-42 by name) in response to a rumor that OpenAI's 'GPT-6 Astra' uses looped transformers; useful for workbook 04 ch. 8's framing, not for any specific mechanism claim that needs its own primary source"
+    last_verified: "2026-09-25"
+    access_status: "verified via WebFetch of the live page; confirmed publication date (2026-09-02), author, and that the GPT-6 Astra claim is presented as speculation ('as far as I know,' 'based on the information we have') attributed to third-party reporting, not as OpenAI's own confirmed technical disclosure"
+    license_or_reuse: "personal blog; standard copyright — summarize/cite, do not reproduce figures or long passages"
+    notes: "IMPORTANT per this project's sourcing rule: GPT-6 Astra's architecture is NOT independently confirmed by any official OpenAI technical source found this session. Any workbook text that mentions Astra must state the looped-transformer claim as reported/unconfirmed, not as a verified fact. Companion piece to src-47 (same author, overlapping content, different platform/date)."
+
+  - id: "src-47"
+    title: "GPT-6 Astra, Looped Transformers, and the Reasoning-Obfuscation Debate (newsletter)"
+    url: "https://magazine.sebastianraschka.com/p/gpt-6-astra-looped-transformers-and"
+    authors: "Sebastian Raschka, PhD"
+    resource_type: "newsletter article (Ahead of AI, Substack)"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["looped-transformer", "recurrent-depth", "expert-explanatory", "roadmap"]
+    authority_type: "secondary_summary"
+    expected_use: "expert EXPLANATORY source only, not a primary-source substitute: the fuller companion version of src-46, explicitly distinguishing depth recurrence (looped transformers) from sequence recurrence (RNNs) and naming eight specific papers/reports (src-38 through src-42 plus three not yet registered: 'Beyond Parameters: Exploring Virtual Logic Depth for Scaling Laws,' 'SMELT: Scaling Laws for Compute-Matched MoE Looped Transformers,' and 'Full-bandwidth transformer' -- registered here as named-but-not-yet-verified candidates, not fabricated as fully checked sources)"
+    last_verified: "2026-09-25"
+    access_status: "verified via WebFetch of the live page; confirmed publication date (2026-09-09), author, platform, and the explicit depth-recurrence-vs-sequence-recurrence distinction directly in the fetched content"
+    license_or_reuse: "Substack newsletter; standard copyright — summarize/cite, do not reproduce figures or long passages"
+    notes: "Same GPT-6 Astra caution as src-46 applies. Three named papers ('Beyond Parameters...', 'SMELT...', 'Full-bandwidth transformer') were NOT independently verified this session (not downloaded/full-text-checked) -- do not cite specific claims from them until they are verified; they are recorded here only so the roadmap doesn't silently drop what this source named."
+
+  - id: "src-48"
+    title: "LLM Architecture Gallery — Looped Transformers / Depth-Sharing"
+    url: "https://sebastianraschka.com/llm-architecture-gallery/looped-depth-sharing/"
+    authors: "Sebastian Raschka, PhD"
+    resource_type: "visual gallery / reference article page"
+    workbook_categories: ["04-llm-architecture"]
+    topic_tags: ["looped-transformer", "recurrent-depth", "visual-reference", "roadmap"]
+    authority_type: "visual_reference"
+    expected_use: "visual/reference source for workbook 04 ch. 8: names concrete model-level loop configurations (Nanbeige4.2-3B's two fixed passes over 22 layers; Ouro-Thinking 2.6B's up to four passes over 48 layers) useful for scoping a figure, not for mechanism-level prose claims (use src-38/src-40/src-41/src-42 for those)"
+    last_verified: "2026-09-25"
+    access_status: "verified via WebFetch of the live page; confirmed it cites Dehghani et al. (src-38), Geiping et al. (src-39), Bae et al. (src-40), and Zhu et al. (src-41) by name, plus the Nanbeige technical report (src-42)"
+    license_or_reuse: "part of the same gallery site as src-15; page content reuse terms not stated — treat as not reusable, inspiration/scoping only, same as src-15"
+    notes: "Sub-page of the gallery indexed generally by src-15; registered separately because it has its own substantive article content (not just an index listing) and its own URL. No explicit last-updated date found on the page itself."
+
+  - id: "src-49"
+    title: "LLM Architecture Gallery — Multi-Token Prediction"
+    url: "https://sebastianraschka.com/llm-architecture-gallery/mtp/"
+    authors: "Sebastian Raschka, PhD"
+    resource_type: "visual gallery / reference article page"
+    workbook_categories: ["04-llm-architecture", "05-llm-training", "06-llm-inference"]
+    topic_tags: ["multi-token-prediction", "speculative-decoding", "visual-reference", "roadmap"]
+    authority_type: "visual_reference"
+    expected_use: "visual/reference source for the MTP-vs-speculative-decoding distinction across workbooks 04/05/06: states plainly that 'the main decoder remains causal' under MTP alone, and that MTP 'can therefore remain a training-only objective or become part of the inference system' when paired with a verification step -- useful for scoping the roadmap's required distinction, not a substitute for src-43 (MTP) or src-44/src-45 (speculative decoding) on mechanism-level claims"
+    last_verified: "2026-09-25"
+    access_status: "verified via WebFetch of the live page; confirmed the training-vs-inference distinction and that it names Gloeckle et al. (src-43) as the original MTP paper, plus DeepSeek-V3 (src-33), Qwen3-Next, Step 3.5 Flash, and Nemotron 3 Super as models using MTP variants"
+    license_or_reuse: "part of the same gallery site as src-15; page content reuse terms not stated — treat as not reusable, inspiration/scoping only, same as src-15"
+    notes: "Sub-page of the gallery indexed generally by src-15; registered separately for the same reason as src-48. Qwen3-Next, Step 3.5 Flash, and Nemotron 3 Super's specific MTP variants were NOT independently verified this session -- named here only as this source's own claims, not as independently confirmed facts."

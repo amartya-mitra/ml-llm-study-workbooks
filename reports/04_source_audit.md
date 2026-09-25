@@ -188,3 +188,61 @@ ranked "best" attention variant or MoE routing scheme (no source
 consulted actually supports a strict ranking — every one presents these
 as tradeoffs against different constraints). See `source-coverage.yaml`'s
 `removed_or_descoped_claims` section.
+
+## Series-wide roadmap source registration (2026-09-25)
+
+Twelve sources (`src-38` through `src-49`) were added this session to
+support `config/series-topic-roadmap.yaml`'s three cross-workbook
+topics (recurrent depth/looped transformers, multi-token prediction,
+speculative decoding) — see `reports/series_topic_roadmap.md` for the
+full assignment rationale. None of these sources back any claim drafted
+this session beyond Chapter 7's single-paragraph, deliberately shallow
+looped-depth preview row; the workbooks that will actually teach these
+topics in depth (04 ch. 8, 05, 06) have not been drafted.
+
+- **Looped/recurrent depth** (`src-38` Universal Transformers, `src-39`
+  Geiping et al.'s recurrent-depth paper, `src-40` Mixture-of-Recursions,
+  `src-41` Ouro/looped language models, `src-42` Nanbeige4.2-3B): all
+  five verified via full-text PDF download and `pdftotext` extraction,
+  not a search snippet or a WebFetch tool's own summary — matching this
+  project's established rigor. Each covers a distinct required concept
+  from the task's list (Universal Transformers: adaptive per-position
+  halting, 2018; Mixture-of-Recursions: per-token recursion routing AND
+  the KV-cache-implications concept specifically, via its own
+  "recursion-wise caching vs. recursive sharing" comparison; Nanbeige:
+  a FIXED loop count in a shipped model, distinct from MoR's adaptive
+  depth; Geiping et al.: the compute-vs-parameter-storage tradeoff
+  framing). These five are not treated as interchangeable — the
+  registry notes for each state explicitly which required concept it is
+  the primary source for.
+- **Multi-token prediction** (`src-43` Gloeckle et al.): verified the
+  same way. Its independent-output-heads design is explicitly flagged
+  in the registry as materially different from DeepSeek-V3's (`src-33`)
+  sequential/causal-chain design — both are real MTP variants, neither
+  is treated as "the" canonical one.
+- **Speculative decoding** (`src-44` Leviathan et al., `src-45` Chen et
+  al.): both foundational papers verified via full-text extraction,
+  registered as co-foundational (published within ~2 months of each
+  other in early 2023), not one derivative of the other. Per the task's
+  own scope fence, no speculative-decoding *mechanism* content was
+  drafted anywhere this session — these sources are registered for
+  Workbook 06's future use only.
+- **Expert-explanatory/visual-reference sources** (`src-46`/`src-47`
+  Raschka's looped-transformer blog/newsletter pieces, `src-48`/`src-49`
+  his architecture-gallery sub-pages on looped depth and MTP): all four
+  verified via WebFetch of the live page (title, date, author, and the
+  specific distinctions/paper-names each one makes), and explicitly
+  registered as `secondary_summary`/`visual_reference` — not a
+  substitute for the primary papers above. `src-47` also names three
+  additional papers ("Beyond Parameters...", "SMELT...", "Full-bandwidth
+  transformer") that were **not** independently verified this session;
+  the registry entry says so explicitly rather than silently omitting
+  them or presenting them as checked.
+
+**GPT-6 Astra caution (explicit, per this session's task instructions):**
+no official OpenAI technical source for "GPT-6 Astra" was found or
+sought this session. `src-46`/`src-47` themselves present the
+looped-transformer claim about Astra as third-party-reported speculation,
+not OpenAI's own confirmed disclosure. Any future workbook text that
+mentions Astra must preserve this hedge — it must not be upgraded to a
+verified architectural fact.
