@@ -240,8 +240,16 @@ def scan_text(text, source_qmd_files):
     missing_headings = [t for t in chapter_titles if t not in text]
     findings["missing_or_incomplete_headings"] = missing_headings
 
+    # A table-of-contents line echoes "<N> <Title> ... <page>" with a run
+    # of leader dots -- that is the TOC doing its job, not a duplicate
+    # heading. Excluding any line containing 3+ consecutive dots (a
+    # pattern that essentially never appears in body prose) avoids
+    # counting the TOC's own entry against the body heading it points to.
+    toc_leader_re = re.compile(r"\.\s*\.\s*\.")
+    body_lines = [ln for ln in text.splitlines() if not toc_leader_re.search(ln)]
+    body_text = "\n".join(body_lines)
     number_prefix_re = re.compile(r"^(\d+)\s+[A-Z]", re.MULTILINE)
-    numbers = number_prefix_re.findall(text)
+    numbers = number_prefix_re.findall(body_text)
     dupes = sorted({n for n in numbers if numbers.count(n) > 1}, key=int)
     findings["duplicated_chapter_numbers"] = dupes
 

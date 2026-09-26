@@ -71,3 +71,34 @@ example_entry:
   source_ids: ["src-43"]
   verification_status: "verified_full_text"
   note: null
+
+# --------------------------------------------------------------------
+# planned_chapter_sources -- added 2026-09-26 during workbook 05
+# scaffolding, one level coarser than `entries` above.
+#
+# `entries` (above) requires a specific claim STATEMENT -- one sentence
+# or number -- which does not exist yet before a chapter is drafted, and
+# must never be invented to fill this file in early. This section
+# records only WHICH already-verified sources a chapter intends to draw
+# on, before any specific claim has been written. It is chapter-level
+# planning data, not claim-level evidence, and is not a substitute for
+# `entries` once drafting actually starts -- every real claim still
+# needs its own `entries` record with a verified statement.
+# --------------------------------------------------------------------
+planned_chapter_source_fields:
+  - name: "chapter"
+    type: "string"
+    required: true
+    description: "Chapter slug, e.g. ch1."
+  - name: "source_ids"
+    type: "list[string]"
+    required: true
+    description: "Source ids already verified in sources/registry.yaml that this chapter intends to cite. Does not imply any specific claim yet."
+  - name: "candidate_source_ids"
+    type: "list[string]"
+    required: false
+    description: "Named sources confirmed to exist and be fetchable, but not yet read in full text or registered -- e.g. GPipe/Megatron-LM/ZeRO for workbook 05 ch. 4/5. Must be moved to source_ids (and registered in sources/registry.yaml) only after actual full-text verification, never promoted on title/abstract alone."
+  - name: "note"
+    type: "string"
+    required: false
+    description: "Any scope boundary or caveat that applies to this chapter's use of these sources as a whole (e.g. 'do not cite this source's post-training section')."

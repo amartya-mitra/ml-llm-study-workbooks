@@ -1,0 +1,51 @@
+---
+title: "LLM Pretraining and Distributed Training"
+subtitle: "Scaffold — No Chapter Content Drafted Yet"
+author: "ML/LLM Study Workbooks"
+toc: true
+number-sections: true
+---
+<!-- papersize/margin/callout-icon/bibliography are set once, project-
+wide, in the repo-root _quarto.yml -- do not repeat them here (see
+AGENTS.md and workbook 04's own index.qmd for why).
+
+This is a structural scaffold, per
+reports/05_llm_training_scope_and_source_decision.md's approval gate:
+each chapter file below contains only a title, planned subsections,
+source ids, and a boundary note -- no drafted prose. `includes/`,
+`solutions/`, `data/`, and `figures/source/` are intentionally empty
+(placeholder-tracked via .gitkeep) until each chapter is actually
+drafted; this index does not yet include anything from those
+directories. -->
+
+{{< include chapters/01-pretraining-objectives-and-data.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/02-multi-token-prediction.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/03-optimization-and-scaling-laws.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/04-distributed-parallelism.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/05-training-memory-and-communication.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/06-reading-real-pretraining-runs.qmd >}}

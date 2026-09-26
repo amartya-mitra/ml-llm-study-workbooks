@@ -1,0 +1,33 @@
+## Pretraining Objectives and Data {#sec-ch1}
+
+*Status: scaffold only — drafting has not yet begun for this chapter.*
+
+**Purpose:** Explain what next-token prediction actually optimizes at
+scale, and reason about data curation, filtering, deduplication,
+dataset mixing-weight, and tokenizer-training tradeoffs.
+
+**Planned subsections** (following `shared/chapter-template.qmd`'s
+established structure):
+
+- Learning objectives
+- Why this matters
+- Mental model or analogy
+- Visual overview
+- Technical core
+- Worked example
+- Compare and contrast
+- Check your understanding
+- Common misconception
+- Applied exercise
+- Interview lens
+- Chapter recap
+- Sources and further reading
+
+**Source IDs this chapter will draw on:** [@src-16].
+
+**Boundary note:** The Smol Training Playbook also contains a
+substantial post-training section ("Beyond Base Models—Post-Training
+in 2025"); this chapter must cite only its pretraining-scoped sections
+(ablations, dataset/mixing decisions, tokenizer training, model-config
+case study) — the post-training content is workbook 07's domain even
+though the same source discusses it.

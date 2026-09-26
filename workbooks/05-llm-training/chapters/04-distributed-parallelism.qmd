@@ -1,0 +1,41 @@
+## Parallelism Strategies for Distributed Training {#sec-ch4}
+
+*Status: scaffold only — drafting has not yet begun for this chapter.*
+
+**Purpose:** Teach each standard parallelism strategy (data, tensor,
+context, pipeline, expert) at mechanism level, plus how they combine
+("5D parallelism") — the depth workbook 04 chapter 7's parallelism
+table explicitly deferred to this workbook.
+
+**Planned subsections** (following `shared/chapter-template.qmd`'s
+established structure):
+
+- Learning objectives
+- Why this matters
+- Mental model or analogy
+- Visual overview
+- Technical core
+- Worked example
+- Compare and contrast
+- Check your understanding
+- Common misconception
+- Applied exercise
+- Interview lens
+- Chapter recap
+- Sources and further reading
+
+**Source IDs this chapter will draw on:** [@src-17].
+
+**Boundary note:** This chapter fulfills workbook 04 chapter 7's own
+explicit deferral, from that chapter's parallelism table caption ("not
+derived further here; see [@src-10] and a future training workbook")
+— this is not new scope, it is that promise kept. The Ultra-Scale
+Playbook is this chapter's own intended primary source (per its
+registry entry's `expected_use` field), separate from the specific
+citation that chapter 7's own caption happens to use. GPipe,
+Megatron-LM, and ZeRO are candidate additional primary sources —
+confirmed to exist and be fetchable but **not yet read in full text or
+registered** (see `reports/05_llm_training_scope_and_source_decision.md`,
+section 2). Read and register whichever this chapter's primary
+source's own References section treats as foundational during this
+chapter's actual drafting, not before.

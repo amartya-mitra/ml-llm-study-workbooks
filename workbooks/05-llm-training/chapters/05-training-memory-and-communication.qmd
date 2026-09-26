@@ -1,0 +1,37 @@
+## Memory and Communication at Training Scale {#sec-ch5}
+
+*Status: scaffold only — drafting has not yet begun for this chapter.*
+
+**Purpose:** Distinguish logical/architectural memory estimates from
+measured training-run memory, applied specifically to optimizer state,
+activations, and gradients; cover communication-computation overlap
+during distributed training.
+
+**Planned subsections** (following `shared/chapter-template.qmd`'s
+established structure):
+
+- Learning objectives
+- Why this matters
+- Mental model or analogy
+- Visual overview
+- Technical core
+- Worked example
+- Compare and contrast
+- Check your understanding
+- Common misconception
+- Applied exercise
+- Interview lens
+- Chapter recap
+- Sources and further reading
+
+**Source IDs this chapter will draw on:** [@src-10], [@src-17].
+
+**Boundary note:** Connects to, but does not repeat, workbook 04
+chapter 7's architecture-general resource ledger — that ledger
+distinguishes weight/cache/activation/communication/workspace
+categories in the abstract; this chapter's version is training-specific
+and quantitative (optimizer-state memory, activation memory under a
+stated parallelism configuration, gradient-synchronization
+communication volume). GPipe/Megatron-LM/ZeRO remain candidate
+supplementary sources for this chapter too, same status as chapter 4's
+boundary note.

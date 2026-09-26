@@ -1,10 +1,46 @@
 # Workbook 05's source/claim ledger. Schema: shared/claim-ledger-schema.yaml.
 #
-# Empty by design: no chapter has been drafted yet
-# (reports/05_llm_training_project_plan.md). Add one entry per
-# substantive factual claim as each chapter is actually written -- do
-# not pre-populate this from the plan's proposed chapter list, since
-# those are topics, not yet-verified claims.
+# `entries` stays empty by design: no chapter has been drafted yet
+# (reports/05_llm_training_scope_and_source_decision.md), and a claim-
+# level entry requires an actual claim statement, which must not be
+# invented ahead of drafting.
+#
+# `planned_chapter_source` records below are chapter-level source
+# mappings only -- which already-verified sources each chapter intends
+# to draw on, per reports/05_llm_training_scope_and_source_decision.md's
+# chapter-readiness table. They name no specific claim and are not a
+# substitute for a real `entries` record once drafting starts.
 
 schema_version: 1
 entries: []
+
+planned_chapter_sources:
+  - chapter: "ch1"
+    source_ids: ["src-16"]
+    candidate_source_ids: []
+    note: "Cite only src-16's pretraining-scoped sections; its post-training section is out of bounds for this workbook."
+
+  - chapter: "ch2"
+    source_ids: ["src-43", "src-33"]
+    candidate_source_ids: []
+    note: "Workbook 05's assigned primary home for MTP per config/series-topic-roadmap.yaml. src-43 is the independent-heads design; src-33 is DeepSeek-V3's causal-chain design -- teach both, present as two designs, not one mechanism."
+
+  - chapter: "ch3"
+    source_ids: ["src-50", "src-51", "src-16"]
+    candidate_source_ids: []
+    note: "src-51 (Chinchilla) revises src-50 (Kaplan)'s token/parameter ratio; teach as a revision, not a contradiction, per src-51's own framing. src-16 covers AdamW/cosine-schedule practicalities, not scaling laws themselves."
+
+  - chapter: "ch4"
+    source_ids: ["src-17"]
+    candidate_source_ids: ["GPipe (arXiv:1811.06965)", "Megatron-LM (arXiv:1909.08053)", "ZeRO (arXiv:1910.02054)"]
+    note: "GPipe/Megatron-LM/ZeRO are confirmed to exist and be fetchable (arXiv PDFs return HTTP 200) but were NOT read in full text this session -- do not treat title/abstract confirmation as verification. Read in full and register in sources/registry.yaml during this chapter's own drafting, per reports/05_llm_training_scope_and_source_decision.md section 2, before citing any of the three for a specific claim."
+
+  - chapter: "ch5"
+    source_ids: ["src-10", "src-17"]
+    candidate_source_ids: ["GPipe (arXiv:1811.06965)", "Megatron-LM (arXiv:1909.08053)", "ZeRO (arXiv:1910.02054)"]
+    note: "Same candidate-source status as ch4 -- not yet verified, not yet registered."
+
+  - chapter: "ch6"
+    source_ids: ["src-32", "src-33"]
+    candidate_source_ids: []
+    note: "Reuses workbook 04 ch. 6's exact source registrations. A spot-check of these sources' already-verified full text specifically for training-infrastructure numbers is still pending -- do this during this chapter's own drafting, per reports/05_llm_training_scope_and_source_decision.md section 3."

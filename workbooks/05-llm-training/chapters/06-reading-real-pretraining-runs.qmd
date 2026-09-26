@@ -1,0 +1,38 @@
+## Reading Real Pretraining Runs {#sec-ch6}
+
+*Status: scaffold only — drafting has not yet begun for this chapter.*
+
+**Purpose:** Read a real model's technical report for its
+training-configuration facts (batch size, cluster size, learning-rate
+schedule, reported training FLOPs), strictly separate from the
+architecture facts workbook 04 chapter 6 already covered for the same
+models.
+
+**Planned subsections** (following `shared/chapter-template.qmd`'s
+established structure):
+
+- Learning objectives
+- Why this matters
+- Mental model or analogy
+- Visual overview
+- Technical core
+- Worked example
+- Compare and contrast
+- Check your understanding
+- Common misconception
+- Applied exercise
+- Interview lens
+- Chapter recap
+- Sources and further reading
+
+**Source IDs this chapter will draw on:** [@src-32], [@src-33].
+
+**Boundary note:** Reuses workbook 04 chapter 6's exact source
+registrations, but must cite only training-configuration facts — never
+re-teach architecture, which stays workbook 04's domain. A spot-check
+of these sources' already-verified full text specifically for
+training-infrastructure numbers (e.g. Llama 3's cluster-size/GPU-count
+disclosure) is still pending — see
+`reports/05_llm_training_scope_and_source_decision.md`, section 3,
+chapter 6 row — and should happen during this chapter's own drafting,
+not as a scaffolding task.

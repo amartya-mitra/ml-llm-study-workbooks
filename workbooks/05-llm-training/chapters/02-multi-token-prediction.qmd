@@ -1,0 +1,37 @@
+## Multi-Token Prediction as a Training Objective {#sec-ch2}
+
+*Status: scaffold only — drafting has not yet begun for this chapter.*
+
+**Purpose:** Give multi-token prediction (MTP) its full training-time
+mechanism treatment — both Gloeckle et al.'s independent-heads design
+and DeepSeek-V3's causal-chain design, why only the next-token head
+survives to inference, and the auxiliary heads' parameter/compute
+cost.
+
+**Planned subsections** (following `shared/chapter-template.qmd`'s
+established structure):
+
+- Learning objectives
+- Why this matters
+- Mental model or analogy
+- Visual overview
+- Technical core
+- Worked example
+- Compare and contrast
+- Check your understanding
+- Common misconception
+- Applied exercise
+- Interview lens
+- Chapter recap
+- Sources and further reading
+
+**Source IDs this chapter will draw on:** [@src-43], [@src-33].
+
+**Boundary note:** This is workbook 05's assigned primary home for MTP,
+per `config/series-topic-roadmap.yaml` — workbook 04 chapters 7 and 8
+only cross-reference this topic by name and must not be duplicated
+here in the other direction either: do not re-teach workbook 04
+chapter 6's DeepSeek-V3 architecture case study, only its MTP module
+specifically. Required distinction to preserve: MTP is a training-time
+design choice, not itself speculative decoding (workbook 06's primary
+home) — an MTP module can become a draft source but does not have to.

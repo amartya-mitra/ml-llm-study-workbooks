@@ -1,0 +1,63 @@
+# Figure plan for workbook 05 — planning only. No figures have been
+# drawn yet (figures/source/ is empty except for .gitkeep); this file
+# records the intended claim and likely source inputs for each planned
+# figure so drafting has a starting point, per
+# reports/05_llm_training_scope_and_source_decision.md's approval gate.
+#
+# Same convention as workbook 04's figure-plan.yaml: every figure is
+# planned as an ORIGINAL redraw (figures/source/*.py + config/visual-
+# style.yaml), never a reproduction of a source's own diagram.
+# `must_be_redrawn: true` is the answer for every entry here too — none
+# of this workbook's sources (src-16, src-17, src-43, src-33, src-50,
+# src-51) grant figure-reuse permission (see each entry's
+# `license_or_reuse` field in sources/registry.yaml).
+#
+# Fields intentionally left "not yet decided" below are genuine open
+# decisions, not omissions — do not fill them in without actually
+# deciding them when the figure is drawn.
+
+figures:
+  - id: "fig-mtp-independent-vs-causal"
+    chapter: "ch2"
+    teaching_purpose: "Show Gloeckle et al.'s independent-heads MTP design and DeepSeek-V3's causal-chain MTP design side by side, so a learner can tell which one a given model actually uses instead of treating 'MTP' as one fixed mechanism."
+    learner_takeaway: "Both designs add auxiliary heads/modules predicting future-offset tokens during training only; they differ in whether each head is independent of the others or conditions on the previous head's output."
+    diagram_type: "block/flow diagram, two panels"
+    objects_and_relationships: "Panel 1 (independent-heads): one shared trunk, n independent output heads, one per future offset, no connection between heads. Panel 2 (causal-chain): one shared trunk, n heads where each head's input includes the previous head's output."
+    required_labels: ["shared trunk", "output head (independent)", "output head (causal-chain)", "next-token head (kept at inference)", "auxiliary heads (training-only)"]
+    underlying_calculation: null
+    source_inspiration: "src-43 (Gloeckle et al.)'s own architecture description for panel 1; src-33 (DeepSeek-V3)'s own MTP module description for panel 2 -- neither figure is copied, both are original redraws"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-43 and src-33 in the caption's source line"
+    intended_printed_dimensions: "not yet decided"
+    grayscale_behavior: "not yet decided"
+    accessibility_description: "not yet decided -- write when the figure is actually drawn, per config/visual-style.yaml's accessibility requirement"
+
+  - id: "fig-parallelism-strategies-overview"
+    chapter: "ch4"
+    teaching_purpose: "Show how data, tensor, context, pipeline, and expert parallelism each split a different axis of the training problem across devices, so a learner can tell the five apart instead of treating 'parallelism' as one undifferentiated idea."
+    learner_takeaway: "Each strategy addresses a different resource pressure (memory vs. compute vs. both) and introduces a different communication pattern -- naming which one a system report is describing is the first diagnostic step."
+    diagram_type: "comparison / matrix diagram"
+    objects_and_relationships: "One row per parallelism strategy; columns for what is split (batch/layer-width/sequence/layer-range/experts) and what communication pattern results."
+    required_labels: ["data parallelism", "tensor parallelism", "context parallelism", "pipeline parallelism", "expert parallelism"]
+    underlying_calculation: null
+    source_inspiration: "src-17 (Ultra-Scale Playbook)'s own section structure (Data Parallelism / Tensor Parallelism / Context Parallelism / Pipeline Parallelism / Expert parallelism / 5D parallelism in a nutshell) -- an original redraw of the taxonomy, not a copy of any of the playbook's own diagrams"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-17 in the caption's source line"
+    intended_printed_dimensions: "not yet decided"
+    grayscale_behavior: "not yet decided"
+    accessibility_description: "not yet decided -- write when the figure is actually drawn"
+
+  - id: "fig-training-memory-lifecycle"
+    chapter: "ch5"
+    teaching_purpose: "Show which training-time memory categories (weights, activations, gradients, optimizer state) exist at which point in one training step, and how each scales with the parallelism strategy chosen in ch. 4."
+    learner_takeaway: "Optimizer state (e.g. Adam's two extra tensors per parameter) is often the largest training-only memory category, and disappears entirely at inference time -- a distinction workbook 04 ch. 7's resource ledger already established at the architecture level, now made quantitative."
+    diagram_type: "block/flow diagram (possible extension of an existing figure)"
+    objects_and_relationships: "Timeline across one training step: weights (persistent) / activations (forward pass, freed after backward unless recomputed) / gradients (backward pass) / optimizer state (persistent across steps)."
+    required_labels: ["weights", "activations", "gradients", "optimizer state"]
+    underlying_calculation: null
+    source_inspiration: "src-10 (How To Scale Your Model)'s memory-accounting framing; possible extension of this project's own existing workbook 04 figure figures/source/fig_memory_state_lifecycle.py rather than a fully new redraw -- decide during drafting whether extension or a new figure is the better fit"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-10 in the caption's source line; if extending the existing workbook 04 figure, also note the reuse explicitly rather than presenting it as unrelated"
+    intended_printed_dimensions: "not yet decided"
+    grayscale_behavior: "not yet decided"
+    accessibility_description: "not yet decided -- write when the figure is actually drawn"

@@ -1,0 +1,36 @@
+## Optimization and Scaling Laws {#sec-ch3}
+
+*Status: scaffold only — drafting has not yet begun for this chapter.*
+
+**Purpose:** Cover AdamW-style optimization, learning-rate schedules,
+and gradient-clipping/mixed-precision practicalities at scale, plus
+compute-optimal scaling tradeoffs between model size, training-token
+count, and compute budget.
+
+**Planned subsections** (following `shared/chapter-template.qmd`'s
+established structure):
+
+- Learning objectives
+- Why this matters
+- Mental model or analogy
+- Visual overview
+- Technical core
+- Worked example
+- Compare and contrast
+- Check your understanding
+- Common misconception
+- Applied exercise
+- Interview lens
+- Chapter recap
+- Sources and further reading
+
+**Source IDs this chapter will draw on:** [@src-50], [@src-51],
+[@src-16].
+
+**Boundary note:** Kaplan et al.'s scaling-law paper and Hoffmann et
+al.'s Chinchilla paper must be taught together, not Chinchilla alone —
+Chinchilla explicitly frames itself as reaching the same qualitative
+conclusion as Kaplan et al. about not training to lowest possible loss,
+while revising Kaplan et al.'s specific token/parameter scaling ratio.
+Present this as a revision, not a contradiction, per Hoffmann et al.'s
+own framing.
