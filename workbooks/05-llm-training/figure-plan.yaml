@@ -1,7 +1,9 @@
-# Figure plan for workbook 05 — planning only. No figures have been
-# drawn yet (figures/source/ is empty except for .gitkeep); this file
-# records the intended claim and likely source inputs for each planned
-# figure so drafting has a starting point, per
+# Figure plan for workbook 05. Chapter 1's figure (fig-data-mixing-
+# decision-loop) has been drawn -- see its entry's `status: "drawn"`
+# and final filename below. The remaining entries are still planning
+# only (figures/source/ has no script for them yet); this file records
+# the intended claim and likely source inputs for each so drafting has
+# a starting point, per
 # reports/05_llm_training_scope_and_source_decision.md's approval gate.
 #
 # Same convention as workbook 04's figure-plan.yaml: every figure is
@@ -17,6 +19,23 @@
 # deciding them when the figure is drawn.
 
 figures:
+  - id: "fig-data-mixing-decision-loop"
+    chapter: "ch1"
+    status: "drawn"
+    teaching_purpose: "Show that candidate datasets are tested at small scale BEFORE any mixing ratio is chosen, and that the chosen mixture is not fixed for the whole run -- a later annealing stage can swap in a different blend."
+    learner_takeaway: "Data mixing is a decision loop (candidate datasets -> small-scale ablation sweep -> chosen stage-1 mixture -> optional annealing), not a single one-time choice made before training starts."
+    diagram_type: "process/flow diagram"
+    objects_and_relationships: "Four candidate-dataset domain boxes converge into a small-scale-ablation-sweep box, which feeds a chosen stage-1-mixture box; a dashed (training-only, mid-run) branch leads to an annealing box; both paths converge into a final pretrained-model box."
+    required_labels: ["English web", "multilingual", "code", "math", "small-scale ablation sweep", "stage 1 mixture", "annealing stage", "pretrained model"]
+    underlying_calculation: null
+    source_inspiration: "src-16's own described ablation and curriculum/annealing methodology (Every Big Model Starts with a Small Ablation; The Art of Data Curation sections) -- an original process-diagram redraw, not a copy of any of that source's own visuals"
+    must_be_redrawn: true
+    attribution_requirement: "cite src-16 in the caption's source line"
+    intended_printed_dimensions: "full page width, drawn at 960x460 canvas units"
+    grayscale_behavior: "boxes distinguished by position/label as well as fill color (data=blue, process=orange, chosen/active=green, final=dark gray), so the diagram survives grayscale printing"
+    accessibility_description: "A flow diagram: four boxes labeled English web, multilingual, code, and math, each with an arrow converging downward into a box labeled small-scale ablation sweep. An arrow leads down to a box labeled stage 1 mixture. A dashed arrow branches right to a box labeled annealing stage, swap in high-quality data. Both the stage 1 mixture box and the annealing box have arrows converging into a final box labeled pretrained model."
+    final_filename: "figures/rendered/fig-data-mixing-decision-loop.svg"
+
   - id: "fig-mtp-independent-vs-causal"
     chapter: "ch2"
     teaching_purpose: "Show Gloeckle et al.'s independent-heads MTP design and DeepSeek-V3's causal-chain MTP design side by side, so a learner can tell which one a given model actually uses instead of treating 'MTP' as one fixed mechanism."

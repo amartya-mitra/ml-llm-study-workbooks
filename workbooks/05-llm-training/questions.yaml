@@ -1,0 +1,64 @@
+# Question records for workbook 05 (LLM Pretraining and Distributed Training).
+# Schema: shared/question-schema.yaml. Validate with:
+#   python3 scripts/validate_questions.py
+
+questions:
+  - id: "q-05-pretraining-data-001"
+    workbook: "05-llm-training"
+    chapter: "pretraining-objectives-and-data"
+    topic: "Loss comparability across tokenizer changes"
+    difficulty: "intro"
+    question_type: "recall"
+    prompt: "Two ablation runs use different tokenizers. Can their training-loss curves be compared directly to decide which run is better?"
+    expected_answer: "No. Different tokenizers split the same text into a different number of pieces, so the two loss numbers are not measuring the same quantity."
+    explanation: "A lower loss under one tokenizer does not mean the underlying model is better than one trained with a different tokenizer, since the per-token prediction task itself differs between tokenizers."
+    common_wrong_answer: "Treating 'lower loss' as a universal, tokenizer-independent scoreboard that is always comparable across any two runs."
+    source_ids: ["src-16"]
+
+  - id: "q-05-pretraining-data-002"
+    workbook: "05-llm-training"
+    chapter: "pretraining-objectives-and-data"
+    topic: "Data-mixing token allocation"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "A team allocates a 50-billion-token budget across three sources with mixing weights 0.6, 0.3, and 0.1. How many tokens does each source receive?"
+    expected_answer: "Source 1: 0.6 x 50B = 30B tokens. Source 2: 0.3 x 50B = 15B tokens. Source 3: 0.1 x 50B = 5B tokens. The three allocations sum to exactly 50B tokens."
+    explanation: "Each source's token allocation is its mixing weight multiplied by the total token budget; the weights are a partition of the budget, so they must sum to the total."
+    common_wrong_answer: "Treating the mixing weights as independent quantities (e.g. computing each against a different assumed total) rather than a partition of one shared budget."
+    source_ids: []
+
+  - id: "q-05-pretraining-data-003"
+    workbook: "05-llm-training"
+    chapter: "pretraining-objectives-and-data"
+    topic: "Data quality versus repetition cost"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false: training only on the highest-quality-seeming subset of available text (discarding everything else) is always the best strategy for a model with a large token budget."
+    expected_answer: "False."
+    explanation: "For a large token budget, discarding most available data forces heavy repetition of the remaining small pool, and reported prior work found that this kind of repetition can hurt performance -- so the highest-quality subset alone is not automatically optimal once repetition costs are accounted for."
+    common_wrong_answer: "Assuming 'higher quality data is always better' generalizes without limit, ignoring the repetition cost that a large token budget introduces."
+    source_ids: ["src-16"]
+
+  - id: "q-05-pretraining-data-004"
+    workbook: "05-llm-training"
+    chapter: "pretraining-objectives-and-data"
+    topic: "Asymmetry between positive and negative ablation results"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "An architecture ablation shows a small improvement at small scale, and a separate ablation shows a small regression at small scale. Which of the two results should a team trust with less additional testing, and why?"
+    expected_answer: "The regression (negative result) can be trusted with less additional testing."
+    explanation: "If a change hurts performance at small scale, that result can be confidently ruled out at large scale without further testing. A small-scale improvement, by contrast, needs more tokens trained before a team can be confident it will hold at full scale -- positive results are the weaker signal of the two."
+    common_wrong_answer: "Treating both a small positive and a small negative result as equally strong evidence, rather than recognizing the reported asymmetry between them."
+    source_ids: ["src-16"]
+
+  - id: "q-05-pretraining-data-005"
+    workbook: "05-llm-training"
+    chapter: "pretraining-objectives-and-data"
+    topic: "Fixed versus multi-stage data mixtures"
+    difficulty: "stretch"
+    question_type: "compare_and_contrast"
+    prompt: "State one concrete reason a team might prefer a multi-stage (curriculum) data mixture over a single fixed mixture for the whole training run."
+    expected_answer: "Either: (a) a model's final behavior is disproportionately shaped by data seen late in training, so reserving small, high-quality sources for a late annealing stage can have more impact than diluting them across the whole run; or (b) a fixed mixture cannot respond to a capability bottleneck discovered partway through training, while a multi-stage mixture can introduce targeted data once a bottleneck is observed."
+    explanation: "Recent large models (e.g. SmolLM2, Llama 3, OLMo 2) increasingly use multi-stage mixtures for exactly these reasons, rather than fixing one ratio for the entire run as earlier models did."
+    common_wrong_answer: "Assuming a multi-stage mixture is strictly better with no added cost -- it also carries higher implementation complexity, since each stage transition needs its own validation."
+    source_ids: ["src-16"]

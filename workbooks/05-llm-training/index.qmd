@@ -1,6 +1,6 @@
 ---
 title: "LLM Pretraining and Distributed Training"
-subtitle: "Scaffold — No Chapter Content Drafted Yet"
+subtitle: "Partial Content Draft — Chapter 1 Drafted, Chapters 2-6 Scaffold Only"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -9,14 +9,15 @@ number-sections: true
 wide, in the repo-root _quarto.yml -- do not repeat them here (see
 AGENTS.md and workbook 04's own index.qmd for why).
 
-This is a structural scaffold, per
-reports/05_llm_training_scope_and_source_decision.md's approval gate:
-each chapter file below contains only a title, planned subsections,
-source ids, and a boundary note -- no drafted prose. `includes/`,
-`solutions/`, `data/`, and `figures/source/` are intentionally empty
-(placeholder-tracked via .gitkeep) until each chapter is actually
-drafted; this index does not yet include anything from those
-directories. -->
+This is a partial draft, not a finished workbook. Chapter 1 is fully
+drafted with real content, a worked example, questions, an answer key,
+and one figure, per this task's own approval gate. Chapters 2-6 remain
+structural scaffolds only (title, planned subsections, source ids, a
+boundary note -- no drafted prose). `includes/`, `data/` (chapter 1's
+worked-example arithmetic is inline, not yet in a separate script), and
+most of `solutions/` remain empty (placeholder-tracked via .gitkeep)
+until each remaining chapter is actually drafted. Do not call this
+workbook release-ready. -->
 
 {{< include chapters/01-pretraining-objectives-and-data.qmd >}}
 
@@ -49,3 +50,9 @@ directories. -->
 ```
 
 {{< include chapters/06-reading-real-pretraining-runs.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include solutions/01-pretraining-objectives-and-data-solutions.qmd >}}

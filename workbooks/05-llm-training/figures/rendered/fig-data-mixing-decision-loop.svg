@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="460" viewBox="0 0 960 460">
+  <title>The data-mixing decision loop</title>
+  <defs><marker id="arrow-888888" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#888888"/></marker><marker id="arrow-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker><marker id="arrow-555555" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker></defs>
+  <rect x="0" y="0" width="960" height="460" fill="#ffffff"/>
+  <rect x="110.0" y="30" width="170" height="56" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="195.0" y="52" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">English web</text>
+  <text x="195.0" y="68" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">(FineWeb-Edu, DCLM)</text>
+  <rect x="300.0" y="30" width="170" height="56" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="385.0" y="52" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">Multilingual</text>
+  <text x="385.0" y="68" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">(FineWeb2-HQ)</text>
+  <rect x="490.0" y="30" width="170" height="56" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="575.0" y="52" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">Code</text>
+  <text x="575.0" y="68" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">(Stack-Edu, The Stack v2)</text>
+  <rect x="680.0" y="30" width="170" height="56" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="765.0" y="52" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">Math</text>
+  <text x="765.0" y="68" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">(FineMath, InfiWebMath)</text>
+  <line x1="195.0" y1="86" x2="480.0" y2="141" stroke="#888888" stroke-width="1.5" marker-end="url(#arrow-888888)"/>
+  <line x1="385.0" y1="86" x2="480.0" y2="141" stroke="#888888" stroke-width="1.5" marker-end="url(#arrow-888888)"/>
+  <line x1="575.0" y1="86" x2="480.0" y2="141" stroke="#888888" stroke-width="1.5" marker-end="url(#arrow-888888)"/>
+  <line x1="765.0" y1="86" x2="480.0" y2="141" stroke="#888888" stroke-width="1.5" marker-end="url(#arrow-888888)"/>
+  <rect x="395.0" y="141" width="170" height="56" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="480.0" y="163" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">Small-scale ablation</text>
+  <text x="480.0" y="181" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">sweep (test ratios)</text>
+  <line x1="480.0" y1="197" x2="480.0" y2="252" stroke="#333333" stroke-width="2" marker-end="url(#arrow-333333)"/>
+  <rect x="395.0" y="252" width="170" height="56" rx="6" fill="#009E73" stroke="#333333" stroke-width="1.5"/>
+  <text x="480.0" y="274" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">Stage 1 mixture</text>
+  <text x="480.0" y="292" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">(e.g. 0.7 / 0.2 / 0.1)</text>
+  <line x1="565.0" y1="280.0" x2="705.0" y2="280.0" stroke="#555555" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow-555555)"/>
+  <rect x="705.0" y="252" width="170" height="56" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="790.0" y="274" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">Annealing stage:</text>
+  <text x="790.0" y="292" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">swap in high-quality data</text>
+  <line x1="480.0" y1="308" x2="480.0" y2="363" stroke="#333333" stroke-width="2" marker-end="url(#arrow-333333)"/>
+  <line x1="790.0" y1="308" x2="520.0" y2="363" stroke="#333333" stroke-width="2" marker-end="url(#arrow-333333)"/>
+  <rect x="395.0" y="363" width="170" height="56" rx="6" fill="#444444" stroke="#333333" stroke-width="1.5"/>
+  <text x="480.0" y="385" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#ffffff" text-anchor="middle">Pretrained model</text>
+  <text x="480.0" y="403" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#ffffff" text-anchor="middle">(after full curriculum)</text>
+  <text x="480.0" y="454" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="middle">solid = evaluated path   dashed = training-only, mid-run change</text>
+</svg>

@@ -1,9 +1,10 @@
 # Workbook 05's source/claim ledger. Schema: shared/claim-ledger-schema.yaml.
 #
-# `entries` stays empty by design: no chapter has been drafted yet
-# (reports/05_llm_training_scope_and_source_decision.md), and a claim-
-# level entry requires an actual claim statement, which must not be
-# invented ahead of drafting.
+# `entries` now has real records for Chapter 1 (drafted 2026-09-26), each
+# tied to an actual sentence/number in that chapter -- not invented ahead
+# of drafting, per reports/05_llm_training_scope_and_source_decision.md's
+# gate. Chapters 2-6 remain undrafted; do not add entries for them until
+# they are actually written.
 #
 # `planned_chapter_source` records below are chapter-level source
 # mappings only -- which already-verified sources each chapter intends
@@ -12,7 +13,70 @@
 # substitute for a real `entries` record once drafting starts.
 
 schema_version: 1
-entries: []
+entries:
+  - id: "claim-05-pretraining-data-001"
+    workbook: "05-llm-training"
+    chapter: "ch1"
+    statement: "SmolLM3's own architecture ablations used the full 3B target model trained on 100B tokens (rather than the eventual 11T); Kimi K2's developers ran some ablations on a smaller 3B/0.5B-active proxy model rather than their full 1T/32B-active target."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-pretraining-data-002"
+    workbook: "05-llm-training"
+    chapter: "ch1"
+    statement: "If a change hurts performance at small scale, it can be confidently ruled out at large scale; a positive small-scale result needs more tokens trained before it can be trusted at full scale."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: "This is the source's own reported experience/methodology, not a formally proven theorem -- presented in the chapter as such."
+
+  - id: "claim-05-pretraining-data-003"
+    workbook: "05-llm-training"
+    chapter: "ch1"
+    statement: "Training on Wikipedia produces a lower loss than training on general web pages, because Wikipedia's more formulaic phrasing makes the next token more predictable -- but this lower loss does not by itself mean a more capable model."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-pretraining-data-004"
+    workbook: "05-llm-training"
+    chapter: "ch1"
+    statement: "For a 7B model, one independently reported study found MMLU multiple-choice-format performance stayed at chance level until roughly 500B training tokens; for a 1.7B model, the source's own prior work found this happened at roughly 6T tokens."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: "Each figure is that specific study's own reported number for its own specific model/setup -- presented in the chapter explicitly as non-universal."
+
+  - id: "claim-05-pretraining-data-005"
+    workbook: "05-llm-training"
+    chapter: "ch1"
+    statement: "Recent large models (SmolLM2, Llama 3, OLMo 2) use multi-stage/curriculum data mixtures rather than one fixed mixture for the whole run, motivated by evidence that a model's final behavior is disproportionately shaped by data seen late in training."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-pretraining-data-006"
+    workbook: "05-llm-training"
+    chapter: "ch1"
+    statement: "Heavy repetition of a small, aggressively-filtered document pool (forced by a large token budget) can hurt model performance, per prior work cited by this chapter's source."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: "src-16 itself cites a further paper (Muennighoff et al.) for this specific claim; that further paper was not independently fetched/verified this session -- the claim is recorded here as src-16's own reported citation, not independently re-verified against the original."
+
+  - id: "claim-05-pretraining-data-007"
+    workbook: "05-llm-training"
+    chapter: "ch1"
+    statement: "One disclosed 1B-parameter ablation baseline config mixes fineweb-edu (weight 0.7), stack-edu-python (weight 0.2), and finemath-3plus (weight 0.1), with a global batch size of 1.5M tokens/step over 20,000 steps, totaling 30B tokens."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: "Used as this chapter's worked example; the 21B/6B/3B per-source token allocation is this chapter's own arithmetic (weight x total), not itself a source-reported number."
+
+  - id: "claim-05-pretraining-data-008"
+    workbook: "05-llm-training"
+    chapter: "ch1"
+    statement: "For a 1B-parameter model, the Chinchilla-optimal compute-optimal token budget is approximately 35B tokens; the source's own team trained their 1B ablation baseline on 45B tokens instead, specifically for a more stable ablation signal."
+    source_ids: ["src-16", "src-51"]
+    verification_status: "verified_full_text"
+    note: "The ~35B figure is src-16's own stated approximation, attributed by src-16 to the Chinchilla paper (src-51); not independently recomputed from src-51's own formula in this chapter."
 
 planned_chapter_sources:
   - chapter: "ch1"

@@ -1,0 +1,33 @@
+{
+  "worked_example": {
+    "total_tokens": 30000000000,
+    "mixture_weights": {
+      "fineweb-edu": 0.7,
+      "stack-edu-python": 0.2,
+      "finemath-3plus": 0.1
+    },
+    "tokens_per_source": {
+      "fineweb-edu": 21000000000,
+      "stack-edu-python": 6000000000,
+      "finemath-3plus": 3000000000
+    },
+    "sum_check": 30000000000
+  },
+  "applied_exercise": {
+    "total_tokens": 200000000000,
+    "mixture_weights": {
+      "english-web": 0.75,
+      "multilingual-web": 0.12,
+      "code": 0.1,
+      "math": 0.03
+    },
+    "tokens_per_source": {
+      "english-web": 150000000000,
+      "multilingual-web": 24000000000,
+      "code": 20000000000,
+      "math": 6000000000
+    },
+    "sum_check": 200000000000
+  },
+  "source": "Mixing weights and totals copied from [@src-16]'s own disclosed configs, not invented. Per-source allocation is this script's own arithmetic (tokens_i = w_i * T)."
+}

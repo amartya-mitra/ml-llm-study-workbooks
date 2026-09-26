@@ -1,0 +1,66 @@
+## Answer Key: Chapter 1 {#sec-solutions-ch1 .unnumbered}
+
+Full solutions to Chapter 1's "Check your understanding" questions
+(@sec-ch1).
+
+**1. Quick check. Two ablation runs use different tokenizers. Can their
+training-loss curves be compared directly to decide which run is
+better?**
+
+*Answer.* No. Different tokenizers split the same text into a
+different number of pieces, so the two loss numbers are not measuring
+the same quantity — a lower loss under one tokenizer does not mean the
+underlying model is better than one trained with a different
+tokenizer.
+
+*Common trap:* Treating "lower loss" as a universal, tokenizer-
+independent scoreboard. It is only comparable across runs that share
+the same tokenizer.
+
+**2. Calculation. A team allocates a 50-billion-token budget across
+three sources with mixing weights 0.6, 0.3, and 0.1. How many tokens
+does each source receive?**
+
+*Answer.* Source 1: $0.6 \times 50\text{B} = 30\text{B}$ tokens.
+Source 2: $0.3 \times 50\text{B} = 15\text{B}$ tokens. Source 3:
+$0.1 \times 50\text{B} = 5\text{B}$ tokens. Check: $30\text{B} +
+15\text{B} + 5\text{B} = 50\text{B}$, matching the total budget.
+
+**3. Misconception check. True or false: training only on the
+highest-quality-seeming subset of available text (discarding
+everything else) is always the best strategy for a model with a large
+token budget.**
+
+*Answer.* False. For a large token budget, discarding most available
+data forces heavy repetition of the remaining small pool, and reported
+prior work found that this kind of repetition can hurt performance —
+so the highest-quality subset alone is not automatically the best
+training set once repetition costs are accounted for.
+
+**4. Explain. An architecture ablation shows a small improvement at
+small scale, and a separate ablation shows a small regression at small
+scale. Which of the two results should a team trust with less
+additional testing, and why?**
+
+*Answer.* The regression (negative result). The chapter's source
+reports that if a change hurts performance at small scale, that result
+can be confidently ruled out at large scale without further testing —
+but a small-scale improvement needs more tokens trained before a team
+can be confident it will hold at full scale, since positive results
+are the weaker signal of the two.
+
+*Common trap:* Treating both a small positive and a small negative
+result as equally strong evidence, when the chapter's source reports
+an explicit asymmetry between them.
+
+**5. Compare. State one concrete reason a team might prefer a
+multi-stage (curriculum) data mixture over a single fixed mixture for
+the whole training run.**
+
+*Answer.* Any one of: (a) a model's final behavior is disproportionately
+shaped by data seen late in training, so reserving small, high-quality
+sources for a late "annealing" stage can have more impact than mixing
+them in from the start at a diluted ratio; (b) a fixed mixture cannot
+respond to a capability bottleneck discovered partway through training,
+while a multi-stage mixture can introduce targeted data once a
+bottleneck (e.g. plateauing math performance) is observed.

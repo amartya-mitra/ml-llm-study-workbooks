@@ -248,7 +248,11 @@ def scan_text(text, source_qmd_files):
     toc_leader_re = re.compile(r"\.\s*\.\s*\.")
     body_lines = [ln for ln in text.splitlines() if not toc_leader_re.search(ln)]
     body_text = "\n".join(body_lines)
-    number_prefix_re = re.compile(r"^(\d+)\s+[A-Z]", re.MULTILINE)
+    # [ \t]+ (not \s+) deliberately excludes newlines: \s+ would let a
+    # lone page-footer digit (e.g. "3" at the bottom of a page) bridge
+    # across blank lines to an unrelated capitalized word starting the
+    # next page's text, falsely matching as a second chapter heading.
+    number_prefix_re = re.compile(r"^(\d+)[ \t]+[A-Z]", re.MULTILINE)
     numbers = number_prefix_re.findall(body_text)
     dupes = sorted({n for n in numbers if numbers.count(n) > 1}, key=int)
     findings["duplicated_chapter_numbers"] = dupes

@@ -1,33 +1,323 @@
 ## Pretraining Objectives and Data {#sec-ch1}
 
-*Status: scaffold only — drafting has not yet begun for this chapter.*
+*How a Team Actually Decides What a Model Trains On*
 
-**Purpose:** Explain what next-token prediction actually optimizes at
-scale, and reason about data curation, filtering, deduplication,
-dataset mixing-weight, and tokenizer-training tradeoffs.
+### Learning objectives
 
-**Planned subsections** (following `shared/chapter-template.qmd`'s
-established structure):
+By the end of this chapter you should be able to:
 
-- Learning objectives
-- Why this matters
-- Mental model or analogy
-- Visual overview
-- Technical core
-- Worked example
-- Compare and contrast
-- Check your understanding
-- Common misconception
-- Applied exercise
-- Interview lens
-- Chapter recap
-- Sources and further reading
+- Distinguish a *training objective* (what the loss function rewards)
+  from a *model architecture* (how the network computes a prediction) —
+  and explain why a pretraining team spends far more decision-making
+  effort on the second than the first.
+- Explain why a lower training loss does not always mean a more
+  capable model, and name at least two concrete reasons this can
+  happen.
+- Distinguish two ablation strategies (a smaller token budget on the
+  full-size model, versus a smaller proxy model) and state which kind
+  of negative result generalizes with less additional testing than a
+  positive one.
+- Calculate how many tokens a stated data-mixing weight allocates to
+  each source, given a total token budget.
+- Distinguish a fixed, single-stage training mixture from a multi-stage
+  (curriculum/annealing) mixture, and state one concrete reason a team
+  might prefer the second.
 
-**Source IDs this chapter will draw on:** [@src-16].
+### Why this matters
 
-**Boundary note:** The Smol Training Playbook also contains a
-substantial post-training section ("Beyond Base Models—Post-Training
-in 2025"); this chapter must cite only its pretraining-scoped sections
-(ablations, dataset/mixing decisions, tokenizer training, model-config
-case study) — the post-training content is workbook 07's domain even
-though the same source discusses it.
+Chapters 2 through 6 of this workbook assume a pretraining run is
+already underway or already reported — this chapter is about the
+decisions that happen *before* any of that: what the model is trained
+to predict, what data it sees, and how a team knows a proposed change
+is worth keeping before spending a full training run's compute finding
+out. Get this chapter's distinctions wrong and two costly mistakes
+follow: trusting a lower loss number as proof of a better model, or
+assuming a small-scale experiment's positive result will hold at full
+scale without checking how much more evidence a positive result — as
+opposed to a negative one — actually needs.
+
+### Mental model or analogy
+
+::: {.callout-note title="Analogy"}
+Think of a pretraining team's ablation process like a chef testing a
+new ingredient before it goes on the restaurant's real menu. A small
+test batch that tastes *bad* is a fast, reliable signal — you can
+usually trust "no" immediately, at small scale. A small test batch
+that tastes *good* is a weaker signal — the chef still has to check it
+holds up in the walk-in fridge overnight, scales past one dinner
+service, and doesn't clash with the rest of a full menu, before
+promoting it. **Where this breaks down:** a restaurant menu doesn't
+have a single number like "training loss" that stands in for "tastes
+good" — that stand-in is exactly the trap this chapter is about: a
+number that moves in the right direction is not automatically proof
+that the thing you actually care about improved.
+:::
+
+### Visual overview
+
+![The data-mixing decision loop: candidate datasets are tested at
+small scale before any mixing ratio is chosen for the main run, and
+the chosen mixture is not fixed for the whole run — an annealing stage
+can later swap in a different blend. This is a schematic of a
+*process*, not a plot of any specific ablation's measured
+results — no benchmark scores are shown. The one exception is the
+stage-1 mixing-weight label (0.7 / 0.2 / 0.1), copied directly from one
+disclosed baseline ablation config, not implied as universal
+advice.](figures/rendered/fig-data-mixing-decision-loop.svg){#fig-data-mixing-loop}
+
+Figure source: `figures/source/fig_data_mixing_decision_loop.py`.
+
+### Technical core
+
+**The objective itself is not this chapter's subject.** Chapters 1-2
+of workbook 04 already establish the causal, next-token training
+objective and the decoder architecture that computes it — this chapter
+does not re-derive that mechanism. What this chapter *is* about is
+everything a team decides once that objective is fixed: which data the
+model sees, how much of it, in what order, and how the team knows a
+proposed change to any of those actually helped before committing a
+full run's compute to it.
+
+**Objective design versus model architecture.** These are two
+different kinds of decision. The *objective* is what the loss function
+rewards (here: predicting the next token correctly); the *architecture*
+is how the network computes its prediction (attention pattern, head
+count, feed-forward width — workbook 04's subject). A team can, and
+routinely does, hold the objective fixed while testing many
+architectural variants, or hold the architecture fixed while testing
+many data mixtures — conflating the two makes it impossible to tell
+which decision caused a result [@src-16].
+
+**Two ways to run an ablation.** Testing every candidate change on the
+full target model at full scale would be prohibitively expensive, so
+teams shrink the experiment along one of two axes: fewer tokens on the
+*same* model size, or a smaller *proxy* model. SmolLM3's own
+architecture ablations used the full 3B target model trained on only
+100B tokens (rather than the eventual 11T) [@src-16]. When the target
+model itself is very large, a smaller proxy is used instead: Kimi K2's
+developers, targeting a 1T-parameter (32B-active) mixture-of-experts
+model, ran some ablations on a much smaller 3B model with 0.5B active
+parameters rather than the full target size [@src-16].
+
+::: {.callout-warning title="Common misconception"}
+**"A promising result at small scale is just as trustworthy as a
+disappointing one."** It is not. In the source this chapter draws on,
+the reported experience is the opposite: *if something hurts
+performance at small scale, you can confidently rule it out for large
+scale* — but if something *helps* at small scale, you need to train on
+enough additional tokens before concluding with confidence that the
+improvement will hold at full scale [@src-16]. Treat a negative small-scale
+result as strong evidence; treat a positive one as a reason to keep
+testing, not as the final answer.
+:::
+
+**Why training loss alone is not a reliable signal.** A team might
+expect "lower loss" to simply mean "better model," but this chapter's
+source reports several concrete reasons that link breaks:
+
+- **Losses are not comparable across tokenizer changes.** If two runs
+  use different tokenizers, the same text is split into a different
+  number of pieces, so their loss numbers are not measuring the same
+  quantity [@src-16].
+- **An easier-to-predict text distribution can have the lowest loss
+  and still not be the most useful.** The same source reports that
+  training on Wikipedia produces a lower loss than training on general
+  web pages — Wikipedia's more formulaic phrasing makes the next token
+  more predictable — but that lower loss does not by itself mean a
+  more *capable* model [@src-16]. Predictability of the training
+  distribution and usefulness of the resulting capabilities are
+  different quantities.
+- **Downstream capability can keep improving after the loss has
+  effectively converged**, and — separately — many benchmarks show
+  only *random-level* performance for a long stretch of training before
+  becoming a useful signal at all. One cited example: on a
+  multiple-choice-format benchmark, a 7-billion-parameter model's
+  performance stayed at chance level until roughly 500 billion training
+  tokens in one independently reported study, and a 1.7-billion-parameter
+  model in this same source's own prior work stayed at chance until
+  roughly 6 trillion tokens [@src-16]. These are each source's own
+  specific, reported figures for their own specific model and setup —
+  not a universal threshold for every model size or benchmark.
+
+This is exactly the **training loss versus downstream capability**
+distinction this chapter's learning objectives name: a loss curve is
+one instrument, not a substitute for measuring the capability you
+actually care about, and different benchmarks become informative at
+very different points in training.
+
+**Data mixtures: fixed versus multi-stage.** The relative proportion
+of training documents drawn from each source — the *mixture* — is
+tuned by ablation for the same reason architecture choices are:
+upweighting one domain's share of a fixed token budget necessarily
+downweights every other domain's share [@src-16]. Early large models
+typically fixed one mixture for the entire run. More recent practice —
+the source names SmolLM2, Llama 3, and OLMo 2 as examples — instead
+uses a *multi-stage* (or *curriculum*) mixture that changes over
+training, motivated by evidence that a model's final behavior is
+disproportionately shaped by data seen late in training. A common
+resulting strategy is to reserve small, high-quality sources for a
+final **annealing** stage (the phase where the learning-rate schedule
+is decaying), rather than mixing them in from the very start
+[@src-16].
+
+**Data quantity versus data quality, and why "just use the best data"
+does not work.** Filtering down to only the highest-quality subset of
+available text sounds appealing, but for a model with a large token
+budget, extreme filtering forces many repeated passes over a small
+pool of documents — and prior work cited by this chapter's source
+reports that heavy repetition of this kind can hurt performance
+[@src-16]. This is also why "more data" and "more *unique* information"
+are not the same claim: repeating the same billion tokens ten times is
+not equivalent to training on ten billion unique tokens, even though
+both consume the same compute budget.
+
+**Pretraining data versus evaluation data.** The documents a model
+trains on and the benchmarks used to check whether training worked
+must be kept strictly separate — training on benchmark-like content
+would make the resulting score measure memorization, not the
+capability the benchmark is meant to test. This chapter's source's own
+ablation evaluation suite is deliberately built from held-out
+benchmarks (e.g. MMLU, ARC, HellaSwag, GSM8K) that are never part of
+the training mixture itself [@src-16].
+
+**A note on token budgets and compute-optimal scaling.** How many
+tokens is "enough" for a given model size is itself a scaling-law
+question — full treatment is chapter 3's subject, not this chapter's.
+One illustrative data point this chapter's source reports: for a
+1-billion-parameter model, a compute-optimal token budget under the
+Chinchilla scaling result is approximately 35 billion tokens, but the
+source's own team deliberately trained their 1B ablation baseline on
+45 billion tokens instead, specifically to get a more stable signal
+from each ablation [@src-16;@src-51]. This is a concrete example of a
+measured, empirical choice (more tokens than the scaling law's
+stated optimum, for a stated practical reason) versus a purely
+architectural inference (what the scaling law alone would recommend) —
+the two are not required to agree, and here they deliberately do not.
+
+### Worked example
+
+**Allocating a fixed token budget across a stated data mixture.** One
+disclosed baseline ablation configuration mixes three sources with
+weights 0.7 (`fineweb-edu`), 0.2 (`stack-edu-python`), and 0.1
+(`finemath-3plus`), and trains for a total of 30 billion tokens
+(a global batch size of 1.5 million tokens per step, for 20,000 steps:
+$1.5\text{M} \times 20{,}000 = 30\text{B}$) [@src-16].
+
+Given a mixing weight $w_i$ for source $i$ and a total token budget
+$T$, the tokens allocated to that source are:
+
+$$
+\text{tokens}_i = w_i \times T
+$$ {#eq-mixing-allocation}
+
+Applying @eq-mixing-allocation with $T = 30\text{B}$:
+
+| Source | Mixing weight $w_i$ | Tokens allocated |
+|---|---|---|
+| `fineweb-edu` | 0.7 | $0.7 \times 30\text{B} = 21\text{B}$ tokens |
+| `stack-edu-python` | 0.2 | $0.2 \times 30\text{B} = 6\text{B}$ tokens |
+| `finemath-3plus` | 0.1 | $0.1 \times 30\text{B} = 3\text{B}$ tokens |
+
+: Token allocation for one disclosed 30B-token ablation mixture — weights and total sourced directly from the baseline config [@src-16], arithmetic verified programmatically {#tbl-mixing-worked-example}
+
+The three allocations sum to exactly $21\text{B} + 6\text{B} + 3\text{B}
+= 30\text{B}$ tokens, confirming the mixing weights are a full partition
+of the token budget, not independent quantities that happen to be
+stated as fractions.
+
+### Compare and contrast
+
+| Aspect | Fixed single-stage mixture | Multi-stage (curriculum/annealing) mixture |
+|---|---|---|
+| Mixture over time | One ratio for the entire run | Ratio changes at defined stages |
+| Historical examples cited | GPT-3, early Llama versions | SmolLM2, Llama 3, OLMo 2 |
+| High-quality/small sources | Blended in from the start, diluted by budget | Often reserved for a late annealing stage |
+| Implementation complexity | Lower — one config for the whole run | Higher — must track stage boundaries and validate each transition |
+| Main risk if done wrong | An early, coarse mixture never gets refined | A stage transition is untested and silently regresses a capability |
+
+: Two data-mixture strategies compared — neither is universally correct; the choice depends on team size, compute budget, and how much validation each stage transition can afford [@src-16] {#tbl-mixture-strategies}
+
+### Check your understanding
+
+Full solutions are in [Answer Key: Chapter 1](#sec-solutions-ch1):
+
+1. **Quick check.** Two ablation runs use different tokenizers. Can
+   their training-loss curves be compared directly to decide which run
+   is better? ________________________________________________
+2. **Calculation.** A team allocates a 50-billion-token budget across
+   three sources with mixing weights 0.6, 0.3, and 0.1. How many
+   tokens does each source receive?
+   ________________________________________________
+3. **Misconception check.** True or false: training only on the
+   highest-quality-seeming subset of available text (discarding
+   everything else) is always the best strategy for a model with a
+   large token budget. ________________________________________________
+4. **Explain.** An architecture ablation shows a small improvement at
+   small scale, and a separate ablation shows a small *regression* at
+   small scale. Which of the two results should a team trust with less
+   additional testing, and why? ________________________________________________
+5. **Compare.** State one concrete reason a team might prefer a
+   multi-stage (curriculum) data mixture over a single fixed mixture
+   for the whole training run. ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+A team has a 200-billion-token training budget and wants to mix four
+sources — English web, multilingual web, code, and math — using the
+domain split 75% / 12% / 10% / 3% (a real, disclosed split from this
+chapter's source, for a different total budget than this exercise
+uses) [@src-16]. Compute how many tokens each of the four sources
+receives under this 200-billion-token budget, and confirm your four
+answers sum to exactly 200 billion tokens.
+
+### Interview lens
+
+*"Why might a lower training loss not indicate a better model?"* A
+strong answer names at least two independent reasons (not just one) —
+for example: losses are not comparable across a tokenizer change, and
+a text distribution that is *easier to predict* is not the same as a
+text distribution that teaches more useful capability. A strong answer
+also distinguishes *training loss* from *downstream benchmark
+performance* explicitly, rather than treating "the model got better"
+as one undifferentiated claim. An answer that stops at "loss can be
+misleading" without naming a concrete mechanism is incomplete for a
+systems- or research-oriented interview.
+
+### Chapter recap
+
+- The pretraining *objective* (what the loss rewards) and the model
+  *architecture* (how the prediction is computed) are separate design
+  axes — this chapter is about the former and about the data that
+  objective is optimized over, not the latter (workbook 04's subject).
+- Ablations test proposed changes at reduced scale, either via fewer
+  tokens on the full-size model or via a smaller proxy model. A
+  negative small-scale result generalizes with less additional testing
+  than a positive one.
+- Training loss alone is an incomplete signal: it is not comparable
+  across tokenizer changes, an easier-to-predict distribution is not
+  automatically a more useful one, and downstream capability can lag
+  or precede loss convergence depending on the specific benchmark.
+- Data *quantity* and *unique information* are different quantities —
+  aggressive filtering that forces heavy repetition of a small pool of
+  documents can hurt performance rather than help it.
+- A fixed single-stage data mixture and a multi-stage (curriculum/
+  annealing) mixture are two different, both-legitimate strategies;
+  recent large models increasingly favor reserving high-quality,
+  small sources for a late annealing stage.
+- Pretraining data and evaluation data must be kept strictly separate,
+  or a benchmark score stops measuring the capability it claims to
+  measure.
+
+### Sources and further reading
+
+Primary source for this chapter: [@src-16] (the Smol Training
+Playbook's own disclosed ablation methodology, data-mixing weights,
+and curriculum/annealing practice for SmolLM3 — verified via full-text
+extraction of the article's own source file, not a search snippet).
+Chapter 3 picks up this chapter's compute-optimal-tokens data point in
+full, citing [@src-50] and [@src-51] directly. This chapter deliberately
+does not cite this same source's post-training sections — that
+material is workbook 07's domain.
