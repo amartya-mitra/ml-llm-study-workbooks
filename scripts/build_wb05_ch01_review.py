@@ -130,6 +130,12 @@ def main():
         sys.exit(1)
 
     print("\n--- Step 3: copy PDF + render pages + contact sheet ---")
+    # Clear any stale page renders from a prior build with a different
+    # page count -- pdftoppm only overwrites page-1..page-N, so a prior
+    # higher-numbered page (e.g. page-9.png from a 9-page build) would
+    # otherwise survive a later 8-page rebuild untouched.
+    if os.path.isdir(PAGES_DIR):
+        shutil.rmtree(PAGES_DIR)
     os.makedirs(PAGES_DIR, exist_ok=True)
     shutil.copy2(rendered_pdf, OUTPUT_PDF)
     print(f"wrote {os.path.relpath(OUTPUT_PDF, REPO_ROOT)}")
