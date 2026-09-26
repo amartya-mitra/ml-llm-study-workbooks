@@ -1,0 +1,10 @@
+# Workbook 05's source/claim ledger. Schema: shared/claim-ledger-schema.yaml.
+#
+# Empty by design: no chapter has been drafted yet
+# (reports/05_llm_training_project_plan.md). Add one entry per
+# substantive factual claim as each chapter is actually written -- do
+# not pre-populate this from the plan's proposed chapter list, since
+# those are topics, not yet-verified claims.
+
+schema_version: 1
+entries: []

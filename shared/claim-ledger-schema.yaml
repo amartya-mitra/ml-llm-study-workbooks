@@ -1,0 +1,73 @@
+# Schema for the per-workbook source/claim ledger.
+#
+# This complements, and is consumed alongside, sources/registry.yaml and
+# sources/coverage-matrix.yaml -- it does NOT duplicate them. The
+# registry tracks *sources*; questions.yaml's source_ids field ties
+# *questions* to sources. This ledger ties *specific prose claims* (one
+# sentence or one number in a chapter) to the source that backs it, at
+# the granularity AGENTS.md requires ("every substantive factual claim
+# must be traceable to a source"). Written by hand, following this
+# project's existing no-PyYAML/no-jsonschema convention (see
+# reports/bootstrap_environment.md) -- a future
+# scripts/validate_claim_ledger.py should enforce this schema the same
+# way scripts/validate_questions.py enforces shared/question-schema.yaml,
+# once a workbook's ledger has real entries to validate.
+#
+# Created: 2026-09-26, as Workbook 05 scaffolding (Phase 9 of the
+# OpenResearch-evaluation task). No workbook has a populated ledger yet
+# -- see workbooks/05-llm-training/claim-ledger.yaml, which exists with
+# zero real entries pending Chapter 2 (multi-token prediction) drafting,
+# per reports/05_llm_training_project_plan.md's own gate.
+
+schema_version: 1
+
+fields:
+  - name: "id"
+    type: "string"
+    required: true
+    pattern: "^claim-[a-z0-9-]+-[0-9]{3}$"
+    description: "Unique claim id, e.g. claim-05-mtp-loss-001."
+
+  - name: "workbook"
+    type: "string"
+    required: true
+    description: "Workbook id this claim belongs to (same allowed values as shared/question-schema.yaml's workbook field)."
+
+  - name: "chapter"
+    type: "string"
+    required: true
+    description: "Chapter slug the claim appears in, e.g. ch2."
+
+  - name: "statement"
+    type: "string"
+    required: true
+    description: "The exact claim, in plain prose -- short enough to be one sentence or one number, not a whole paragraph. If a paragraph makes several claims, one ledger entry per claim."
+
+  - name: "source_ids"
+    type: "list[string]"
+    required: true
+    description: "One or more sources/registry.yaml ids that back this claim. Every id here must already exist in the registry -- this ledger does not register new sources itself."
+
+  - name: "verification_status"
+    type: "string"
+    required: true
+    allowed_values: ["verified_full_text", "verified_abstract_only", "unverified_candidate", "computed_by_script"]
+    description: "How this claim was actually checked. 'computed_by_script' is for a worked-example number checked by a version-controlled script (see workbook 04's data/worked-examples/ convention), not a literature claim."
+
+  - name: "note"
+    type: "string"
+    required: false
+    description: "Any caveat, disagreement between sources, or scope limit that must survive into the chapter text alongside the claim (per AGENTS.md: preserve disagreements, do not smooth them over)."
+
+# Illustrative example only -- NOT a real entry, and not present in any
+# actual workbook's claim-ledger.yaml today. Shown here so the schema's
+# intent is legible without needing to invent a first real claim before
+# drafting begins.
+example_entry:
+  id: "claim-05-mtp-loss-001"
+  workbook: "05-llm-training"
+  chapter: "ch2"
+  statement: "Gloeckle et al.'s multi-token prediction design uses n independent output heads on a shared trunk, keeping only the next-token head at inference."
+  source_ids: ["src-43"]
+  verification_status: "verified_full_text"
+  note: null
