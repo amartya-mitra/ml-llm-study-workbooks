@@ -22,8 +22,8 @@ _freeze/
 # per-workbook page-images/ folders used by render_and_check.py /
 # build_ch01_02_review.py.
 outputs/*.pdf
-outputs/*.pdf.prev-*
-outputs/*-pages/
+outputs/**/*.pdf.prev-*
+outputs/**/*-pages/
 workbooks/**/page-images/
 workbooks/**/*.pdf
 workbooks/**/*.pdf.prev-*
@@ -31,8 +31,15 @@ workbooks/**/*.pdf.prev-*
 # Portable review bundles (PDF copy + page PNGs + contact sheet +
 # extracted text + manifest, packaged as a .tar.gz for human review) --
 # these are disposable review artifacts, not source.
-outputs/review-bundle-*/
-outputs/review-bundle-*.tar.gz
+outputs/**/review-bundle-*/
+outputs/**/review-bundle-*.tar.gz
+
+# Workbook 04 development area: chapter-review PDFs, RC page renders,
+# review bundles, and other pre-release build products. Only the
+# canonical + RC PDFs (outputs/*.pdf, matched above) and .gitkeep stay
+# tracked directly under outputs/; everything else generated during
+# drafting/review lives here and is never committed.
+outputs/_development/
 
 # Editor / OS noise
 .DS_Store
