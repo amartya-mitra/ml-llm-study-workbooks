@@ -1,0 +1,24 @@
+---
+title: "LLM Pretraining and Distributed Training"
+subtitle: "Chapter 1 Review Draft — Pretraining Objectives and Data"
+author: "ML/LLM Study Workbooks"
+toc: true
+number-sections: true
+---
+<!-- papersize/margin/callout-icon/bibliography are set once, project-
+wide, in the repo-root _quarto.yml -- do not repeat them here.
+
+This is a standalone, chapter-scoped review document, not the
+workbook's canonical index.qmd. It exists so an independent reviewer
+can inspect Chapter 1 alone, without workbooks/05-llm-training/
+index.qmd's five still-undrafted scaffold chapters diluting the
+review. Mirrors workbook 04's own per-chapter review-build convention
+(scripts/build_ch01_02_review.py and successors). -->
+
+{{< include chapters/01-pretraining-objectives-and-data.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include solutions/01-pretraining-objectives-and-data-solutions.qmd >}}

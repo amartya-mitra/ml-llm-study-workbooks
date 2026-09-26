@@ -65,8 +65,6 @@ stage-1 mixing-weight label (0.7 / 0.2 / 0.1), copied directly from one
 disclosed baseline ablation config, not implied as universal
 advice.](figures/rendered/fig-data-mixing-decision-loop.svg){#fig-data-mixing-loop}
 
-Figure source: `figures/source/fig_data_mixing_decision_loop.py`.
-
 ### Technical core
 
 **The objective itself is not this chapter's subject.** Chapters 1-2
