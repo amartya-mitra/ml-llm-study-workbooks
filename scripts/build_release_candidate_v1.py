@@ -30,8 +30,10 @@ import sys
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 WB04 = os.path.join(REPO_ROOT, "workbooks", "04-llm-architecture")
 INDEX_QMD = os.path.join(WB04, "index.qmd")
-OUTPUT_PDF = os.path.join(REPO_ROOT, "outputs", "04-modern-llm-architecture-workbook-rc1.pdf")
-PAGE_IMAGE_DIR = os.path.join(REPO_ROOT, "outputs", "04-modern-llm-architecture-workbook-rc1-pages")
+OUTPUT_PDF = os.path.join(REPO_ROOT, "outputs", "_releases", "04-llm-architecture", "04-modern-llm-architecture-workbook-rc1.pdf")
+DEV_DIR = os.path.join(REPO_ROOT, "outputs", "_development", "04-llm-architecture", "workbook-rc1")
+PAGE_IMAGE_DIR = os.path.join(DEV_DIR, "04-modern-llm-architecture-workbook-rc1-pages")
+BACKUP_DIR = DEV_DIR
 
 REQUIRED_TOOLS = ["quarto", "pdfinfo", "pdftotext", "pdffonts", "pdftoppm"]
 
@@ -88,7 +90,8 @@ def main():
     os.makedirs(os.path.dirname(OUTPUT_PDF), exist_ok=True)
     if os.path.exists(OUTPUT_PDF):
         stamp = datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
-        backup = f"{OUTPUT_PDF}.prev-{stamp}"
+        os.makedirs(BACKUP_DIR, exist_ok=True)
+        backup = os.path.join(BACKUP_DIR, f"04-modern-llm-architecture-workbook-rc1.pdf.prev-{stamp}")
         shutil.copy2(OUTPUT_PDF, backup)
         print(f"preserved existing PDF as {os.path.relpath(backup, REPO_ROOT)}")
     shutil.copy2(rendered_pdf, OUTPUT_PDF)

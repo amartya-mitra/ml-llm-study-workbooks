@@ -35,11 +35,15 @@ outputs/**/review-bundle-*/
 outputs/**/review-bundle-*.tar.gz
 
 # Workbook 04 development area: chapter-review PDFs, RC page renders,
-# review bundles, and other pre-release build products. Only the
-# canonical + RC PDFs (outputs/*.pdf, matched above) and .gitkeep stay
-# tracked directly under outputs/; everything else generated during
-# drafting/review lives here and is never committed.
+# review bundles, and other pre-release build products generated during
+# drafting/review. Never committed.
 outputs/_development/
+
+# Workbook 04 release archive: historical release-candidate PDFs
+# (rc1.pdf ... rc7.pdf), kept for comparison but not the current
+# canonical artifact. Only the canonical PDF (outputs/*.pdf, matched
+# above) and .gitkeep stay directly under outputs/.
+outputs/_releases/
 
 # Editor / OS noise
 .DS_Store
