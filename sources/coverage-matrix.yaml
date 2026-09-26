@@ -212,6 +212,10 @@ workbooks:
         coverage: "primary"
       - id: "src-33"
         coverage: "supporting"
+      - id: "src-50"
+        coverage: "primary"
+      - id: "src-51"
+        coverage: "primary"
 
   - id: "06-llm-inference"
     sources:

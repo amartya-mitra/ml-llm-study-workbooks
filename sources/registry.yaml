@@ -231,32 +231,32 @@ sources:
     notes: "Companion index to src-14; good for scoping which models the pilot workbook should include. The on-page last-updated date seen via WebFetch (Sep 21) was not independently cross-checked against raw HTML, since the direct curl fetch was blocked — flagged rather than presented as fully confirmed."
 
   - id: "src-16"
-    title: "The Smol Training Playbook"
+    title: "The Smol Training Playbook: The Secrets to Building World-Class LLMs"
     url: "https://huggingface.co/spaces/HuggingFaceTB/smol-training-playbook"
-    authors: "Hugging Face Smol Models Research (org, per JSON-LD creator field); no individual author byline visible on the fetched page"
+    authors: "Loubna Ben Allal, Lewis Tunstall, Nouamane Tazi, Elie Bakouch, Ed Beeching, Carlos Miguel Patiño, Clémentine Fourrier, Thibaud Frere, Anton Lozhkov, Colin Raffel, Leandro von Werra, Thomas Wolf (Hugging Face) — full byline confirmed via the article's own frontmatter, not just an org-level JSON-LD field"
     resource_type: "online technical playbook (interactive HF Space)"
     workbook_categories: ["05-llm-training"]
-    topic_tags: ["pretraining", "data-curation", "small-models", "training-recipes"]
+    topic_tags: ["pretraining", "data-curation", "small-models", "training-recipes", "optimizer-schedules", "tokenizer-training"]
     authority_type: "primary_technical"
-    expected_use: "primary reference for pretraining practicalities in workbook 05 (tentative — see access caveat)"
-    last_verified: "2026-09-22"
-    access_status: "partial: this is a client-side-rendered app; the fetch retrieved only the HTML shell and meta/JSON-LD tags (og:description: 'The secrets to building world-class LLMs' / meta description mentions dynamic training-loss-curve charts), not the actual document body. No date or license metadata found either. Do not treat specific topic-coverage or factual claims from this source as verified until a render-capable fetch or the Space's underlying markdown source is checked."
-    license_or_reuse: "not visible — no license field in JSON-LD (unlike src-17, which does have one)"
-    notes: "Scope is inferred only from the meta description, not confirmed body content. Re-verify before relying on this for any specific claim."
+    expected_use: "primary reference for workbook 05 ch. 1 (pretraining objectives and data: ablations, dataset/mixing-weight decisions, tokenizer training) and ch. 3 (AdamW + cosine-schedule hyperparameters are covered directly). Also covers post-training (a 'Beyond Base Models' section) — workbook 05 must cite only its pretraining-scoped sections; the post-training content is workbook 07's domain and is out of bounds here even though this same source discusses it."
+    last_verified: "2026-09-26"
+    access_status: "fully verified: the client-side app's rendered shell was the wrong fetch target, not a genuine access barrier — the underlying HF Space is itself a git repo, and its full article body is a plain (non-LFS) file at app/src/content/article.mdx, fetched and read in full this session (5,807 lines / 67,321 words via raw.githubusercontent-equivalent HF raw-file access). Confirmed headings include Introduction; Training Compass; Every Big Model Starts with a Small Ablation; Datasets and mixing weights; Model architecture (Llama 3.2 1B case study); Training hyperparameters (AdamW, cosine schedule); Tokenizer; Batch size/sequence length/token budget; The Art of Data Curation; The Training Marathon; and Beyond Base Models—Post-Training in 2025 (out of scope for workbook 05, see expected_use)."
+    license_or_reuse: "not visible in the fetched frontmatter — re-check before reusing any figure verbatim; text synthesis/citation is unaffected"
+    notes: "Published 'Oct. 30, 2025' per the article's own frontmatter. Previously registered as only partially accessible (2026-09-22); that was a fetch-method limitation (WebFetch/curl against the rendered app), not a property of the source itself — corrected 2026-09-26 by fetching the Space's underlying repo file directly."
 
   - id: "src-17"
-    title: "The Ultra-Scale Playbook"
+    title: "The Ultra-Scale Playbook: Training LLMs on GPU Clusters"
     url: "https://huggingface.co/spaces/nanotron/ultrascale-playbook"
-    authors: "Nanotron Research (org, per JSON-LD creator field); no individual author byline visible on the fetched page"
+    authors: "Nanotron Research / Hugging Face (org-level byline in the article itself; no individual authors named in the fetched body, unlike src-16)"
     resource_type: "online technical playbook (interactive HF Space)"
     workbook_categories: ["04-llm-architecture", "05-llm-training"]
-    topic_tags: ["distributed-training", "parallelism", "3d-parallelism", "gpu-clusters", "expert-parallelism"]
+    topic_tags: ["distributed-training", "parallelism", "3d-parallelism", "gpu-clusters", "expert-parallelism", "zero", "mixed-precision"]
     authority_type: "primary_technical"
-    expected_use: "workbook 04: systems companion for ch. 5's expert-parallelism section and ch. 7 (tentative — see access caveat); primary reference for parallelism strategies in workbook 05"
-    last_verified: "2026-09-22"
-    access_status: "partial: this is a client-side-rendered app; the fetch retrieved only the HTML shell and meta/JSON-LD tags (og:description: 'The ultimate guide to training LLM on large GPU Clusters'), not the actual document body. Do not treat specific topic-coverage or factual claims from this source as verified until a render-capable fetch or the Space's underlying markdown source is checked."
-    license_or_reuse: "Apache 2.0 — explicitly confirmed via the JSON-LD license field in raw page HTML (https://choosealicense.com/licenses/apache-2.0/)"
-    notes: "Scope (data/tensor/pipeline/expert parallelism training guide) is inferred only from the meta description, not confirmed body content. Re-verify before relying on this for any specific claim; the Apache 2.0 license is the one piece of metadata that was directly confirmed."
+    expected_use: "workbook 04: systems companion for ch. 5's expert-parallelism section and ch. 7's parallelism table (already cited there). Primary source for workbook 05 ch. 4 (parallelism strategies) and ch. 5 (memory/communication at scale) — its own content covers data/tensor/context/pipeline/expert parallelism and GPU kernel fusion/mixed precision at mechanism level, backed by the authors' own reported 4,000+ scaling experiments across up to 512 GPUs."
+    last_verified: "2026-09-26"
+    access_status: "fully verified: same fetch-method fix as src-16 — the underlying HF Space repo has a plain (non-LFS) markdown source at ultra_blog.md, fetched and read in full this session (3,927 lines / 31,387 words). Confirmed top-level sections: High level overview; First Steps: Training on one GPU; Data Parallelism; Tensor Parallelism; Context Parallelism; Pipeline Parallelism; Expert parallelism; 5D parallelism in a nutshell; Finding the Best Training Configuration; Diving in the GPUs – fusing, threading, mixing; Conclusion; References; Appendix. The repo also hosts an official PDF export (The_Ultra-Scale_Playbook_Training_LLMs_on_GPU_Clusters.pdf, LFS) matching this same content."
+    license_or_reuse: "Apache 2.0 — explicitly confirmed via the JSON-LD license field in raw page HTML (https://choosealicense.com/licenses/apache-2.0/), and consistent with the repo being openly browsable"
+    notes: "Previously registered as only partially accessible (2026-09-22); that was a fetch-method limitation (WebFetch/curl against the rendered app), not a property of the source itself — corrected 2026-09-26 by fetching the Space's underlying repo file directly. Cites the actual originating academic papers for each parallelism technique in its own References section (not yet cross-verified against this project's registry — GPipe/Megatron-LM/ZeRO remain named-but-not-yet-registered candidates, see reports/05_llm_training_scope_and_source_decision.md)."
 
   - id: "src-18"
     title: "LoRA Without Regret"
@@ -715,3 +715,36 @@ sources:
     access_status: "verified via WebFetch of the live page; confirmed the training-vs-inference distinction and that it names Gloeckle et al. (src-43) as the original MTP paper, plus DeepSeek-V3 (src-33), Qwen3-Next, Step 3.5 Flash, and Nemotron 3 Super as models using MTP variants"
     license_or_reuse: "part of the same gallery site as src-15; page content reuse terms not stated — treat as not reusable, inspiration/scoping only, same as src-15"
     notes: "Sub-page of the gallery indexed generally by src-15; registered separately for the same reason as src-48. Qwen3-Next, Step 3.5 Flash, and Nemotron 3 Super's specific MTP variants were NOT independently verified this session -- named here only as this source's own claims, not as independently confirmed facts."
+
+  # ---------------------------------------------------------------------
+  # src-50 onward: registered 2026-09-26 while resolving workbook 05's
+  # scaling-law source gap (reports/05_llm_training_scope_and_source_decision.md).
+  # ---------------------------------------------------------------------
+
+  - id: "src-50"
+    title: "Scaling Laws for Neural Language Models"
+    url: "https://arxiv.org/abs/2001.08361"
+    authors: "Jared Kaplan, Sam McCandlish, Tom Henighan, Tom B. Brown, Benjamin Chess, Rewon Child, Scott Gray, Alec Radford, Jeffrey Wu, Dario Amodei"
+    resource_type: "original research paper (arXiv:2001.08361)"
+    workbook_categories: ["05-llm-training"]
+    topic_tags: ["scaling-laws", "compute-optimal-training", "pretraining"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for workbook 05 ch. 3: the original empirical power-law relationship between cross-entropy loss and model size / dataset size / compute -- and its own conclusion that a compute-optimal model should stop significantly before convergence, training a very large model on a comparatively modest amount of data. Superseded in its exact quantitative token/parameter ratio by src-51 (Hoffmann et al.); teach both, do not present only the later paper as if the earlier one were simply wrong."
+    last_verified: "2026-09-26"
+    access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF), not abstract-only. Confirmed abstract's own wording: loss 'scales as a power-law with model size, dataset size, and the amount of compute used for training, with some trends spanning more than seven orders of magnitude' and that 'optimally compute-efficient training involves training very large models on a relatively modest amount of data and stopping significantly before convergence.'"
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
+    notes: "OpenAI, 2020-01-23. Hoffmann et al. (src-51, 2022) explicitly frames itself as reaching 'the same conclusion' as this paper about not training to lowest possible loss, while revising the specific token/parameter scaling ratio -- cite both together for workbook 05 ch. 3, not this one alone."
+
+  - id: "src-51"
+    title: "Training Compute-Optimal Large Language Models"
+    url: "https://arxiv.org/abs/2203.15556"
+    authors: "Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor Cai, Eliza Rutherford, Diego de Las Casas, Lisa Anne Hendricks, Johannes Welbl, Aidan Clark, Tom Hennigan, Eric Noland, Katie Millican, George van den Driessche, Bogdan Damoc, Aurelia Guy, Simon Osindero, Karen Simonyan, Erich Elsen, Jack W. Rae, Oriol Vinyals, Laurent Sifre"
+    resource_type: "original research paper (arXiv:2203.15556)"
+    workbook_categories: ["05-llm-training"]
+    topic_tags: ["scaling-laws", "compute-optimal-training", "chinchilla", "pretraining"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for workbook 05 ch. 3: the Chinchilla compute-optimal scaling result -- for a fixed compute budget, model size and training-token count should scale equally (doubling one requires doubling the other), revising src-50's own ratio. Chinchilla (70B params, 4x Gopher's data at Gopher's compute budget) is the paper's own worked demonstration, directly reusable as a workbook worked example."
+    last_verified: "2026-09-26"
+    access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF), not abstract-only. Confirmed abstract's own wording: 'for compute-optimal training, the model size and the number of training tokens should be scaled equally: for every doubling of model size the number of training tokens should also be doubled,' trained and tested over 400 models from 70M to 16B+ parameters on 5-500B tokens."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
+    notes: "DeepMind, 2022-03-29. Explicitly revises src-50 (Kaplan et al.)'s specific token/parameter ratio while agreeing with its qualitative conclusion; present as a revision, not a contradiction, per this paper's own framing."
