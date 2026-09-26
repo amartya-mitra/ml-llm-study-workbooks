@@ -1,8 +1,8 @@
 ## Build and Version Note {.unnumbered}
 
-- **Generated:** 2026-09-25
-- **Source verification:** Primary and roadmap sources for Chapters 1-8 and the series-wide topic roadmap were last verified between 2026-09-22 and 2026-09-25.
-- **Release status:** Complete content draft (release candidate 4) -- all 8 chapters drafted; release candidate 3's fixes are preserved, and this revision fixes a mid-word title hyphenation defect (Chapter 4's title broke 'Representations' across lines as 'Rep-/resentations'; the same check found and fixed an identical defect in Chapter 7's title). This remains a review artifact, not the final edition -- see the release-candidate note earlier in this book for what (if anything) is still outstanding.
+- **Generated:** 2026-09-26
+- **Source verification:** Primary and roadmap sources for Chapters 1-8 and the series-wide topic roadmap were last verified between 2026-09-22 and 2026-09-26.
+- **Release status:** Complete content draft (release candidate 5) -- all 8 chapters drafted; release candidates 2-4's fixes are preserved. This revision removes inline Typst code from long chapter titles (Chapters 4, 6, 7, 8) that was interfering with heading rendering. This remains a review artifact, not the final edition -- see the release-candidate note earlier in this book for what (if anything) is still outstanding.
 
 ### Provenance {.unnumbered}
 
@@ -13,4 +13,3 @@
 - Chapter 8's MTP bridge and Chapter 7's MTP/speculative-decoding cross-reference are both deliberately shallow -- MTP's training mechanics and the speculative-decoding algorithm are assigned to future workbooks, not taught in workbook 4.
 - Chapter and Answer Key numbering: the eight instructional chapters are numbered 1-8; front matter (how to use this workbook, the notation quick reference), the answer keys, and this build note are intentionally unnumbered so the rendered numbering matches the book's logical structure, and each chapter's rendered title carries exactly one leading number.
 - The notation reference's cache-size row names M_KV (the standard MHA/MQA/GQA cache formula) and M_MLA (MLA's compressed-latent cache formula) to match the symbols the equations actually use, and adds the sliding-window width W, referenced throughout that chapter's worked example and questions.
-- Chapter titles that wrap to two lines (Chapters 4, 6, 7, and 8) use an explicit phrase-level line break rather than relying on automatic hyphenation, so a title word is never split mid-word across the wrap.

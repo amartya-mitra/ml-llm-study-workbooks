@@ -224,13 +224,14 @@ class TestReleaseStatusLanguage(unittest.TestCase):
     actual status, not silently carry over RC1's 'not yet happened'
     language once the editorial pass is complete."""
 
-    def test_index_subtitle_says_release_candidate_4(self):
+    def test_index_subtitle_says_release_candidate_5(self):
         with open(INDEX_QMD) as f:
             text = f.read()
-        self.assertIn("Release Candidate 4", text)
+        self.assertIn("Release Candidate 5", text)
         self.assertNotIn("Release Candidate 1", text)
         self.assertNotIn("Release Candidate 2", text)
         self.assertNotIn("Release Candidate 3", text)
+        self.assertNotIn("Release Candidate 4", text)
 
     def test_draft_scope_note_does_not_claim_qa_not_yet_happened(self):
         with open(DRAFT_SCOPE_QMD) as f:

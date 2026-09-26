@@ -1,4 +1,4 @@
-## From Architecture to Systems Behavior: Memory, Compute, `#linebreak()`{=typst}Communication, and Throughput {#sec-ch7}
+## From Architecture to Systems Behavior: Memory, Compute, Communication, and Throughput {#sec-ch7}
 
 *Five Resources, Two Operating Modes, One Refusal to Guess*
 

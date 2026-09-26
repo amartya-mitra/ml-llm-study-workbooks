@@ -65,11 +65,14 @@ class TestChapter4TitleNoHyphenation(unittest.TestCase):
 
     CH4_PATH = TWO_LINE_CHAPTERS[4]
 
-    def test_chapter4_heading_has_explicit_linebreak_after_sparsity(self):
+    def test_chapter4_heading_renders_complete_title(self):
+        """RC5 removed the inline Typst code that was interfering with heading
+        rendering. The title should now render completely without inline code,
+        relying on Typst's native text wrapping."""
         with open(self.CH4_PATH) as f:
             first_line = f.readline()
-        self.assertIn("Sparsity, `#linebreak()`{=typst}and Latent KV Representations", first_line,
-                      msg="Chapter 4's heading should force a break right after 'Sparsity,' per the task's example")
+        self.assertIn("Reducing Attention Cost: Windows, Sparsity, and Latent KV Representations", first_line,
+                      msg="Chapter 4's heading should contain the complete title text")
 
     def test_chapter4_heading_source_has_no_manual_hyphen(self):
         with open(self.CH4_PATH) as f:
@@ -99,11 +102,19 @@ class TestAllTwoLineChapterTitlesProtected(unittest.TestCase):
     to two lines (Chapters 4, 6, 7, 8), since the same defect was also
     found live in Chapter 7's title."""
 
-    def test_each_two_line_chapter_heading_uses_explicit_linebreak(self):
+    def test_each_two_line_chapter_heading_renders_completely(self):
+        """RC5 removed inline Typst code from long chapter titles. They now
+        render via Typst's native text wrapping without markdown code elements."""
+        expected_content = {
+            4: "Reducing Attention Cost: Windows, Sparsity, and Latent KV Representations",
+            6: "Reading Modern LLM Architectures: Three Designs, Three Sets of Tradeoffs",
+            7: "From Architecture to Systems Behavior: Memory, Compute, Communication, and Throughput",
+            8: "Emerging Directions and Architecture Synthesis: Looped Depth, Design Tradeoffs, and How to Read What Comes Next",
+        }
         for i, path in TWO_LINE_CHAPTERS.items():
             with open(path) as f:
                 first_line = f.readline()
-            self.assertIn("#linebreak()", first_line, msg=f"Chapter {i}'s heading no longer forces an explicit break")
+            self.assertIn(expected_content[i], first_line, msg=f"Chapter {i}'s heading text is incomplete")
 
     @unittest.skipUnless(os.path.exists(RC4_PDF), "RC4 PDF not built -- run scripts/build_release_candidate_v4.py first")
     def test_no_hyphenated_word_break_in_any_chapter_heading(self):
