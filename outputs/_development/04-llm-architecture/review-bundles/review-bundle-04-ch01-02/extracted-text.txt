@@ -1,0 +1,1384 @@
+Modern LLM Architecture
+A Visual Guide to Attention, Memory, Sparsity, and Hybrid Models –
+Two-Chapter Review Pilot
+ML/LLM Study Workbooks
+
+Table of contents
+1 How to use this workbook . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠2
+2 Notation quick reference . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠2
+3 Chapter 1: Transformer Refresher . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠3
+3.1 Learning objectives . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠3
+3.2 Why this matters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠3
+3.3 Mental model or analogy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠4
+3.4 Visual overview . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠4
+3.5 Technical core . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠5
+3.6 Worked example . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠8
+3.7 Compare and contrast . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠10
+3.8 Check your understanding . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠10
+3.9 Applied exercise . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠11
+3.10 Interview lens . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠11
+3.11 One-page recap . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠11
+3.12 Sources and further reading . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠12
+4 Chapter 2: Anatomy of a Modern Decoder . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠12
+4.1 Learning objectives . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠12
+4.2 Why this matters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠12
+4.3 Mental model or analogy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠12
+4.4 Visual overview . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠13
+4.5 Technical core . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠13
+4.6 Worked example . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠17
+4.7 Compare and contrast . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠18
+4.8 Check your understanding . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠18
+4.9 Applied exercise . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠19
+4.10 Interview lens . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠19
+4.11 One-page recap . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠19
+4.12 Sources and further reading . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠20
+5 Answer Key: Chapter 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠20
+6 Answer Key: Chapter 2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠22
+7 Build and Version Note . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠24
+Bibliography . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ⁠24
+
+1
+
+1 How to use this workbook
+Each chapter follows the same structure: learning objectives, why the topic matters, a mental model,
+a visual overview, the technical core (equations with every symbol defined), a fully worked numeric
+example, a comparison table, comprehension questions, a common misconception, an applied exercise,
+an interview-style question, a one-page recap, and sources. Short questions appear near the concept they
+test, with space left for written answers if you’re using this as a workbook rather than only a reading;
+full solutions are collected in the answer key (Section 5, Section 6) rather than revealed inline, so you
+can attempt each question before checking it. A notation quick reference (Section 2) covers every symbol
+Chapters 1-2 use.
+This is a two-chapter pilot, not the complete workbook
+This document contains only Chapters 1 and 2 of Modern LLM Architecture: A Visual Guide to
+Attention, Memory, Sparsity, and Hybrid Models (workbook 04 of the ML/LLM Study Workbooks
+series). Chapters 3-8 – attention head structure and cache-efficient variants, restricting attention’s
+reach, mixture-of-experts models, case studies, architecture -> systems consequences, and a synthesis/
+practice chapter – are planned (see workbooks/04-llm-architecture/outline.md) but not drafted.
+Nothing in this document should be read as implying those chapters exist yet.
+This is a review artifact: it exists to establish the workbook’s explanatory depth, visual language, page
+density, question style, and citation style before the remaining six chapters are drafted at scale. Treat
+any rough edge you find as exactly the kind of thing this pilot is meant to surface early.
+
+2 Notation quick reference
+The full project-wide symbol table lives in notation.yaml and grows as later chapters introduce mechanisms this pilot doesn’t cover (KV-cache size, expert counts, and others start in Chapter 3 onward). The
+subset below is everything Chapters 1-2 actually use – flip back here if a symbol in an equation isn’t
+immediately obvious.
+
+2
+
+Table 1: Notation used in Chapters 1-2 only – see notation.yaml for the full, growing project-wide table
+Symbol
+
+Name
+
+Meaning
+
+𝐵
+
+batch size
+
+number of independent sequences processed together
+
+𝑆
+
+sequence length
+
+number of tokens in the current
+sequence
+
+𝑉
+
+vocabulary size
+
+number of distinct token ids;
+also the output-head’s logit
+width
+
+𝑑model
+
+hidden dimension
+
+width of the residual stream,
+constant across every block
+
+𝐻𝑞
+
+query heads
+
+number of attention query
+heads (the “q” matters starting
+Chapter 3)
+
+𝑑head
+
+head dimension
+
+width of one attention head,
+𝑑model /𝐻𝑞
+
+𝐿
+
+number of layers
+
+count of decoder blocks stacked
+
+𝑑ff
+
+feed-forward expansion dimen­ width of a feed-forward
+sion
+sublayer’s hidden projection
+
+3 Chapter 1: Transformer Refresher
+From Tokens to the Next-Token Distribution
+
+3.1 Learning objectives
+By the end of this chapter you should be able to:
+• State the decoder-only next-token objective and explain why it is what lets a model generate text one
+piece at a time.
+• Trace a single token’s vector as it moves through the residual stream, the attention sublayer, and the
+feed-forward sublayer of one decoder block.
+• Explain causal masking precisely – which positions a given position may and may not attend to – rather
+than the imprecise “only the previous token” version.
+• Distinguish prefill from a single autoregressive decode step, and explain concretely what state gets
+reused between decode steps.
+
+3.2 Why this matters
+Every mechanism in the rest of this workbook – attention variants, positional schemes, sparsity, mixtureof-experts routing – is a modification to the same handful of moving parts introduced here: a residual
+stream, an attention sublayer, a feed-forward sublayer, and a causal mask. If any of those four feel shaky,
+later chapters will read as a list of unrelated tricks rather than variations on one theme. This chapter’s
+job is narrow on purpose: get the shared vocabulary and the prefill/decode distinction solid, so that “GQA
+
+3
+
+changes how many KV heads exist” (Chapter 3) or “MoE changes which parameters activate” (Chapter 5)
+land as small, precise edits to a picture you already have, not new pictures from scratch.
+
+3.3 Mental model or analogy
+Think of the residual stream as a running total printed on a receipt. Each sublayer in the model doesn’t
+erase what’s already printed – it adds one more line of adjustment underneath the current total. By the
+time the receipt reaches the bottom of the block, the final total already reflects every earlier adjustment,
+because each one was added in, in order.
+Analogy
+The residual stream is a running total on a receipt. Each sublayer reads the current total, computes an
+adjustment, and prints a new line that adds to the total – it never crosses out or overwrites a previous
+line. Where this breaks down: a paper receipt keeps each line individually readable, so you can
+always look back and see exactly what line 3 contributed. The residual stream cannot do that. Every
+adjustment is summed into the same fixed-width vector, so by the end you have one number (well,
+one vector) that reflects every contribution – but you cannot read back which sublayer contributed
+what just by looking at the final total. That specific limitation is the working assumption behind
+why interpretability researchers need extra tools (activation patching, probing) to recover what an
+individual sublayer contributed – the sum alone doesn’t show its work.
+
+3.4 Visual overview
+same block, applied N times, each with its own weights
+
+tokens
+
+N x decoder
+block
+
+embeddings
+
+final norm
+
+output head
+
+logits
+
+softmax
+
+next-token probability distribution over the whole vocabulary:
+0.62
+
+0.10
+
+0.05
+
+the
+
+cat
+
+dog
+
+stored (tokens/embeddings/vocabulary scores)
+
+one token is sampled/chosen from this distribution
+
+0.18
+
+sat
+
+0.03
+
+0.02
+
+runs
+
+...
+
+computation (a stage that transforms the vector)
+
+Figure 1: Tokens become vectors, the same block repeats N times with its own weights at each repetition,
+and only the final softmax turns a vector back into a probability distribution over the vocabulary – nothing
+“decides” the next token before that last step.
+Figure source: figures/source/fig_decoder_end_to_end.py.
+
+4
+
+3.5 Technical core
+Tokens and embeddings. A tokenizer splits text into a sequence of 𝑆 discrete tokens, each an integer id
+into a fixed vocabulary of size 𝑉 . An embedding table 𝐸 ∈ ℝ𝑉 ×𝑑model maps each token id to a dense vector
+of width 𝑑model (the hidden dimension, the width of the residual stream everywhere in the model). For
+a batch of 𝐵 sequences of length 𝑆, the embedded input has shape (𝐵, 𝑆, 𝑑model ). We will mostly drop the
+batch dimension 𝐵 below and reason about one sequence at a time – everything below happens identically
+and independently across the batch dimension.
+𝑥𝑖 ∈ ℝ𝑑model
+
+𝑥𝑖 = 𝐸[ token_id𝑖 ],
+
+(1)
+
+In words: look up a row of a table. That row is where the model’s only “knowledge” of which token this
+is enters the computation – from here on, everything operates on vectors, not token identities.
+The residual stream. Stack the 𝑆 embedded vectors into 𝑥 ∈ ℝ𝑆×𝑑model . This is the residual stream at the
+input to block 1. Every block updates it the same way:
+𝑥(𝑙+1) = 𝑥(𝑙) + 𝑓 ( Norm (𝑥(𝑙) ) )
+
+(2)
+
+where 𝑓 is either the attention sublayer or the feed-forward sublayer, and Norm is a normalization step
+(Chapter 2 covers exactly which normalization and exactly where it sits; for now, treat it as “rescale the
+vector before reading it”). In words: a sublayer never overwrites 𝑥(𝑙) – it reads a normalized copy, computes
+an update, and the update is added back onto the original, un-normalized 𝑥(𝑙) . Shape-wise, 𝑓(⋅) must
+return something of shape (𝑆, 𝑑model ), the same shape it was handed, or the addition would not typecheck. That shape constraint is exactly why 𝑑model stays constant across every block in a model.
+residual stream (in)
+
+each box below reads a normalized COPY
+of the stream but adds its result back
+onto the ORIGINAL stream value at +
+
+norm
+
+attention sublayer
+
++
+norm
+
+MLP sublayer
+
++
+
+residual stream (out) -- same width as (in)
+
+residual stream (stored state, constant width)
+
+computation (a sublayer)
+
+Figure 2: One block, showing the residual stream as the vertical bar and the two sublayers branching off
+it. Notice the stream’s width never changes – only what gets added to it does.
+Figure source: figures/source/fig_decoder_block_anatomy.py.
+The attention sublayer. Each block’s attention sublayer projects the normalized stream into three rolespecific views:
+𝑄=𝑥
+̃𝑊𝑄 ,
+
+𝐾=𝑥
+̃𝑊𝐾 ,
+
+5
+
+𝑉 =𝑥
+̃𝑊𝑉
+
+(3)
+
+where 𝑥
+̃ = Norm (𝑥), and 𝑊𝑄 , 𝑊𝐾 , 𝑊𝑉 ∈ ℝ𝑑model ×𝑑model are learned weight matrices. 𝑄, 𝐾, 𝑉 each have
+shape (𝑆, 𝑑model ). Rather than using the full width at once, attention splits 𝑑model into 𝐻𝑞 heads of width
+𝑑head = 𝑑model /𝐻𝑞 , so each of 𝑄, 𝐾, 𝑉 is reshaped to (𝐻𝑞 , 𝑆, 𝑑head ) and every head runs the attention
+computation below independently, in parallel, on its own 𝑑head -wide slice. In words: 𝑄 asks “what is this
+position looking for,” 𝐾 answers “what does this position offer,” and 𝑉 is “what this position actually
+contributes if attended to” – three different linear views of the same vector, learned separately.
+Notation note
+We write 𝐻𝑞 , not just 𝐻, for the number of heads – specifically the number of query heads. In this
+chapter every head has its own matching key/value head, so there is no need yet to distinguish
+a separate key/value head count. Chapter 3 introduces designs (grouped- query and multi-query
+attention) where the query head count and the key/value head count are genuinely different numbers,
+at which point the “q” in 𝐻𝑞 starts pulling its weight notationally.
+For one head, scaled dot-product attention is:
+Attention (𝑄, 𝐾, 𝑉 ) = softmax (
+
+𝑄𝐾 ⊤
++ 𝑀 )𝑉
+√𝑑head
+
+(4)
+
+𝑄𝐾 ⊤ has shape (𝑆, 𝑆) – one raw compatibility score per query/key pair. Dividing by √𝑑head keeps those
+scores from growing too large as 𝑑head grows (large scores would push softmax toward a near-one-hot
+output before the model has learned anything useful). 𝑀 is the causal mask, and it is the entire reason
+a decoder can be trained on whole sequences at once without cheating:
+0
+if 𝑗 ≤ 𝑖
+−∞ if 𝑗 > 𝑖
+
+𝑀𝑖𝑗 = {
+
+(5)
+
+In words: position 𝑖’s query is allowed to see keys from position 𝑖 itself and every position before it (𝑗 ≤
+𝑖); a key from any later position (𝑗 > 𝑖) gets an additive −∞, which softmax then sends to exactly zero
+weight. This is not “attend only to the previous token” – it is “attend to every earlier token, plus yourself,
+and nothing later.” Figure 3 below makes the difference concrete: notice that the shape of the allowed
+region is a solid triangle, not a single diagonal line.
+
+6
+
+Which positions may each query attend to?
+
+query position (attending FROM)
+
+key position (attended TO)
+
+The
+
+cat
+
+sat
+
+on
+
+the
+
+The
+
+self
+
+x
+
+x
+
+x
+
+x
+
+cat
+
+OK
+
+self
+
+x
+
+x
+
+x
+
+sat
+
+OK
+
+OK
+
+self
+
+x
+
+x
+
+on
+
+OK
+
+OK
+
+OK
+
+self
+
+x
+
+the
+
+OK
+
+OK
+
+OK
+
+OK
+
+self
+
+allowed (key position <= query position)
+blocked (key is in the future)
+Note: row 5 (the decoded token "the") can see all 5 columns -- prompt tokens
+plus itself. No row can see anything to the right of its own position.
+
+Figure 3: Causal visibility for the chapter’s running example: the allowed region (blue) is everything at
+or before a row’s own position, not a single step back – position 5 (“the”) can see all 4 prompt tokens plus
+itself.
+Figure source: figures/source/fig_causal_attention_mask.py.
+After softmax, each row of the (𝑆, 𝑆) weight matrix sums to 1 and is used to take a weighted average
+of 𝑉 ’s rows, producing a (𝑆, 𝑑head ) output per head. The 𝐻𝑞 heads’ outputs are concatenated back to
+(𝑆, 𝑑model ) and passed through one more learned projection 𝑊𝑂 before being added back onto the residual
+stream, per Equation 2.
+The feed-forward sublayer. The other sublayer, 𝑓 in Equation 2, is a position-wise feed-forward
+network: a small two-matrix (or, as Chapter 2 will show, sometimes three-matrix) network applied
+independently to every position’s vector, with no cross-position mixing at all – all the cross-position
+mixing in a block happens in the attention sublayer.
+(𝐿)
+
+Logits and next-token prediction. After the last block, the residual stream at the final position, 𝑥𝑆 ∈
+ℝ𝑑model , is projected by an output head 𝑊out ∈ ℝ𝑑model ×𝑉 into a vector of logits over the vocabulary, then
+turned into a probability distribution:
+(𝐿)
+
+𝑝(next token = 𝑣) = softmax (𝑥𝑆 𝑊out )𝑣
+
+(6)
+
+In words: one more linear projection turns “the model’s final understanding of this position” into one raw
+score per vocabulary entry, and softmax turns those scores into a valid probability distribution the model
+(or a sampling procedure) can pick a token from. Nothing about this step is special to the last position
+– every position produces its own next-token distribution, but only the last position’s distribution is the
+one used to actually extend the sequence, since the earlier positions’ “next tokens” are already fixed by
+the real input.
+
+7
+
+Working approximation
+This chapter presents one decoder block’s attention and feed-forward sublayers as the complete
+story. A real model stacks 𝐿 of these blocks, each with its own weights, and Chapter 2 will show
+that the normalization step glossed over here (Norm in Equation 2) has a specific, consequential form
+and placement. Treat everything in this chapter as the shared skeleton that later chapters attach real
+components to – it is correct as far as it goes, but it goes only as far as “here is the skeleton every
+modern decoder shares.”
+
+3.6 Worked example
+We trace a complete, tiny causal decoder over the prompt "The cat sat on" (4 tokens, processed by
+prefill) followed by one decode step that generates a 5th token, "the". Every number below is produced
+by data/worked-examples/tiny_decoder_trace.py, not hand-derived – re-run the script if you want to
+check or extend the arithmetic.
+Toy configuration (deliberately tiny; a real model’s dimensions are hundreds to thousands of times
+larger, but the mechanics are identical): 𝑑model = 4, 𝐻𝑞 = 2 heads of 𝑑head = 2 each, one block. Toy
+(untrained, hand-picked) embeddings:
+Token
+
+Embedding
+
+The
+
+(1, 0, 1, 0)
+
+cat
+
+(0, 1, 0, 1)
+
+sat
+
+(1, 1, 0, 0)
+
+on
+
+(0, 0, 1, 1)
+
+the
+
+(1, 0, 0, 1)
+
+Before tracing the numbers, the same distinction shown here holds at any scale: prefill happens once,
+decode steps happen once per generated token, and each decode step only ever adds one new position’s
+worth of state.
+
+8
+
+Prefill: build the whole KV-cache from the prompt in one pass
+The
+
+cat
+
+sat
+
+on
+
+Prefill forward pass (attention + MLP, all 4 tokens at once)
+
+KV-cache after prefill (one slot per prompt token)
+
+K/V[0]
+
+K/V[1]
+
+K/V[2]
+
+K/V[3]
+
+Decode step: one new token reuses the whole cache, then extends it by one slot
+
+new token
+
+the
+
+Decode forward pass (1 new token attends to all cached K/V)
+
+KV-cache after this decode step (cache grew by exactly one slot)
++1 new K/V pair appended
+
+K/V[0]
+
+K/V[1]
+
+K/V[2]
+
+K/V[3]
+
+K/V[4]
+
+Repeated once per generated token until a stop condition (dotted = conditional, not always taken):
+
+stored (tokens / cache)
+
+computation (forward pass)
+
+dotted = conditional / not-always-taken flow
+
+Figure 4: Prefill builds the whole cache from the prompt in one pass; each decode step afterward reads
+the entire cache but appends exactly one new K/V slot to it. This figure is reused as-is from the project’s
+existing KV-cache demonstration – the mechanics don’t change between this chapter’s introduction of
+the idea and Chapter 3′s deeper treatment of it.
+Figure source: figures/source/kv_cache_demo.py.
+Prefill. All 4 prompt tokens are processed in one pass. After computing 𝑄, 𝐾, 𝑉 for all 4 positions and
+applying the causal mask, head 0′s softmax attention weights are:
+Query position
+
+attends to The
+
+cat
+
+sat
+
+on
+
+The (pos 1)
+
+1.000
+
+–
+
+–
+
+–
+
+cat (pos 2)
+
+0.500
+
+0.500
+
+–
+
+–
+
+sat (pos 3)
+
+0.140
+
+0.576
+
+0.284
+
+–
+
+on (pos 4)
+
+0.109
+
+0.449
+
+0.221
+
+0.221
+
+Every row sums to 1.0, and every blocked (future) position is correctly absent, not just small – Equation 5
+sent those entries to −∞ before the softmax ever ran. Notice sat (row 3) puts most of its weight (0.576)
+on cat, not on itself or on The; that specific number is a direct, checkable consequence of the toy 𝑊𝑄 /
+𝑊𝐾 matrices, not a property of causal masking itself – causal masking only decides which positions are
+eligible, never how the weight is split among them.
+
+9
+
+Prefill’s output for this block is the full (4, 4) residual stream after the attention sublayer’s update has
+been added in – this is exactly the state that gets cached for reuse (Chapter 3 gives this state a name: the
+KV-cache) rather than recomputed on the next step.
+Decode step. To generate token 5, the model embeds only the new token the, computes its own 𝑄, 𝐾, 𝑉
+(a single new row, not a (5, 4) recomputation), and reuses the 4 cached 𝐾/𝑉 rows from prefill unchanged.
+Head 0′s attention weights for this one new query, over all 5 now-available keys, are:
+Query position
+
+The
+
+cat
+
+sat
+
+on
+
+the (self)
+
+the (pos 5)
+
+0.075
+
+0.310
+
+0.153
+
+0.153
+
+0.310
+
+Two things to check against Equation 5: this row has no blocked entries, because position 5 is the last
+position and every other position is at or before it; and the weights still sum to 1.0 across all 5 entries. The
+state reused from prefill (K/V for positions 1 through 4) is bit-for-bit identical to what prefill produced –
+generating token 5 did not touch positions 1 through 4 at all.
+
+3.7 Compare and contrast
+Table 2: Encoder-decoder vs. decoder-only: this workbook’s scope is decoder-only, stated explicitly rather
+than left implicit
+Aspect
+
+Encoder-decoder
+
+Decoder-only
+
+Objective
+
+An encoder reads the full in­ One stack reads and generates
+put bidirectionally; a separate using the same causally-masked
+decoder generates output condiself-attention throughout
+tioned on it
+
+Typical use
+
+Translation,
+summarization
+with a distinct source/target
+
+Open-ended text generation,
+chat, most current general-purpose LLMs
+
+Covered in this workbook
+
+Not covered – named here only
+for contrast
+
+Every remaining chapter assumes this architecture
+
+3.8 Check your understanding
+See workbooks/04-llm-architecture/questions.yaml for the machine-checked question records for
+this chapter (schema: shared/question-schema.yaml), ids q-04-ch1-001 through q-04-ch1-007. Full
+solutions are in the answer key (Section 5), not below, so you can attempt these before checking:
+1. (recall) What does the residual stream carry from one block to the next – the raw output of the most
+recent sublayer, or something else? ________________________________________________
+2. (explanation) Why does a decoder-only objective let the model generate text one
+token at a time, in a way that a bidirectional encoder’s objective does not?
+________________________________________________
+3. (calculation) For a toy config with 𝑑model = 8, 𝐻𝑞 = 2 heads, and 𝑆 = 5: what is 𝑑head , and
+what is the shape of the raw attention score matrix 𝑄𝐾 ⊤ for one head, before masking?
+________________________________________________
+4. (misconception_diagnosis) True or false, and why: “causal masking means each token can only
+attend to the immediately previous token.” ________________________________________________
+10
+
+5. (misconception_diagnosis) True or false, and why: “the residual stream
+separate memory database the model writes facts into and reads back
+________________________________________________
+
+is a
+later.”
+
+(Space intentionally left for written answers if you are using this as a workbook exercise, not only a reading.)
+Common misconception
+“The Transformer generates the entire response in one forward pass.” It does not. One forward
+pass produces exactly one next-token distribution, for one additional position. A 50-token response
+requires at least 50 forward passes (one prefill pass over the prompt, then one decode step per
+generated token) – the model has no mechanism for “seeing ahead” to token 50 while generating
+token 2. This misconception is worth taking seriously because it is exactly backward from how latency
+actually behaves in production: generation cost scales with response length, almost independently of
+how long the prompt was processed in a single prefill pass.
+
+3.9 Applied exercise
+Pick a toy config of your own: choose 𝑑model , number of layers 𝐿, and number of heads 𝐻𝑞 (make sure
+𝑑model is divisible by 𝐻𝑞 ). For a single token’s forward path through one full block, write down the
+shape of every intermediate tensor: the input vector, 𝑄/𝐾/𝑉 before and after splitting into heads, the
+per-head attention output, the concatenated output, and the vector added back onto the residual stream.
+Check your shapes against Equation 3 and Equation 4 – every shape should be traceable to 𝑑model and
+𝐻𝑞 alone. If you want a check with real numbers instead of just shapes, re-run data/worked-examples/
+tiny_decoder_trace.py with your own 𝑑model /𝐻𝑞 and toy embeddings.
+
+3.10 Interview lens
+A common interview framing is: “Walk me through what happens differently between processing a 500token prompt for the first time versus generating the 501st token.” A strong answer distinguishes prefill (all
+500 positions processed together, in one pass, building the full KV-cache) from a decode step (one new
+position, reusing the 500 cached K/V rows unchanged, only computing K/V for the new token) – and
+explicitly rejects “the model re-reads the whole prompt every time,” which is the same misconception as
+this chapter’s headline one, just phrased in systems terms. See workbook 02 (ML Interview Practice) for
+more on how to structure this kind of answer under time pressure.
+
+3.11 One-page recap
+• A decoder-only model conditions strictly on earlier positions; nothing about its objective lets it “see
+ahead.”
+• The residual stream is additive and constant-width: sublayers add updates to it, they never replace it or
+change its dimensionality.
+• Attention has three roles (𝑄, 𝐾, 𝑉 ), a causal mask that allows every earlier-or-equal position (not just
+the immediately previous one), and a softmax that turns raw scores into a weighted average.
+• Prefill processes the whole prompt in one pass and produces cached state; each decode step reuses that
+cached state and adds exactly one new position’s worth of new state.
+• Generating 𝑁 tokens costs at least 𝑁 forward passes – there is no single-pass shortcut.
+
+11
+
+3.12 Sources and further reading
+Primary source for this chapter: [1], the original Transformer paper, which this chapter’s notation and
+equations follow directly. Secondary/supporting: [2], used here only for the encoder-decoder vs. decoderonly framing convention, not for any equation. See sources/registry.yaml for full entries and current
+verification status.
+
+4 Chapter 2: Anatomy of a Modern Decoder
+The Components Behind Today’s LLMs
+
+4.1 Learning objectives
+By the end of this chapter you should be able to:
+• Explain RMSNorm’s formula and state precisely what it drops relative to LayerNorm.
+• Explain RoPE’s rotation well enough to say why it encodes relative rather than absolute position.
+• Explain why a gated feed-forward layer needs three weight matrices instead of two, and what that costs
+in parameters.
+• For any one of RMSNorm, pre-norm placement, RoPE, SwiGLU, or tied embeddings, say whether it is
+an architectural convention (a common but non-forced choice) or something closer to a fundamental
+requirement – and justify the answer rather than asserting it.
+
+4.2 Why this matters
+Chapter 1 gave you the skeleton every decoder shares: a residual stream, an attention sublayer, a feedforward sublayer, a causal mask. If you opened a 2017 Transformer and a 2025-era open-weight model
+side by side, the skeleton would look identical – and almost every detail inside it would be different. This
+chapter fills in what actually changed, component by component, and – just as importantly – asks of
+each one whether it’s load-bearing or just a common convention. That distinction matters practically:
+a convention is something you could swap out without breaking the model’s ability to function; a
+requirement is something the architecture depends on. Confusing the two is a fast way to either overexplain a trivial implementation choice or under-explain something that quietly determines a model’s
+memory footprint.
+
+4.3 Mental model or analogy
+This chapter reuses Chapter 1′s residual-stream picture rather than introducing a second, competing
+analogy – the “running total on a receipt” from Chapter 1 still describes exactly what’s happening here.
+What’s new in this chapter is which specific operation fills each slot in that picture (Figure 5 below), not a
+new mental model for the stream itself.
+
+12
+
+4.4 Visual overview
+RMSNorm
+
+attention sublayer
+(RoPE rotates Q, K
+before the dot product)
+
++
+RMSNorm
+
+SwiGLU MLP
+
++
+
+computation (attention / SwiGLU MLP)
+RMSNorm (fills the generic "norm" slot from ch. 1)
+
+Figure 5: The same residual-stream skeleton from Chapter 1, now filled in with the specific components
+a modern decoder actually uses: RMSNorm in the norm slots, RoPE applied inside attention (not as a
+separate block), and a SwiGLU-gated MLP in the feed-forward slot.
+Figure source: figures/source/fig_annotated_modern_block.py.
+
+4.5 Technical core
+RMSNorm. Chapter 1 left Norm in Equation 2 unspecified. The original Transformer used LayerNorm,
+which both re-centers (subtracts the mean) and re-scales (divides by the standard deviation) a vector, then
+applies a learned scale and a learned bias. RMSNorm drops both the mean-subtraction and the learned
+bias, keeping only a rescale by root- mean-square magnitude:
+𝑥
+RMSNorm (𝑥) =
+⊙ 𝛾,
+RMS (𝑥)
+
+RMS (𝑥) =
+
+1
+
+𝑑model
+
+∑ 𝑥2𝑘
+𝑑
+model
+𝑘=1
+√
+
+(7)
+
+where 𝑥 ∈ ℝ𝑑model is one position’s vector, 𝛾 ∈ ℝ𝑑model is a learned per-dimension scale, and ⊙ is elementwise multiplication. In words: measure the vector’s overall magnitude (RMS), divide it out so the vector
+has unit RMS, then let a learned per-dimension scale stretch or shrink each dimension back. There is no
+learned shift and no mean-subtraction step at all.
+Common misconception
+“RMSNorm and LayerNorm are identical except for naming.” They are not. RMSNorm drops
+mean-centering (the 𝑥 − mean (𝑥) step) and the learned bias term, not just the bias. Dropping meancentering is the more consequential change: it means RMSNorm never asks “is this vector’s average
+component large or small,” only “is this vector’s overall magnitude large or small.” Both choices are
+motivated by the same practical benefit – fewer operations per normalization call, at a cost most
+current large decoders have judged acceptable – but “fewer operations” and “identical except for
+naming” are very different claims.
+
+13
+
+Where normalization sits. Equation 2 wrote Norm as happening before handing the vector to a sublayer
+– that placement is called pre-norm. The original Transformer instead normalized after the sublayer’s
+output was added back onto the stream (post-norm). A third option, sandwich-norm, applies normalization in both places around the same sublayer.
+Table 3: Pre-norm vs. post-norm vs. sandwich-norm: what changes is placement, not the normalization
+formula itself
+Placement
+
+Where norm sits
+
+Typical motivation
+
+Pre-norm
+
+Before the sublayer reads the
+stream
+
+Training stability at large depth:
+gradients flow through an unnormalized residual path all the
+way back
+
+Post-norm
+
+After the sublayer’s output is
+added to the stream
+
+The original placement; keeps
+the stream itself bounded, at
+some training-stability cost as
+depth grows
+
+Sandwich-norm
+
+Both before and after the sub­ Attempts to recover some of
+layer
+post-norm’s boundedness without losing pre-norm’s stability
+
+Same sublayer, same residual add -- only where "norm" sits changes
+pre-norm
+
+norm
+
+sublayer
+
++
+
+post-norm
+
+sublayer
+
+norm
+
++
+
+sandwich-norm
+
+norm
+
+sublayer
+
+norm
+
++
+blue = residual stream (bypasses the sublayer at the + point)
+
+Figure 6: The same sublayer and the same residual addition in all three panels – only where the norm
+box sits changes.
+Figure source: figures/source/fig_norm_placement.py.
+
+14
+
+Working approximation
+“Pre-norm is more stable to train at depth” is a widely-repeated, well-supported rule of thumb, not a
+proof that pre-norm dominates post-norm on every axis. Pre-norm’s stability comes with a representational-capacity cost as depth grows, which is part of why sandwich-norm exists at all – if pre-norm
+were unconditionally better, there would be no reason to pay for a second normalization step. Treat
+“which placement is best” as a genuine, config-dependent tradeoff, not a settled question.
+RoPE. Positional information has to enter the model somewhere, since attention itself (Equation 4) treats
+its inputs as an unordered set – nothing in 𝑄𝐾 ⊤ depends on token order unless something makes it
+depend on order. Rotary position embeddings (RoPE) inject position by rotating each query and key vector
+by an angle proportional to its position, before the dot product in Equation 4:
+′
+𝑞𝑚
+= 𝑅𝑚 𝑞𝑚 ,
+
+𝑘𝑛′ = 𝑅𝑛 𝑘𝑛
+
+(8)
+
+where 𝑞𝑚 , 𝑘𝑛 ∈ ℝ𝑑head are a query/key pair at positions 𝑚 and 𝑛, and 𝑅𝑚 is a rotation matrix built from
+angles 𝑚𝜃1 , 𝑚𝜃2 , … that grow with position 𝑚 (in practice 𝑑head is split into 2D pairs, each pair rotated at
+its own fixed frequency 𝜃𝑗 ; Figure 7 shows one such pair). The reason this matters: rotating both vectors
+by an amount tied to their own absolute position leaves the angle between them – and therefore their dot
+′ ⊤ ′
+product 𝑞𝑚
+𝑘𝑛 – dependent only on the relative offset 𝑚 − 𝑛, not on 𝑚 and 𝑛 individually.
+Same relative offset, different absolute positions -> same angle between q and k
+
+q (pos 3)
+
+k (pos 2)
+
+q (pos 1)
+
+k (pos 0)
+
+positions (1, 0)
+
+positions (3, 2)
+
+relative offset = 1 position(s)
+
+relative offset = 1 position(s)
+
+Both panels: the angle traced between q and k is identical, because each vector
+is rotated by its OWN position, so only the difference in position survives.
+Simplified model: real RoPE rotates several 2D subspaces at different frequencies
+at once; this figure shows one subspace at one frequency to keep the geometry checkable by eye.
+
+Figure 7: Two different absolute-position pairs, (1,0) and (3,2), both with a relative offset of 1 – notice the
+angle traced between the rotated q and k vectors is the same in both panels.
+Figure source: figures/source/fig_rope_rotation.py.
+
+15
+
+Common misconception
+“RoPE adds a learned position vector to every token embedding.” It does not add anything to
+the embedding, and it is not learned. RoPE rotates the query and key vectors, inside the attention
+computation, by a fixed (not learned) angle that depends on position. The embedding table from
+Chapter 1 (Equation 1) is untouched – RoPE’s effect is purely inside Equation 4, applied fresh at every
+layer that has attention, not once at the input.
+Gated feed-forward networks and SwiGLU. Chapter 1 described the feed-forward sublayer as “a small
+two-matrix network,” deferred until now. A plain feed-forward layer is:
+FFNplain (𝑥) = 𝜎(𝑥𝑊1 )𝑊2
+
+(9)
+
+with 𝑊1 ∈ ℝ𝑑model ×𝑑ff , 𝑊2 ∈ ℝ𝑑ff ×𝑑model , and 𝜎 an elementwise activation. 𝑑ff (the expansion dimension)
+is typically several times wider than 𝑑model . A gated feed-forward layer, of which SwiGLU is the specific
+variant most current open decoders use, adds a second, parallel projection that gates the first:
+SwiGLU (𝑥) = ( Swish (𝑥𝑊1 ) ⊙ (𝑥𝑊3 ) ) 𝑊2
+
+(10)
+
+with 𝑊1 , 𝑊3 ∈ ℝ𝑑model ×𝑑ff and 𝑊2 ∈ ℝ𝑑ff ×𝑑model – three weight matrices where the plain version had two.
+In words: one branch (𝑊1 , activated) acts as a gate; a second, purely linear branch (𝑊3 ) carries a value; the
+two are multiplied elementwise before the shared output projection 𝑊2 . Nothing here makes the layer
+sparse the way a mixture-of-experts layer is (Chapter 5) – every weight in 𝑊1 , 𝑊2 , and 𝑊3 is used for
+every token; SwiGLU is a different, denser computation per token, not a routing mechanism.
+Plain MLP (two matrices)
+
+Gated MLP / SwiGLU (three matrices)
+
+input x
+
+W1, activation
+
+input x
+
+W1
+
+W3
+
+(gate, activated)
+
+(value, linear)
+
+x
+
+W2
+
+elementwise multiply
+
+W2
+
+output
+
+one path, two weight matrices (W1, W2)
+
+output
+two parallel paths (W1, W3) meet at a multiply before the shared W2 -- three weight matrices total
+
+Figure 8: A plain two-matrix MLP (left) against a gated MLP (right): the extra matrix creates a second
+parallel branch that multiplies against the first, it does not add a third sequential step.
+Figure source: figures/source/fig_gated_mlp.py.
+
+16
+
+Common misconception
+“SwiGLU makes the feed-forward block sparse like an MoE layer.” It does not. Every parameter
+in a SwiGLU feed-forward layer participates in every token’s forward pass, exactly like the plain
+version – the only change is within one dense computation (an extra multiplicative branch), not which
+parameters get used. Sparsity, in the sense Chapter 5 will use the word, means a router activates only a
+subset of available parameters per token. SwiGLU has no router and activates 100% of its own weights
+every time, same as a plain FFN.
+Tied vs. untied embeddings. The input embedding table 𝐸 from Equation 1 and the output head 𝑊out
+from Equation 6 have transposed shapes (𝑉 × 𝑑model and 𝑑model × 𝑉 ) – some models set 𝑊out = 𝐸 ⊤ (tied
+embeddings, one shared table doing both jobs), others learn two separate matrices (untied). Tying halves
+that specific parameter cost, at the cost of forcing the same table to serve two different roles (looking a
+token up vs. scoring how token-like a hidden vector is).
+Implementation-dependent detail
+Whether a given model ties its embeddings is a genuine implementation choice that varies across
+model families, and this workbook does not have a primary source specifically dedicated to when tying
+is preferred (see reports/04_source_audit.md’s tracked gap on this topic). Treat “tied embeddings”
+as a real, checkable fact about any specific model’s config – not as a claim this workbook makes a
+historical or performance argument about.
+Convention vs. requirement, applied. Of everything in this chapter, RoPE-vs-some-other-positionalscheme and tied-vs-untied-embeddings are conventions: a model is a well-defined, functioning decoder
+either way, and real, current models make both choices differently. Pre-norm-vs-post-norm is closer to a
+requirement-shaped tradeoff at large depth – it is not free to ignore once 𝐿 is large, even though small
+models tolerate either. RMSNorm vs. LayerNorm is closest to a pure convention: it changes cost, not what
+the model is capable of expressing.
+Common misconception
+“Every modern decoder uses exactly the same block ordering.” It does not. This chapter’s
+components (RMSNorm, pre-norm, RoPE, SwiGLU) describe a common, current combination, not a
+single mandatory recipe. Norm placement alone has three real variants in production models (Table 3);
+tying is a per-model choice; some models still use post-norm. “Modern decoder” describes a family of
+closely related designs, not one design.
+
+4.6 Worked example
+Parameter cost of gating. Using data/worked-examples/gated_mlp_params.py, with 𝑑model = 8 and
+biases excluded from the count (a stated assumption, per notation.yaml’s assumption-checklist habit):
+
+17
+
+Table 4: Gating adds a third matrix – at the same expansion width, that’s a flat 1.5x parameter cost, which
+is exactly why gated models typically shrink 𝑑ff instead of accepting it
+Design
+
+𝑑ff
+
+Formula
+
+Parameters
+
+Plain MLP
+
+32
+
+2 𝑑model 𝑑ff
+
+512
+
+Gated MLP, same 𝑑ff
+
+32
+
+3 𝑑model 𝑑ff
+
+768 (1.5x plain)
+
+Gated MLP, compensated 𝑑ff
+
+21
+
+3 𝑑model 𝑑ff
+
+504 (0.98x plain)
+
+Holding 𝑑ff fixed, gating is exactly 1.5x the plain design’s parameters, because the formula gains one more
+𝑑model × 𝑑ff term (3 matrices instead of 2, all the same size). Rather than accept that 1.5x, many real gatedMLP models shrink 𝑑ff (here, to about 23 of the plain design’s width) to land back near the plain design’s
+total parameter count. Both rows are implementation choices – nothing about SwiGLU forces either one
+– but the 1.5x number is a fixed, checkable consequence of adding a third same-sized matrix, not a rough
+estimate.
+
+4.7 Compare and contrast
+Table 5: Two ways to inject positional information, compared on what they cost and how they behave
+outside the training distribution
+Aspect
+
+Learned absolute positional embedding
+
+RoPE
+
+What it encodes
+
+Each position gets its own
+learned vector
+
+A rotation angle, applied inside
+attention, derived from position
+
+Extrapolation to longer se­ Poor – positions beyond the
+quences than trained on
+trained range have no learned
+vector at all
+
+Better, though not unlimited –
+the rotation formula is defined
+for any position, but very long
+offsets still stress the model in
+practice
+
+Parameter cost
+
+One full vector per position, up
+to a fixed max length
+
+None – RoPE has no learned parameters of its own
+
+4.8 Check your understanding
+See workbooks/04-llm-architecture/questions.yaml for the machine-checked question records for
+this chapter, ids q-04-ch2-001 through q-04-ch2-010. Full solutions are in the answer key (Section 6):
+1. (calculation) For a query/key pair at positions 1 and 0 (relative offset 1), and a second pair at positions
+3 and 2 (also relative offset 1), what does RoPE guarantee about the two pairs’ dot products, and what
+does it not guarantee? ________________________________________________
+2. (compare_and_contrast) Name the two operations RMSNorm omits relative to LayerNorm.
+________________________________________________
+3. (explanation) Why does a gated feed-forward layer need three weight matrices instead of two – what does the third matrix do that the first one doesn’t already?
+________________________________________________
+
+18
+
+4. (calculation) Using the formulas in this chapter, what is the parameter count of a plain MLP with
+𝑑model = 16, 𝑑ff = 64? ________________________________________________
+5. (misconception_diagnosis) Is pre-norm’s popularity mainly about training stability or mainly about
+final model quality? ________________________________________________
+6. (misconception_diagnosis) True or false, and why: “RoPE adds a learned position vector to every
+token embedding.” ________________________________________________
+7. (misconception_diagnosis) True or false, and why: “SwiGLU makes the feed-forward block sparse
+like an MoE layer.” ________________________________________________
+(Space intentionally left for written answers if you are using this as a workbook exercise, not only a reading.)
+
+4.9 Applied exercise
+Here is a (fictional, illustrative) model config excerpt:
+hidden_size: 2048
+num_attention_heads: 16
+intermediate_size: 5504
+hidden_act: "silu"
+rms_norm_eps: 1e-5
+tie_word_embeddings: false
+rope_theta: 10000.0
+
+From this excerpt alone: (a) which normalization scheme does this model use, and how do you know from
+a field name alone versus what you’d need to check the model’s own code to be sure? (b) does it use a gated
+feed-forward layer – what field is the giveaway? (c) is intermediate_size closer to 4 × hidden_size (a
+plain-MLP-style ratio) or closer to 23 × 4 × hidden_size (a gated, compensated ratio, per this chapter’s
+worked example)? (d) are embeddings tied? Write your reasoning for each, not just the answer – this is
+the same skill Chapter 6′s case studies will ask of you at real-model scale.
+
+4.10 Interview lens
+“Why does this model use RoPE instead of learned positional embeddings?” A strong answer states RoPE’s
+relative-position property (Equation 8) as the mechanism, names at least one concrete consequence
+(no learned positional parameters; different, generally better long-context extrapolation behavior than a
+learned table with a fixed max length), and resists the temptation to just say “it’s more modern” without
+saying what specifically changed. “Walk me through what SwiGLU changes about the MLP” is answered
+well by describing the extra parallel branch and the elementwise multiply (Equation 10), explicitly
+including the 1.5x-or-compensated parameter tradeoff from this chapter’s worked example – an answer
+that skips the parameter cost entirely is incomplete for a systems-flavored interview.
+
+4.11 One-page recap
+• RMSNorm drops both mean-centering and the learned bias LayerNorm has, keeping only a magnitude
+rescale.
+• Pre-norm, post-norm, and sandwich-norm describe where normalization sits relative to a sublayer and
+the residual add – not three different normalization formulas.
+• RoPE rotates queries and keys by a position-dependent angle inside attention, so their dot product
+depends only on relative offset – it adds nothing to the embedding table and learns nothing.
+
+19
+
+• A gated (SwiGLU-style) feed-forward layer adds one parallel matrix and one elementwise multiply; at
+matched expansion width that’s a flat 1.5x parameter cost, which is why real models often shrink the
+expansion width to compensate.
+• Tied vs. untied embeddings and RoPE-vs-alternative are conventions; norm placement is closer to a
+real training-stability tradeoff at depth. None of this chapter’s components is used identically by every
+current model.
+
+4.12 Sources and further reading
+Primary sources for this chapter: [3] for RoPE, [4] for RMSNorm, [5] for SwiGLU/gated feed-forward
+layers. Secondary/ supporting: [2], used for the norm-placement comparison framing and to cross-check
+which real model families use which combination of these components; note that this source is actively
+updated (see its sources/registry.yaml entry for the last-verified date), so treat any model-specific
+detail drawn from it as current as of that check, not timeless. See sources/registry.yaml for full entries
+and current verification status, and reports/04_source_audit.md for the two tracked sourcing gaps this
+chapter works around (tied embeddings has no dedicated primary source; the sandwich-norm claim leans
+on a secondary source rather than a model’s own technical report).
+
+5 Answer Key: Chapter 1
+Full solutions to Chapter 1′s “Check your understanding” questions (Section 3). Question records (with the
+same content, plus difficulty and source tags) are in workbooks/04-llm-architecture/questions.yaml,
+ids q-04-ch1-001 through q-04-ch1-007.
+1. (recall) What does the residual stream carry from one block to the next?
+The running sum of the original embedding plus every sublayer update added so far – not just the most
+recent sublayer’s raw output. Per the residual update 𝑥(𝑙+1) = 𝑥(𝑙) + 𝑓(Norm (𝑥(𝑙) )), each block adds its
+sublayer’s output onto the existing stream value; it never replaces the stream with just the new sublayer’s
+output.
+Common wrong answer: “the output of the most recent attention or MLP sublayer” – that describes only
+the update being added in that step, not the accumulated stream value.
+2. (explanation) Why does a decoder-only objective allow one-token- at-a-time generation?
+Because the causal mask restricts every position to attending only to itself and earlier positions, the same
+forward-pass structure used in training also directly defines how to generate: at each position, produce
+a next-token distribution conditioned only on what came before. A bidirectional encoder’s positions can
+attend to later positions too, so its representation at a given position already depends on tokens that would
+not exist yet during generation – that structure cannot be reused one token at a time the way a causal
+one can.
+Common wrong answer: “decoder-only models are just smaller/simpler” – size is unrelated; the difference
+is specifically about which positions are allowed to attend to which.
+3. (calculation) 𝑑model = 8, 𝐻𝑞 = 2, 𝑆 = 5: find 𝑑head and the shape of 𝑄𝐾 ⊤ for one head.
+𝑑head = 𝑑model /𝐻𝑞 = 8/2 = 4. The raw attention score matrix for one head is (𝑆, 𝑆) = (5, 5) – one score
+per query/key pair, regardless of 𝑑head .
+
+20
+
+Common wrong answer: (𝑆, 𝑑head ) = (5, 4) – this confuses the per-head attention output shape (which is
+(𝑆, 𝑑head )) with the score matrix shape (always (𝑆, 𝑆)).
+4. (misconception_diagnosis) “Causal masking means each token can only attend to the immediately previous token.”
+False. Causal masking allows a position to attend to every position at or before it (𝑗 ≤ 𝑖), not only the
+single immediately preceding position. The mask is 0 (allowed) for every 𝑗 ≤ 𝑖 and −∞ (blocked) only
+for 𝑗 > 𝑖 – a full lower-triangular region, not a single diagonal band.
+Common wrong answer’s origin: conflating causal masking with a fixed local window (sliding-window
+attention, a separate mechanism covered in a later chapter). Causal masking alone imposes no limit on
+how far back a position can look.
+5. (misconception_diagnosis) “The residual stream is a separate memory database the model
+writes facts into and reads back later.”
+False. The residual stream is a single vector per position, updated additively in place – not a separate,
+queryable store. Every sublayer’s output is added directly onto the same fixed-width vector that already
+exists at that position; there is no separate storage structure and no mechanism for a later block to
+selectively “query” what an earlier block specifically wrote. It can only read the accumulated sum.
+Common wrong answer’s origin: taking this chapter’s own receipt analogy too literally – a real receipt’s
+lines stay individually readable; the residual stream’s contributions are summed into one vector and
+cannot be individually read back out. This is exactly the analogy’s stated breakdown point.
+6. (design, applied exercise) Full tensor-shape trace for your own toy config.
+For config (𝑑model , 𝐿, 𝐻𝑞 ) with 𝑑model divisible by 𝐻𝑞 : input vector (𝑑model , ); 𝑄/𝐾/𝑉 before splitting,
+(𝑑model , ) each (or (𝑆, 𝑑model ) for a full sequence); after splitting into heads, (𝐻𝑞 , 𝑑head ) where 𝑑head =
+𝑑model /𝐻𝑞 ; per-head attention output, (𝑑head , ) per head; concatenated across heads, back to (𝑑model , );
+final vector added to the residual stream, (𝑑model , ) – matching the input shape exactly, since addition
+requires matching shapes.
+Common mistake: forgetting to concatenate the per-head outputs back to 𝑑model width before the output
+projection and residual addition – leaving the answer at the per-head shape.
+7. (explanation, interview-style) “Walk me through what happens differently between processing a 500-token prompt versus generating the 501st token.”
+A strong answer: (1) names prefill – all 500 positions processed together in one pass, building K/V for
+every position; (2) names the decode step – exactly one new position processed, computing only its own
+new K/V and reusing the 500 cached K/V rows unchanged; (3) explicitly states that generating the 501st
+token does not reprocess or re-read the first 500 tokens.
+Evaluation criteria: does the answer name both phases correctly, does it state what specifically is reused
+(K/V rows) versus recomputed (the one new position’s K/V), and does it avoid the “re-reads the whole
+prompt” framing this chapter’s headline misconception warns against?
+Weak-answer pattern: “decoding is faster because the prompt is already processed,” without stating what
+specifically is reused or why that reuse is what makes it faster.
+
+21
+
+6 Answer Key: Chapter 2
+Full solutions to Chapter 2′s “Check your understanding” questions (Section 4). Question records are in
+workbooks/04-llm-architecture/questions.yaml, ids q-04-ch2-001 through q-04-ch2-010.
+1. (calculation) RoPE, positions (1,0) and (3,2), both relative offset 1: what’s guaranteed, what
+isn’t?
+RoPE guarantees the angle between the rotated query and key vectors is identical in both cases, because
+each vector is rotated by an amount tied to its own position, so only the relative offset (1, in both cases)
+survives. It does not guarantee the dot products are numerically equal in general – the dot product also
+depends on the original (pre-rotation) vectors’ magnitudes and directions, which can differ between the
+two pairs.
+Common overreach: claiming RoPE guarantees identical dot products for any two pairs with the same
+relative offset – this conflates the angle (guaranteed to match) with the dot product (which also depends
+on vector magnitudes).
+2. (compare_and_contrast) Two operations RMSNorm omits relative to LayerNorm.
+Mean-centering (subtracting the vector’s mean before rescaling) and the learned bias term (an additive
+per-dimension shift after rescaling). LayerNorm computes (𝑥 − mean (𝑥))/ std (𝑥) ⊙ 𝛾 + 𝛽; RMSNorm
+computes 𝑥/ RMS (𝑥) ⊙ 𝛾 – no mean subtraction and no 𝛽 term.
+Common incomplete answer: naming only the missing bias and missing that mean-centering is also gone
+– dropping mean-centering is the more consequential of the two omissions.
+3. (explanation) Why three matrices for a gated feed-forward layer?
+The third matrix (𝑊3 , the “value” branch) provides a second, purely linear projection of the input that
+gets elementwise-multiplied against the first matrix’s activated output (𝑊1 , the “gate” branch) before the
+shared output projection (𝑊2 ). 𝑊1 alone only produces one activated signal; 𝑊3 gives something for that
+signal to gate.
+Common wrong answer: describing the third matrix as making the network “deeper” – it does not; 𝑊1 and
+𝑊3 are parallel branches computed from the same input, not a longer sequential chain.
+4. (calculation) Plain MLP, 𝑑model = 16, 𝑑ff = 64: parameter count.
+2 𝑑model 𝑑ff = 2 × 16 × 64 = 2048
+parameters
+(verified
+gated_mlp_params.py’s formula, instantiated at these dimensions).
+
+by
+
+data/worked-examples/
+
+Common slip: computing only one matrix’s parameter count (1024) and forgetting the second, or applying
+the gated-MLP (3x) formula by mistake.
+5. (misconception_diagnosis) Pre-norm’s popularity: stability or quality?
+Mainly training stability at depth, not final model quality. Pre-norm trades away some representational
+capacity for a more stable gradient path through an un-normalized residual stream as 𝐿 grows. Sandwichnorm’s existence (paying for a second normalization step around the same sublayer) is direct evidence
+that pre-norm alone is understood to give something up, not that it is a strict improvement.
+Common wrong answer: treating pre-norm as simply “the new correct default” with no acknowledged
+tradeoff.
+
+22
+
+6. (misconception_diagnosis) “RoPE adds a learned position vector to every token embedding.”
+False. RoPE rotates the query and key vectors inside the attention computation, at every layer that has
+attention – it adds nothing to the embedding table, and the rotation angles are fixed by position, not
+learned.
+Common wrong answer’s origin: conflating RoPE with learned absolute positional embeddings (an older,
+different scheme that does add a learned per-position vector directly to the embedding).
+7. (misconception_diagnosis) “SwiGLU makes the feed-forward block sparse like an MoE layer.”
+False. Every weight in a SwiGLU feed-forward layer is used for every token, exactly like a plain feedforward layer. Sparsity, in the mixture-of-experts sense, means a router activates only a subset of available
+parameters per token – SwiGLU has no router and always uses 100% of its own weights.
+Common wrong answer’s origin: the word “gated” sounds like it could mean “selecting a subset,” but the
+gate here is a continuous, dense elementwise multiply applied to every token, not a discrete routing
+decision.
+8. (design, applied exercise) Reading a model config excerpt.
+Given hidden_size: 2048, num_attention_heads: 16, intermediate_size: 5504, hidden_act: "silu",
+rms_norm_eps: 1e-5, tie_word_embeddings: false, rope_theta: 10000.0:
+• Normalization: RMSNorm – the rms_norm_eps field name is the giveaway.
+• Gated feed-forward: yes – hidden_act: "silu" matches SwiGLU’s Swish/SiLU convention, and
+rope_theta separately confirms RoPE is in use.
+• Ratio check: 5504/2048 ≈ 2.69, close to 23 × 4 ≈ 2.67 – a gated-compensated ratio, not the plain 4x
+ratio.
+• Embeddings: untied (tie_word_embeddings: false is explicit).
+Common mistake: assuming any roughly-4x intermediate_size implies a plain (ungated) MLP – the
+compensated gated ratio is close enough to other plausible ratios that the activation-function field is a
+more reliable signal than the ratio alone.
+9. (explanation, interview-style) “Why RoPE instead of learned positional embeddings?”
+A strong answer states RoPE’s relative-position mechanism as the reason, and names at least one concrete
+consequence: no learned positional parameters at all, and generally better behavior beyond the training
+length than a learned table with a fixed maximum.
+Evaluation criteria: does the answer name the actual mechanism rather than asserting RoPE is “more
+modern”; does it name a specific, checkable consequence rather than a vague quality claim?
+10. (explanation, interview-style) “Walk me through what SwiGLU changes about the MLP.”
+A strong answer describes the extra parallel branch and the elementwise multiply before the shared output
+projection, and explicitly states the parameter tradeoff: at matched expansion width, three matrices cost
+1.5x what two matrices cost, which is why real models often shrink the expansion width to compensate.
+Evaluation criteria: does the answer proactively raise the parameter-cost tradeoff, rather than needing
+to be prompted for it – a systems-flavored interviewer will very likely ask a follow-up about cost if the
+candidate doesn’t raise it first.
+
+23
+
+7 Build and Version Note
+• Generated: 2026-09-23
+• Git commit: 6af2b606e5fc800e1cf9cbd1a8af75dd16ff28ce (pre-commit -- working tree had
+uncommitted changes at build time)
+
+• Source-registry verification date referenced by this build: src-19, src-22, src-23, src-24 (primary
+sources for Ch.1-2) last verified 2026-09-22; see sources/registry.yaml
+• Pilot status: Two-chapter pilot (Chapters 1-2 of 8) – Chapters 3-8 are planned but not drafted
+This note is generated by scripts/generate_build_note.py at build time – do not hand-edit includes/
+build-version-note.qmd; regenerate it instead.
+
+Bibliography
+[1] A. Vaswani et al., “Attention Is All You Need.” [Online]. Available: https://arxiv.org/abs/1706.03762
+[2] S. Raschka, “The Big LLM Architecture Comparison.” [Online]. Available: https://magazine.sebastian
+raschka.com/p/the-big-llm-architecture-comparison
+[3] J. Su, Y. Lu, S. Pan, B. Wen, and Y. Liu, “RoFormer: Enhanced Transformer with Rotary Position
+Embedding.” [Online]. Available: https://arxiv.org/abs/2104.09864
+[4] B. Zhang and R. Sennrich, “Root Mean Square Layer Normalization.” [Online]. Available: https://arxiv.
+org/abs/1910.07467
+[5] N. Shazeer, “GLU Variants Improve Transformer.” [Online]. Available: https://arxiv.org/abs/2002.
+05202
+
+24
+
+
