@@ -2,7 +2,7 @@
 
 - **Generated:** 2026-09-26
 - **Source verification:** Primary and roadmap sources for Chapters 1-8 and the series-wide topic roadmap were last verified between 2026-09-22 and 2026-09-26.
-- **Release status:** Complete content draft (release candidate 5) -- all 8 chapters drafted; release candidates 2-4's fixes are preserved. This revision removes inline Typst code from long chapter titles (Chapters 4, 6, 7, 8) that was interfering with heading rendering. This remains a review artifact, not the final edition -- see the release-candidate note earlier in this book for what (if anything) is still outstanding.
+- **Release status:** Complete content draft (release candidate 6) -- all 8 chapters drafted; release candidates 2-5's fixes are preserved. This revision restores parser-safe line breaks to Chapters 4 and 7 using HTML `<br/>` tags, eliminating mid-word title hyphenation while preserving the RC5 Chapter 8 fix. This remains a review artifact, not the final edition -- see the release-candidate note earlier in this book for what (if anything) is still outstanding.
 
 ### Provenance {.unnumbered}
 

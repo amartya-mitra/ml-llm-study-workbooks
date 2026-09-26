@@ -2,6 +2,10 @@
 
 *One More Tradeoff, Then a Framework for Every Tradeoff After It*
 
+```{=typst}
+#v(0pt)
+```
+
 ### Learning objectives
 
 By the end of this chapter you should be able to:

@@ -1,4 +1,4 @@
-## Reducing Attention Cost: Windows, Sparsity, and Latent KV Representations {#sec-ch4}
+## Reducing Attention Cost: Windows, Sparsity, `#linebreak()`{=typst}and Latent KV Representations {#sec-ch4}
 
 *Three Different Problems, Not One Knob*
 

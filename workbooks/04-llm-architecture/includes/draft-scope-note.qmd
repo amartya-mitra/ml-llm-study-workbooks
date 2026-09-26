@@ -1,4 +1,4 @@
-::: {.callout-important title="Complete content draft — release candidate 5"}
+::: {.callout-important title="Complete content draft — release candidate 6"}
 This document contains **all eight chapters** of *Modern LLM
 Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
 Models* (workbook 04 of the ML/LLM Study Workbooks series) -- a
@@ -11,13 +11,14 @@ each found and corrected), release candidate 3 fixed three acceptance
 findings (Chapter 1's fresh page break, duplicated chapter-title
 numbering, and the notation reference's cache-size symbols), and
 release candidate 4 fixed mid-word hyphenation in long chapter titles.
-This revision removes the markdown inline Typst code from those long
-titles that was interfering with heading rendering in RC4, allowing
-Typst's native text wrapping to handle the layout cleanly. Treat this
-as a complete, reviewed content draft -- still not a final,
-professionally copy-edited book, since no substitute exists for an
-independent human proofread pass beyond what this project's own automated and visual
-checks can catch.
+Release candidate 5 fixed a Chapter 8 subsection-rendering defect by
+removing inline Typst code from headings, but reintroduced hyphenation
+in Chapters 4 and 7. This revision uses HTML line breaks (a
+parser-safe alternative to inline code) to restore proper breaks while
+preserving the RC5 Chapter 8 fix. Treat this as a complete, reviewed
+content draft -- still not a final, professionally copy-edited book,
+since no substitute exists for an independent human proofread pass
+beyond what this project's own automated and visual checks can catch.
 
 Multi-head latent attention (MLA), briefly deferred out of Chapter 3's
 drafting pass, is covered in Chapter 4 alongside sliding-window and
