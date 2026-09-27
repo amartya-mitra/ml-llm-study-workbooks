@@ -71,7 +71,7 @@ eight devices are grouped three different ways depending on which
 axis is varied — rank 0's tensor-parallel co-workers (rank 1),
 pipeline-parallel co-workers (rank 2), and data-parallel co-workers
 (rank 4) are three distinct two-rank groups that intersect at rank 0,
-since rank 0 is itself the second member of each pair. These are
+since rank 0 is the shared member of all three groups. These are
 logical process groups, not a physical rack or network
 diagram.](figures/rendered/fig-process-group-composition.svg){#fig-process-group-composition}
 

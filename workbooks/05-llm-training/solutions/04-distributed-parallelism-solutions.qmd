@@ -58,6 +58,10 @@ DP setup.
 parallelism strategy, rather than looking at what is actually
 replicated versus sharded and what is actually communicated.
 
+```{=typst}
+#pagebreak()
+```
+
 **5. Interview/design. You must train a model on 64 devices. A single
 layer's weights and activations require a tensor-parallelism degree
 of exactly 8 to fit in one device's memory (consistent with its
