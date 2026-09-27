@@ -23,12 +23,3 @@ chapter's last page instead of wasting a page. -->
 {{< include chapters/02-multi-token-prediction.qmd >}}
 
 {{< include solutions/02-multi-token-prediction-solutions.qmd >}}
-
-### About this review package {.unnumbered}
-
-This is a standalone, chapter-scoped review PDF containing only
-Chapter 2 (Multi-token Prediction as a Training Objective) and its own
-answer key -- not the complete six-chapter workbook. Page renders, a
-contact sheet, the chapter's figure and its generating script, the
-worked-example script, and a machine-readable review manifest
-accompany this PDF in the same review directory.
