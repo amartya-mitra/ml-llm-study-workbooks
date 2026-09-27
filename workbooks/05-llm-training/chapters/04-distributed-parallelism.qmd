@@ -68,9 +68,11 @@ of devices — not one kitchen choosing one arrangement.
 
 ![A multidimensional (DP x PP x TP) process-group diagram. The same
 eight devices are grouped three different ways depending on which
-axis is varied — rank 0's tensor-parallel co-workers, pipeline-parallel
-co-workers, and data-parallel co-workers are three disjoint pairs.
-These are logical process groups, not a physical rack or network
+axis is varied — rank 0's tensor-parallel co-workers (rank 1),
+pipeline-parallel co-workers (rank 2), and data-parallel co-workers
+(rank 4) are three distinct two-rank groups that intersect at rank 0,
+since rank 0 is itself the second member of each pair. These are
+logical process groups, not a physical rack or network
 diagram.](figures/rendered/fig-process-group-composition.svg){#fig-process-group-composition}
 
 ### Technical core
@@ -409,14 +411,16 @@ Full solutions are in [Answer Key: Chapter 4](#sec-solutions-ch4):
    pipeline-parallelism degree is mathematically equivalent to
    increasing the data-parallel degree, since both let you use more
    GPUs for training. ________________________________________________
-5. **Interview/design.** You must train a model on 64 devices. Its
-   key/value head count limits the tensor-parallelism degree to at
-   most 8, and its optimizer states and gradients do not fit in a
-   single device's memory even after full ZeRO/FSDP sharding across
-   all 64 devices unless the data-parallel group is large. Propose one
-   parallelism combination (state a degree for each axis you use) that
-   respects the $\text{tp} \le 8$ constraint and multiplies out to 64
-   devices, and justify your choice in one or two sentences.
+5. **Interview/design.** You must train a model on 64 devices. A
+   single layer's weights and activations require a tensor-parallelism
+   degree of exactly 8 to fit in one device's memory (consistent with
+   its key/value head count, which also permits at most
+   $\text{tp}=8$), and its optimizer states and gradients require a
+   data-parallel group of at least 8 devices to fit in memory even
+   after full ZeRO/FSDP sharding. Propose one parallelism combination
+   (state a degree for each axis you use) that satisfies both
+   requirements and multiplies out to exactly 64 devices, and justify
+   your choice in one or two sentences.
    ________________________________________________
 
 *(Space intentionally left for written answers if you are using this as

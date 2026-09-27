@@ -9,7 +9,9 @@ scale, not a claim that real deployments use exactly 8 devices.
 
 What to notice: rank 0 belongs to a DIFFERENT set of co-workers
 depending on which axis you ask about -- its TP group (rank 1), its
-PP group (rank 2), and its DP group (rank 4) are three disjoint pairs.
+PP group (rank 2), and its DP group (rank 4) are three distinct
+two-rank groups that all intersect at rank 0 itself (rank 0 is the
+other member of each pair), not three unrelated, disjoint pairs.
 These are LOGICAL process groups (which ranks all-reduce/all-gather
 together for a given axis) -- they say nothing about physical rack or
 network topology, which is a separate, unillustrated concern.

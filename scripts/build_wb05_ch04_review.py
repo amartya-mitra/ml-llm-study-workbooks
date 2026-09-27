@@ -75,7 +75,13 @@ figcaption {{ font-size: 0.7rem; text-align: center; color: #aaa; }}
 def run_scoped_tests():
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for module in ["test_wb05_ch04_worked_examples", "test_workbook05_scaffold", "test_figures"]:
+    for module in [
+        "test_wb05_ch04_worked_examples",
+        "test_wb05_ch04_pipeline_schedule",
+        "test_wb05_ch04_question5_constraint",
+        "test_workbook05_scaffold",
+        "test_figures",
+    ]:
         suite.addTests(loader.loadTestsFromName(f"tests.{module}"))
     stream = __import__("io").StringIO()
     runner = unittest.TextTestRunner(stream=stream, verbosity=1)

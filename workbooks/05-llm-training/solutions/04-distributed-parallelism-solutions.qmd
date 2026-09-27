@@ -58,27 +58,38 @@ DP setup.
 parallelism strategy, rather than looking at what is actually
 replicated versus sharded and what is actually communicated.
 
-**5. Interview/design. You must train a model on 64 devices. Its
-key/value head count limits the tensor-parallelism degree to at most
-8, and its optimizer states and gradients do not fit in a single
-device's memory even after full ZeRO/FSDP sharding across all 64
-devices unless the data-parallel group is large. Propose one
-parallelism combination (state a degree for each axis you use) that
-respects the tp <= 8 constraint and multiplies out to 64 devices, and
-justify your choice in one or two sentences.**
+**5. Interview/design. You must train a model on 64 devices. A single
+layer's weights and activations require a tensor-parallelism degree
+of exactly 8 to fit in one device's memory (consistent with its
+key/value head count, which also permits at most tp=8), and its
+optimizer states and gradients require a data-parallel group of at
+least 8 devices to fit in memory even after full ZeRO/FSDP sharding.
+Propose one parallelism combination (state a degree for each axis you
+use) that satisfies both requirements and multiplies out to exactly
+64 devices, and justify your choice in one or two sentences.**
 
-*Answer.* One valid combination: $\text{tp}=8$, $\text{dp}=8$,
-$\text{pp}=1$, $\text{ep}=1$ (product $= 64$). Justification: setting
-$\text{tp}=8$ uses the maximum allowed tensor-parallel degree to shard
-weights, gradients, and activations within a layer as much as the K/V
-head constraint permits, while keeping $\text{dp}=8$ maximizes the
-data-parallel (and therefore ZeRO-shardable) group size to spread
-optimizer-state and gradient memory as thinly as possible, directly
-addressing the stated memory pressure. Other valid answers exist
-(e.g. $\text{tp}=8,\text{pp}=2,\text{dp}=4$) provided the stated
-degrees multiply to 64, respect $\text{tp}\le 8$, and the justification
-correctly explains which constraint each chosen degree addresses.
+*Answer.* $\text{tp}=8$, $\text{dp}=8$, $\text{pp}=1$, $\text{cp}=1$,
+$\text{ep}=1$ (product $= 64$). Justification: the per-layer memory
+requirement fixes $\text{tp}=8$ exactly (not merely "at most 8"); with
+tp already fixed, the remaining factor of $64/8=8$ must be distributed
+among dp, pp, cp, and ep, and since $\text{dp}\ge 8$ is separately
+required for optimizer-state/gradient memory, the only way to satisfy
+both stated requirements at once is $\text{dp}=8$ with
+$\text{pp}=\text{cp}=\text{ep}=1$. TP addresses per-layer
+weight/activation residency; the size of the data-parallel (and
+therefore ZeRO/FSDP-shardable) group addresses the separate
+optimizer-state/gradient memory problem — these are two distinct
+memory problems solved by two different axes. Given both stated
+requirements, this is the *only* valid combination: any other
+$(\text{tp},\text{dp},\text{pp},\text{cp},\text{ep})$ tuple that
+multiplies to 64 either sets $\text{tp}\ne 8$ (violating the per-layer
+requirement) or sets $\text{dp}<8$ (violating the optimizer-state/
+gradient requirement).
 
 *Common trap:* Proposing a combination whose degrees do not multiply
-to the target world size, or proposing $\text{tp} > 8$, which would
-violate the stated K/V-head constraint.
+to 64, proposing $\text{tp}\ne 8$ (violating the stated per-layer
+memory/K-V-head requirement), or proposing $\text{dp}<8$ (violating
+the stated optimizer-state/gradient memory requirement). It is also a
+mistake to describe $\text{dp}=8$ as merely one choice that
+"maximizes" the data-parallel group among several options, rather than
+recognizing that the two stated requirements force it to be exactly 8.
