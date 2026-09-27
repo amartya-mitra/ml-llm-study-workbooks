@@ -47,6 +47,9 @@ import sys
 import unittest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, REPO_ROOT)  # so "tests.<module>" dotted imports resolve regardless of invocation style
+sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
+import chapter_review_checks as crc  # noqa: E402
 REQUIRED_TOOLS = ["quarto", "pdfinfo", "pdftotext", "pdffonts", "pdftoppm"]
 
 # One entry per workbook this script knows how to QA. Add a workbook
@@ -327,12 +330,158 @@ def get_commit_sha():
     return r.stdout.strip() if r.returncode == 0 else None
 
 
+def run_chapter_scoped_qa(workbook_id, chapter, review_pdf, dev_dir):
+    """Chapter-scoped review-package QA (item 9 of
+    docs/chapter-review-checklist.md). Validates one chapter's review
+    package -- its source files, claim ledger, questions/solutions,
+    worked examples, figures, and (if --review-pdf is given) the
+    actual rendered PDF -- without touching or rebuilding anything.
+
+    Every category below is reported separately and independently, so
+    a warning in one (e.g. a known pre-existing cross-reference gap in
+    an already-accepted chapter) never hides a regression in another.
+    """
+    wb_dir = os.path.join(REPO_ROOT, "workbooks", workbook_id)
+    summary = {
+        "workbook": workbook_id,
+        "chapter": chapter,
+        "review_pdf": os.path.relpath(review_pdf, REPO_ROOT) if review_pdf else None,
+        "checks": {},
+    }
+
+    try:
+        chapter_path, solutions_path = crc.discover_chapter_files(workbook_id, chapter)
+    except FileNotFoundError as e:
+        summary["checks"]["structure"] = {"ok": False, "issue": str(e)}
+        summary["status"] = "fail"
+        return summary
+    summary["checks"]["structure"] = {
+        "ok": True,
+        "chapter_path": os.path.relpath(chapter_path, REPO_ROOT),
+        "solutions_path": os.path.relpath(solutions_path, REPO_ROOT),
+    }
+    chapter_slug = crc.chapter_slug_from_path(chapter_path)
+
+    summary["checks"]["sources_and_claim_ledger"] = crc.check_claim_ledger_coverage(wb_dir, workbook_id, chapter)
+
+    summary["checks"]["questions_and_solutions"] = crc.check_question_answer_correspondence(
+        chapter_path, solutions_path, os.path.join(wb_dir, "questions.yaml"), chapter_slug,
+    )
+
+    we_check = crc.check_worked_example_scoped_test_exists(workbook_id, chapter)
+    summary["checks"]["worked_examples"] = we_check
+
+    figure_findings = crc.check_figure_invariant_tests(wb_dir)
+    summary["checks"]["figure_invariants"] = {
+        "ok": bool(figure_findings) and all(f["has_dedicated_semantic_test"] for f in figure_findings),
+        "per_figure": figure_findings,
+    }
+
+    summary["checks"]["cross_references"] = crc.check_answer_key_cross_reference(chapter_path, solutions_path)
+
+    if review_pdf and os.path.exists(review_pdf):
+        info = run(["pdfinfo", review_pdf])
+        m = re.search(r"^Pages:\s+(\d+)", info.stdout, re.MULTILINE)
+        page_count = int(m.group(1)) if m else None
+        summary["checks"]["build"] = {"ok": page_count is not None, "pdf_path": os.path.relpath(review_pdf, REPO_ROOT)}
+        summary["checks"]["rendered_page_count"] = page_count
+
+        text_ok, text = extract_text(review_pdf)
+        leakage = crc.check_text_leakage(text) if text_ok else {"ok": False, "issue": "text extraction failed"}
+        summary["checks"]["text_leakage"] = leakage
+
+        if page_count:
+            density = crc.run_page_density_diagnostics(review_pdf, page_count)
+            summary["checks"]["sparse_page_warnings"] = density["sparse_page_flags"]
+            summary["checks"]["bibliography_diagnostic"] = density["bibliography_diagnostic"]
+        summary["checks"]["full_page_visual_review_completion"] = {
+            "automatable": False,
+            "note": (
+                "Not automatable -- requires a human or a fresh-context adversarial review pass to "
+                "actually view every rendered page (see docs/chapter-review-checklist.md item 8). "
+                "This QA run does not claim that pass happened."
+            ),
+        }
+    else:
+        for key in ("build", "rendered_page_count", "text_leakage", "sparse_page_warnings",
+                    "bibliography_diagnostic", "full_page_visual_review_completion"):
+            summary["checks"][key] = {"ok": None, "note": "no --review-pdf supplied -- not verified"}
+
+    # Scoped tests: the chapter's own worked-example test(s), plus the
+    # workbook-wide scaffold and figure tests every chapter shares.
+    scoped_modules = [os.path.splitext(os.path.basename(p))[0] for p in we_check["scoped_worked_example_test_files"]]
+    scaffold_candidates = [
+        f"test_workbook{workbook_id.split('-')[0]}_scaffold",
+    ]
+    for mod in scaffold_candidates:
+        if os.path.exists(os.path.join(REPO_ROOT, "tests", mod + ".py")):
+            scoped_modules.append(mod)
+    scoped_modules.append("test_figures")
+
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    for mod in scoped_modules:
+        try:
+            suite.addTests(loader.loadTestsFromName(f"tests.{mod}"))
+        except (ImportError, AttributeError) as e:
+            summary["checks"].setdefault("scoped_test_load_errors", []).append(f"{mod}: {e}")
+    stream = __import__("io").StringIO()
+    runner = unittest.TextTestRunner(stream=stream, verbosity=1)
+    scoped_result = runner.run(suite)
+    summary["checks"]["scoped_tests"] = {
+        "modules": scoped_modules,
+        "tests_run": scoped_result.testsRun,
+        "failures": len(scoped_result.failures),
+        "errors": len(scoped_result.errors),
+        "failure_names": [str(t[0]) for t in scoped_result.failures],
+        "error_names": [f"{t[0]}: {t[1]}" for t in scoped_result.errors],
+        "ok": scoped_result.wasSuccessful(),
+    }
+
+    full_ok, full_details = run_tests()
+    new_failures = crc.new_failures_beyond_baseline(full_details["failure_names"])
+    summary["checks"]["full_suite"] = {
+        "tests_run": full_details["tests_run"],
+        "failures": full_details["failures"],
+        "known_preexisting_workbook04_baseline_failures": crc.KNOWN_BASELINE_FAILURES,
+        "new_failures_beyond_baseline": new_failures,
+        "ok": len(new_failures) == 0,
+    }
+
+    hard_fail_keys = ["structure", "sources_and_claim_ledger", "questions_and_solutions", "scoped_tests", "full_suite"]
+    warn_keys = ["worked_examples", "figure_invariants", "cross_references", "text_leakage"]
+    hard_fail = any(summary["checks"][k].get("ok") is False for k in hard_fail_keys)
+    warnings = [k for k in warn_keys if summary["checks"].get(k, {}).get("ok") is False]
+    summary["warnings"] = warnings
+    summary["status"] = "fail" if hard_fail else ("pass_with_warnings" if warnings else "pass")
+
+    json_path = os.path.join(dev_dir, "chapter-qa-summary.json")
+    os.makedirs(dev_dir, exist_ok=True)
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2)
+    print(json.dumps(summary, indent=2))
+    print(f"\nWrote {os.path.relpath(json_path, REPO_ROOT)}", file=sys.stderr)
+    return summary
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workbook", required=True, choices=sorted(WORKBOOK_REGISTRY))
+    parser.add_argument("--chapter", default=None,
+                         help="two-digit chapter number (e.g. 04) -- switches to chapter-scoped review-package QA")
+    parser.add_argument("--review-pdf", default=None,
+                         help="path to an already-built standalone chapter review PDF (used with --chapter)")
     args = parser.parse_args()
 
     workbook_id = args.workbook
+
+    if args.chapter:
+        commit_sha = get_commit_sha()
+        short_sha = (commit_sha or "unknown")[:12]
+        dev_dir = os.path.join(REPO_ROOT, "outputs", "_development", workbook_id, "qa-runs", f"{short_sha}-ch{args.chapter}")
+        summary = run_chapter_scoped_qa(workbook_id, args.chapter, args.review_pdf, dev_dir)
+        sys.exit(0 if summary["status"] in ("pass", "pass_with_warnings") else 1)
+
     cfg = WORKBOOK_REGISTRY[workbook_id]
     commit_sha = get_commit_sha()
     short_sha = (commit_sha or "unknown")[:12]
