@@ -748,3 +748,53 @@ sources:
     access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF), not abstract-only. Confirmed abstract's own wording: 'for compute-optimal training, the model size and the number of training tokens should be scaled equally: for every doubling of model size the number of training tokens should also be doubled,' trained and tested over 400 models from 70M to 16B+ parameters on 5-500B tokens."
     license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
     notes: "DeepMind, 2022-03-29. Explicitly revises src-50 (Kaplan et al.)'s specific token/parameter ratio while agreeing with its qualitative conclusion; present as a revision, not a contradiction, per this paper's own framing."
+
+  # ---------------------------------------------------------------------
+  # src-52/53/54 -- registered 2026-09-27 during Workbook 05 Chapter 4
+  # (parallelism strategies) drafting. Named-but-not-yet-registered
+  # candidates as of the chapter-4 scaffold's own boundary note; now read
+  # in full and registered here, per that scaffold's own instruction to
+  # do so "during this chapter's actual drafting, not before."
+  # ---------------------------------------------------------------------
+
+  - id: "src-52"
+    title: "GPipe: Easy Scaling with Micro-Batch Pipeline Parallelism"
+    url: "https://arxiv.org/abs/1811.06965"
+    authors: "Yanping Huang, Youlong Cheng, Ankur Bapna, Orhan Firat, Mia Xu Chen, Dehao Chen, HyoukJoong Lee, Jiquan Ngiam, Quoc V. Le, Yonghui Wu, Zhifeng Chen"
+    resource_type: "original research paper (arXiv:1811.06965)"
+    workbook_categories: ["05-llm-training"]
+    topic_tags: ["pipeline-parallelism", "distributed-training", "micro-batching"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for workbook 05 ch. 4: the original pipeline-parallelism formalism -- partitioning a sequence of L layers into K cells placed on K accelerators, splitting a mini-batch of size N into M micro-batches, and the paper's own coined term 'bubble overhead' with its stated rule of thumb (negligible once M >= 4xK). Cited directly by the Ultra-Scale Playbook (src-17) as the origin of the AFAB-style pipeline schedule that chapter 4 also teaches via src-17."
+    last_verified: "2026-09-27"
+    access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF), not abstract-only. Confirmed the paper's own Section 2.2 wording: 'partitioning introduces some idle time per accelerator, which we refer to as the bubble overhead. This bubble time is O((M-1+K-1)) amortized over the number of micro-steps M. In our experiments, we found the bubble overhead to be negligible when M >= 4xK.'"
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
+    notes: "Google, 2018-11-16 (v5 2019-07-25). Introduces synchronous mini-batch gradient descent across micro-batches: gradients are accumulated across all M micro-batches and applied once at the end of a mini-batch, so gradient updates are numerically consistent regardless of the number of partitions -- workbook 05 ch. 4 uses this to justify why pipeline parallelism is not 'ordinary data parallelism across consecutive batches.'"
+
+  - id: "src-53"
+    title: "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism"
+    url: "https://arxiv.org/abs/1909.08053"
+    authors: "Mohammad Shoeybi, Mostofa Patwary, Raul Puri, Patrick LeGresley, Jared Casper, Bryan Catanzaro"
+    resource_type: "original research paper (arXiv:1909.08053)"
+    workbook_categories: ["05-llm-training"]
+    topic_tags: ["tensor-parallelism", "model-parallelism", "distributed-training"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for workbook 05 ch. 4: the original intra-layer (tensor) parallelism scheme for transformer MLP and self-attention blocks -- column-parallel first GEMM / QKV projections, row-parallel second GEMM / output projection, and the conjugate 'f'/'g' identity-vs-all-reduce operators this exact split requires. Also the paper's own real-world DP x MP world-size example (8-way model parallelism x 64-way data parallelism = 512 GPUs, 8.3B parameters)."
+    last_verified: "2026-09-27"
+    access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF), not abstract-only. Confirmed Section 3's own wording: the MLP block's first GEMM is 'split in a column parallel fashion,' its second GEMM 'takes the output of the GeLU layer directly without requiring any... synchronization,' and 'this approach for both the MLP and self attention layer allows us to perform all GEMMs in a simple transformer layer using only two all-reduces in the forward path and two in the backward path.'"
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
+    notes: "NVIDIA, 2019-09-17 (v4 2020-03-13). States its own approach is 'orthogonal and complimentary to pipeline model parallelism' (citing GPipe, src-52, directly) -- workbook 05 ch. 4 uses this as the primary sourced statement that TP and PP are independent, composable axes, not competing alternatives."
+
+  - id: "src-54"
+    title: "ZeRO: Memory Optimizations Toward Training Trillion Parameter Models"
+    url: "https://arxiv.org/abs/1910.02054"
+    authors: "Samyam Rajbhandari, Jeff Rasley, Olatunji Ruwase, Yuxiong He"
+    resource_type: "original research paper (arXiv:1910.02054)"
+    workbook_categories: ["05-llm-training"]
+    topic_tags: ["zero", "fsdp", "sharded-data-parallelism", "distributed-training"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for workbook 05 ch. 4: the original ZeRO-DP three-stage partitioning scheme (P_os optimizer-state, P_os+g optimizer-state+gradient, P_os+g+p optimizer-state+gradient+parameter -- i.e. ZeRO-1/2/3), its own notation (Psi for parameter count, N_d for DP degree), and its own explicit framing that ZeRO-DP 'achieves the computation/communication efficiency of [data parallelism] while achieving memory efficiency of [model parallelism]' by partitioning rather than replicating model states, retaining DP's computational granularity and communication volume."
+    last_verified: "2026-09-27"
+    access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF), not abstract-only. Confirmed the paper's own Section 1 and Section 5 wording, including the stage-by-stage memory-reduction claims ('Optimizer State Partitioning (P_os): 4x memory reduction, same communication volume as DP; Add Gradient Partitioning (P_os+g): 8x memory reduction, same communication volume as DP') and the exact P_os/P_g/P_p notation used throughout Section 5."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
+    notes: "Microsoft, 2019-10-04 (v3 2020-05-13). Explicitly distinguishes model-state partitioning (its own subject) from activation/residual-state memory, which it treats separately -- workbook 05 ch. 4 uses this distinction directly for its 'model-state partitioning versus activation/token partitioning' required boundary. PyTorch's FSDP implements ZeRO-3 (P_os+g+p) under a different name, per the Ultra-Scale Playbook's (src-17) own explicit note -- workbook 05 ch. 4 must not treat 'ZeRO-3' and 'FSDP' as different mechanisms."

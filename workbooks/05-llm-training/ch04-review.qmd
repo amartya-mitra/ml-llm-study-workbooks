@@ -1,0 +1,31 @@
+---
+title: "LLM Pretraining and Distributed Training"
+subtitle: "Chapter 4 Review Draft — Parallelism Strategies for Distributed Training"
+author: "ML/LLM Study Workbooks"
+toc: true
+number-sections: true
+---
+<!-- papersize/margin/callout-icon/bibliography are set once, project-
+wide, in the repo-root _quarto.yml -- do not repeat them here.
+
+This is a standalone, chapter-scoped review document, not the
+workbook's canonical index.qmd. It exists so an independent reviewer
+can inspect Chapter 4 alone, without workbooks/05-llm-training/
+index.qmd's other chapters diluting the review. Mirrors chapters 1-3's
+own review-build convention (ch01-review.qmd, ch02-review.qmd,
+ch03-review.qmd) -- including their pagination fixes: no manual
+pagebreak between the chapter and its answer key (so the Answer Key
+flows naturally onto whatever space remains on the chapter's last
+page), and a single pagebreak immediately before the bibliography
+(so Typst's auto-appended bibliography, which cannot be repositioned
+or have its internal spacing adjusted from this document, always
+lands as one complete, un-split page rather than risking a split
+after its first entry). -->
+
+{{< include chapters/04-distributed-parallelism.qmd >}}
+
+{{< include solutions/04-distributed-parallelism-solutions.qmd >}}
+
+```{=typst}
+#pagebreak()
+```

@@ -1,41 +1,513 @@
 ## Parallelism Strategies for Distributed Training {#sec-ch4}
 
-*Status: scaffold only — drafting has not yet begun for this chapter.*
+*Who Holds What, and Who Talks to Whom*
 
-**Purpose:** Teach each standard parallelism strategy (data, tensor,
-context, pipeline, expert) at mechanism level, plus how they combine
-("5D parallelism") — the depth workbook 04 chapter 7's parallelism
-table explicitly deferred to this workbook.
+### Learning objectives
 
-**Planned subsections** (following `shared/chapter-template.qmd`'s
-established structure):
+By the end of this chapter you should be able to:
 
-- Learning objectives
-- Why this matters
-- Mental model or analogy
-- Visual overview
-- Technical core
-- Worked example
-- Compare and contrast
-- Check your understanding
-- Common misconception
-- Applied exercise
-- Interview lens
-- Chapter recap
-- Sources and further reading
+- State the single-device baseline every parallelism strategy modifies,
+  and the batch-size relation it already establishes before any device
+  is added.
+- For a given strategy, state what is replicated and what is sharded,
+  and whether its communication is a collective operation or a
+  point-to-point transfer.
+- Distinguish data parallelism from ZeRO/FSDP-style sharded data
+  parallelism, and state precisely what sharding changes (residency,
+  communication pattern) versus what it does not change (the training
+  objective).
+- Distinguish intra-layer partitioning (tensor parallelism) from
+  inter-layer partitioning (pipeline parallelism), and state why
+  pipeline parallelism is not "data parallelism spread across batches."
+- Distinguish context/sequence parallelism from both tensor and
+  pipeline parallelism, and distinguish expert placement (a
+  distributed-systems decision) from sparse expert activation (an
+  architecture decision, Workbook 04's domain).
+- Given a target world size, factor it across parallelism dimensions,
+  verify the factorization is valid, and identify one representative
+  rank's process-group membership on each axis.
 
-**Source IDs this chapter will draw on:** [@src-17].
+### Why this matters
 
-**Boundary note:** This chapter fulfills workbook 04 chapter 7's own
-explicit deferral, from that chapter's parallelism table caption ("not
-derived further here; see [@src-10] and a future training workbook")
-— this is not new scope, it is that promise kept. The Ultra-Scale
-Playbook is this chapter's own intended primary source (per its
-registry entry's `expected_use` field), separate from the specific
-citation that chapter 7's own caption happens to use. GPipe,
-Megatron-LM, and ZeRO are candidate additional primary sources —
-confirmed to exist and be fetchable but **not yet read in full text or
-registered** (see `reports/05_llm_training_scope_and_source_decision.md`,
-section 2). Read and register whichever this chapter's primary
-source's own References section treats as foundational during this
-chapter's actual drafting, not before.
+Workbook 04 chapter 7's own parallelism table explicitly deferred its
+derivation to "a future training workbook" — this chapter keeps that
+promise. Every strategy in this chapter answers the same underlying
+question: given a model and a cluster, what gets copied onto every
+device, what gets split across devices, and which devices need to
+talk to which other devices to keep the math correct? No single
+strategy scales without limit, so production training runs combine
+several of them at once — getting the combination right requires
+knowing exactly what each one partitions, not just that it "helps with
+memory" or "helps with speed." This chapter stays at the level of what
+is partitioned, replicated, and communicated; Chapter 5 covers the
+memory accounting, communication-volume analysis, and throughput
+tradeoffs that follow from these choices.
+
+### Mental model or analogy
+
+::: {.callout-note title="Analogy"}
+Picture a huge banquet kitchen. A single station is the single-device
+baseline. **Data parallelism** adds identical stations, each cooking
+the full recipe for a different set of tables, occasionally comparing
+notes so every station's recipe stays in sync. **Tensor parallelism**
+instead splits *one dish's preparation* across several cooks *at the
+same station*, working on the same order simultaneously and talking
+constantly to combine their parts. **Pipeline parallelism** is an
+assembly line: one station handles appetizers, the next handles
+mains, the next handles dessert, and orders move down the line.
+**Expert parallelism** is a set of specialist chefs — a sushi chef, a
+pastry chef — who only get called on for the orders that need their
+specialty, and sit idle otherwise. **Where this breaks down:** real
+GPUs synchronize at the level of exact numerical tensors, not casual
+notes, and a single training step usually uses *several* of these
+arrangements at once, sliced along different axes of the *same* set
+of devices — not one kitchen choosing one arrangement.
+:::
+
+### Visual overview
+
+![A multidimensional (DP x PP x TP) process-group diagram. The same
+eight devices are grouped three different ways depending on which
+axis is varied — rank 0's tensor-parallel co-workers, pipeline-parallel
+co-workers, and data-parallel co-workers are three disjoint pairs.
+These are logical process groups, not a physical rack or network
+diagram.](figures/rendered/fig-process-group-composition.svg){#fig-process-group-composition}
+
+### Technical core
+
+**Single-device baseline.** Before adding any device, a single GPU
+already has two batch-size-related knobs: the **micro-batch size**
+(`mbs`, how many samples fit through one forward/backward pass) and
+**gradient accumulation** (`grad_acc` passes' gradients summed, then
+averaged, before one optimizer step). This gives the baseline relation
+
+$$
+\text{bs} = \text{gbs} = \text{mbs} \times \text{grad\_acc}
+$$ {#eq-single-device-batch}
+
+[@src-17] — the **global batch size** (`gbs`) a single device can
+reach by trading compute time for a larger effective batch, at
+constant memory. Every parallelism strategy below either adds a new
+term to this equation or changes what a "device" running one term of
+it actually holds.
+
+**Data parallelism (DP): full replication, sharded data.** Data
+parallelism copies the **entire model** onto every worker and gives
+each worker a **different** micro-batch. Since each worker computes
+different gradients, an **all-reduce** — a collective operation
+summing (and then averaging) the gradients across all DP ranks —
+synchronizes them before the optimizer step [@src-17]. Nothing about
+the model or its parameters is sharded; only the *data* is. Adding a
+DP degree updates the global batch relation:
+
+$$
+\text{gbs} = \text{mbs} \times \text{grad\_acc} \times \text{dp}
+$$ {#eq-dp-global-batch}
+
+[@src-17]. In practice, teams maximize `dp` before adding gradient
+accumulation, since DP ranks run in parallel while accumulation steps
+run sequentially [@src-17].
+
+**ZeRO / FSDP-style sharded data parallelism: same objective, different
+residency.** Vanilla DP replicates optimizer states, gradients, and
+parameters on every rank — a real memory redundancy. ZeRO removes this
+redundancy by **partitioning** (not replicating) these objects across
+the DP ranks, in three cumulative stages, using the original paper's
+own notation ($\Psi$ = parameter count, $N_d$ = DP degree)
+[@src-54;@src-17]:
+
+- **ZeRO-1** ($P_{os}$): shards only the **optimizer states**.
+- **ZeRO-2** ($P_{os+g}$): shards optimizer states **and gradients**.
+- **ZeRO-3 / FSDP** ($P_{os+g+p}$): shards optimizer states, gradients,
+  **and parameters**.
+
+"ZeRO-3" (DeepSpeed's name) and "FSDP" (PyTorch's name) are the *same*
+mechanism under two different names, per the Ultra-Scale Playbook's
+own explicit equivalence statement [@src-17] — not two different
+techniques. ZeRO-1/2 change the gradient-synchronization collective
+from all-reduce to **reduce-scatter**, plus an **all-gather** to
+restore full parameters after the optimizer step; ZeRO-3 additionally
+all-gathers each layer's parameters on demand during the forward and
+backward pass, discarding them immediately after use [@src-17]. The
+ZeRO paper's own framing is precise about what this buys you: ZeRO-DP
+"achieves the computation/communication efficiency of \[data
+parallelism\] while achieving memory efficiency of \[model
+parallelism\]" by **partitioning model states instead of replicating
+them**, while **retaining the computational granularity and
+communication volume of DP** [@src-54]. Sharding changes *where each
+piece of the model state lives* and *what gets communicated and when*
+— it does not change the mathematical training objective being
+optimized.
+
+::: {.callout-warning title="Common misconception"}
+**"Sharding parameters with ZeRO/FSDP changes what the model computes."**
+It does not. Every ZeRO stage still computes the same forward pass,
+the same loss, and the same gradients as vanilla DP — sharding only
+changes which device stores which slice of the optimizer states,
+gradients, or parameters at rest, and which collective operation
+(all-reduce vs. reduce-scatter-plus-all-gather) reconstructs the full
+values when they are needed [@src-54;@src-17].
+:::
+
+**Tensor parallelism (TP): intra-layer partitioning.** Tensor
+parallelism splits **individual matrix operations within a layer**
+across ranks — an *intra-layer* partition, unlike DP or PP which never
+split a single operation. For a linear layer $Y = XW$, a weight matrix
+can be split by columns (**column-parallel**: broadcast the input,
+split $W$'s columns, combine the per-rank outputs with an
+**all-gather**) or by rows (**row-parallel**: split the input with a
+**scatter**, split $W$'s rows, combine the partial sums with an
+**all-reduce**) [@src-53;@src-17]. In a transformer block, the
+efficient layout is column-parallel then row-parallel for the MLP —
+needing only one all-reduce in the forward pass and one in the
+backward pass — and the same column-then-row pattern for
+attention: $Q$, $K$, $V$ projections are column-parallel (each rank
+computes a subset of attention heads), and the output projection is
+row-parallel [@src-53]. Combining both blocks this way needs "only two
+all-reduces in the forward path and two in the backward path" per
+transformer layer, per Megatron-LM's own count [@src-53]. **A real
+divisibility constraint:** the TP degree must not exceed, and should
+evenly divide, the number of key/value heads, since each rank needs
+whole attention heads to compute independently — for example, Llama-3
+8B has 8 K/V heads, so its TP degree should not exceed 8 [@src-17].
+
+A closely related technique, **sequence parallelism (SP)**, is easy to
+conflate with a different technique also sometimes called "sequence
+parallelism" — the Ultra-Scale Playbook flags this explicitly: SP in
+this (TP-coupled) sense splits the operations TP does *not* shard
+(LayerNorm, dropout) along the **sequence** dimension, and is *always*
+used together with TP; the *other* technique sometimes given the same
+name is what this chapter calls **context parallelism** below, which
+can be used independently of TP [@src-17]. Treat these as two
+different techniques that happen to share a name, not one technique
+under two names.
+
+**Context parallelism (CP): sharding activations along the sequence
+dimension, everywhere.** Where SP only shards the non-TP operations,
+CP shards the **input sequence itself across the entire model**,
+including the parts TP already shards [@src-17]. Most modules (MLP,
+LayerNorm) process each token independently and are unaffected: no
+extra communication is needed there, since only inputs — not weight
+matrices — are split [@src-17]. The exception is the **attention**
+module, where each token needs key/value pairs from other tokens in
+the sequence. **Ring Attention** handles this with **point-to-point**
+transfers rather than a single collective: each rank sends its
+current key/value chunk to the next rank in a ring (non-blocking),
+computes attention on whatever chunk it currently holds, and receives
+the next chunk from the previous rank, repeating until every rank has
+seen every chunk [@src-17]. A naive ring assignment causes load
+imbalance under causal masking (the rank holding the earliest tokens
+finishes sooner than the rank holding the latest tokens); **zig-zag**
+ring attention reassigns chunks so every rank does comparable work
+[@src-17]. After gradients are computed, CP synchronizes them across
+the CP group with an ordinary all-reduce, the same as DP [@src-17].
+
+**Pipeline parallelism (PP): inter-layer partitioning.** Pipeline
+parallelism splits the model's **layers** — not any single operation —
+across devices: for example, a first device holds layers 1 through 4,
+a second holds layers 5 through 8, and so on [@src-17]. This is an
+*inter-layer* partition, the opposite axis from TP's intra-layer
+split. GPipe's own formalism: a sequence of $L$ layers is partitioned
+into $K$ cells placed on $K$ accelerators, and a mini-batch of size $N$
+is split into $M$ micro-batches that are pipelined through the $K$
+accelerators; gradients from all $M$ micro-batches are accumulated and
+applied together at the end, so the resulting parameter update is
+numerically the same regardless of how many partitions are used
+[@src-52].
+
+::: {.callout-warning title="Common misconception"}
+**"Pipeline parallelism is just data parallelism spread across
+consecutive batches."** It is not. In DP, every rank holds an
+*identical, full* model and synchronizes *gradients* via all-reduce.
+In PP, each stage holds a *different, partial* slice of the model's
+layers and passes *activations* (not gradients, not full replicas)
+**point-to-point** to its neighboring stage [@src-17]. A PP stage
+cannot compute a full forward pass alone — it depends on the previous
+stage's output — which is never true of a DP rank.
+:::
+
+Naively running one micro-batch at a time through all stages leaves
+most devices idle most of the time, an effect GPipe's own paper coined
+the **bubble overhead** [@src-52]. A pipeline schedule has three
+phases: a **fill** phase (early stages start work before later stages
+have anything to do yet), a **steady-state** phase (every stage
+processing some microbatch), and a **drain** phase (mirroring fill, as
+the last microbatches finish). GPipe's own guideline: bubble overhead
+becomes negligible once the number of microbatches $M$ is at least
+$4 \times K$ (the number of pipeline stages) [@src-52]. The simplest
+schedule, **all-forward-all-backward (AFAB)**, runs every microbatch's
+forward pass before any backward pass begins; **one-forward-one-backward
+(1F1B)** instead starts each microbatch's backward pass as soon as
+possible, which does not shrink the bubble itself but needs to hold
+far fewer microbatches' activations in memory at once [@src-17]. The
+figure below shows 1F1B's fill/steady-state/drain shape and where its
+bubbles fall:
+
+![A schematic one-forward-one-backward (1F1B) pipeline schedule for 4
+stages and 6 microbatches, computed programmatically from the standard
+1F1B algorithm. Notice the fill phase (upper-left, forward-only),
+steady state (the diagonal band alternating forward and backward), and
+drain phase (lower-right, backward-only) — with idle bubble slots
+outside the diagonal
+band.](figures/rendered/fig-pipeline-timeline.svg){#fig-pipeline-timeline}
+
+More recent schedules (interleaved stages, ZeroBubble, DeepSeek-V3's
+DualPipe) push the bubble further down by splitting the backward pass
+itself into finer-grained pieces that can be rescheduled independently
+[@src-17] — the qualitative existence of fill/steady-state/drain and
+bubbles is this chapter's subject; the quantitative bubble-time
+formulas and schedule comparisons are Chapter 5's.
+
+**Expert parallelism (EP): placement and routing, not architecture.**
+Mixture-of-experts (MoE) models replace a single feedforward module
+with several parallel expert modules and route each token to one or a
+few of them — that architectural routing decision is Workbook 04's
+subject, not this chapter's. **Expert parallelism** is the
+*distributed-systems* decision of **where each expert lives**: since
+each expert's feedforward layer is independent, EP simply places
+different experts on different devices, then uses an **all-to-all**
+collective to send each token's hidden state to the device holding its
+assigned expert (and another all-to-all to gather the results back)
+[@src-17]. This is lighter-weight than TP, since no single matrix
+multiplication is split — only routing changes. EP alone does not
+shard the non-MoE layers or the input tokens, so it is normally
+combined with DP: DP shards the batch, EP shards the experts
+[@src-17]. A real routing constraint: DeepSeek-V3's router enforces
+that each token is sent to at most 4 nodes, keeping traffic within a
+smaller physical neighborhood to reduce communication overhead
+[@src-17].
+
+::: {.callout-warning title="Common misconception"}
+**"A higher expert-parallelism degree means the model activates more
+experts per token."** It does not. EP degree is about **how many
+devices the existing set of experts is spread across** — a placement
+decision. How many experts each token actually activates (sparse
+routing) is a property of the model's own router, fixed by its
+architecture regardless of how those experts happen to be distributed
+across devices [@src-17].
+:::
+
+**Multidimensional composition: DP x TP x PP x CP x EP.** These axes
+are designed to compose: the total number of devices used is the
+**product** of the per-axis degrees actually in use,
+
+$$
+\text{world\_size} = \text{dp} \times \text{tp} \times \text{pp} \times \text{cp} \times \text{ep}
+$$ {#eq-world-size-factorization}
+
+with any axis not in use simply set to 1. Compatibility constraints
+apply per axis (e.g. TP bounded by, and dividing, the K/V head count;
+EP only meaningful when MoE layers exist), and not every model needs
+every dimension — the Ultra-Scale Playbook is explicit that "none of
+these techniques is a silver bullet for magical scaling," and that
+combining them is a deliberate choice, not a default [@src-17]. Two
+axes are worth contrasting directly since they are easy to conflate:
+PP and ZeRO-3 both partition "the model" along its depth and both
+avoid replicating full parameters — but PP's inter-stage communication
+moves **activations** point-to-point between neighbors, while ZeRO-3's
+communication **gathers weights** via collectives as needed, and each
+PP stage still computes with a **full layer**, while ZeRO-3 ranks
+compute with only a **fraction** of a layer's parameters materialized
+at once [@src-17]. TP is typically kept within a single node (fast
+intra-node interconnect), while PP and ZeRO-3 more readily span slower
+inter-node connections [@src-17].
+
+### Worked example
+
+**A 64-device, four-axis layout.** Take a target world size of 64
+devices, illustrative only, and choose $\text{dp}=4$, $\text{tp}=4$,
+$\text{pp}=2$, $\text{ep}=2$. Since $4 \times 4 \times 2 \times 2 = 64$
+matches the world size, this is a valid factorization
+(@eq-world-size-factorization). Fixing the rank-decomposition
+convention as DP (outermost) > PP > TP > EP (innermost), rank $r$
+decodes as
+
+$$
+\text{ep\_idx} = r \bmod \text{ep}, \quad
+\text{tp\_idx} = \left\lfloor \frac{r}{\text{ep}} \right\rfloor \bmod \text{tp}, \quad
+\text{pp\_idx} = \left\lfloor \frac{r}{\text{ep} \times \text{tp}} \right\rfloor \bmod \text{pp}, \quad
+\text{dp\_idx} = \left\lfloor \frac{r}{\text{ep} \times \text{tp} \times \text{pp}} \right\rfloor
+$$
+
+For representative rank $r = 37$, this gives
+$(\text{dp\_idx}, \text{pp\_idx}, \text{tp\_idx}, \text{ep\_idx}) = (2, 0, 2, 1)$,
+computed programmatically:
+
+| Group (varying axis) | Member ranks | Group size |
+|---|---|---|
+| DP group (dp\_idx varies) | 5, 21, 37, 53 | 4 |
+| TP group (tp\_idx varies) | 33, 35, 37, 39 | 4 |
+| PP group (pp\_idx varies) | 37, 45 | 2 |
+| EP group (ep\_idx varies) | 36, 37 | 2 |
+
+: Process-group membership for representative rank 37, in a 64-device DP=4/TP=4/PP=2/EP=2 layout — every group correctly contains rank 37 itself, verified programmatically {#tbl-rank37-groups}
+
+This layout puts $\text{world\_size} / \text{dp} = 64 / 4 = 16$ devices
+behind each of the 4 data-parallel replicas, matching
+$\text{tp} \times \text{pp} \times \text{ep} = 4 \times 2 \times 2 = 16$
+exactly. **This one valid layout is not a claim that it is the fastest
+or most memory-efficient choice for any real model** — it exists to
+show the factorization and rank-decomposition method, which Chapter
+5's cost analysis would need to actually compare against alternatives.
+
+**Global batch size.** With $\text{dp}=4$ from this layout, a
+micro-batch size of 2 and 8 gradient-accumulation steps per optimizer
+step give
+
+$$
+\text{gbs} = 2 \times 8 \times 4 = 64
+$$
+
+(@eq-dp-global-batch), distinct from the micro-batch size (2) and the
+per-rank local batch across one accumulation cycle
+($2 \times 8 = 16$, still smaller than the global batch since it does
+not yet include the DP multiplier).
+
+**Invalid configurations, checked programmatically.** Two configurations that fail validation and must be rejected before use:
+
+- $\text{dp}=3, \text{tp}=4, \text{pp}=2, \text{ep}=2$ against a 64-device
+  world size: $3 \times 4 \times 2 \times 2 = 48 \ne 64$ — an invalid
+  factorization.
+- $\text{tp}=3$ against a model with 8 key/value heads: $8 \bmod 3 \ne 0$ —
+  an invalid divisibility, since 3 ranks cannot each hold a whole
+  number of the 8 heads.
+
+Both are confirmed to raise a validation error, and the valid
+configuration ($\text{tp}=4$ against 8 K/V heads, $8 \bmod 4 = 0$) is
+confirmed *not* to raise one.
+
+### Compare and contrast
+
+| Aspect | DP | Sharded DP | TP | PP | CP | EP |
+|---|---|---|---|---|---|---|
+| Partitioned | Micro-batches | Opt. states (+grad/+params) | Matrix ops in a layer | Model layers | Sequence/activations | Expert FFN modules |
+| Replicated | Full model | DP's compute; residency differs | Non-sharded ops | Full layer per stage | Non-attention modules | Non-MoE layers |
+| Communication | All-reduce (grad) | Reduce-scatter + all-gather | All-reduce/all-gather | Point-to-point (activations) | Point-to-point ring (K/V) | All-to-all (routing) |
+| Motivation | More throughput/batch | Remove DP's redundant state memory | Fit oversized layer weights | Fit oversized model depth | Fit long sequences | Scale expert capacity |
+| Key constraint | Needs large enough batch | Comms scale with depth | TP $\le$ K/V heads, divides evenly | Needs $M \gtrsim 4K$ microbatches | Needs long-enough sequence | Needs enough experts/MoE layers |
+| Misconception | "More DP always helps" | "Sharding changes the math" | "TP is free parallelism" | "PP = DP over batches" | "CP and SP are the same" | "Higher EP = more active experts" |
+
+: Six parallelism strategies compared on what each partitions and replicates, not on which is fastest or most memory-efficient in general — those depend on model shape, sequence length, and hardware, per [@src-17]'s own qualification. Each misconception is stated in full, with its correction, earlier in this chapter's Technical core. {#tbl-parallelism-compare}
+
+### Check your understanding {#sec-ch4-check}
+
+Full solutions are in [Answer Key: Chapter 4](#sec-solutions-ch4):
+
+1. **Structural identification.** In ZeRO-3 (equivalently, FSDP),
+   which of the following are sharded across the data-parallel group:
+   optimizer states, gradients, parameters, activations?
+   ________________________________________________
+2. **Calculation.** A cluster has 32 devices. You set
+   $\text{tp}=4$ and $\text{pp}=2$, with no context or expert
+   parallelism. What data-parallel degree is implied, and how many
+   devices form one complete model replica?
+   ________________________________________________
+3. **Calculation.** With a micro-batch size of 3, 4 gradient-
+   accumulation steps, and a data-parallel degree of 8, what is the
+   global batch size? ________________________________________________
+4. **Misconception check.** True or false: increasing the
+   pipeline-parallelism degree is mathematically equivalent to
+   increasing the data-parallel degree, since both let you use more
+   GPUs for training. ________________________________________________
+5. **Interview/design.** You must train a model on 64 devices. Its
+   key/value head count limits the tensor-parallelism degree to at
+   most 8, and its optimizer states and gradients do not fit in a
+   single device's memory even after full ZeRO/FSDP sharding across
+   all 64 devices unless the data-parallel group is large. Propose one
+   parallelism combination (state a degree for each axis you use) that
+   respects the $\text{tp} \le 8$ constraint and multiplies out to 64
+   devices, and justify your choice in one or two sentences.
+   ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+For a target world size of 128 devices, choose $\text{tp}=8$,
+$\text{pp}=4$, and $\text{ep}=2$. Compute the implied data-parallel
+degree from @eq-world-size-factorization, confirm the four degrees'
+product equals 128, and state how many devices form one complete
+model replica. Then, using a micro-batch size of 1 and 16
+gradient-accumulation steps, compute the resulting global batch size
+from @eq-dp-global-batch. Check your own arithmetic the same way this
+chapter's worked example was checked: verify the product of all four
+parallelism degrees equals the world size before trusting the
+resulting global batch size.
+
+### Interview lens
+
+*"Given a fixed cluster, how would you decide which parallelism
+strategies to combine for training a large model?"* A strong answer
+starts from the single-device baseline and names the actual bottleneck
+each strategy relieves — DP for throughput and global batch, ZeRO/FSDP
+for redundant model-state memory, TP for weights too large for one
+device (bounded by K/V head count), PP for models too deep for one
+device, CP for sequences too long for one device's attention memory,
+EP for the number of experts a MoE architecture needs to place. A
+complete answer also states the resulting world-size factorization
+explicitly (@eq-world-size-factorization) and checks it multiplies out
+correctly, and distinguishes which axes need fast intra-node bandwidth
+(TP) from which tolerate slower inter-node links (PP, ZeRO-3, EP). An
+answer that recommends "just use all five dimensions" without stating
+which bottleneck each one addresses, or that claims one fixed
+combination is universally best, is incomplete — per the Ultra-Scale
+Playbook's own caution, none of these techniques is a silver bullet,
+and not every model needs every dimension [@src-17].
+
+### Chapter recap
+
+- Every parallelism strategy either replicates or shards some object
+  (data, optimizer states, gradients, parameters, activations, or
+  experts); naming which one is the first step in understanding any
+  strategy, starting from the single-device batch-size relation
+  (@eq-single-device-batch).
+- ZeRO/FSDP shards model state across the DP group in three cumulative
+  stages (optimizer states; +gradients; +parameters) and changes
+  residency and communication pattern, not the mathematical training
+  objective [@src-54;@src-17].
+- Tensor parallelism (intra-layer) and pipeline parallelism
+  (inter-layer) partition along different axes and use different
+  communication patterns — TP's all-reduce/all-gather sits inside a
+  layer's computation; PP's point-to-point activation transfer sits
+  between stages holding different layers, which is why PP is not
+  "data parallelism over consecutive batches" [@src-53;@src-52;@src-17].
+- Context parallelism shards the sequence across the whole model using
+  point-to-point ring communication for attention specifically, and is
+  usable independently of TP — unlike TP-coupled sequence parallelism,
+  which shares a name but is a different, always-TP-paired technique
+  [@src-17].
+- Expert parallelism places experts across devices and routes tokens
+  to them via all-to-all; it is a distributed-placement decision,
+  distinct from the architecture's own sparse-routing decision (how
+  many experts a token activates), which remains Workbook 04's subject
+  [@src-17].
+- These axes compose multiplicatively into the total world size
+  (@eq-world-size-factorization), subject to real divisibility and
+  compatibility constraints — not every model needs every dimension,
+  and no single combination is universally fastest or most
+  memory-efficient [@src-17].
+
+### Sources and further reading
+
+Primary sources for this chapter: [@src-17] (the Ultra-Scale
+Playbook's Data Parallelism, ZeRO, Tensor Parallelism, Sequence
+Parallelism, Context Parallelism, Pipeline Parallelism, Expert
+Parallelism, and "5D parallelism in a nutshell" sections — verified
+via full-text extraction of the article's own markdown source),
+[@src-52] (GPipe's Sections 1-2 — the pipeline-cell formalism,
+synchronous micro-batch gradient accumulation, and the paper's own
+coined "bubble overhead" term — verified via full-text extraction of
+the arXiv PDF), [@src-53] (Megatron-LM's Section 3 — the column/row
+tensor-parallel split for MLP and self-attention blocks, and its
+own two-all-reduces-per-layer count — verified via full-text extraction
+of the arXiv PDF), and [@src-54] (the ZeRO paper's Sections 1 and 5 —
+the $P_{os}$/$P_{os+g}$/$P_{os+g+p}$ stage notation and its own
+"computation/communication efficiency of DP, memory efficiency of MP"
+framing — verified via full-text extraction of the arXiv PDF). This
+chapter deliberately does not reteach Mixture-of-Experts architecture
+or routing itself — that is Workbook 04's domain; this chapter treats
+expert parallelism only as a placement and communication strategy.
+Detailed memory accounting, communication-volume analysis, overlap
+strategies, and throughput tradeoffs for all of these strategies are
+Chapter 5's subject, not this chapter's.

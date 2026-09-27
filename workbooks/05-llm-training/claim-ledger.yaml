@@ -231,6 +231,134 @@ entries:
     verification_status: "computed_by_script"
     note: "Table 3's own rows are quoted verbatim from src-51; the interpolation to 3B and the resulting ratio/factor are computed by data/worked-examples/scaling_law_allocation.py, not stated by either source."
 
+  - id: "claim-05-parallelism-001"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "Data parallelism replicates the entire model on every worker and gives each worker a different micro-batch of data; since this produces different gradients per worker, an all-reduce operation synchronizes (averages) the gradients across all DP ranks before the optimizer step."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-002"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "The global batch size relation gbs = mbs * grad_acc * dp holds once data parallelism and gradient accumulation are both in use; teams typically maximize dp before adding gradient-accumulation steps, since DP ranks run in parallel while accumulation steps run sequentially."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-003"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "ZeRO's three cumulative stages -- P_os (optimizer-state partitioning, ZeRO-1), P_os+g (+gradient partitioning, ZeRO-2), and P_os+g+p (+parameter partitioning, ZeRO-3) -- partition these model-state objects across the DP ranks instead of replicating them; ZeRO-3 in DeepSpeed's naming and FSDP in PyTorch's naming are the same mechanism under two different names."
+    source_ids: ["src-54", "src-17"]
+    verification_status: "verified_full_text"
+    note: "The P_os/P_os+g/P_os+g+p notation and the specific memory-reduction claims (4x for P_os, 8x for P_os+g, linear-in-N_d for P_os+g+p) are quoted from the original ZeRO paper (src-54) directly, not only from src-17's secondary description."
+
+  - id: "claim-05-parallelism-004"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "ZeRO-DP achieves the computation/communication efficiency of data parallelism while achieving the memory efficiency of model parallelism, by partitioning model states across DP ranks instead of replicating them, while retaining the computational granularity and communication volume of ordinary data parallelism."
+    source_ids: ["src-54"]
+    verification_status: "verified_full_text"
+    note: "This is the ZeRO paper's own framing, quoted directly (Section 1); used in the chapter to support the distinction that sharding changes residency/communication, not the mathematical training objective."
+
+  - id: "claim-05-parallelism-005"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "Tensor parallelism splits a linear layer's weight matrix either by columns (column-parallel: broadcast input, all-gather outputs) or by rows (row-parallel: scatter input, all-reduce outputs); an efficient transformer layer applies column-parallel then row-parallel for both the MLP and the self-attention blocks, requiring only two all-reduces in the forward path and two in the backward path per layer."
+    source_ids: ["src-53", "src-17"]
+    verification_status: "verified_full_text"
+    note: "The exact 'two all-reduces forward, two backward' count is Megatron-LM's own stated result (src-53, Section 3), corroborated by src-17's independent description of the same column/row split."
+
+  - id: "claim-05-parallelism-006"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "The tensor-parallelism degree must not exceed, and should evenly divide, the number of key/value attention heads, since each TP rank needs whole attention heads to compute independently; Llama-3 8B has 8 K/V heads, so its TP degree should not exceed 8."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-007"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "The Ultra-Scale Playbook explicitly distinguishes two techniques both sometimes called 'sequence parallelism': (1) sequence parallelism proper, always paired with tensor parallelism, which shards TP's non-sharded operations (LayerNorm, dropout) along the sequence dimension; and (2) what the same source calls context parallelism instead, which shards the sequence across the whole model and can be used independently of tensor parallelism."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: "The source's own words: 'The term Sequence Parallelism is a bit overloaded... we'll refer to them as Context Parallelism to differentiate the two approaches.'"
+
+  - id: "claim-05-parallelism-008"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "Context parallelism shards the input sequence across the entire model; most modules (MLP, LayerNorm) process each token independently and need no extra communication, but the attention module needs key/value pairs from other tokens, handled by Ring Attention -- each rank sends its current K/V chunk to the next rank in a ring (point-to-point, non-blocking) while computing attention on the chunk it currently holds."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: "A naive ring assignment causes load imbalance under causal masking; zig-zag ring attention reassigns chunks for balanced compute -- both points are the source's own description."
+
+  - id: "claim-05-parallelism-009"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "GPipe partitions a sequence of L layers into K cells placed on K accelerators, splits a mini-batch of size N into M micro-batches pipelined through the K accelerators, and accumulates gradients from all M micro-batches before applying them together at the end of the mini-batch, making the resulting parameter update numerically the same regardless of the number of partitions."
+    source_ids: ["src-52"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-010"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "GPipe's own paper coins the term 'bubble overhead' for the idle time per accelerator introduced by pipeline partitioning, and states that this bubble overhead was found to be negligible once the number of micro-batches M is at least 4 times the number of partitions K (M >= 4K)."
+    source_ids: ["src-52"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-011"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "The all-forward-all-backward (AFAB) pipeline schedule runs every microbatch's forward pass before any backward pass begins; the one-forward-one-backward (1F1B) schedule instead starts each microbatch's backward pass as soon as possible, which does not by itself shrink the bubble but requires holding far fewer microbatches' activations in memory at once."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-012"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "Expert parallelism places different experts' feedforward layers on different devices and uses an all-to-all collective to route each token's hidden state to its assigned expert's device (and another all-to-all to gather results back); EP alone does not shard non-MoE layers or input tokens, so it is normally combined with data parallelism, which shards the input batch."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-013"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "DeepSeek-V3's router enforces that each token is sent to at most 4 nodes, keeping expert-routing traffic within a smaller physical neighborhood to reduce communication overhead."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: "This is src-17's own stated example of a real, model-specific EP routing constraint, not a general property of all MoE routers."
+
+  - id: "claim-05-parallelism-014"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "Pipeline parallelism and ZeRO-3 both partition the model along its depth without replicating full parameters, but differ in what each rank stores (a full layer for PP vs. a fraction of a layer for ZeRO-3) and what gets communicated (activations, point-to-point, for PP vs. weights, via collectives, for ZeRO-3); tensor parallelism is typically kept within a single node for fast intra-node interconnect, while PP and ZeRO-3 more readily span slower inter-node links."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-015"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "None of DP, sharded DP, TP, PP, CP, or EP is a universal 'silver bullet' for scaling, per the Ultra-Scale Playbook's own explicit qualification; combining them is a deliberate choice suited to a specific model and cluster, not a default requirement that every model use every dimension."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-parallelism-016"
+    workbook: "05-llm-training"
+    chapter: "ch4"
+    statement: "The multidimensional world-size factorization world_size = dp x tp x pp x cp x ep, the representative-rank process-group decomposition, and the two invalid-configuration checks (a factorization not equal to the target world size; a TP degree not dividing the K/V head count) in this chapter's worked example are this chapter's own constructed illustration, not a claim from any source about the fastest or most memory-efficient configuration for a real model."
+    source_ids: ["src-17"]
+    verification_status: "computed_by_script"
+    note: "The general compositional principle (these axes multiply into total device count, subject to per-axis constraints) is supported by src-17's 5D-parallelism framing; the specific 64-device numeric example, rank decomposition convention, and invalid-configuration tests are computed by data/worked-examples/parallelism_layout.py."
+
 planned_chapter_sources:
   - chapter: "ch1"
     source_ids: ["src-16"]
@@ -248,9 +376,9 @@ planned_chapter_sources:
     note: "src-51 (Chinchilla) revises src-50 (Kaplan)'s token/parameter ratio; teach as a revision, not a contradiction, per src-51's own framing. src-16 covers AdamW/cosine-schedule practicalities, not scaling laws themselves."
 
   - chapter: "ch4"
-    source_ids: ["src-17"]
-    candidate_source_ids: ["GPipe (arXiv:1811.06965)", "Megatron-LM (arXiv:1909.08053)", "ZeRO (arXiv:1910.02054)"]
-    note: "GPipe/Megatron-LM/ZeRO are confirmed to exist and be fetchable (arXiv PDFs return HTTP 200) but were NOT read in full text this session -- do not treat title/abstract confirmation as verification. Read in full and register in sources/registry.yaml during this chapter's own drafting, per reports/05_llm_training_scope_and_source_decision.md section 2, before citing any of the three for a specific claim."
+    source_ids: ["src-17", "src-52", "src-53", "src-54"]
+    candidate_source_ids: []
+    note: "GPipe (src-52), Megatron-LM (src-53), and ZeRO (src-54) were read in full text and registered during this chapter's own drafting (2026-09-27), resolving the prior candidate status. No additional primary MoE-systems source was registered for expert parallelism: src-17's own Expert Parallelism section (verified full-text) already covers placement, all-to-all routing, and the DP+EP combination at the mechanism level this chapter needs, and the chapter boundary explicitly defers MoE architecture itself to Workbook 04."
 
   - chapter: "ch5"
     source_ids: ["src-10", "src-17"]

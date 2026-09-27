@@ -1,0 +1,49 @@
+{
+  "layout": {
+    "world_size": 64,
+    "dp_degree": 4,
+    "tp_degree": 4,
+    "pp_degree": 2,
+    "ep_degree": 2,
+    "devices_per_model_replica": 16,
+    "num_dp_replicas": 4,
+    "representative_rank": 37,
+    "representative_coords": {
+      "dp_idx": 2,
+      "pp_idx": 0,
+      "tp_idx": 2,
+      "ep_idx": 1
+    },
+    "dp_group": [
+      5,
+      21,
+      37,
+      53
+    ],
+    "tp_group": [
+      33,
+      35,
+      37,
+      39
+    ],
+    "pp_group": [
+      37,
+      45
+    ],
+    "ep_group": [
+      36,
+      37
+    ]
+  },
+  "batch": {
+    "micro_batch_size": 2,
+    "grad_acc_steps": 8,
+    "dp_degree": 4,
+    "global_batch_size": 64
+  },
+  "validation_checks": {
+    "invalid_world_size_factorization_raised": true,
+    "valid_tp_kv_head_divisibility_did_not_raise": true,
+    "invalid_tp_kv_head_divisibility_raised": true
+  }
+}

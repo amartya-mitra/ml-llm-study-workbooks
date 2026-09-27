@@ -1,0 +1,84 @@
+## Answer Key: Chapter 4 {#sec-solutions-ch4 .unnumbered}
+
+Full solutions to Chapter 4's "Check your understanding" questions
+(@sec-ch4-check).
+
+**1. Structural identification. In ZeRO-3 (equivalently, FSDP), which
+of the following are sharded across the data-parallel group: optimizer
+states, gradients, parameters, activations?**
+
+*Answer.* Optimizer states, gradients, and parameters are all sharded
+across the data-parallel group in ZeRO-3 ($P_{os+g+p}$). Activations
+are *not* sharded by ZeRO — each DP replica processes a different
+micro-batch, so its activations already differ from every other
+replica's and are never duplicated in the first place, so there is
+nothing to shard there.
+
+*Common trap:* Assuming ZeRO shards "everything," including
+activations, rather than specifically the three model-state objects
+(optimizer states, gradients, parameters) that vanilla DP would
+otherwise replicate identically on every rank.
+
+**2. Calculation. A cluster has 32 devices. You set tp=4 and pp=2,
+with no context or expert parallelism. What data-parallel degree is
+implied, and how many devices form one complete model replica?**
+
+*Answer.* $\text{dp} = 32 / (4 \times 2) = 4$. One complete model
+replica uses $\text{tp} \times \text{pp} = 4 \times 2 = 8$ devices
+(with cp and ep both implicitly 1).
+
+*Common trap:* Dividing the world size by only one of tp or pp instead
+of their product, or forgetting that the axes not explicitly set (cp,
+ep) still act as factors of 1 in the world-size factorization.
+
+**3. Calculation. With a micro-batch size of 3, 4 gradient-accumulation
+steps, and a data-parallel degree of 8, what is the global batch
+size?**
+
+*Answer.* $\text{gbs} = 3 \times 4 \times 8 = 96$.
+
+*Common trap:* Omitting the data-parallel multiplier and reporting
+only the per-replica local batch ($3 \times 4 = 12$) as if it were the
+global batch size.
+
+**4. Misconception check. True or false: increasing the
+pipeline-parallelism degree is mathematically equivalent to increasing
+the data-parallel degree, since both let you use more GPUs for
+training.**
+
+*Answer.* False. Increasing the DP degree adds more identical, full
+model replicas, each processing different data, synchronized by
+gradient all-reduce. Increasing the PP degree instead splits the
+*same* model into more, smaller stages, each holding *different*
+layers and passing activations point-to-point to its neighbor — no
+stage in a PP setup holds a full model replica, unlike every rank in a
+DP setup.
+
+*Common trap:* Treating "more GPUs used" as the defining property of a
+parallelism strategy, rather than looking at what is actually
+replicated versus sharded and what is actually communicated.
+
+**5. Interview/design. You must train a model on 64 devices. Its
+key/value head count limits the tensor-parallelism degree to at most
+8, and its optimizer states and gradients do not fit in a single
+device's memory even after full ZeRO/FSDP sharding across all 64
+devices unless the data-parallel group is large. Propose one
+parallelism combination (state a degree for each axis you use) that
+respects the tp <= 8 constraint and multiplies out to 64 devices, and
+justify your choice in one or two sentences.**
+
+*Answer.* One valid combination: $\text{tp}=8$, $\text{dp}=8$,
+$\text{pp}=1$, $\text{ep}=1$ (product $= 64$). Justification: setting
+$\text{tp}=8$ uses the maximum allowed tensor-parallel degree to shard
+weights, gradients, and activations within a layer as much as the K/V
+head constraint permits, while keeping $\text{dp}=8$ maximizes the
+data-parallel (and therefore ZeRO-shardable) group size to spread
+optimizer-state and gradient memory as thinly as possible, directly
+addressing the stated memory pressure. Other valid answers exist
+(e.g. $\text{tp}=8,\text{pp}=2,\text{dp}=4$) provided the stated
+degrees multiply to 64, respect $\text{tp}\le 8$, and the justification
+correctly explains which constraint each chosen degree addresses.
+
+*Common trap:* Proposing a combination whose degrees do not multiply
+to the target world size, or proposing $\text{tp} > 8$, which would
+violate the stated K/V-head constraint.
