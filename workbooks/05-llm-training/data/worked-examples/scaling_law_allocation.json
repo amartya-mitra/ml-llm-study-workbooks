@@ -1,0 +1,99 @@
+{
+  "part_a_toy_allocation": {
+    "toy_anchor": {
+      "N0": 500000000.0,
+      "D0": 10000000000.0,
+      "C0_flops": 3e+19
+    },
+    "compute_multiplier": 10.0,
+    "kaplan": {
+      "exponent_a_model": 0.73,
+      "exponent_b_data": 0.27,
+      "N_new": 2685158981.8512635,
+      "D_new": 18620871366.628674,
+      "model_growth_factor": 5.370317963702527,
+      "data_growth_factor": 1.8620871366628673,
+      "C_new_flops": 3e+20,
+      "C_new_over_C0": 10.0
+    },
+    "chinchilla": {
+      "exponent_a_model": 0.5,
+      "exponent_b_data": 0.5,
+      "N_new": 1581138830.0841897,
+      "D_new": 31622776601.683796,
+      "model_growth_factor": 3.1622776601683795,
+      "data_growth_factor": 3.1622776601683795,
+      "C_new_flops": 3.0000000000000007e+20,
+      "C_new_over_C0": 10.000000000000002
+    }
+  },
+  "part_b_real_table3_and_chinchilla": {
+    "table_3_rows": [
+      {
+        "params": 400000000.0,
+        "tokens": 8000000000.0,
+        "tokens_per_param": 20.0
+      },
+      {
+        "params": 1000000000.0,
+        "tokens": 20200000000.0,
+        "tokens_per_param": 20.2
+      },
+      {
+        "params": 10000000000.0,
+        "tokens": 205100000000.0,
+        "tokens_per_param": 20.51
+      },
+      {
+        "params": 67000000000.0,
+        "tokens": 1500000000000.0,
+        "tokens_per_param": 22.388059701492537
+      },
+      {
+        "params": 175000000000.0,
+        "tokens": 3700000000000.0,
+        "tokens_per_param": 21.142857142857142
+      },
+      {
+        "params": 280000000000.0,
+        "tokens": 5900000000000.0,
+        "tokens_per_param": 21.071428571428573
+      },
+      {
+        "params": 520000000000.0,
+        "tokens": 11000000000000.0,
+        "tokens_per_param": 21.153846153846153
+      },
+      {
+        "params": 1000000000000.0,
+        "tokens": 21200000000000.0,
+        "tokens_per_param": 21.2
+      },
+      {
+        "params": 10000000000000.0,
+        "tokens": 216200000000000.0,
+        "tokens_per_param": 21.62
+      }
+    ],
+    "tokens_per_param_min": 20.0,
+    "tokens_per_param_max": 22.388059701492537,
+    "table3_67B_row_predicted_tokens": 1500000000000.0,
+    "chinchilla_actual": {
+      "params": 70000000000.0,
+      "tokens": 1400000000000.0
+    },
+    "chinchilla_actual_tokens_per_param": 20.0,
+    "chinchilla_predicted_range_params": [
+      40000000000.0,
+      70000000000.0
+    ],
+    "predicted_vs_actual_token_difference": -100000000000.0
+  },
+  "part_c_smollm3_vs_estimate": {
+    "smollm3_params": 3000000000.0,
+    "smollm3_actual_tokens": 11000000000000.0,
+    "interpolated_chinchilla_optimal_tokens_per_param": 20.347318734606233,
+    "interpolated_chinchilla_optimal_tokens": 61041956203.8187,
+    "overtraining_factor_vs_interpolated_estimate": 180.20392340099767
+  }
+}

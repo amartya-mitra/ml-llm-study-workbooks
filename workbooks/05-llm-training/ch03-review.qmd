@@ -1,0 +1,23 @@
+---
+title: "LLM Pretraining and Distributed Training"
+subtitle: "Chapter 3 Review Draft — Optimization and Scaling Laws"
+author: "ML/LLM Study Workbooks"
+toc: true
+number-sections: true
+---
+<!-- papersize/margin/callout-icon/bibliography are set once, project-
+wide, in the repo-root _quarto.yml -- do not repeat them here.
+
+This is a standalone, chapter-scoped review document, not the
+workbook's canonical index.qmd. It exists so an independent reviewer
+can inspect Chapter 3 alone, without workbooks/05-llm-training/
+index.qmd's other chapters diluting the review. Mirrors chapters 1
+and 2's own review-build convention (ch01-review.qmd, ch02-review.qmd)
+-- including their pagination fix: no manual pagebreak is inserted
+between the chapter and its answer key, so the Answer Key flows
+naturally onto whatever space remains on the chapter's last page
+instead of wasting a page. -->
+
+{{< include chapters/03-optimization-and-scaling-laws.qmd >}}
+
+{{< include solutions/03-optimization-and-scaling-laws-solutions.qmd >}}

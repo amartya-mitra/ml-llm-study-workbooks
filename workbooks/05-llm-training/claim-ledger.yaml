@@ -143,6 +143,94 @@ entries:
     verification_status: "verified_full_text"
     note: "This is the paper's own reported speedup for its own self-speculative-decoding setup, not a general inference-speed guarantee for any MTP-trained model regardless of serving strategy or hardware."
 
+  - id: "claim-05-scaling-001"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "Kaplan et al.'s empirical loss scales as a power law with model size N, dataset size D, and compute C individually, each fit as L(N)=(Nc/N)^aN with aN~=0.076 and Nc~=8.8e13, L(D)=(Dc/D)^aD with aD~=0.095 and Dc~=5.4e13, and L(Cmin)=(Ccmin/Cmin)^aCmin with aCmin~=0.050 and Ccmin~=3.1e8 PF-days."
+    source_ids: ["src-50"]
+    verification_status: "verified_full_text"
+    note: "The paper's own text states these specific constants depend on tokenizer/vocabulary and 'do not have a fundamental meaning' -- presented in the chapter as this paper's own fits, not universal constants."
+
+  - id: "claim-05-scaling-002"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "Kaplan et al.'s fixed-compute-budget allocation result predicts N ~ Cmin^0.73 and D ~ Cmin^0.27, implying compute-optimal training uses a very large model, a comparatively modest amount of data, and stops significantly before convergence."
+    source_ids: ["src-50"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-scaling-003"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "Hoffmann et al. define the compute-optimal allocation problem as choosing N_opt(C) and D_opt(C) to minimize loss L(N,D) subject to FLOPs(N,D)=C, and using three independent fitting approaches over 400+ trained models find Nopt~C^a and Dopt~C^b with a and b both close to 0.50 (0.50/0.50, 0.49/0.51, 0.46/0.54 across the three approaches), versus Kaplan et al.'s own 0.73/0.27."
+    source_ids: ["src-51"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-scaling-004"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "Hoffmann et al. state they reach 'the same conclusion' as Kaplan et al. about not training to lowest possible loss, while revising the specific token/parameter scaling ratio -- framed by the paper itself as a revision, not a contradiction."
+    source_ids: ["src-51"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-scaling-005"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "Hoffmann et al. attribute the difference in fitted exponents to a methodological issue: Kaplan et al. used a fixed number of training tokens and learning-rate schedule length across all runs, whereas matching the schedule length to each run's actual token budget produces the best final loss regardless of model size."
+    source_ids: ["src-51"]
+    verification_status: "verified_full_text"
+    note: "Corroborated independently by src-16's own practitioner-facing explanation of the same schedule-length issue (claim-05-scaling-006)."
+
+  - id: "claim-05-scaling-006"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "The Smol Training Playbook states that a fixed cosine-schedule length 'skewed early scaling laws research' because Kaplan et al. used a fixed schedule length when training models on varying token counts, underestimating the impact of data size; the Chinchilla study corrected this by matching schedule length to each model's actual training duration."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-scaling-007"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "The Smol Training Playbook's disclosed 1B-parameter ablation baseline configuration uses AdamW with beta1=0.9, beta2=0.95, epsilon=1e-8, a linear warmup over 2,000 steps, and a cosine decay over 18,000 steps down to a minimum learning-rate floor."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-scaling-008"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "Chinchilla (70B parameters, trained on 1.4 trillion tokens) uses the same training compute as Gopher (280B parameters, 300 billion tokens) but uniformly and significantly outperforms Gopher, GPT-3 (175B), Jurassic-1 (178B), and Megatron-Turing NLG (530B) on downstream evaluations, reaching 67.5% average accuracy on MMLU, 'greater than a 7% improvement over Gopher.'"
+    source_ids: ["src-51"]
+    verification_status: "verified_full_text"
+    note: "Presented in the chapter as a separate downstream-capability result, not itself the loss-based quantity that N_opt/D_opt are derived from."
+
+  - id: "claim-05-scaling-009"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "Hoffmann et al.'s own Table 3 projects 1.5 trillion tokens as the compute-optimal frontier value for exactly a 67-billion-parameter model; the Chinchilla model they actually trained is 70 billion parameters on 1.4 trillion tokens, described in their own text as 'the larger end' of a predicted 40-70 billion parameter range, chosen for dataset and computational efficiency reasons rather than read directly off the fitted frontier."
+    source_ids: ["src-51"]
+    verification_status: "verified_full_text"
+    note: "The 67B Table 3 row and the 70B actually-trained Chinchilla model are two distinct numbers from the same paper; the chapter deliberately does not conflate them."
+
+  - id: "claim-05-scaling-010"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "The Smol Training Playbook reports SmolLM3 was trained with 3 billion parameters on 11 trillion tokens, a deliberate 'overtraining' choice relative to scaling-law advice, made because a smaller, longer-trained model is cheaper to run at inference."
+    source_ids: ["src-16"]
+    verification_status: "verified_full_text"
+    note: "The ~180x overtraining factor relative to an interpolated Chinchilla-optimal estimate for a 3B model is this chapter's own computed_by_script comparison (see claim-05-scaling-011), not a number either source states directly."
+
+  - id: "claim-05-scaling-011"
+    workbook: "05-llm-training"
+    chapter: "ch3"
+    statement: "Interpolating Hoffmann et al.'s Table 3 tokens-per-parameter ratio (which ranges from 20.00 to 22.39 across the table's own rows) to a 3-billion-parameter model gives an estimated Chinchilla-optimal token budget of approximately 61.0 billion tokens, versus SmolLM3's actual 11 trillion tokens -- an overtraining factor of approximately 180x."
+    source_ids: ["src-51", "src-16"]
+    verification_status: "computed_by_script"
+    note: "Table 3's own rows are quoted verbatim from src-51; the interpolation to 3B and the resulting ratio/factor are computed by data/worked-examples/scaling_law_allocation.py, not stated by either source."
+
 planned_chapter_sources:
   - chapter: "ch1"
     source_ids: ["src-16"]

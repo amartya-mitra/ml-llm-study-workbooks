@@ -1,0 +1,90 @@
+## Answer Key: Chapter 3 {#sec-solutions-ch3 .unnumbered}
+
+Full solutions to Chapter 3's "Check your understanding" questions
+(@sec-ch3).
+
+**1. Quick check. What three quantities does a scaling law like
+@eq-scaling-n, @eq-scaling-d, or @eq-scaling-c relate loss to, and does
+any one of these equations alone tell you how to split a fixed compute
+budget between model size and data size?**
+
+*Answer.* Model size $N$, dataset size $D$, and compute $C$
+(specifically $C_{\min}$ for the third equation). No — each equation
+describes loss as a function of *one* factor while the other is not
+the bottleneck; none of the three, alone, answers the separate
+fixed-compute allocation question of how to split a budget between $N$
+and $D$. That question requires the distinct fit in
+@eq-kaplan-allocation or @eq-chinchilla-argmin.
+
+*Common trap:* Treating a single-factor power law (e.g. "loss improves
+as model size grows") as if it already told you the optimal split of a
+fixed budget — it does not, because it holds the other factor fixed
+rather than trading the two off against each other.
+
+**2. Calculation. Using Kaplan et al.'s fitted exponents ($a=0.73$,
+$b=0.27$), if a fixed compute budget increases by 10x, by what factor
+should model size and dataset size each grow, and what should the
+product of the two growth factors equal?**
+
+*Answer.* Model size should grow by $10^{0.73} \approx 5.37\times$;
+dataset size should grow by $10^{0.27} \approx 1.86\times$. Multiplying
+the two growth factors together: $5.37 \times 1.86 \approx 10.00$,
+confirming the allocation exactly reproduces the 10x compute increase
+(since $0.73 + 0.27 = 1.0$).
+
+*Common trap:* Applying the same exponent to both quantities, or
+forgetting that the two growth factors must multiply to the compute
+multiplier itself, not add to it.
+
+**3. Explain. What specific methodological difference does Hoffmann et
+al. identify as a cause of their revised allocation exponents,
+relative to Kaplan et al.'s original fit?**
+
+*Answer.* Hoffmann et al. state that Kaplan et al. used a fixed number
+of training tokens and a fixed learning-rate schedule length across
+all their runs, which prevented properly modeling the impact of
+training-token count on final loss. Hoffmann et al. instead matched
+each run's schedule length to that run's actual token budget, and
+found this produces the best final loss regardless of model size —
+correcting an underestimate of smaller models' potential that had
+skewed Kaplan et al.'s original allocation toward favoring larger
+models.
+
+*Common trap:* Assuming the two papers simply used different datasets
+or different curve-fitting software, rather than identifying the
+specific, stated methodological cause (schedule length not matched to
+token budget).
+
+**4. Misconception check. True or false: Hoffmann et al.'s Chinchilla
+paper shows that Kaplan et al.'s original scaling-law paper was simply
+wrong.**
+
+*Answer.* False. Hoffmann et al. state they reach the same qualitative
+conclusion as Kaplan et al. — that compute-optimal training should not
+proceed to full convergence — while revising the specific
+model/data allocation ratio for an identified methodological reason.
+This is a revision of a fitted ratio, not a refutation of the
+existence of scaling laws or of Kaplan et al.'s broader findings.
+
+*Common trap:* Treating any later paper that changes a specific number
+as evidence the earlier paper's entire framework was invalid, rather
+than checking what the later paper itself claims to be revising.
+
+**5. Compare. Chinchilla is 70 billion parameters trained on 1.4
+trillion tokens. Is this exact configuration the same number Hoffmann
+et al.'s own fitted frontier (Table 3) projects for a
+67-billion-parameter model, or a related-but-distinct engineering
+choice?**
+
+*Answer.* A related-but-distinct engineering choice. Table 3's fitted
+frontier projects 1.5 trillion tokens for exactly a 67-billion-parameter
+model. Chinchilla itself is 70 billion parameters (not 67) trained on
+1.4 trillion tokens (not 1.5) — Hoffmann et al.'s own text describes
+choosing 70B as "the larger end" of a predicted 40–70 billion parameter
+range, for dataset and computational efficiency reasons, not as a
+value read directly off the fitted curve for 67B specifically.
+
+*Common trap:* Assuming a paper's headline model (Chinchilla)
+corresponds exactly, point for point, to a row of that same paper's
+own fitted-frontier table, rather than recognizing it as a nearby but
+separately motivated engineering choice.

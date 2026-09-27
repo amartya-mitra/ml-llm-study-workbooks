@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560">
+  <title>Compute-optimal allocation: Kaplan et al. vs. Chinchilla, for a 10x fixed-compute increase</title>
+  <defs></defs>
+  <rect x="0" y="0" width="960" height="560" fill="#ffffff"/>
+  <rect x="20" y="15" width="920" height="34" rx="4" fill="#eaf2fb" stroke="#0072B2" stroke-width="1.5"/>
+  <text x="480.0" y="37" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#0072B2" text-anchor="middle">FITTED ALLOCATION SPLIT for the SAME 10x compute increase — not measured training-run datapoints</text>
+  <text x="265.0" y="70" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#111111" text-anchor="middle">Kaplan et al. (2020)</text>
+  <rect x="50" y="90" width="430.0" height="380" rx="6" fill="#ffffff" stroke="#888888" stroke-width="1.5"/>
+  <rect x="150.0" y="129.89999999999998" width="90" height="340.1" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="195.0" y="119.89999999999998" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">5.37x</text>
+  <text x="195.0" y="492" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#333333" text-anchor="middle">model size N</text>
+  <rect x="290.0" y="352.2" width="90" height="117.80000000000001" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="335.0" y="342.2" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">1.86x</text>
+  <text x="335.0" y="492" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#333333" text-anchor="middle">data size D</text>
+  <text x="265.0" y="516" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="middle">exponents a=0.73, b=0.27 — model-heavy</text>
+  <text x="735.0" y="70" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#111111" text-anchor="middle">Chinchilla (Hoffmann et al., 2022)</text>
+  <rect x="520.0" y="90" width="430.0" height="380" rx="6" fill="#ffffff" stroke="#888888" stroke-width="1.5"/>
+  <rect x="620.0" y="269.8666666666667" width="90" height="200.13333333333335" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="665.0" y="259.8666666666667" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">3.16x</text>
+  <text x="665.0" y="492" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#333333" text-anchor="middle">model size N</text>
+  <rect x="760.0" y="269.8666666666667" width="90" height="200.13333333333335" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="805.0" y="259.8666666666667" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">3.16x</text>
+  <text x="805.0" y="492" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#333333" text-anchor="middle">data size D</text>
+  <text x="735.0" y="516" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="middle">exponents a=0.50, b=0.50 — equal split</text>
+  <text x="480.0" y="545" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="middle">Both allocations satisfy the same fixed-compute constraint C ≈ 6ND; they differ only in HOW that compute is split between N and D.</text>
+</svg>

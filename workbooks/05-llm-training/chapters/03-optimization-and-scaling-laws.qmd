@@ -1,36 +1,399 @@
 ## Optimization and Scaling Laws {#sec-ch3}
 
-*Status: scaffold only — drafting has not yet begun for this chapter.*
+*How Much Model, How Much Data — and How That Choice Actually Gets Trained*
 
-**Purpose:** Cover AdamW-style optimization, learning-rate schedules,
-and gradient-clipping/mixed-precision practicalities at scale, plus
-compute-optimal scaling tradeoffs between model size, training-token
-count, and compute budget.
+### Learning objectives
 
-**Planned subsections** (following `shared/chapter-template.qmd`'s
-established structure):
+By the end of this chapter you should be able to:
 
-- Learning objectives
-- Why this matters
-- Mental model or analogy
-- Visual overview
-- Technical core
-- Worked example
-- Compare and contrast
-- Check your understanding
-- Common misconception
-- Applied exercise
-- Interview lens
-- Chapter recap
-- Sources and further reading
+- State what an empirical scaling law relates (loss to model size,
+  dataset size, and compute) and what it does not establish.
+- Distinguish a fixed-compute-optimal allocation question from an
+  unconstrained, single-factor scaling observation.
+- Compute the model-size and data-size growth implied by a fitted
+  exponent pair for a given compute increase, and verify the result
+  still respects the same compute constraint.
+- Explain why Chinchilla is presented as a revision of Kaplan et al.'s
+  allocation ratio, not a refutation of the existence of scaling laws,
+  and state the specific methodological difference behind the revision.
+- Distinguish a scaling law's loss-based prediction from a downstream
+  capability result, and a predicted compute-optimal allocation from an
+  actual production engineering choice.
 
-**Source IDs this chapter will draw on:** [@src-50], [@src-51],
-[@src-16].
+### Why this matters
 
-**Boundary note:** Kaplan et al.'s scaling-law paper and Hoffmann et
-al.'s Chinchilla paper must be taught together, not Chinchilla alone —
-Chinchilla explicitly frames itself as reaching the same qualitative
-conclusion as Kaplan et al. about not training to lowest possible loss,
-while revising Kaplan et al.'s specific token/parameter scaling ratio.
-Present this as a revision, not a contradiction, per Hoffmann et al.'s
-own framing.
+Chapter 1 treated the training objective as fixed and asked how much
+and which data to feed it; Chapter 2 changed the objective itself.
+This chapter asks a different, prior question: given a fixed compute
+budget, how large should the model be, and how much data should it
+see? Two independently verified papers answer this question with
+different numbers from the same underlying framework, and a third
+source shows what a real production team actually did with that
+framework's advice. Conflating "a scaling law fit" with "a universal
+physical law," or conflating "what a fitted curve recommends" with
+"what a team actually trained," is the single most common way this
+topic gets taught incorrectly. Architectural details (attention,
+normalization, sparsity) are Workbook 04's subject and distributed
+training mechanics are Chapters 4–5's subject; this chapter is about
+the model-size/data-size/compute tradeoff itself.
+
+### Mental model or analogy
+
+::: {.callout-note title="Analogy"}
+Picture renovating a house with a fixed total budget. You can spend
+more on square footage (a bigger model) or more on furnishings and
+finishes (more training data) — but the total budget is fixed, so
+spending more on one leaves less for the other. Two different
+contractors, given the same budget and the same house, might recommend
+different splits between square footage and furnishings; that
+disagreement does not mean one contractor thinks budgets don't matter.
+**Where this breaks down:** unlike a house, "square footage" and
+"furnishings" here trade off through a specific, fitted mathematical
+relationship (an approximation, $C \approx 6ND$, not an exact
+accounting identity) — and the recommended split itself comes from
+fitting many past renovations' outcomes, not from a fixed catalog
+price list. A contractor's fitted recommendation is also not the same
+thing as what a specific homeowner actually chooses to build.
+:::
+
+### Visual overview
+
+![Compute-optimal model/data allocation for the same fixed 10x
+compute increase, contrasting Kaplan et al.'s fitted exponents against
+Hoffmann et al.'s (Chinchilla) fitted exponents. Both bars represent a
+fitted allocation split for one shared compute budget, not measured
+training-run datapoints — notice that Kaplan et al.'s split is
+model-heavy while Chinchilla's is
+even.](figures/rendered/fig-scaling-law-allocation.svg){#fig-scaling-law-allocation}
+
+### Technical core
+
+**Notation.** Both papers in this chapter share the same core
+notation: $N$ is the number of model parameters, $D$ is the dataset
+size in training tokens, $C$ is the training compute, and $L$ is the
+cross-entropy loss. Both papers approximate compute as
+$C \approx 6ND$ [@src-50;@src-51] — Kaplan et al. define it via
+$C \approx 6NBS$ where $B$ is batch size and $S$ is the number of
+training steps, and since $D = BS$ this is the same relation; Hoffmann
+et al. use the identical approximation directly in terms of $N$ and
+$D$.
+
+$$
+C \approx 6ND
+$$ {#eq-compute-approx}
+
+**Single-factor power laws are not the same question as fixed-compute
+allocation.** Kaplan et al. first report three *separate* power laws,
+each describing loss as a function of *one* factor while the other is
+held sufficiently large that it is not the bottleneck [@src-50]:
+
+$$
+L(N) = (N_c/N)^{\alpha_N}, \quad \alpha_N \approx 0.076,\ N_c \approx 8.8\times10^{13}
+$$ {#eq-scaling-n}
+
+$$
+L(D) = (D_c/D)^{\alpha_D}, \quad \alpha_D \approx 0.095,\ D_c \approx 5.4\times10^{13}
+$$ {#eq-scaling-d}
+
+$$
+L(C_{\min}) = (C_c^{\min}/C_{\min})^{\alpha_C^{\min}}, \quad \alpha_C^{\min} \approx 0.050,\ C_c^{\min} \approx 3.1\times10^{8}\ \text{PF-days}
+$$ {#eq-scaling-c}
+
+[@src-50]. These are the paper's own empirical fits over its own
+training runs — the specific constants $N_c$, $D_c$, $C_c^{\min}$
+depend on the tokenizer and vocabulary used and "do not have a
+fundamental meaning" by the paper's own statement [@src-50]; they are
+not universal physical constants. Crucially, @eq-scaling-n and
+@eq-scaling-d individually say nothing about how to *split* a budget
+between $N$ and $D$ — that is a distinct, fixed-compute-constrained
+question, which Kaplan et al. answer separately in Section 6 of their
+paper by asking how $N$, $D$, and the number of training steps $S$
+should each grow as $C$ grows, with no other constraint:
+
+$$
+N \propto C_{\min}^{\,0.73}, \qquad D = B \cdot S \propto C_{\min}^{\,0.27}
+$$ {#eq-kaplan-allocation}
+
+[@src-50]. Because a compute increase should mostly buy a bigger
+model and only a little more data, Kaplan et al.'s own stated
+conclusion is that **compute-optimal training uses a very large
+model, a comparatively modest amount of data, and stops significantly
+before convergence** [@src-50].
+
+::: {.callout-warning title="Common misconception"}
+**"A single-factor scaling law (loss vs. model size alone) already
+tells you the compute-optimal allocation."** It does not. @eq-scaling-n
+describes loss as $N$ grows *when data is not the bottleneck* — it
+does not, by itself, say how much of a fixed compute budget should go
+to $N$ versus $D$. The fixed-compute allocation question
+(@eq-kaplan-allocation) requires a separate fit, one that explicitly
+holds total compute fixed while trading $N$ against $D$.
+:::
+
+**Hoffmann et al.'s revision: the same fixed-compute question, a
+different empirical answer.** Hoffmann et al. pose the identical
+fixed-compute question — for a compute budget $C$, choose
+$N_{\text{opt}}(C)$ and $D_{\text{opt}}(C)$ to minimize loss subject to
+$\text{FLOPs}(N, D) = C$:
+
+$$
+N_{\text{opt}}(C), D_{\text{opt}}(C) = \operatorname*{arg\,min}_{N, D \ \text{s.t.}\ \mathrm{FLOPs}(N,D) = C} L(N, D)
+$$ {#eq-chinchilla-argmin}
+
+[@src-51]. Using three independent fitting methodologies over more
+than 400 trained models (70M–16B+ parameters, 5B–500B+ tokens), they
+consistently find $N_{\text{opt}} \propto C^{a}$ and
+$D_{\text{opt}} \propto C^{b}$ with $a$ and $b$ close to **0.5 each** —
+Approach 1 gives $a=0.50, b=0.50$; Approach 2 gives $a=0.49, b=0.51$;
+Approach 3 (a parametric fit of the loss surface) gives
+$a=0.46, b=0.54$ — versus Kaplan et al.'s own $a=0.73, b=0.27$
+[@src-51]. Hoffmann et al. state explicitly that they reach "the same
+conclusion" as Kaplan et al. about not training to lowest possible
+loss, while revising the specific ratio: for a 10x compute increase,
+Kaplan et al.'s ratio implies the model should grow roughly 5.5x and
+the data roughly 1.8x, whereas Hoffmann et al.'s near-equal exponents
+imply both should grow by roughly the same factor [@src-51]. This is a
+**revision of the allocation ratio, not a refutation** that scaling
+laws exist or that a fixed-compute optimum can be estimated — both
+papers agree on the framework in @eq-chinchilla-argmin; they disagree
+on the fitted exponents.
+
+**Why the two papers' fitted exponents differ.** The disagreement is
+not arbitrary: Hoffmann et al. state directly that Kaplan et al. "use a
+fixed number of training tokens and learning rate schedule for all
+models; this prevents them from modelling the impact of these
+hyperparameters on the loss," whereas "setting the learning rate
+schedule to approximately match the number of training tokens results
+in the best final loss regardless of model size" [@src-51]. The Smol
+Training Playbook corroborates this from a practitioner's perspective:
+a fixed cosine-schedule length "skewed early scaling laws research
+[...] because the authors used a fixed cosine schedule length when
+training models on varying token counts, underestimating the impact of
+data size," which "the Chinchilla study corrected [...] by [matching]
+the schedule length to each model's actual training duration"
+[@src-16]. A cosine learning-rate schedule needs its total length —
+warmup steps plus decay steps — fixed in advance; training a model on
+fewer tokens than that fixed schedule length underestimates how good
+that model could be, which in turn skews any allocation fitted from
+such runs toward favoring larger models. This is a genuine
+methodological cause for the difference in fitted exponents, not
+merely two different fits of the same clean data.
+
+**Practical schedule and optimizer choices this framework informs, but
+does not fully determine.** The Smol Training Playbook's own disclosed
+ablation configuration uses AdamW with $\beta_1=0.9$, $\beta_2=0.95$,
+$\epsilon=10^{-8}$, a linear warmup over 2,000 steps, and a cosine
+decay over 18,000 steps down to a minimum learning-rate floor
+[@src-16]. None of $\beta_1$, $\beta_2$, warmup length, or decay shape
+is derived from @eq-chinchilla-argmin itself — the scaling laws in
+this chapter constrain $N$ and $D$ for a fixed compute budget; they do
+not, by themselves, specify an optimizer's hyperparameters. What the
+schedule-length finding above does connect directly to this framework
+is the total number of *steps* the schedule should span: it should
+match the token budget $D$ that the allocation step already chose, not
+be fixed independently of it [@src-51;@src-16].
+
+**Loss-optimal is not the same claim as downstream-capability-best.**
+Both $N_{\text{opt}}(C)$ and $D_{\text{opt}}(C)$ in
+@eq-chinchilla-argmin are defined by minimizing *loss* — a separate,
+subsequent question is whether the resulting model is actually better
+on downstream tasks. Hoffmann et al. test this directly: Chinchilla
+(70B parameters, trained on 1.4 trillion tokens) uses the *same*
+training compute as Gopher (280B parameters, 300 billion tokens) but
+"uniformly and significantly outperforms" Gopher, GPT-3 (175B),
+Jurassic-1 (178B), and Megatron-Turing NLG (530B) on downstream
+evaluations, reaching 67.5% average accuracy on MMLU — "greater than a
+7% improvement over Gopher" [@src-51]. This downstream result
+corroborates the loss-based prediction for this specific comparison; it
+is not itself a claim the scaling-law fit makes, and a loss improvement
+elsewhere is not automatically guaranteed to produce a matching
+downstream-capability improvement.
+
+::: {.callout-warning title="Common misconception"}
+**"Chinchilla proved Kaplan et al.'s scaling-law paper was wrong."**
+Hoffmann et al. do not frame their result this way, and neither should
+this chapter: both papers report the same qualitative
+finding — current-generation models should not be trained to full
+convergence on a fixed compute budget — while disagreeing on the
+specific model/data split, for an identified methodological reason
+(schedule length not matched to token budget). Treat Chinchilla as
+correcting Kaplan et al.'s ratio, not as evidence that empirical
+scaling laws are unreliable in general.
+:::
+
+### Worked example
+
+**Part A — the same fixed 10x compute increase, two fitted
+allocations.** Take a deliberately toy anchor point,
+$N_0 = 5\times10^{8}$ parameters and $D_0 = 1\times10^{10}$ tokens —
+chosen only to satisfy @eq-compute-approx cleanly, not a real published
+model — giving $C_0 = 6 N_0 D_0 = 3\times10^{19}$ FLOPs. Scale the
+compute budget by 10x and apply each paper's own fitted exponents:
+
+| Allocation | $N$ growth factor | $D$ growth factor | New compute / $C_0$ |
+|---|---|---|---|
+| Kaplan et al. ($a=0.73,\,b=0.27$) | 5.37x | 1.86x | 10.00x |
+| Chinchilla ($a=0.50,\,b=0.50$) | 3.16x | 3.16x | 10.00x |
+
+: Both allocations exactly reproduce the same 10x compute increase — they differ only in how that increase is split between model size and data size, verified programmatically {#tbl-toy-allocation}
+
+Both rows satisfy $C_{\text{new}}/C_0 = 10.00$ exactly, because each
+exponent pair sums to $1.0$ ($0.73+0.27$ and $0.50+0.50$): whatever
+$N$ does not grow by, $D$ must, to keep $N \times D$ — and hence
+$C \approx 6ND$ — scaling linearly with the compute multiplier. The two
+rows are not two different compute budgets; they are two different
+*opinions*, from two verified sources, about how to spend the same
+budget.
+
+**Part B — a real projected value and a real trained model are not
+identical numbers.** Hoffmann et al.'s own Table 3 projects that a
+67-billion-parameter model's compute-optimal frontier point uses 1.5
+trillion tokens (22.39 tokens per parameter). The Chinchilla model
+they actually trained, however, is 70 billion parameters — not 67
+billion — trained on 1.4 trillion tokens (20.00 tokens per parameter),
+described in their own text as "the larger end" of a *predicted range*
+of 40–70 billion parameters for the Gopher compute budget, chosen "due
+to both dataset and computational efficiency considerations" rather
+than read mechanically off the fitted frontier [@src-51]. The fitted
+Table 3 projection and the actually-trained model are close, but they
+are two different numbers from the same paper: one is a smooth curve's
+projection for an arbitrary size (67B), the other is a specific,
+practically-motivated engineering choice (70B) that happened to land
+near, but not exactly on, that curve.
+
+**Part C — a real production choice, checked against a Chinchilla-style
+estimate.** The Smol Training Playbook reports that SmolLM3 was
+trained with 3 billion parameters on 11 trillion tokens [@src-16].
+Interpolating Table 3's own tokens-per-parameter ratio (which itself
+ranges from 20.00 to 22.39 across the table) to a 3B model gives an
+estimated Chinchilla-optimal ratio of about 20.35 tokens per
+parameter — roughly 61.0 billion tokens, not 11 trillion. SmolLM3's
+actual token budget is therefore about **180x** larger than this
+interpolated Chinchilla-optimal estimate. This is not an error: the
+Smol Training Playbook states the team deliberately "overtrained"
+relative to scaling-law advice, because a smaller, longer-trained model
+is cheaper to run at inference — a consideration the loss-minimizing
+allocation in @eq-chinchilla-argmin does not itself account for
+[@src-16]. Chapter 1 reported a smaller-scale version of the same
+pattern for a 1B-parameter ablation baseline trained on 45B tokens
+against a ~35B-token Chinchilla-optimal estimate [@src-16;@src-51];
+this chapter's 180x SmolLM3 example shows the same predicted-optimum-
+versus-actual-choice gap at production scale, for an explicitly stated
+engineering reason rather than an unexplained deviation.
+
+### Compare and contrast
+
+| Aspect | Kaplan et al. (2020) [@src-50] | Chinchilla / Hoffmann et al. (2022) [@src-51] |
+|---|---|---|
+| Fitted allocation exponents | $N \propto C^{0.73}$, $D \propto C^{0.27}$ | $N \propto C^{a}$, $D \propto C^{b}$, $a \approx b \approx 0.5$ |
+| Implied split for 10x compute | Model-heavy: 5.37x model, 1.86x data | Even: 3.16x model, 3.16x data |
+| Learning-rate schedule in fitting | Fixed schedule length across all runs | Schedule length matched to each run's actual token budget |
+| Number of models used to fit | Primarily under 100M parameters, WebText2 | Over 400 models, 70M–16B+ parameters, 5B–500B+ tokens |
+| Real model shaped by this framework | Contributed to GPT-3-era models trained on a comparatively modest ~300B tokens [@src-16] | Chinchilla itself: 70B parameters, 1.4T tokens, outperforming larger same-compute models |
+
+: Two fixed-compute allocation results from the same framework, revised for a stated methodological reason — not two contradictory theories {#tbl-kaplan-vs-chinchilla}
+
+### Check your understanding
+
+Full solutions are in [Answer Key: Chapter 3](#sec-solutions-ch3):
+
+1. **Quick check.** What three quantities does a scaling law like
+   @eq-scaling-n, @eq-scaling-d, or @eq-scaling-c relate loss to, and
+   does any one of these equations alone tell you how to split a fixed
+   compute budget between model size and data size? ________________________________________________
+2. **Calculation.** Using Kaplan et al.'s fitted exponents
+   ($a=0.73$, $b=0.27$), if a fixed compute budget increases by 10x,
+   by what factor should model size and dataset size each grow, and
+   what should the product of the two growth factors equal? ________________________________________________
+3. **Explain.** What specific methodological difference does Hoffmann
+   et al. identify as a cause of their revised allocation exponents,
+   relative to Kaplan et al.'s original fit? ________________________________________________
+4. **Misconception check.** True or false: Hoffmann et al.'s Chinchilla
+   paper shows that Kaplan et al.'s original scaling-law paper was
+   simply wrong. ________________________________________________
+5. **Compare.** Chinchilla is 70 billion parameters trained on 1.4
+   trillion tokens. Is this exact configuration the same number
+   Hoffmann et al.'s own fitted frontier (Table 3) projects for a
+   67-billion-parameter model, or a related-but-distinct engineering
+   choice? ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+Using the same toy anchor from the worked example
+($N_0 = 5\times10^{8}$, $D_0 = 1\times10^{10}$), compute the model-size
+and data-size growth factors that Kaplan et al.'s exponents
+($a=0.73$, $b=0.27$) and Chinchilla's exponents ($a=0.50$, $b=0.50$)
+would each imply for a **100x** compute increase instead of 10x.
+Confirm that both allocations still respect the same 100x compute
+constraint (i.e., that each pair of growth factors, multiplied
+together, equals 100), and state in one sentence how the *gap* between
+the two papers' recommended model sizes changes as the compute
+multiplier grows from 10x to 100x.
+
+### Interview lens
+
+*"Given a fixed compute budget, how do you decide whether to train a
+bigger model or train on more data?"* A strong answer states the
+fixed-compute framing explicitly (@eq-chinchilla-argmin: minimize loss
+subject to a fixed FLOPs constraint), names at least one paper's
+specific fitted exponents rather than saying "it depends," and states
+that Chinchilla revises Kaplan et al.'s ratio for an identified
+methodological reason rather than contradicting it. A complete answer
+also distinguishes the loss-minimizing allocation from a real
+production decision: a team may deliberately train a smaller model on
+far more tokens than a Chinchilla-optimal estimate would suggest, to
+reduce inference cost, as the Smol Training Playbook's own SmolLM3
+example shows. An answer that treats "Chinchilla-optimal" as the only
+correct choice, with no room for a deliberate engineering tradeoff, is
+incomplete.
+
+### Chapter recap
+
+- A scaling law relates loss to model size $N$, dataset size $D$, or
+  compute $C$ individually (@eq-scaling-n–@eq-scaling-c); it does not,
+  by itself, answer the separate fixed-compute allocation question of
+  how to split a budget between $N$ and $D$.
+- Kaplan et al. and Hoffmann et al. both answer the same fixed-compute
+  allocation question (@eq-chinchilla-argmin) with different fitted
+  exponents — model-heavy (0.73/0.27) versus even (~0.50/0.50) — a
+  revision traced to a specific methodological cause (fixed versus
+  matched learning-rate schedule length), not a contradiction.
+- Both allocations, applied to the same compute budget, satisfy the
+  same compute constraint exactly; they differ only in the split, as
+  verified mechanically for a 10x compute increase in this chapter's
+  worked example.
+- A fitted frontier's projection for a given model size (e.g. Hoffmann
+  et al.'s 67B row) and an actually-trained model near that size (their
+  own 70B Chinchilla) are related but distinct numbers — a predicted
+  optimum is not automatically identical to an engineering choice.
+- Real production models (SmolLM3's 3B/11T configuration, and Chapter
+  1's 1B/45B ablation baseline) can deliberately exceed a
+  Chinchilla-optimal token estimate by a large factor, for stated
+  practical reasons such as lowering inference cost — this is a
+  deliberate deviation, not an error, and loss-optimality is not the
+  same claim as downstream-capability-best (Chinchilla's own MMLU
+  result is evaluated separately from its loss-based allocation).
+
+### Sources and further reading
+
+Primary sources for this chapter: [@src-50] (Kaplan et al.'s Sections
+1.2 and 6 — the single-factor power laws, the fixed-compute allocation
+exponents, and the "large model, modest data, early stopping"
+conclusion — verified via full-text extraction of the arXiv PDF) and
+[@src-51] (Hoffmann et al.'s Sections 2–4 and Table 2/Table 3 — the
+fixed-compute argmin framing, the three fitting approaches, the
+revised exponents, and the Chinchilla model itself — verified via
+full-text extraction of the arXiv PDF). Supporting source: [@src-16]
+(the Smol Training Playbook's disclosed AdamW/cosine-schedule
+hyperparameters, its own methodological explanation for why a fixed
+schedule length skews scaling-law fits, and the SmolLM3
+overtraining example — verified via full-text extraction of the
+article's own source file). This chapter builds directly on the token-
+budget data point Chapter 1 introduced and explicitly deferred here
+[@src-16;@src-51]. Architectural mechanisms (attention, normalization,
+sparsity) remain Workbook 04's domain; distributed-training mechanics
+for actually executing a chosen $(N, D)$ allocation at scale are
+Chapters 4–5's domain, not this chapter's.

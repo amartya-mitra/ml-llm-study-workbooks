@@ -122,3 +122,63 @@ questions:
     explanation: "Each paper states its own sharing pattern explicitly; the two designs share different components, so 'what's shared' cannot be generalized from one design to the other."
     common_wrong_answer: "Assuming nothing is shared just because there are multiple heads/modules, or assuming the two designs share the same components."
     source_ids: ["src-43", "src-33"]
+
+  - id: "q-05-scaling-001"
+    workbook: "05-llm-training"
+    chapter: "optimization-and-scaling-laws"
+    topic: "What a single-factor scaling law does and does not establish"
+    difficulty: "intro"
+    question_type: "recall"
+    prompt: "What three quantities does a scaling law relate loss to, and does any one of the single-factor equations alone tell you how to split a fixed compute budget between model size and data size?"
+    expected_answer: "Model size N, dataset size D, and compute C. No -- each single-factor equation describes loss as one factor grows while the other is not the bottleneck; none of them alone answers the separate fixed-compute allocation question of how to split a budget between N and D."
+    explanation: "The single-factor power laws and the fixed-compute allocation question are two distinct results in the chapter's sources, not one and the same."
+    common_wrong_answer: "Treating a single-factor power law (e.g. loss improves as model size grows) as if it already specified the optimal split of a fixed compute budget."
+    source_ids: ["src-50"]
+
+  - id: "q-05-scaling-002"
+    workbook: "05-llm-training"
+    chapter: "optimization-and-scaling-laws"
+    topic: "Kaplan et al.'s fixed-compute allocation exponents"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "Using Kaplan et al.'s fitted exponents (a=0.73, b=0.27), if a fixed compute budget increases by 10x, by what factor should model size and dataset size each grow, and what should the product of the two growth factors equal?"
+    expected_answer: "Model size grows by 10^0.73 ~= 5.37x; dataset size grows by 10^0.27 ~= 1.86x. 5.37 x 1.86 ~= 10.00, confirming the allocation reproduces the 10x compute increase exactly, since 0.73 + 0.27 = 1.0."
+    explanation: "Because the two exponents sum to 1.0, the two growth factors must multiply (not add) to the compute multiplier itself -- verified mechanically in the chapter's worked example."
+    common_wrong_answer: "Applying the same growth factor to both quantities, or checking that the two factors add to 10 rather than multiply to 10."
+    source_ids: ["src-50"]
+
+  - id: "q-05-scaling-003"
+    workbook: "05-llm-training"
+    chapter: "optimization-and-scaling-laws"
+    topic: "Methodological cause of the Kaplan-to-Chinchilla revision"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "What specific methodological difference does Hoffmann et al. identify as a cause of their revised allocation exponents, relative to Kaplan et al.'s original fit?"
+    expected_answer: "Kaplan et al. used a fixed number of training tokens and a fixed learning-rate schedule length across all runs, which underestimated smaller models' potential. Hoffmann et al. instead matched each run's schedule length to its actual token budget and found this produces the best final loss regardless of model size, correcting the earlier underestimate."
+    explanation: "This is the specific, stated methodological cause behind the two papers' different fitted exponents, not merely a different dataset or fitting tool."
+    common_wrong_answer: "Assuming the two papers simply used different datasets or curve-fitting software rather than identifying the schedule-length mismatch Hoffmann et al. state explicitly."
+    source_ids: ["src-51", "src-16"]
+
+  - id: "q-05-scaling-004"
+    workbook: "05-llm-training"
+    chapter: "optimization-and-scaling-laws"
+    topic: "Revision versus refutation framing"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false: Hoffmann et al.'s Chinchilla paper shows that Kaplan et al.'s original scaling-law paper was simply wrong."
+    expected_answer: "False."
+    explanation: "Hoffmann et al. state they reach the same qualitative conclusion as Kaplan et al. -- that compute-optimal training should not proceed to full convergence -- while revising the specific allocation ratio for an identified methodological reason. This is a revision, not a refutation."
+    common_wrong_answer: "Treating a later paper's revised number as evidence the earlier paper's entire framework was invalid, rather than checking what the later paper itself claims to revise."
+    source_ids: ["src-51"]
+
+  - id: "q-05-scaling-005"
+    workbook: "05-llm-training"
+    chapter: "optimization-and-scaling-laws"
+    topic: "Predicted optimum versus actual production engineering choice"
+    difficulty: "stretch"
+    question_type: "explanation"
+    prompt: "Why can a real production model like SmolLM3 be trained on far more tokens than its Chinchilla-optimal estimate would suggest, without that being an error?"
+    expected_answer: "A smaller model trained on more tokens than the loss-minimizing allocation suggests is cheaper to run at inference. The Smol Training Playbook states SmolLM3 was deliberately trained on about 11 trillion tokens for a 3-billion-parameter model -- roughly 180x an interpolated Chinchilla-optimal estimate for that size -- specifically to reduce downstream inference cost, a consideration the loss-minimizing allocation itself does not account for."
+    explanation: "The Chinchilla-style allocation minimizes training loss for a fixed compute budget; it does not factor in a model's post-training inference cost, which is a separate, legitimate engineering consideration that can justify deliberately training beyond the loss-optimal token budget."
+    common_wrong_answer: "Assuming any deviation from a Chinchilla-optimal token budget must be a mistake, rather than recognizing inference-cost amortization as a stated, deliberate reason for overtraining."
+    source_ids: ["src-16"]
