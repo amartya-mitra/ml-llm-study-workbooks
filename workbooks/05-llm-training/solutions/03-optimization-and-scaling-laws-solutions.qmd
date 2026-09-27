@@ -1,7 +1,7 @@
 ## Answer Key: Chapter 3 {#sec-solutions-ch3 .unnumbered}
 
 Full solutions to Chapter 3's "Check your understanding" questions
-(@sec-ch3).
+(@sec-ch3-check).
 
 **1. Quick check. What three quantities does a scaling law like
 @eq-scaling-n, @eq-scaling-d, or @eq-scaling-c relate loss to, and does

@@ -293,7 +293,7 @@ engineering reason rather than an unexplained deviation.
 
 : Two fixed-compute allocation results from the same framework, revised for a stated methodological reason — not two contradictory theories {#tbl-kaplan-vs-chinchilla}
 
-### Check your understanding
+### Check your understanding {#sec-ch3-check}
 
 Full solutions are in [Answer Key: Chapter 3](#sec-solutions-ch3):
 

@@ -16,8 +16,24 @@ and 2's own review-build convention (ch01-review.qmd, ch02-review.qmd)
 -- including their pagination fix: no manual pagebreak is inserted
 between the chapter and its answer key, so the Answer Key flows
 naturally onto whatever space remains on the chapter's last page
-instead of wasting a page. -->
+instead of wasting a page.
+
+The single pagebreak below is a review-local exception to that rule,
+for a different, documented reason: Typst's citeproc:false native
+bibliography is always appended at the absolute end of the compiled
+document (an established, previously-verified finding -- see workbook
+04's own index.qmd) and its internal entry spacing cannot be adjusted
+from this document, since it is auto-generated outside normal content
+flow. Without this pagebreak, natural reflow splits the bibliography
+after entry [1], stranding entries [2]-[3] alone on the next page --
+strictly worse than a complete, sparse bibliography page. Forcing the
+whole Bibliography (heading + all three entries) onto its own page
+keeps it intact. This does not shrink or reflow any other page. -->
 
 {{< include chapters/03-optimization-and-scaling-laws.qmd >}}
 
 {{< include solutions/03-optimization-and-scaling-laws-solutions.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
