@@ -36,20 +36,23 @@ figures:
     accessibility_description: "A flow diagram: four boxes labeled English web, multilingual, code, and math, each with an arrow converging downward into a box labeled small-scale ablation sweep. An arrow leads down to a box labeled stage 1 mixture. A dashed arrow branches right to a box labeled annealing stage, swap in high-quality data. Both the stage 1 mixture box and the annealing box have arrows converging into a final box labeled pretrained model."
     final_filename: "figures/rendered/fig-data-mixing-decision-loop.svg"
 
-  - id: "fig-mtp-independent-vs-causal"
+  - id: "fig-mtp-training-objective"
     chapter: "ch2"
-    teaching_purpose: "Show Gloeckle et al.'s independent-heads MTP design and DeepSeek-V3's causal-chain MTP design side by side, so a learner can tell which one a given model actually uses instead of treating 'MTP' as one fixed mechanism."
-    learner_takeaway: "Both designs add auxiliary heads/modules predicting future-offset tokens during training only; they differ in whether each head is independent of the others or conditions on the previous head's output."
-    diagram_type: "block/flow diagram, two panels"
-    objects_and_relationships: "Panel 1 (independent-heads): one shared trunk, n independent output heads, one per future offset, no connection between heads. Panel 2 (causal-chain): one shared trunk, n heads where each head's input includes the previous head's output."
-    required_labels: ["shared trunk", "output head (independent)", "output head (causal-chain)", "next-token head (kept at inference)", "auxiliary heads (training-only)"]
+    status: "drawn"
+    teaching_purpose: "Show the independent-heads MTP design's structure: every head reads the same shared hidden state and predicts a different future offset, with no dependency between heads -- and label the diagram explicitly as training-time, not inference-time."
+    learner_takeaway: "MTP adds training-time-only heads computing independent per-offset losses from one shared hidden state; at inference, by default, only the next-token head survives."
+    diagram_type: "block/flow diagram, single panel"
+    objects_and_relationships: "Context tokens -> shared trunk f_s -> hidden state z_t -> three independent heads (each predicting a different offset) -> three individual losses -> combined objective L_n."
+    required_labels: ["shared trunk f_s", "z_t (shared)", "Head 1/2/3", "loss_i", "combined objective L_n", "TRAINING-TIME OBJECTIVE banner"]
     underlying_calculation: null
-    source_inspiration: "src-43 (Gloeckle et al.)'s own architecture description for panel 1; src-33 (DeepSeek-V3)'s own MTP module description for panel 2 -- neither figure is copied, both are original redraws"
+    source_inspiration: "src-43 (Gloeckle et al.)'s own architecture description (Section 2, Eq. 1-3) -- an original redraw, not a copy of the paper's own Figure 1"
     must_be_redrawn: true
-    attribution_requirement: "cite src-43 and src-33 in the caption's source line"
-    intended_printed_dimensions: "not yet decided"
-    grayscale_behavior: "not yet decided"
-    accessibility_description: "not yet decided -- write when the figure is actually drawn, per config/visual-style.yaml's accessibility requirement"
+    attribution_requirement: "cite src-43 in the caption's source line"
+    intended_printed_dimensions: "full page width, drawn at 960x610 canvas units"
+    grayscale_behavior: "boxes distinguished by position/label as well as fill color (context=blue, trunk/loss=orange, heads=green, combine=gray); the training-time banner uses both a red outline and bold text, not color alone"
+    accessibility_description: "A flow diagram with a bordered banner reading 'training-time objective, not an inference-time decoding diagram' at the top. Below it, four token boxes labeled x1, x2, ..., xt feed into a box labeled shared trunk f_s, which produces a box labeled z_t (shared). Three arrows fan out from z_t into three boxes labeled Head 1, Head 2, Head 3, each predicting a different future offset. Each head feeds into its own loss box, and all three loss boxes converge into one final box labeled combined objective. A caption below states that at inference only Head 1's path is kept by default."
+    final_filename: "figures/rendered/fig-mtp-training-objective.svg"
+    note_on_scope_change: "The original plan called for a two-panel figure showing both verified designs side by side. Drawn as a single-panel figure (independent-heads design only) instead -- the causal-chain design's structural differences are covered in the chapter's own compare-and-contrast table (@tbl-mtp-design-comparison) and worked-example table (@tbl-mtp-design2-chain) rather than a second figure panel, since the task's own figure-work instruction asked for 'at minimum... one explanatory diagram,' not necessarily two."
 
   - id: "fig-parallelism-strategies-overview"
     chapter: "ch4"

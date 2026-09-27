@@ -85,13 +85,19 @@ class TestWorkbook05ChapterStructure(unittest.TestCase):
         missing = cited - registry_ids
         self.assertEqual(missing, set(), msg=f"chapter files cite source ids not present in sources/registry.yaml: {missing}")
 
+    DRAFTED_CHAPTER_FILES = [
+        "01-pretraining-objectives-and-data.qmd",
+        "02-multi-token-prediction.qmd",
+    ]
+
     def test_undrafted_chapters_have_an_explicit_pending_status_note(self):
-        # Chapter 1 was drafted 2026-09-26 (reports/05_llm_training_scope_and_source_decision.md's
-        # approval gate) and no longer carries this marker -- checked
-        # separately below. Chapters 2-6 remain scaffold-only and must
-        # still say so explicitly.
+        # Chapters 1 and 2 were drafted (2026-09-26 and 2026-09-27,
+        # reports/05_llm_training_scope_and_source_decision.md's approval
+        # gates) and no longer carry this marker -- checked separately
+        # below. Chapters 3-6 remain scaffold-only and must still say so
+        # explicitly.
         for fname in EXPECTED_CHAPTER_FILES:
-            if fname == "01-pretraining-objectives-and-data.qmd":
+            if fname in self.DRAFTED_CHAPTER_FILES:
                 continue
             path = os.path.join(CHAPTERS_DIR, fname)
             with open(path, encoding="utf-8") as f:
@@ -99,19 +105,21 @@ class TestWorkbook05ChapterStructure(unittest.TestCase):
             self.assertIn("drafting has not yet begun", content,
                           msg=f"{fname} is missing its explicit pending-drafting status note")
 
-    def test_chapter1_is_drafted_not_a_scaffold(self):
-        path = os.path.join(CHAPTERS_DIR, "01-pretraining-objectives-and-data.qmd")
-        with open(path, encoding="utf-8") as f:
-            content = f.read()
-        self.assertNotIn("drafting has not yet begun", content,
-                          msg="chapter 1 should no longer carry the scaffold-only pending marker")
-        for required_section in [
+    def test_drafted_chapters_are_not_scaffolds(self):
+        required_sections = [
             "### Learning objectives", "### Why this matters", "### Technical core",
             "### Worked example", "### Check your understanding",
             "### Chapter recap", "### Sources and further reading",
-        ]:
-            self.assertIn(required_section, content,
-                          msg=f"chapter 1 is missing drafted section: {required_section}")
+        ]
+        for fname in self.DRAFTED_CHAPTER_FILES:
+            path = os.path.join(CHAPTERS_DIR, fname)
+            with open(path, encoding="utf-8") as f:
+                content = f.read()
+            self.assertNotIn("drafting has not yet begun", content,
+                              msg=f"{fname} should no longer carry the scaffold-only pending marker")
+            for required_section in required_sections:
+                self.assertIn(required_section, content,
+                              msg=f"{fname} is missing drafted section: {required_section}")
 
 
 class TestWorkbook05RegistryAndOutputConventions(unittest.TestCase):

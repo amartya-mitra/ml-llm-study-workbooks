@@ -1,0 +1,23 @@
+---
+title: "LLM Pretraining and Distributed Training"
+subtitle: "Chapter 2 Review Draft — Multi-token Prediction as a Training Objective"
+author: "ML/LLM Study Workbooks"
+toc: true
+number-sections: true
+---
+<!-- papersize/margin/callout-icon/bibliography are set once, project-
+wide, in the repo-root _quarto.yml -- do not repeat them here.
+
+This is a standalone, chapter-scoped review document, not the
+workbook's canonical index.qmd. It exists so an independent reviewer
+can inspect Chapter 2 alone, without workbooks/05-llm-training/
+index.qmd's other chapters diluting the review. Mirrors chapter 1's
+own review-build convention (ch01-review.qmd,
+build_wb05_ch01_review.py) -- including its pagination fix: no manual
+pagebreak is inserted between the chapter and its answer key, so the
+Answer Key flows naturally onto whatever space remains on the
+chapter's last page instead of wasting a page. -->
+
+{{< include chapters/02-multi-token-prediction.qmd >}}
+
+{{< include solutions/02-multi-token-prediction-solutions.qmd >}}

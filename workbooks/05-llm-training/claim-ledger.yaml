@@ -1,10 +1,11 @@
 # Workbook 05's source/claim ledger. Schema: shared/claim-ledger-schema.yaml.
 #
-# `entries` now has real records for Chapter 1 (drafted 2026-09-26), each
-# tied to an actual sentence/number in that chapter -- not invented ahead
-# of drafting, per reports/05_llm_training_scope_and_source_decision.md's
-# gate. Chapters 2-6 remain undrafted; do not add entries for them until
-# they are actually written.
+# `entries` now has real records for Chapters 1 and 2 (drafted
+# 2026-09-26 and 2026-09-27), each tied to an actual sentence/number in
+# that chapter -- not invented ahead of drafting, per
+# reports/05_llm_training_scope_and_source_decision.md's gate. Chapters
+# 3-6 remain undrafted; do not add entries for them until they are
+# actually written.
 #
 # `planned_chapter_source` records below are chapter-level source
 # mappings only -- which already-verified sources each chapter intends
@@ -77,6 +78,70 @@ entries:
     source_ids: ["src-16", "src-51"]
     verification_status: "verified_full_text"
     note: "The ~35B figure is src-16's own stated approximation, attributed by src-16 to the Chinchilla paper (src-51); not independently recomputed from src-51's own formula in this chapter."
+
+  - id: "claim-05-mtp-001"
+    workbook: "05-llm-training"
+    chapter: "ch2"
+    statement: "Gloeckle et al.'s independent-heads MTP design uses a shared trunk producing one latent representation z_t:1, from which n independent output heads predict n future tokens; only the next-token head is kept at inference by default."
+    source_ids: ["src-43"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-mtp-002"
+    workbook: "05-llm-training"
+    chapter: "ch2"
+    statement: "The trunk and the unembedding matrix are shared across all n heads in the independent-heads design; only each head's own transformer layers are duplicated per head."
+    source_ids: ["src-43"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-mtp-003"
+    workbook: "05-llm-training"
+    chapter: "ch2"
+    statement: "Gloeckle et al.'s sequential-computation implementation reduces peak GPU memory from O(nV+d) to O(V+d) 'at no expense in runtime,' per the paper's own stated result."
+    source_ids: ["src-43"]
+    verification_status: "verified_full_text"
+    note: "Presented in the chapter as this paper's own reported result for its own implementation, not a universal guarantee."
+
+  - id: "claim-05-mtp-004"
+    workbook: "05-llm-training"
+    chapter: "ch2"
+    statement: "DeepSeek-V3's MTP design sequentially predicts D additional tokens, keeping a complete causal chain at each prediction depth, explicitly differing from Gloeckle et al.'s parallel independent heads."
+    source_ids: ["src-33"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-mtp-005"
+    workbook: "05-llm-training"
+    chapter: "ch2"
+    statement: "At depth k, DeepSeek-V3's module combines the previous depth's hidden state with the actual embedding of the ground-truth target token (teacher forcing); the embedding layer and output head are shared across all depths and with the main model, while each depth's transformer block and projection matrix are depth-specific."
+    source_ids: ["src-33"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-mtp-006"
+    workbook: "05-llm-training"
+    chapter: "ch2"
+    statement: "Both papers state that the auxiliary heads/modules are discarded at inference by default, leaving only the ordinary next-token path; both separately note that the discarded components could instead be repurposed for self-speculative decoding as an optional design choice."
+    source_ids: ["src-43", "src-33"]
+    verification_status: "verified_full_text"
+    note: "The MTP-vs-speculative-decoding distinction is the chapter's required boundary with workbook 06; not elaborated beyond stating the option exists."
+
+  - id: "claim-05-mtp-007"
+    workbook: "05-llm-training"
+    chapter: "ch2"
+    statement: "Gloeckle et al. report their 13B model solving 12% more problems on HumanEval and 17% more on MBPP than a comparable next-token model, and separately report that multi-token prediction models are worse than the baseline for small model sizes but outperform it at scale."
+    source_ids: ["src-43"]
+    verification_status: "verified_full_text"
+    note: "Both figures are this paper's own reported results for its own models/benchmarks -- presented in the chapter as non-universal, model-size-dependent effects, not a general MTP quality guarantee."
+
+  - id: "claim-05-mtp-008"
+    workbook: "05-llm-training"
+    chapter: "ch2"
+    statement: "Gloeckle et al. report up to 3x inference speedup using self-speculative decoding with models trained via 4-token prediction."
+    source_ids: ["src-43"]
+    verification_status: "verified_full_text"
+    note: "This is the paper's own reported speedup for its own self-speculative-decoding setup, not a general inference-speed guarantee for any MTP-trained model regardless of serving strategy or hardware."
 
 planned_chapter_sources:
   - chapter: "ch1"

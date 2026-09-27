@@ -1,37 +1,329 @@
-## Multi-Token Prediction as a Training Objective {#sec-ch2}
+## Multi-token Prediction as a Training Objective {#sec-ch2}
 
-*Status: scaffold only — drafting has not yet begun for this chapter.*
+*Predicting Further Ahead, Without Changing What You Serve*
 
-**Purpose:** Give multi-token prediction (MTP) its full training-time
-mechanism treatment — both Gloeckle et al.'s independent-heads design
-and DeepSeek-V3's causal-chain design, why only the next-token head
-survives to inference, and the auxiliary heads' parameter/compute
-cost.
+### Learning objectives
 
-**Planned subsections** (following `shared/chapter-template.qmd`'s
-established structure):
+By the end of this chapter you should be able to:
 
-- Learning objectives
-- Why this matters
-- Mental model or analogy
-- Visual overview
-- Technical core
-- Worked example
-- Compare and contrast
-- Check your understanding
-- Common misconception
-- Applied exercise
-- Interview lens
-- Chapter recap
-- Sources and further reading
+- Write the standard next-token training objective, then generalize it
+  to a multi-token prediction (MTP) objective, and state exactly what
+  changes and what stays fixed between the two.
+- Distinguish two verified MTP designs — independent parallel heads and
+  a sequential causal chain — by what each head/module's input actually
+  contains, not just by how many extra outputs each produces.
+- Compute the shifted target positions and the total number of
+  individual loss terms an MTP objective introduces, given a sequence
+  length and a prediction horizon.
+- State what is shared versus duplicated across an MTP design's extra
+  heads or modules.
+- Distinguish MTP (a training-time objective) from speculative decoding
+  (an inference-time serving technique), and state what about MTP's
+  effect on downstream quality or inference speed is and is not
+  supported by the verified sources.
 
-**Source IDs this chapter will draw on:** [@src-43], [@src-33].
+### Why this matters
 
-**Boundary note:** This is workbook 05's assigned primary home for MTP,
-per `config/series-topic-roadmap.yaml` — workbook 04 chapters 7 and 8
-only cross-reference this topic by name and must not be duplicated
-here in the other direction either: do not re-teach workbook 04
-chapter 6's DeepSeek-V3 architecture case study, only its MTP module
-specifically. Required distinction to preserve: MTP is a training-time
-design choice, not itself speculative decoding (workbook 06's primary
-home) — an MTP module can become a draft source but does not have to.
+Ordinary next-token training asks a model one question per position:
+*what comes immediately next?* Chapter 1 treated the objective itself
+as fixed and focused on the data feeding it. This chapter changes the
+objective: at each position, the model is additionally asked to guess
+further ahead, using the same context it already has. Two independently
+verified, materially different implementations of this idea exist —
+one used only as an auxiliary training signal, one deployed in a
+671B-parameter production model — and conflating them, or conflating
+either with the unrelated inference-time technique they are sometimes
+paired with, is the single most common way this topic gets taught
+incorrectly.
+
+### Mental model or analogy
+
+::: {.callout-note title="Analogy"}
+Picture a student reading a mystery novel one page at a time. The
+ordinary exercise is: after each page, guess what happens on the very
+next page. Multi-token prediction adds extra exercises at the same
+point: also guess what happens two pages ahead, and three pages ahead,
+using only what you've read so far. When it's actually time to keep
+reading (inference), the teacher only ever asks the "next page"
+question — the extra guesses were training exercises, not part of the
+real task. **Where this breaks down:** in one of this chapter's two
+verified designs, the "two pages ahead" guess is not made blind — the
+student is first *told* the correct answer to the "next page" question,
+then asked to guess two pages ahead *using* that correct answer. That
+chained version is a different exercise from three independent guesses
+made all at once, and the two must not be treated as the same thing.
+:::
+
+### Visual overview
+
+![The multi-token prediction training objective (independent-heads
+design). Every head reads the same shared hidden state $z_t$ and
+predicts a different future offset; no head's prediction depends on
+another head's output. This is explicitly a training-time diagram —
+by default, only Head 1's next-token path is kept at
+inference.](figures/rendered/fig-mtp-training-objective.svg){#fig-mtp-training-objective}
+
+### Technical core
+
+**Baseline: the standard next-token objective.** Ordinary language-model
+training minimizes the cross-entropy loss
+
+$$
+L_1 = -\sum_t \log P_\theta(x_{t+1} \mid x_{t:1})
+$$ {#eq-next-token}
+
+— maximizing the probability of the single next token $x_{t+1}$ given
+the history $x_{t:1}$ [@src-43]. Nothing about this chapter changes
+@eq-next-token as the model's inference-time behavior; MTP only adds
+extra terms during training.
+
+**Generalizing to $n$ future tokens.** Gloeckle et al. generalize
+@eq-next-token to predicting $n$ future tokens at once from each
+position:
+
+$$
+L_n = -\sum_t \log P_\theta(x_{t+n:t+1} \mid x_{t:1})
+$$ {#eq-mtp-joint}
+
+which they factorize, under the assumption that a **shared trunk**
+produces one latent representation $z_{t:1}$ from which all $n$ future
+tokens are predicted **independently of each other**:
+
+$$
+L_n = -\sum_t \sum_{i=1}^{n} \log P_\theta(x_{t+i} \mid z_{t:1}) \cdot P_\theta(z_{t:1} \mid x_{t:1})
+$$ {#eq-mtp-factorized}
+
+[@src-43]. Concretely, the architecture is a shared trunk $f_s$, $n$
+**independent** output heads $f_{h_i}$ (each its own set of transformer
+layers), and a **shared** unembedding matrix $f_u$:
+
+$$
+P_\theta(x_{t+i} \mid x_{t:1}) = \mathrm{softmax}\bigl(f_u(f_{h_i}(f_s(x_{t:1})))\bigr), \quad i = 1, \ldots, n
+$$ {#eq-mtp-heads}
+
+where $P_\theta(x_{t+1} \mid x_{t:1})$ is the ordinary next-token head
+[@src-43]. **What is shared versus duplicated:** the trunk $f_s$ and
+the unembedding matrix $f_u$ are shared across all $n$ heads; only each
+head's own transformer layers $f_{h_i}$ are duplicated per head — the
+paper's own contribution is a memory-efficient implementation that
+computes each head's forward/backward pass sequentially, discarding
+each head's logits before starting the next, which reduces peak GPU
+memory from $O(nV+d)$ to $O(V+d)$ ($V$ = vocabulary size, $d$ = latent
+dimension) "at no expense in runtime" [@src-43] — the paper's own
+stated qualification, not a universal guarantee for every
+implementation.
+
+::: {.callout-warning title="Common misconception"}
+**"More prediction heads means proportionally more training compute."**
+Per the paper's own memory-accounting argument, the added *parameter*
+cost is real (one extra transformer-layer stack per head), but the
+paper reports "no train time or memory overhead" for their specific
+sequential-computation implementation [@src-43] — this is the source's
+own reported result for its own implementation, not a property that
+follows automatically from the objective itself in every
+implementation.
+:::
+
+**A different design: the sequential causal chain (DeepSeek-V3).**
+DeepSeek-V3 also adopts an MTP objective, explicitly citing Gloeckle et
+al. as its inspiration, but implements it differently: "different from
+Gloeckle et al. (2024), which parallelly predicts $D$ additional tokens
+using independent output heads, we sequentially predict additional
+tokens and keep the complete causal chain at each prediction depth"
+[@src-33]. Concretely, depth $k$'s module combines the **previous
+depth's** hidden state $h_i^{k-1}$ with the **actual embedding of the
+ground-truth token** $t_{i+k}$ (teacher forcing, not the model's own
+guess):
+
+$$
+h_i'^{\,k} = M_k\bigl[\mathrm{RMSNorm}(h_i^{k-1}); \mathrm{RMSNorm}(\mathrm{Emb}(t_{i+k}))\bigr]
+$$ {#eq-mtp-chain-input}
+
+feeds this into depth $k$'s own transformer block to get $h_i^k$, and
+predicts the $k$-th additional token with a shared output head
+[@src-33]. **What is shared versus duplicated here:** the embedding
+layer and the output head are shared across *every* depth *and* with
+the main model itself — DeepSeek-V3's own stated design principle
+[@src-33] — while each depth's transformer block $\mathrm{TRM}_k$ and
+projection matrix $M_k$ are depth-specific. This is a materially
+different sharing pattern from the independent-heads design, where the
+per-head transformer layers are never shared with each other.
+
+The per-depth loss is a cross-entropy over that depth's valid target
+range, and the total MTP loss averages across depths with a single
+scalar weight $\lambda$:
+
+$$
+L_{\mathrm{MTP}} = \frac{\lambda}{D} \sum_{k=1}^{D} L_{\mathrm{MTP}}^{k}
+$$ {#eq-mtp-chain-total}
+
+added as an auxiliary term alongside the main next-token loss
+[@src-33].
+
+**Inference-time default, for both designs.** Both papers state the
+same default: the auxiliary heads/modules exist only to improve
+training, and are discarded at inference, leaving the ordinary
+next-token path to "function independently and normally" [@src-33];
+Gloeckle et al. state the identical default explicitly [@src-43].
+
+::: {.callout-warning title="Common misconception"}
+**"MTP is a way of doing speculative decoding."** It is not — MTP is
+a *training-time objective*. Both verified sources note, as a
+*separate, optional* possibility, that the discarded heads/modules
+*could* instead be repurposed as a draft source for speculative
+decoding — Gloeckle et al. report up to 3× inference speedup this way
+using self-speculative decoding [@src-43]; DeepSeek-V3 states the same
+option [@src-33] — but repurposing for speculative decoding is a
+distinct design decision, not a consequence of training with MTP. A
+model trained with MTP and served with ordinary autoregressive
+next-token decoding is common and does not contradict anything in
+either paper. Speculative decoding's own acceptance/verification
+mechanics are workbook 06's subject, not taught here.
+:::
+
+**What is, and is not, supported by these sources.** Both papers report
+downstream-capability and/or training-signal-density benefits *for
+their own specific models and evaluation suites* — Gloeckle et al.
+report their 13B model solving "12% more problems on HumanEval and 17%
+more on MBPP" than a comparable next-token model [@src-43]. Neither
+paper's result is evidence that MTP universally improves quality for
+every model size or task: Gloeckle et al. themselves report that
+"multi-token prediction models are worse than the baseline for small
+model sizes, but outperform the baseline at scale" [@src-43] — a
+model-size-dependent effect, not a universal one. Any specific latency
+number attributed to self-speculative decoding is also
+implementation- and hardware-dependent, per workbook 04's own general
+caution against treating a reported speedup as hardware-independent.
+
+### Worked example
+
+**Target shifting and loss-term counting for a 6-token toy sequence.**
+Take the toy sequence $x_1, \ldots, x_6 =$ "The", "cat", "sat", "on",
+"the", "mat" ($T = 6$), and a prediction horizon $n = 3$.
+
+**Design 1 (independent heads).** A position $t$ is valid only if
+$t + n \le T$ — every head needs a real target token — so $t$ ranges
+over $1, 2, 3$ (positions $4, 5, 6$ are excluded: predicting 3 tokens
+ahead from position 4 would need a token at position 7, which does not
+exist). At each valid $t$, three heads target three different offsets:
+
+| Position $t$ | Context | Head 1 target ($t+1$) | Head 2 target ($t+2$) | Head 3 target ($t+3$) |
+|---|---|---|---|---|
+| 1 | "The" | "cat" | "sat" | "on" |
+| 2 | "The", "cat" | "sat" | "on" | "the" |
+| 3 | "The", "cat", "sat" | "on" | "the" | "mat" |
+
+: Design 1's shifted targets — 3 valid positions x 3 heads = 9 individual loss terms, verified programmatically {#tbl-mtp-design1-targets}
+
+Every one of the $3 \times 3 = 9$ table cells is one term
+$-\log P_\theta(x_{t+i} \mid z_{t:1})$ in @eq-mtp-factorized's inner
+sum; the combined objective $L_3$ for this toy sequence is the sum of
+all 9 terms.
+
+**Design 2 (sequential chain).** For the same toy sequence and depth
+$D = 3$, position $i = 1$'s three depths chain as follows:
+
+| Depth $k$ | Input combines | Actual target-token embedding fed in | Predicts |
+|---|---|---|---|
+| 1 | main model's hidden state at position 1 | "cat" | "cat" |
+| 2 | depth 1's hidden state $h_1^1$ | "sat" | "sat" |
+| 3 | depth 2's hidden state $h_1^2$ | "on" | "on" |
+
+: Design 2's chained inputs for position 1 — each depth's input includes the ACTUAL embedding of its own target (teacher forcing), unlike design 1's heads {#tbl-mtp-design2-chain}
+
+Positions $i = 2$ and $i = 3$ chain the same way, shifted by one
+position each; design 2 also has exactly $3 \times 3 = 9$ individual
+loss terms for this toy sequence, but each depth's *input* — not just
+its target — differs structurally from design 1's heads, since depth
+$k > 1$'s input already contains the correct answer to depth $k-1$'s
+question.
+
+### Compare and contrast
+
+| Aspect | Design 1: independent heads [@src-43] | Design 2: sequential chain [@src-33] |
+|---|---|---|
+| Head/module input | Shared trunk output $z_{t:1}$ only — identical for every head | Previous depth's hidden state **plus** the actual target-token embedding (teacher forcing) |
+| Inter-head dependency | None — heads computed independently | Sequential — depth $k$ depends on depth $k-1$'s output |
+| Shared components | Trunk $f_s$, unembedding $f_u$ | Embedding layer, output head (shared across depths **and** with the main model) |
+| Duplicated components | Per-head transformer layers $f_{h_i}$ | Per-depth transformer block $\mathrm{TRM}_k$ and projection $M_k$ |
+| Loss combination | Flat sum over all $(t, i)$ pairs | Per-depth average, then scaled by one weight $\lambda$ |
+| Verified deployment | Auxiliary training signal in the paper's own experiments | Shipped in a 671B-parameter production model |
+
+: Two verified MTP designs compared on structure, not on which is "better" — the sources do not make that comparison against each other {#tbl-mtp-design-comparison}
+
+### Check your understanding
+
+Full solutions are in [Answer Key: Chapter 2](#sec-solutions-ch2):
+
+1. **Quick check.** In the independent-heads design, does head 2's
+   prediction depend on head 1's output? ________________________________________________
+2. **Calculation.** For a sequence of length $T=8$ and a prediction
+   horizon $n=2$, how many positions $t$ are valid, and how many total
+   individual loss terms does the independent-heads objective produce?
+   ________________________________________________
+3. **Explain.** What extra information does depth 2 of the sequential-
+   chain design receive that head 2 of the independent-heads design
+   does not? ________________________________________________
+4. **Misconception check.** True or false: a model trained with an MTP
+   objective must be served using speculative decoding. ________________________________________________
+5. **Compare.** Name one component that is shared across heads/modules
+   in each of the two designs, and one component that is duplicated
+   per head/module in each. ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+For a sequence of length $T = 10$ and prediction horizon $n = 4$, list
+every valid position $t$ for the independent-heads design, write out
+each head's target token position (as $t+1, \ldots, t+4$), and confirm
+the total number of individual loss terms matches (number of valid
+positions) $\times$ (number of heads).
+
+### Interview lens
+
+*"How does multi-token prediction change the training objective, and
+does it change what the model does at inference?"* A strong answer
+states the generalized objective (@eq-mtp-joint), names at least one
+verified design by its actual mechanism (not just "extra heads"), and
+explicitly states that both verified designs discard the auxiliary
+heads/modules at inference by default — distinguishing this training-
+time objective from speculative decoding, which is a separate,
+optional, inference-time reuse of the same discarded components. An
+answer that says "MTP makes inference faster" without this distinction
+is incomplete.
+
+### Chapter recap
+
+- MTP generalizes the standard next-token objective (@eq-next-token) to
+  predicting $n$ future tokens per position (@eq-mtp-joint) — an
+  addition to training, not a change to inference-time behavior by
+  default.
+- Two verified designs implement this differently: independent parallel
+  heads reading only a shared trunk's output [@src-43], versus a
+  sequential causal chain where each depth's input includes the actual
+  target embedding of the depth before it [@src-33].
+- Each design shares some components (trunk+unembedding, or
+  embedding+output-head) and duplicates others (per-head layers, or
+  per-depth blocks) — "more heads" is not one undifferentiated cost.
+- Both designs discard the auxiliary heads/modules at inference by
+  default; repurposing them for self-speculative decoding is a
+  separate, optional design decision, not an automatic consequence of
+  training with MTP.
+- Reported capability gains are specific to each paper's own models and
+  benchmarks, and are explicitly model-size-dependent in at least one
+  source — not a universal guarantee.
+
+### Sources and further reading
+
+Primary sources for this chapter: [@src-43] (Gloeckle et al., the
+independent-heads MTP design, its factorization, and its
+memory-efficient implementation — verified via full-text extraction of
+the arXiv PDF, Section 2) and [@src-33] (DeepSeek-V3's Section 2.2, the
+sequential causal-chain MTP design — verified via full-text extraction
+of the same arXiv PDF already registered for workbook 04 chapter 6,
+this time read for its MTP section specifically rather than its
+architecture case-study content). This chapter deliberately does not
+teach speculative decoding's own acceptance/verification mechanics —
+that is workbook 06's assigned primary home.

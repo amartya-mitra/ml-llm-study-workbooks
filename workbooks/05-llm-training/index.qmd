@@ -1,6 +1,6 @@
 ---
 title: "LLM Pretraining and Distributed Training"
-subtitle: "Partial Content Draft — Chapter 1 Drafted, Chapters 2-6 Scaffold Only"
+subtitle: "Partial Content Draft — Chapters 1-2 Drafted, Chapters 3-6 Scaffold Only"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -9,15 +9,13 @@ number-sections: true
 wide, in the repo-root _quarto.yml -- do not repeat them here (see
 AGENTS.md and workbook 04's own index.qmd for why).
 
-This is a partial draft, not a finished workbook. Chapter 1 is fully
-drafted with real content, a worked example, questions, an answer key,
-and one figure, per this task's own approval gate. Chapters 2-6 remain
-structural scaffolds only (title, planned subsections, source ids, a
-boundary note -- no drafted prose). `includes/`, `data/` (chapter 1's
-worked-example arithmetic is inline, not yet in a separate script), and
-most of `solutions/` remain empty (placeholder-tracked via .gitkeep)
-until each remaining chapter is actually drafted. Do not call this
-workbook release-ready. -->
+This is a partial draft, not a finished workbook. Chapters 1 and 2 are
+fully drafted with real content, worked examples, questions, answer
+keys, and one figure each, per this task's own approval gates.
+Chapters 3-6 remain structural scaffolds only (title, planned
+subsections, source ids, a boundary note -- no drafted prose).
+`includes/` remains empty (placeholder-tracked via .gitkeep) until a
+chapter needs it. Do not call this workbook release-ready. -->
 
 {{< include chapters/01-pretraining-objectives-and-data.qmd >}}
 
@@ -56,3 +54,5 @@ workbook release-ready. -->
 ```
 
 {{< include solutions/01-pretraining-objectives-and-data-solutions.qmd >}}
+
+{{< include solutions/02-multi-token-prediction-solutions.qmd >}}

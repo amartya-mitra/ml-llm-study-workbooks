@@ -1,0 +1,129 @@
+{
+  "toy_sequence": [
+    "The",
+    "cat",
+    "sat",
+    "on",
+    "the",
+    "mat"
+  ],
+  "sequence_length_T": 6,
+  "n_heads_or_depth": 3,
+  "design_1_independent_heads": {
+    "source": "src-43",
+    "rows": [
+      {
+        "position_t": 1,
+        "context_up_to": [
+          "The"
+        ],
+        "targets": {
+          "head_1": "cat",
+          "head_2": "sat",
+          "head_3": "on"
+        }
+      },
+      {
+        "position_t": 2,
+        "context_up_to": [
+          "The",
+          "cat"
+        ],
+        "targets": {
+          "head_1": "sat",
+          "head_2": "on",
+          "head_3": "the"
+        }
+      },
+      {
+        "position_t": 3,
+        "context_up_to": [
+          "The",
+          "cat",
+          "sat"
+        ],
+        "targets": {
+          "head_1": "on",
+          "head_2": "the",
+          "head_3": "mat"
+        }
+      }
+    ],
+    "valid_positions_t": 3,
+    "total_individual_loss_terms": 9,
+    "note": "valid t satisfies t + n <= T; positions within n-1 of the sequence end have no complete n-token target and are excluded, per the paper's own summation over t."
+  },
+  "design_2_sequential_chain": {
+    "source": "src-33",
+    "rows": [
+      {
+        "position_i": 1,
+        "depths": {
+          "depth_1": {
+            "input_combines": "main_model_hidden_state(pos=1)",
+            "plus_embedding_of_target": "cat",
+            "predicts_target": "cat"
+          },
+          "depth_2": {
+            "input_combines": "h_1^1",
+            "plus_embedding_of_target": "sat",
+            "predicts_target": "sat"
+          },
+          "depth_3": {
+            "input_combines": "h_1^2",
+            "plus_embedding_of_target": "on",
+            "predicts_target": "on"
+          }
+        }
+      },
+      {
+        "position_i": 2,
+        "depths": {
+          "depth_1": {
+            "input_combines": "main_model_hidden_state(pos=2)",
+            "plus_embedding_of_target": "sat",
+            "predicts_target": "sat"
+          },
+          "depth_2": {
+            "input_combines": "h_2^1",
+            "plus_embedding_of_target": "on",
+            "predicts_target": "on"
+          },
+          "depth_3": {
+            "input_combines": "h_2^2",
+            "plus_embedding_of_target": "the",
+            "predicts_target": "the"
+          }
+        }
+      },
+      {
+        "position_i": 3,
+        "depths": {
+          "depth_1": {
+            "input_combines": "main_model_hidden_state(pos=3)",
+            "plus_embedding_of_target": "on",
+            "predicts_target": "on"
+          },
+          "depth_2": {
+            "input_combines": "h_3^1",
+            "plus_embedding_of_target": "the",
+            "predicts_target": "the"
+          },
+          "depth_3": {
+            "input_combines": "h_3^2",
+            "plus_embedding_of_target": "mat",
+            "predicts_target": "mat"
+          }
+        }
+      }
+    ],
+    "valid_positions_i": 3,
+    "total_individual_loss_terms": 9,
+    "note": "each depth k's module input includes the ACTUAL embedding of its own target token (teacher forcing) combined with the previous depth's hidden state -- a structural difference from design 1, where every head sees only the shared trunk's output and nothing about the other heads' targets."
+  },
+  "combined_objective_structure": {
+    "design_1": "L_n = sum over valid t, sum over i=1..n of -log P(target_{t,i} | shared_trunk_output(t)) -- one flat sum, all terms weighted equally, no depth-specific weighting factor in the base formulation.",
+    "design_2": "L_MTP = (lambda / D) * sum_{k=1}^{D} L_MTP^k, where each L_MTP^k averages its own depth's individual token losses, and lambda is a single scalar weighting the AVERAGED MTP loss relative to the main next-token loss."
+  },
+  "inference_time_default": "Both designs discard every auxiliary head/module by default at inference, keeping only the ordinary next-token path -- this is a structural default in both papers, not a benchmark result."
+}

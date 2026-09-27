@@ -62,3 +62,63 @@ questions:
     explanation: "Recent large models (e.g. SmolLM2, Llama 3, OLMo 2) increasingly use multi-stage mixtures for exactly these reasons, rather than fixing one ratio for the entire run as earlier models did."
     common_wrong_answer: "Assuming a multi-stage mixture is strictly better with no added cost -- it also carries higher implementation complexity, since each stage transition needs its own validation."
     source_ids: ["src-16"]
+
+  - id: "q-05-mtp-001"
+    workbook: "05-llm-training"
+    chapter: "multi-token-prediction"
+    topic: "Independence between heads in the parallel MTP design"
+    difficulty: "intro"
+    question_type: "recall"
+    prompt: "In the independent-heads design, does head 2's prediction depend on head 1's output?"
+    expected_answer: "No. Both heads read only the shared trunk's output; neither head's computation depends on the other head's prediction or hidden state."
+    explanation: "The independent-heads architecture computes each head from the same shared trunk output z_t:1, with no path from one head's output into another head's input."
+    common_wrong_answer: "Assuming 'multiple heads' implies some interaction between them, when in this design the heads are structurally independent."
+    source_ids: ["src-43"]
+
+  - id: "q-05-mtp-002"
+    workbook: "05-llm-training"
+    chapter: "multi-token-prediction"
+    topic: "Target-position counting for the independent-heads objective"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "For a sequence of length T=8 and a prediction horizon n=2, how many positions t are valid, and how many total individual loss terms does the independent-heads objective produce?"
+    expected_answer: "Valid t satisfies t + n <= T, i.e. t <= 6, so t = 1..6: 6 valid positions. Each valid position has n=2 heads, so the total is 6 x 2 = 12 individual loss terms."
+    explanation: "A position is valid only if every head has a real target token to predict; positions within n-1 of the sequence end are excluded, exactly as in the chapter's own 6-token worked example."
+    common_wrong_answer: "Counting all T positions (including the last n-1, which have no complete target) rather than only the valid t <= T-n positions."
+    source_ids: []
+
+  - id: "q-05-mtp-003"
+    workbook: "05-llm-training"
+    chapter: "multi-token-prediction"
+    topic: "Teacher forcing in the sequential-chain design"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "What extra information does depth 2 of the sequential-chain design receive that head 2 of the independent-heads design does not?"
+    expected_answer: "Depth 2's input combines depth 1's hidden state with the actual embedding of depth 1's target token (teacher forcing) -- so depth 2 already has the ground-truth answer to the 'one token ahead' question before predicting 'two tokens ahead.' Head 2 in the independent-heads design receives only the shared trunk's output and has no information about head 1's target."
+    explanation: "This is the structural difference DeepSeek-V3's own paper states explicitly: it keeps 'the complete causal chain at each prediction depth,' unlike Gloeckle et al.'s parallel independent heads."
+    common_wrong_answer: "Assuming both designs' extra heads/depths receive the same information, differing only in how many there are."
+    source_ids: ["src-33", "src-43"]
+
+  - id: "q-05-mtp-004"
+    workbook: "05-llm-training"
+    chapter: "multi-token-prediction"
+    topic: "MTP versus speculative decoding"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false: a model trained with an MTP objective must be served using speculative decoding."
+    expected_answer: "False."
+    explanation: "Both verified sources state that the default at inference is to discard the auxiliary heads/modules and use only the ordinary next-token path. Repurposing the discarded components for speculative decoding is a separate, optional design decision, not a requirement."
+    common_wrong_answer: "Treating MTP and speculative decoding as the same technique, or assuming training with MTP implies a specific serving strategy."
+    source_ids: ["src-43", "src-33"]
+
+  - id: "q-05-mtp-005"
+    workbook: "05-llm-training"
+    chapter: "multi-token-prediction"
+    topic: "Shared versus duplicated components across MTP designs"
+    difficulty: "stretch"
+    question_type: "compare_and_contrast"
+    prompt: "Name one component that is shared across heads/modules in each of the two designs, and one component that is duplicated per head/module in each."
+    expected_answer: "Design 1 (independent heads): the shared trunk and the unembedding matrix are shared; each head's own transformer layers are duplicated per head. Design 2 (sequential chain): the embedding layer and the output head are shared across depths and with the main model; each depth's transformer block and projection matrix are duplicated per depth."
+    explanation: "Each paper states its own sharing pattern explicitly; the two designs share different components, so 'what's shared' cannot be generalized from one design to the other."
+    common_wrong_answer: "Assuming nothing is shared just because there are multiple heads/modules, or assuming the two designs share the same components."
+    source_ids: ["src-43", "src-33"]

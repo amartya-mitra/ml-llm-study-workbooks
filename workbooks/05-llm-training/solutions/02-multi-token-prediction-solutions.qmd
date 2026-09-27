@@ -1,0 +1,57 @@
+## Answer Key: Chapter 2 {#sec-solutions-ch2 .unnumbered}
+
+Full solutions to Chapter 2's "Check your understanding" questions
+(@sec-ch2).
+
+**1. Quick check. In the independent-heads design, does head 2's
+prediction depend on head 1's output?**
+
+*Answer.* No. Both heads read only the shared trunk's output $z_{t:1}$;
+neither head's computation depends on the other head's prediction or
+hidden state.
+
+*Common trap:* Assuming "multiple heads" implies some interaction
+between them. In this design, the heads are computed independently
+(and, per the paper's own memory-efficient implementation, even
+computed sequentially in wall-clock time — but that is an
+implementation detail about memory, not a dependency between their
+predictions).
+
+**2. Calculation. For a sequence of length $T=8$ and a prediction
+horizon $n=2$, how many positions $t$ are valid, and how many total
+individual loss terms does the independent-heads objective produce?**
+
+*Answer.* Valid $t$ satisfies $t + n \le T$, i.e. $t \le 6$, so
+$t = 1, \ldots, 6$: 6 valid positions. Each valid position has $n=2$
+heads, so the total is $6 \times 2 = 12$ individual loss terms.
+
+**3. Explain. What extra information does depth 2 of the sequential-
+chain design receive that head 2 of the independent-heads design does
+not?**
+
+*Answer.* Depth 2's input combines depth 1's hidden state with the
+*actual* embedding of depth 1's target token (teacher forcing) — so
+depth 2 already has the ground-truth answer to the "one token ahead"
+question before predicting "two tokens ahead." Head 2 in the
+independent-heads design receives only the shared trunk's output and
+has no information about head 1's target at all.
+
+**4. Misconception check. True or false: a model trained with an MTP
+objective must be served using speculative decoding.**
+
+*Answer.* False. Both verified sources state that the default at
+inference is to discard the auxiliary heads/modules and use only the
+ordinary next-token path. Repurposing the discarded components for
+speculative decoding is a separate, optional design decision, not a
+requirement.
+
+**5. Compare. Name one component that is shared across heads/modules
+in each of the two designs, and one component that is duplicated per
+head/module in each.**
+
+*Answer.* Design 1 (independent heads): the shared trunk $f_s$ and the
+unembedding matrix $f_u$ are shared; each head's own transformer
+layers $f_{h_i}$ are duplicated per head. Design 2 (sequential chain):
+the embedding layer and the output head are shared across depths and
+with the main model; each depth's transformer block and projection
+matrix are duplicated per depth.
