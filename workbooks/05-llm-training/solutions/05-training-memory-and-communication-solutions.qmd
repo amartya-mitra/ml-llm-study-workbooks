@@ -4,24 +4,33 @@ Full solutions to Chapter 5's "Check your understanding" questions
 (@sec-ch5-check).
 
 **1. Conceptual distinction. A colleague reports "peak memory: 42 GiB"
-for a training run without saying more. List the four kinds of memory
+for a training run without saying more. List the five kinds of memory
 number this chapter distinguishes, and state which one a bare "peak
-memory" figure from `nvidia-smi` actually is.**
+memory" figure from `nvidia-smi` actually is — and why it might not
+even be a true peak.**
 
-*Answer.* The four kinds are: logical tensor memory (the exact byte
-count a tensor's shape and dtype imply); a theoretical lower bound
-(logical memory under a stated, idealized sharding/recomputation
-policy); an estimated peak (a formula applied to a configuration,
-computed in advance); and measured peak allocated/reserved memory
-(what a profiler or `nvidia-smi` actually reports for a real run). A
-bare `nvidia-smi` figure is the fourth kind — a *measured* value, which
-already includes allocator fragmentation and reserved-but-unused
-memory, not a clean logical or estimated count.
+*Answer.* The five kinds are: logical tensor memory (the exact byte
+count a tensor's shape and dtype imply); an analytical/theoretical
+estimate (a formula applied to a configuration — either an idealized
+lower bound under a stated sharding/recomputation policy, or a direct
+estimate, computed in advance); a framework max-allocated counter
+(e.g. PyTorch's `max_memory_allocated`, a running maximum the
+framework itself tracks); a framework max-reserved/allocator-level
+counter (e.g. `max_memory_reserved`, which additionally includes
+allocator fragmentation and reserved-but-unused blocks); and sampled
+device framebuffer usage via `nvidia-smi` or similar — a point-in-time
+external observation. A bare `nvidia-smi` figure is the fifth kind,
+and it is only a genuine *peak* if the sampling procedure itself
+tracked a running maximum; a single query, or one polled too loosely,
+can report a value well below the run's real peak without any
+indication that it did so.
 
-*Common trap:* Treating a measured number as if it were a clean
-logical/theoretical count, or vice versa — the two can differ because
-measured memory includes fragmentation and framework overhead that a
-formula-based estimate does not model.
+*Common trap:* Assuming any `nvidia-smi` reading is automatically the
+run's true peak, or treating a measured/sampled number as if it were a
+clean logical/theoretical count — the two can differ because sampled
+and allocator-level memory include fragmentation, framework overhead,
+and sampling-instant luck that a formula-based estimate does not
+model.
 
 **2. Calculation. A model has N=2 billion parameters, trained in mixed
 precision. What is the per-rank model-state memory (a) under vanilla
@@ -39,17 +48,23 @@ each divided by 4.
 applied — see this chapter's own common-misconception callout.
 
 **3. Calculation. For a model with hidden size h=4096 and a
-data-parallel degree of 16, how many MiB does one rank move during one
-ZeRO-3 forward-pass all-gather of a single transformer block's
-parameters (bf16)?**
+data-parallel degree of 16, using this chapter's declared convention
+(one-direction send volume per rank for a ring all-gather, not local
+shard size), how many MiB does one rank SEND during one ZeRO-3
+forward-pass all-gather of a single transformer block's parameters
+(bf16)?**
 
-*Answer.* Elements per rank: $16h^2/N_d = 16 \times 4096^2 / 16 =
-4096^2 = 16{,}777{,}216$ elements. In bf16 (2 bytes/element): $33{,}554{,}432$
-bytes $= 32$ MiB.
+*Answer.* The full block tensor has $16h^2 = 16 \times 4096^2 =
+268{,}435{,}456$ elements; in bf16, $536{,}870{,}912$ bytes $=512$ MiB.
+The local shard — what one rank *stores*, not what it *communicates*
+— is $512/16=32$ MiB. The ring all-gather send volume per rank is
+$\frac{N_d-1}{N_d}\times512 = \frac{15}{16}\times512=480$ MiB; the
+receive volume per rank is the same, $480$ MiB, by ring symmetry.
 
-*Common trap:* Forgetting the bytes-per-element conversion (reporting
-the element count as if it were already a byte count), or dividing by
-$N_d$ twice.
+*Common trap:* Reporting the local shard size (32 MiB) as if it were
+the communication payload — the exact bug an earlier draft of this
+chapter's own worked example made and then corrected — or reporting
+the element count as if it were already a byte count.
 
 **4. Bottleneck diagnosis. A training job's per-GPU throughput drops
 as more GPUs are added to a fixed-size problem, and profiling shows
@@ -73,28 +88,52 @@ kind of idle time.
 blaming compute (e.g. recommending a bigger batch size) without first
 checking whether the bottleneck is actually bandwidth.
 
-**5. Synthesis/design. A 2-billion-parameter model (mixed precision,
-ZeRO-3) must fit its model-state memory within a 10 GiB-per-device
-budget, on a cluster whose total world size is fixed at 24 devices
-split only between DP (for ZeRO-3 sharding) and TP (no PP, CP, or EP).
-(a) What is the minimum DP degree that fits the stated memory budget?
-(b) Given that DP must evenly divide the 24-device world size, what is
-the smallest valid DP satisfying both the budget and the divisibility
-requirement, and what TP degree does that imply?**
+**5. Synthesis/design. A 2-billion-parameter model (mixed precision)
+is trained with ZeRO-3 sharding of its model-state memory across the
+data-parallel group, combined with ideal, even tensor-parallel
+partitioning, on a cluster whose total world size is fixed at 24
+devices split only between DP and TP (no PP, CP, or EP). A 10
+GiB-per-device memory budget is declared. (a) Write per-device
+model-state memory as a function of DP and TP under this combination,
+and show that for every valid factorization of $DP\times TP=24$ (e.g.
+DP=3/TP=8, DP=4/TP=6, DP=6/TP=4, DP=8/TP=3), the budget is satisfied by
+the same margin — i.e. the memory budget alone cannot select a unique
+(DP, TP) split. (b) Name one additional constraint or measured
+quantity that would pin down a unique split, and explain concretely
+how it breaks the tie.**
 
-*Answer.* (a) Model-state memory is $16N = 16\times2\times10^9
-\approx 29.80$ GiB. Fitting this within a 10 GiB-per-device budget
-requires $29.80/N_d \le 10$, i.e. $N_d \ge 2.98$ — since $N_d$ must be
-a whole number of devices, the minimum is $N_d=3$ (at $N_d=2$, each
-device would need $14.90$ GiB, exceeding the budget). (b) The divisors
-of 24 are 1, 2, 3, 4, 6, 8, 12, 24; the smallest one that is also
-$\ge 3$ is exactly 3 — so the memory-budget minimum and the
-divisibility requirement agree on $\text{DP}=3$ without needing to
-search further up the divisor list. With $\text{DP}=3$ fixed and the
-world size fixed at 24, $\text{TP}=24/3=8$.
+*Answer.* (a) Under combined ZeRO-3 DP sharding and even TP
+partitioning, both axes shard the same model-state objects, so
+per-device model-state memory is $16N/(DP\times TP)$. Because the
+world size fixes $DP\times TP=24$, this is $16N/24$ for *every* valid
+factorization — substituting $N=2\times10^9$ gives
+$16\times2\times10^9/24\approx1.24$ GiB/device, regardless of whether
+$(DP,TP)$ is $(3,8)$, $(4,6)$, $(6,4)$, $(8,3)$, $(12,2)$, or $(24,1)$.
+Every one of these factorizations fits the 10 GiB budget by the
+identical $\approx8.76$ GiB margin, so the budget inequality
+$16N/(DP\times TP)\le10\text{ GiB}$ is satisfied the same way no
+matter how the 24 devices are split between the two axes — the memory
+budget contains no information that could favor one split over
+another. (b) Any one concrete, correctly justified constraint breaks
+the tie: TP must evenly divide the model's attention/KV head count,
+which bounds which TP values are even feasible (e.g. 8 KV heads rules
+out TP=12 or TP=24); the global batch size must be evenly divisible by
+DP; the TP activation all-gather's communication cost (this chapter's
+overlap ratio, which depends only on $h$ and the TP degree) trades off
+against DP's memory benefit, so two memory-equivalent splits are not
+equally fast; per-layer temporary/workspace memory (outside the $16N$
+model-state formula) can scale differently with TP than with DP;
+network topology (TP needs fast intra-node bandwidth, bounding TP by
+node size); or measured per-configuration throughput from real runs.
+Any of these — not the memory budget — is what would actually select
+one factorization over another.
 
-*Common trap:* Rounding $29.80/10=2.98$ down to 2 instead of up to 3
-(a memory budget must not be exceeded, so a fractional device count
-always rounds up, not to the nearest integer), or picking a larger
-divisor of 24 (e.g. 4 or 6) without checking whether a smaller valid
-one already satisfies the budget.
+*Common trap:* Computing per-device memory as $16N/DP$ alone, ignoring
+that even TP partitioning *also* shards model-state memory — this
+wrongly suggests a "minimum DP" exists on memory grounds alone, when
+in fact $DP\times TP=24$ is fixed and $16N/(DP\times TP)$ never
+changes across factorizations. (An earlier version of this question
+used exactly that flawed $16N/DP$-only framing and concluded DP=3 was
+uniquely forced; that conclusion does not survive once TP's own
+sharding contribution is correctly accounted for, and is not the
+answer here.)

@@ -798,3 +798,27 @@ sources:
     access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF), not abstract-only. Confirmed the paper's own Section 1 and Section 5 wording, including the stage-by-stage memory-reduction claims ('Optimizer State Partitioning (P_os): 4x memory reduction, same communication volume as DP; Add Gradient Partitioning (P_os+g): 8x memory reduction, same communication volume as DP') and the exact P_os/P_g/P_p notation used throughout Section 5."
     license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
     notes: "Microsoft, 2019-10-04 (v3 2020-05-13). Explicitly distinguishes model-state partitioning (its own subject) from activation/residual-state memory, which it treats separately -- workbook 05 ch. 4 uses this distinction directly for its 'model-state partitioning versus activation/token partitioning' required boundary. PyTorch's FSDP implements ZeRO-3 (P_os+g+p) under a different name, per the Ultra-Scale Playbook's (src-17) own explicit note -- workbook 05 ch. 4 must not treat 'ZeRO-3' and 'FSDP' as different mechanisms."
+
+  # ---------------------------------------------------------------------
+  # src-55 -- registered 2026-10-03 during the Workbook 05 Chapter 5
+  # correction pass, to verify the attention-implementation-dependence
+  # claim added to the activation-memory section (Equation 3's
+  # qualification): memory-efficient/fused attention kernels that never
+  # materialize the full sequence-length-by-sequence-length score matrix
+  # avoid the quadratic-in-sequence-length storage term that a
+  # standard/naive attention implementation incurs.
+  # ---------------------------------------------------------------------
+
+  - id: "src-55"
+    title: "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness"
+    url: "https://arxiv.org/abs/2205.14135"
+    authors: "Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri Rudra, Christopher Ré"
+    resource_type: "original research paper (arXiv:2205.14135)"
+    workbook_categories: ["05-llm-training"]
+    topic_tags: ["attention", "memory-efficient-attention", "gpu-kernels", "activation-memory", "io-awareness"]
+    authority_type: "primary_technical"
+    expected_use: "primary source for workbook 05 ch. 5's qualification of the activation-memory formula (Equation 3): standard attention implementations materialize the full N-by-N score/probability matrices to GPU HBM, an O(N^2)-in-sequence-length memory cost, while FlashAttention's tiling avoids ever materializing that full matrix -- used to support the chapter's claim that peak activation scaling depends on attention implementation, not only on the formula [@src-17] states for its own declared accounting convention."
+    last_verified: "2026-10-03"
+    access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF v2), not abstract-only. Confirmed the paper's own wording: 'Standard attention implementations materialize the matrices S and P to HBM, which takes O(N^2) memory' (Section 2.2) and 'FlashAttention uses tiling to prevent materialization of the large N x N attention matrix ... on (relatively) slow GPU HBM' (Figure 1 caption/Section 1)."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
+    notes: "Stanford/UB, 2022-05-27 (v2 2022-06-23); NeurIPS 2022. Used narrowly in workbook 05 ch. 5 to qualify, not replace, the chapter's existing activation-memory formula from src-17 -- the correct claim is that peak activation-memory scaling depends on which attention implementation is used, not that all modern implementations require quadratic storage."

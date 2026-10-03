@@ -7,8 +7,9 @@
 By the end of this chapter you should be able to:
 
 - Name every category that occupies accelerator memory during
-  training, and distinguish a logical/theoretical memory estimate
-  from a measured peak-allocated value.
+  training, and distinguish a logical/theoretical memory estimate from
+  a framework-tracked allocation counter and from a raw sampled
+  (`nvidia-smi`-style) reading.
 - Derive a per-parameter memory accounting for a given precision and
   optimizer, and state how data parallelism versus ZeRO/FSDP sharding
   changes residency without changing which objects exist.
@@ -62,7 +63,10 @@ entirely.
 ### Visual overview
 
 ![A training-step resource timeline for this chapter's own worked
-example, computed programmatically. Communication splits into a hidden
+example, computed programmatically. The communication modeled here is
+scoped to the forward-pass ZeRO-3 parameter all-gather only (backward-
+pass all-gathers and gradient reduce-scatters are excluded — see the
+Technical core and worked example below) and splits into a hidden
 portion (overlapping compute, dashed) and an exposed portion (extending
 the critical path, solid) — the critical-path bracket spans compute
 plus only the exposed
@@ -80,18 +84,30 @@ staging memory a collective needs, which itself "contributes in part
 to the peak memory usage during training" [@src-17]); and
 fragmentation/runtime overhead the allocator cannot fully pack. A
 separate axis distinguishes *how confidently* a number describes any
-of these: **logical tensor memory** (the exact byte count a tensor's
-shape and dtype imply); a **theoretical lower bound** (logical memory
-under a stated, idealized sharding/recomputation policy); an
-**estimated peak** (a formula applied to a configuration, as in this
-chapter's own worked example below); and **measured peak
-allocated/reserved memory** (what a profiler or `nvidia-smi` actually
-reports for a real run, which includes the allocator's own
-fragmentation and reserved-but-unused blocks [@src-17]). Every number
-in this chapter is one of the first three kinds — a calculation — not
-the fourth. There is no single "bytes per parameter" constant: the
-right multiplier depends on precision and on which optimizer states
-exist, declared explicitly every time below.
+of these, and this chapter uses five such kinds, not one
+undifferentiated "memory number": **logical tensor memory** (the exact
+byte count a tensor's shape and dtype imply); an
+**analytical/theoretical estimate** (a formula applied to a
+configuration — either an idealized lower bound under a stated
+sharding/recomputation policy, or a direct estimate for a real
+configuration, as in this chapter's own worked example below); a
+**framework max-allocated counter** (e.g. PyTorch's own tracked
+`max_memory_allocated`, a running maximum the framework itself updates
+on every allocation); a **framework max-reserved/allocator-level
+counter** (e.g. `max_memory_reserved`, which additionally includes the
+allocator's own reserved-but-unused blocks and fragmentation, so it is
+never smaller than max-allocated for the same run); and **sampled
+device framebuffer usage** via `nvidia-smi` or similar tools — a
+point-in-time external observation of total device memory in use,
+which is a genuine *peak* only if the sampling procedure itself
+explicitly tracks a running maximum (e.g. polling tightly enough, or
+reading a framework-level max counter); a single or loosely-polled
+`nvidia-smi` reading can silently miss the real peak entirely
+[@src-17]. Every number in this chapter is the first or second kind —
+a calculation — never the third, fourth, or fifth. There is no single
+"bytes per parameter" constant: the right multiplier depends on
+precision and on which optimizer states exist, declared explicitly
+every time below.
 
 **Model-state memory: parameters, gradients, optimizer states.** For
 a transformer with hidden size $h$, vocabulary size $v$, and $L$
@@ -101,10 +117,20 @@ $$
 N = h \cdot v + L \cdot (12h^2 + 13h) + 2h
 $$ {#eq-param-count}
 
-[@src-17]. In mixed-precision training (BF16 compute, FP32 "master
-weight" copy, Adam momentum and variance in FP32, no separate FP32
-gradient accumulation), the per-rank memory for the four model-state
-objects is
+[@src-17], the Playbook's own stated approximation for "a simple
+transformer LLM" (citing a further external derivation for the
+formula itself) — it assumes a standard, dense decoder-only
+architecture with the specific per-layer structure its $12h^2+13h$
+term encodes, and the Playbook does not itself spell out every
+structural assumption behind that term. It is not a formula that
+holds for every transformer variant: a mixture-of-experts model
+(routed rather than dense feedforward layers) or a grouped/multi-query-
+attention model (fewer or differently-shaped projection matrices than
+standard multi-head attention) would need a different count, not this
+one applied unchanged. In mixed-precision training (BF16 compute, FP32
+"master weight" copy, Adam momentum and variance in FP32, no separate
+FP32 gradient accumulation), the per-rank memory for the four
+model-state objects is
 
 $$
 m_{\text{params}} = 2N, \quad m_{\text{grad}} = 2N, \quad m_{\text{params\_fp32}} = 4N, \quad m_{\text{opt}} = 8N
@@ -126,13 +152,24 @@ mathematical quantity the optimizer is computing.
 
 ::: {.callout-warning title="Common misconception"}
 **"Mixed precision roughly halves total training memory versus full
-FP32."** It does not. Full FP32 training needs $4N + 4N + 8N = 16N$
-bytes (params, gradients, optimizer states); mixed precision needs
-$2N + 2N + 4N + 8N = 16N$ bytes — the *same* total, just redistributed
-across more objects, because the FP32 master-weight copy adds back
-what BF16 saved on the live parameters and gradients [@src-17]. Mixed
-precision's real benefit is faster, lower-memory *activations* and
-faster compute kernels, not a smaller model-state total.
+FP32."** Under this chapter's stated configuration — BF16 live
+parameters and gradients, plus a separate FP32 master-weight copy and
+two FP32 Adam moment states — it does not: full FP32 training needs
+$4N + 4N + 8N = 16N$ bytes (params, gradients, optimizer states); mixed
+precision needs $2N + 2N + 4N + 8N = 16N$ bytes — the *same* total,
+just redistributed across more objects, because the FP32 master-weight
+copy adds back what BF16 saved on the live parameters and gradients
+[@src-17]. This is a property of *this specific, declared
+configuration*, not a universal law: a setup without a separate FP32
+master-weight copy, or with different optimizer-state precision (e.g.
+8-bit optimizer states, no momentum term, or plain SGD instead of
+Adam) has a different total — so "mixed precision always halves
+memory" is wrong in general, but asserting $16N$ as a universal
+mixed-precision constant would be just as wrong; both are
+configuration-dependent claims being mistaken for configuration-
+independent ones. Mixed precision's real benefit is faster,
+lower-memory *activations* and faster compute kernels, not a smaller
+model-state total under the configuration this chapter declares.
 :::
 
 **Activation memory depends on far more than parameter count.** For a
@@ -144,13 +181,31 @@ $$
 m_{\text{act}} = L \cdot seq \cdot bs \cdot h \cdot \left(34 + \frac{5 \cdot n_{\text{heads}} \cdot seq}{h}\right)
 $$ {#eq-activation-memory}
 
-[@src-17]. This scales *linearly* with batch size but *quadratically*
-with sequence length through the attention term — a model with twice
-the parameters but the same $h$, $L$, $seq$, and $bs$ does not
-automatically need twice the activation memory, and a model with the
-same parameter count run at 4x the sequence length needs far more than
-4x the activation memory. Parameter count alone determines none of
-this. **Activation recomputation** (gradient checkpointing) trades
+[@src-17] — this is the Playbook's own declared accounting convention
+for a standard attention implementation, not a universal law
+independent of how attention is actually computed on a given
+accelerator. This scales *linearly* with batch size but
+*quadratically* with sequence length through the attention term — a
+model with twice the parameters but the same $h$, $L$, $seq$, and $bs$
+does not automatically need twice the activation memory, and a model
+with the same parameter count run at 4x the sequence length needs far
+more than 4x the activation memory under *this* accounting. Parameter
+count alone determines none of this — and neither does Equation 3
+alone, independent of implementation: an attention implementation that
+materializes the full $seq \times seq$ attention score/probability
+matrix in memory carries exactly the quadratic-in-sequence-length
+storage term Equation 3 encodes, but a memory-efficient, fused
+attention kernel that never materializes that full matrix — the
+FlashAttention family of implementations — avoids that term entirely,
+since it "uses tiling to prevent materialization of the large
+$N \times N$ attention matrix... on (relatively) slow GPU HBM"
+[@src-55], versus "standard attention implementations materialize the
+matrices $S$ and $P$ to HBM, which takes $O(N^2)$ memory" [@src-55].
+Peak activation scaling therefore depends on *which* attention kernel
+a real system runs, not only on Equation 3's own stated convention —
+this chapter does not claim every modern attention implementation
+requires quadratic activation storage, only that Equation 3's specific
+accounting assumes one that does. **Activation recomputation** (gradient checkpointing) trades
 compute for memory: a **full** strategy checkpoints only at each
 layer's boundary and recomputes everything between boundaries during
 the backward pass, at "up to 30-40%" added compute cost [@src-17];
@@ -183,7 +238,16 @@ partitioning too), $3\Psi$, "1.5x compared to the baseline"
 handoff) do not fit this $\Psi$-per-rank accounting at all: their cost
 depends on how tokens are routed or which two neighboring ranks are
 exchanging data, not on an all-ranks-participate collective pattern.
-The number of *participating devices* ($N_d$ in the formulas above),
+This $\Psi$-per-rank accounting is itself a **large-$N_d$ asymptotic
+approximation**: a ring all-gather or reduce-scatter's exact per-rank
+volume is $\frac{N_d-1}{N_d}\Psi$, and ZeRO's own notation drops the
+$\frac{N_d-1}{N_d}$ factor because it tends to 1 as $N_d$ grows large
+[@src-54]. The worked example below keeps that factor explicit instead
+of approximating it away, because its own $N_d=8$ is small enough for
+the factor to matter materially — declaring the exact collective
+algorithm (a ring all-gather) and the exact per-rank volume it
+implies, rather than reusing the asymptotic $\Psi$ shorthand. The
+number of *participating devices* ($N_d$ in the formulas above),
 the *payload size*, and the *wall-clock time* a collective takes are
 three different quantities — the next section is about the last of
 these.
@@ -334,11 +398,16 @@ those four numbers is divided by 8: 9.2 GiB total per rank (1.2 GiB +
 1.2 GiB + 2.3 GiB + 4.6 GiB) — the same four objects, an eighth of
 each.
 
-**One activation-memory estimate.** From @eq-activation-memory, this
-configuration's activation memory without recomputation is 42.75 GiB
-for one microbatch — already more than half of the replicated
-model-state total, illustrating why activation memory cannot be
-ignored even when parameter count alone looks "small." Applying the
+**One activation-memory estimate.** From @eq-activation-memory — under
+its standard-attention-implementation accounting, per the
+qualification above — this configuration's activation memory without
+recomputation is 42.75 GiB for one microbatch — already more than
+half of the replicated model-state total, illustrating why activation
+memory cannot be ignored even when parameter count alone looks
+"small." (A FlashAttention-style implementation would not carry this
+formula's quadratic attention-score-matrix term at all; this toy
+estimate assumes the standard implementation the formula itself
+encodes.) Applying the
 general recomputation *principle* (store only each layer's boundary
 activation, recompute the rest) to this same toy configuration gives
 an illustrative boundary-only estimate of 0.75 GiB — a reduction of
@@ -348,30 +417,49 @@ number is this chapter's own script-computed application of the
 source's stated principle, not a formula the source gives directly for
 this exact case.
 
-**Communication payload for one collective.** For ZeRO-3's per-block
-forward-pass parameter all-gather, each rank's share of one
-transformer block's $16h^2$ parameters is $16h^2/8$ elements, or 64 MiB
-in bf16 — and 1536 MiB summed across all 24 blocks for one full
-forward pass.
+**Communication payload for one collective.** Declaring the collective
+explicitly: ZeRO-3's per-block forward-pass parameter all-gather is a
+**ring all-gather** over the 8-rank DP group. One transformer block's
+full bf16 parameter tensor ($16h^2$ elements) is 512 MiB. Each rank's
+*local shard* of that tensor is $512/8=64$ MiB — but the local shard
+is **not** the communication payload: it is only what one rank stores,
+not what it moves. This chapter reports one convention throughout —
+the **one-direction (send) volume per rank**, equal to the receive
+volume per rank by ring symmetry — which for a ring all-gather is
+$\frac{P-1}{P}$ of the full tensor: $\frac{7}{8}\times512=448$ MiB, seven
+times the local shard. Summed across all 24 blocks, one rank sends
+$448\times24=10{,}752$ MiB $\approx10.5$ GiB of forward-pass parameter
+all-gather traffic for one full forward pass.
 
 **Estimated communication time.** Using @eq-comm-cost-model with the
-declared 200 GB/s effective bandwidth and $10\,\mu s$ per-message
-latency, one block's all-gather takes an estimated 0.346 ms; summed
-across 24 blocks, 8.29 ms of total communication for the forward
-pass's parameter all-gathers.
+declared 200 GB/s effective bandwidth, and declaring that the
+per-message latency $\alpha$ represents one ring round (so a ring
+all-gather over $P=8$ ranks needs $P-1=7$ rounds, not 1 message), one
+block's all-gather takes an estimated 2.42 ms ($7\times10\,\mu s$
+latency plus 448 MiB at 200 GB/s); summed across 24 blocks, 58.05 ms
+of total forward-pass parameter all-gather communication.
 
 **Exposed communication after a declared overlap fraction.** Declaring
 that 70% of this communication is successfully hidden via prefetching
-(an illustrative assumption, not a measured overlap rate) leaves 5.81 ms
-hidden and 2.49 ms **exposed** — the portion that actually extends the
-critical path.
+(an illustrative assumption, not a measured overlap rate) leaves
+40.64 ms hidden and 17.42 ms **exposed** — the portion that actually
+extends the critical path. The hidden portion (40.64 ms) stays below
+the 120 ms compute interval it overlaps with, as it must for "hidden"
+to be a physically meaningful label rather than a claim communication
+vanished.
 
 **Resulting illustrative step-time impact.** Step time with this
-overlap is compute (120 ms) plus exposed communication (2.49 ms) =
-122.49 ms. Without any overlap at all, step time would be 120 ms plus
-the *entire* 8.29 ms = 128.29 ms. Overlap's benefit in this toy
-scenario is therefore about 4.5% — illustrative of the *mechanism*,
-not a claim about what any real model's overlap actually saves.
+overlap is compute (120 ms) plus exposed communication (17.42 ms) =
+137.42 ms. Without any overlap at all, step time would be 120 ms plus
+the *entire* 58.05 ms = 178.05 ms. Overlap's benefit in this toy
+scenario is therefore about 22.8% — illustrative of the *mechanism*,
+not a claim about what any real model's overlap actually saves. Every
+number in this section is scoped to the **forward-pass ZeRO-3
+parameter all-gather only**: it excludes backward-pass parameter
+all-gathers and gradient reduce-scatters, so none of it is "total
+communication for the training step" — compare the Compare and
+contrast table's own fuller $3\Psi$-per-step ZeRO-3 accounting, which
+is not this worked example's narrower, illustrative scope.
 
 **Invalid configurations are rejected.** The worked example's own
 script rejects a DP degree that does not evenly divide the declared
@@ -405,32 +493,41 @@ objects.](figures/rendered/fig-memory-ledger-dp-vs-sharded.svg){#fig-memory-ledg
 Full solutions are in [Answer Key: Chapter 5](#sec-solutions-ch5):
 
 1. **Conceptual distinction.** A colleague reports "peak memory: 42
-   GiB" for a training run without saying more. List the four kinds of
+   GiB" for a training run without saying more. List the five kinds of
    memory number this chapter distinguishes, and state which one a
-   bare "peak memory" figure from `nvidia-smi` actually is.
+   bare "peak memory" figure from `nvidia-smi` actually is — and why it
+   might not even be a true peak.
    ________________________________________________
 2. **Calculation.** A model has $N=2$ billion parameters, trained in
    mixed precision. What is the per-rank model-state memory (a) under
    vanilla data parallelism, and (b) under ZeRO-3 with a data-parallel
    degree of 4? ________________________________________________
 3. **Calculation.** For a model with hidden size $h=4096$ and a
-   data-parallel degree of 16, how many MiB does one rank move during
-   one ZeRO-3 forward-pass all-gather of a single transformer block's
-   parameters (bf16)? ________________________________________________
+   data-parallel degree of 16, this chapter's declared convention
+   reports one-direction (send) ring all-gather volume per rank, not
+   local shard size. Using that convention, how many MiB does one rank
+   *send* during one ZeRO-3 forward-pass all-gather of a single
+   transformer block's parameters (bf16)? ________________________________________________
 4. **Bottleneck diagnosis.** A training job's per-GPU throughput drops
    as more GPUs are added to a fixed-size problem, and profiling shows
    idle time between layers while waiting for parameter transfers to
    finish. Which resource most plausibly bounds this step, and which
    quantity from this chapter would you check first to confirm it?
    ________________________________________________
-5. **Synthesis/design.** A 2-billion-parameter model (mixed precision,
-   ZeRO-3) must fit its model-state memory within a 10 GiB-per-device
-   budget, on a cluster whose total world size is fixed at 24 devices
-   split only between DP (for ZeRO-3 sharding) and TP (no PP, CP, or
-   EP). (a) What is the minimum DP degree that fits the stated memory
-   budget? (b) Given that DP must evenly divide the 24-device world
-   size, what is the smallest valid DP satisfying both the budget and
-   the divisibility requirement, and what TP degree does that imply?
+5. **Synthesis/design.** A 2-billion-parameter model (mixed precision)
+   is trained with ZeRO-3 sharding of its model-state memory across the
+   data-parallel group, combined with ideal, even tensor-parallel
+   partitioning, on a cluster whose total world size is fixed at 24
+   devices split only between DP and TP (no PP, CP, or EP). A 10
+   GiB-per-device memory budget is declared. (a) Write per-device
+   model-state memory as a function of DP and TP under this
+   combination, and show that for every valid factorization of
+   $DP\times TP=24$ (e.g. DP=3/TP=8, DP=4/TP=6, DP=6/TP=4, DP=8/TP=3),
+   the budget is satisfied by the same margin — i.e. the memory budget
+   alone cannot select a unique (DP, TP) split. (b) Name one additional
+   constraint or measured quantity that *would* pin down a unique
+   split, and explain concretely how it breaks the tie between two
+   otherwise-equally-valid factorizations.
    ________________________________________________
 
 *(Space intentionally left for written answers if you are using this as
@@ -441,12 +538,13 @@ a workbook exercise, not only a reading.)*
 Using this chapter's own worked example as a template, redo the
 communication-time and step-time calculation for a declared overlap
 fraction of 0.4 instead of 0.7, keeping every other toy input the same
-(the same 8.29 ms total communication and 120 ms compute time).
-Compute the new exposed communication time, the new step time, and the
-new overlap-benefit percentage relative to the fully-exposed case, and
-confirm that a *lower* overlap fraction produces a *smaller* benefit
-percentage than this chapter's own 4.5% — i.e. that less effective
-overlap is strictly worse, not merely different.
+(the same 58.05 ms total forward-pass parameter all-gather
+communication and 120 ms compute time). Compute the new exposed
+communication time, the new step time, and the new overlap-benefit
+percentage relative to the fully-exposed case, and confirm that a
+*lower* overlap fraction produces a *smaller* benefit percentage than
+this chapter's own 22.8% — i.e. that less effective overlap is
+strictly worse, not merely different.
 
 ### Interview lens
 
@@ -458,11 +556,15 @@ allocated the optimizer states (which only appear after the first
 optimizer step) or the full activation memory a real batch size and
 sequence length require — both of which this chapter's own formulas
 show scale with factors a forward-only smoke test would not exercise.
-A complete answer also distinguishes an *estimated* peak (computed
-from the model's configuration) from a *measured* peak (what a
-profiler actually reports, including fragmentation and allocator
-overhead), and checks whether communication buffers for a newly added
-parallelism strategy were accounted for. An answer that jumps straight
+A complete answer also distinguishes an *analytical/theoretical
+estimate* (computed from the model's configuration) from the
+framework's own *max-allocated* and *max-reserved* counters (the
+latter additionally including allocator fragmentation and
+reserved-but-unused blocks) and from a *sampled* `nvidia-smi`-style
+framebuffer reading, which is only a genuine peak if the sampling
+procedure itself tracked a running maximum — and checks whether
+communication buffers for a newly added parallelism strategy were
+accounted for. An answer that jumps straight
 to "reduce batch size" without first identifying *which* memory
 category grew is incomplete — it might work, but it does not explain
 why the quick test passed.
@@ -472,23 +574,37 @@ why the quick test passed.
 - Training memory is not one number: parameters, gradients, optimizer
   states, master weights, activations, workspaces, communication
   buffers, and fragmentation are distinct categories, and a number
-  describing any of them is either a logical count, a theoretical
-  bound, an estimate, or a measurement — never more than one of those
-  at once (@eq-param-count, @eq-model-state-bytes).
-- Mixed precision does not reduce total model-state memory versus full
-  FP32 (both are $16N$ bytes) — its benefit is in activations and
-  compute speed, not a smaller optimizer footprint.
+  describing any of them is one of five kinds — logical tensor bytes,
+  an analytical/theoretical estimate, a framework max-allocated
+  counter, a framework max-reserved/allocator-level counter, or a
+  sampled device framebuffer reading (`nvidia-smi`-style, a genuine
+  peak only if the sampling itself tracked a running maximum) — never
+  more than one of those at once (@eq-param-count, @eq-model-state-bytes).
+- Under this chapter's specific declared configuration (BF16 live
+  params/gradients, FP32 master weights, FP32 Adam moments), mixed
+  precision does not reduce total model-state memory versus full FP32
+  (both are $16N$ bytes) — its benefit is in activations and compute
+  speed, not a smaller optimizer footprint; a different optimizer or
+  precision configuration would give a different total, so neither
+  "mixed precision halves memory" nor "mixed precision is always
+  $16N$" holds universally.
 - Activation memory depends on sequence length, batch size, hidden
   size, layer count, and attention heads — not parameter count alone —
   and scales quadratically with sequence length through attention
-  (@eq-activation-memory); recomputation trades compute for a large
-  memory reduction, more dramatically under pipeline parallelism's own
-  partition-aware formula.
+  under a standard attention implementation's own accounting
+  (@eq-activation-memory); a memory-efficient, fused attention kernel
+  that never materializes the full attention score matrix avoids that
+  quadratic term, so peak activation scaling depends on implementation
+  too. Recomputation trades compute for a large memory reduction, more
+  dramatically under pipeline parallelism's own partition-aware
+  formula.
 - Payload volume, number of participating devices, and wall-clock
   communication time are three different quantities; ZeRO's own
   reported volumes show sharding stages do not all cost equally more
   communication (ZeRO-2 matches vanilla DP's $2\Psi$; only ZeRO-3 adds
-  50%).
+  50%) — and that $\Psi$ notation itself is a large-$N_d$ asymptotic
+  approximation, not the exact per-rank ring-collective volume this
+  chapter's own worked example computes for a small, concrete $N_d$.
 - A latency-bandwidth cost model (@eq-comm-cost-model) estimates
   communication time, but effective bandwidth is never the same as
   nominal/peak bandwidth, and overlap hides exposed time without
@@ -520,9 +636,15 @@ extraction of the arXiv PDF), and [@src-53] (Megatron-LM's own
 disclosed activation-checkpointing practice and its two-GPU-to-more-GPUs
 scaling experiment showing the bottleneck shift from compute to
 bandwidth — verified via full-text extraction of the arXiv PDF).
-Supporting source: [@src-10] (the arithmetic-intensity/roofline
+Supporting sources: [@src-10] (the arithmetic-intensity/roofline
 definition and the nominal-versus-achieved-FLOPs caution — verified via
-full-text extraction of the page's own HTML). This chapter does not
+full-text extraction of the page's own HTML) and [@src-55] (the
+FlashAttention paper's own statement that standard attention
+implementations materialize the full $N\times N$ score/probability
+matrix to HBM while its tiling avoids that materialization — verified
+via full-text extraction of the arXiv PDF — used narrowly to qualify
+Equation 3's activation-memory formula as implementation-dependent).
+This chapter does not
 reteach what Chapter 4 already covers about *how* DP, ZeRO/FSDP, TP,
 SP/CP, PP, and EP replicate, shard, and communicate — only the memory
 and communication-cost consequences of those choices. Model-FLOP

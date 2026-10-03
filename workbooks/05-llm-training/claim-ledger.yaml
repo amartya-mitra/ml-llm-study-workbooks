@@ -485,7 +485,23 @@ entries:
     statement: "This chapter's own worked example (toy h=4096, v=32000, L=24, n_heads=32, seq=2048, bs=2, DP=8 configuration; the boundary-only activation-memory estimate; the declared 200 GB/s effective bandwidth, 10us alpha, 0.7 overlap fraction, and 120ms illustrative compute time) is a deliberately constructed illustration, not a claim about any real model, cluster, or measured run."
     source_ids: ["src-17", "src-52", "src-54"]
     verification_status: "computed_by_script"
-    note: "The underlying formulas (parameter count, model-state memory, activation memory, ZeRO-3 payload) are sourced per claims above; the specific toy inputs, the boundary-only recomputation estimate, and every derived number (communication time, exposed time, step-time impact) are computed by data/worked-examples/memory_and_communication_budget.py."
+    note: "The underlying formulas (parameter count, model-state memory, activation memory, ZeRO-3 payload) are sourced per claims above; the specific toy inputs, the boundary-only recomputation estimate, and every derived number (communication time, exposed time, step-time impact) are computed by data/worked-examples/memory_and_communication_budget.py. CORRECTED 2026-10-03: an earlier draft reported the local shard size (S/P) as the communication payload; the script now reports the ring all-gather's one-direction (send) volume per rank, ((P-1)/P)*S, and uses P-1 message rounds (not 1) in the latency term -- see claim-05-memcomm-017 below."
+
+  - id: "claim-05-memcomm-017"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "For a full tensor of S bytes ring-all-gathered over P ranks, the local shard one rank stores is S/P, but the volume one rank actually SENDS (and separately RECEIVES) during the ring all-gather is ((P-1)/P)*S -- a standard collective-communication-volume result for the ring algorithm, consistent with ZeRO's own Section 7.2 Psi-based accounting [@src-54] once that accounting's large-P approximation (P-1)/P ~= 1 is applied exactly instead of dropped. This chapter's worked example (P=8) reports the exact (P-1)/P=7/8 factor rather than approximating it away, and uses P-1=7 message rounds (not 1) in the latency term of its communication-time estimate."
+    source_ids: ["src-54"]
+    verification_status: "computed_by_script"
+    note: "The (P-1)/P ring-collective volume formula itself is a standard algorithmic result, not an empirical claim from src-54; it is presented here as consistent with, and a small-P specialization of, src-54's own large-P asymptotic Psi notation. Computed by data/worked-examples/memory_and_communication_budget.py's zero3_ring_allgather_volumes_bytes function. An earlier draft of this chapter incorrectly reported the local shard size (S/P) as if it were this communication payload; a regression test (tests/test_wb05_ch05_worked_examples.py) now asserts the reported payload is NOT the local shard size."
+
+  - id: "claim-05-memcomm-018"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Standard attention implementations materialize the full N-by-N attention score and probability matrices (S and P) to GPU HBM, which takes O(N^2) memory in sequence length N; FlashAttention's tiling avoids ever materializing that full N-by-N matrix on HBM. Peak activation-memory scaling therefore depends on which attention implementation is used, not only on parameter count or the specific accounting convention any one source (e.g. [@src-17]'s Equation 3 formula) declares."
+    source_ids: ["src-55", "src-17"]
+    verification_status: "verified_full_text"
+    note: "Quoted/paraphrased directly from src-55's own Section 2.2 ('Standard attention implementations materialize the matrices S and P to HBM, which takes O(N^2) memory') and Figure 1 caption ('FlashAttention uses tiling to prevent materialization of the large N x N attention matrix ... on (relatively) slow GPU HBM'). Used to qualify, not contradict, src-17's own Equation 3 activation-memory formula -- that formula encodes src-17's own declared conventional accounting, not a universal law independent of attention implementation."
 
 planned_chapter_sources:
   - chapter: "ch1"
@@ -509,9 +525,9 @@ planned_chapter_sources:
     note: "GPipe (src-52), Megatron-LM (src-53), and ZeRO (src-54) were read in full text and registered during this chapter's own drafting (2026-09-27), resolving the prior candidate status. No additional primary MoE-systems source was registered for expert parallelism: src-17's own Expert Parallelism section (verified full-text) already covers placement, all-to-all routing, and the DP+EP combination at the mechanism level this chapter needs, and the chapter boundary explicitly defers MoE architecture itself to Workbook 04."
 
   - chapter: "ch5"
-    source_ids: ["src-10", "src-17", "src-52", "src-53", "src-54"]
+    source_ids: ["src-10", "src-17", "src-52", "src-53", "src-54", "src-55"]
     candidate_source_ids: []
-    note: "GPipe (src-52), Megatron-LM (src-53), and ZeRO (src-54) were already registered during Chapter 4's drafting and were re-read in full for this chapter's memory/communication-specific sections (GPipe's re-materialization formula; ZeRO's own communication-volume analysis; Megatron-LM's own activation-checkpointing disclosure and scaling experiment). src-10 (How to Scale Your Model) was already registered for workbook 05 as a supporting source and was read in full (not from the registry summary) for its roofline/arithmetic-intensity section specifically. No new source was registered this chapter."
+    note: "GPipe (src-52), Megatron-LM (src-53), and ZeRO (src-54) were already registered during Chapter 4's drafting and were re-read in full for this chapter's memory/communication-specific sections (GPipe's re-materialization formula; ZeRO's own communication-volume analysis; Megatron-LM's own activation-checkpointing disclosure and scaling experiment). src-10 (How to Scale Your Model) was already registered for workbook 05 as a supporting source and was read in full (not from the registry summary) for its roofline/arithmetic-intensity section specifically. UPDATED 2026-10-03 (correction pass): src-55 (FlashAttention, arXiv:2205.14135) was newly registered and read in full to support the activation-memory qualification that peak activation scaling depends on attention implementation (materializing vs. not materializing the full N-by-N score matrix)."
 
   - chapter: "ch6"
     source_ids: ["src-32", "src-33"]

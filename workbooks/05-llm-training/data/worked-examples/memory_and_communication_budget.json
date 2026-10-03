@@ -40,29 +40,47 @@
     "boundary_only_estimate_GiB": 0.75
   },
   "communication": {
-    "zero3_allgather_payload_per_rank_per_block_bytes": 67108864.0,
-    "zero3_allgather_payload_per_rank_per_block_MiB": 64.0,
-    "zero3_allgather_payload_all_blocks_bytes": 1610612736.0,
-    "comm_time_per_block_seconds": 0.00034554432,
-    "total_comm_time_all_blocks_seconds": 0.00829306368,
-    "total_comm_time_all_blocks_ms": 8.293063680000001,
-    "hidden_comm_time_seconds": 0.005805144576,
-    "exposed_comm_time_seconds": 0.0024879191040000003,
-    "exposed_comm_time_ms": 2.4879191040000004
+    "scope": "forward-pass ZeRO-3 parameter all-gather only (excludes backward-pass parameter all-gathers and gradient reduce-scatters)",
+    "collective_algorithm": "ring all-gather",
+    "volume_convention": "one-direction (send) volume per rank; receive volume per rank is equal by ring symmetry",
+    "ring_rounds": 7,
+    "full_block_tensor_bytes": 536870912,
+    "full_block_tensor_MiB": 512.0,
+    "local_shard_per_rank_per_block_bytes": 67108864.0,
+    "local_shard_per_rank_per_block_MiB": 64.0,
+    "ring_allgather_send_volume_per_rank_per_block_bytes": 469762048.0,
+    "ring_allgather_send_volume_per_rank_per_block_MiB": 448.0,
+    "ring_allgather_receive_volume_per_rank_per_block_bytes": 469762048.0,
+    "ring_allgather_receive_volume_per_rank_per_block_MiB": 448.0,
+    "reported_payload_per_rank_per_block_bytes": 469762048.0,
+    "reported_payload_per_rank_per_block_MiB": 448.0,
+    "reported_payload_all_blocks_bytes": 11274289152.0,
+    "reported_payload_all_blocks_GiB": 10.5,
+    "comm_time_per_block_seconds": 0.0024188102400000003,
+    "comm_time_per_block_ms": 2.4188102400000004,
+    "total_comm_time_all_blocks_seconds": 0.05805144576000001,
+    "total_comm_time_all_blocks_ms": 58.05144576000001,
+    "hidden_comm_time_seconds": 0.040636012032000006,
+    "hidden_comm_time_ms": 40.636012032000004,
+    "exposed_comm_time_seconds": 0.017415433728,
+    "exposed_comm_time_ms": 17.415433728
   },
   "step_time": {
     "compute_time_seconds": 0.12,
-    "step_time_with_overlap_seconds": 0.12248791910399999,
-    "step_time_with_overlap_ms": 122.48791910399999,
-    "step_time_fully_exposed_seconds": 0.12829306367999999,
-    "step_time_fully_exposed_ms": 128.29306368,
-    "overlap_benefit_fraction": 0.04524909149008793,
-    "overlap_benefit_percent": 4.524909149008793
+    "step_time_with_overlap_seconds": 0.137415433728,
+    "step_time_with_overlap_ms": 137.415433728,
+    "step_time_fully_exposed_seconds": 0.17805144576,
+    "step_time_fully_exposed_ms": 178.05144576,
+    "overlap_benefit_fraction": 0.22822624022258325,
+    "overlap_benefit_percent": 22.822624022258324
   },
   "invalid_configuration_checks": {
     "invalid_dp_not_dividing_world_size_raised": true,
     "invalid_overlap_fraction_raised": true,
     "invalid_zero_bandwidth_raised": true,
-    "invalid_n_heads_not_dividing_hidden_raised": true
+    "invalid_n_heads_not_dividing_hidden_raised": true,
+    "reported_payload_is_not_local_shard_size": true,
+    "reported_payload_equals_ring_allgather_formula": true,
+    "hidden_comm_time_does_not_exceed_compute_time": true
   }
 }

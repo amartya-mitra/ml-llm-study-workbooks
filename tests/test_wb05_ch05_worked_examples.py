@@ -68,15 +68,57 @@ class TestChapter5WorkedExample(unittest.TestCase):
         # is the "activation explosion" the chapter prose describes
         self.assertGreater(act["no_recompute_bytes"] / act["boundary_only_estimate_bytes"], 10)
 
-    def test_communication_payload_matches_declared_formula(self):
+    def test_communication_payload_matches_ring_allgather_formula(self):
+        # Regression test for the local-shard-as-payload bug: the
+        # REPORTED payload must equal the ring all-gather's
+        # one-direction send volume, ((P-1)/P)*S, NOT the local shard
+        # size S/P -- see the chapter's own correction notes.
         h = self.data["toy_config"]["hidden"]
         dp = self.data["toy_config"]["dp_degree"]
-        expected_elements_per_rank = (16 * h ** 2) / dp
-        expected_bytes = expected_elements_per_rank * 2  # bf16
+        full_block_bytes = (16 * h ** 2) * 2  # bf16
+        expected_local_shard_bytes = full_block_bytes / dp
+        expected_send_volume_bytes = ((dp - 1) / dp) * full_block_bytes
+
+        comm = self.data["communication"]
+        self.assertAlmostEqual(comm["local_shard_per_rank_per_block_bytes"], expected_local_shard_bytes, delta=1)
         self.assertAlmostEqual(
-            self.data["communication"]["zero3_allgather_payload_per_rank_per_block_bytes"],
-            expected_bytes, delta=1,
+            comm["ring_allgather_send_volume_per_rank_per_block_bytes"], expected_send_volume_bytes, delta=1,
         )
+        self.assertAlmostEqual(
+            comm["reported_payload_per_rank_per_block_bytes"], expected_send_volume_bytes, delta=1,
+        )
+
+        # The old (buggy) value: the local shard size (64 MiB for this
+        # toy config). The reported payload must NOT equal it.
+        OLD_BUGGY_LOCAL_SHARD_MIB = 64.0
+        self.assertNotAlmostEqual(
+            comm["reported_payload_per_rank_per_block_MiB"], OLD_BUGGY_LOCAL_SHARD_MIB, delta=1e-6,
+            msg="reported communication payload must not equal the local shard size -- this is the exact bug an earlier draft had",
+        )
+        # Receive volume equals send volume by ring symmetry.
+        self.assertAlmostEqual(
+            comm["ring_allgather_receive_volume_per_rank_per_block_bytes"],
+            comm["ring_allgather_send_volume_per_rank_per_block_bytes"], delta=1,
+        )
+
+    def test_comm_time_uses_p_minus_1_ring_rounds_not_one_message(self):
+        comm = self.data["communication"]
+        dp = self.data["toy_config"]["dp_degree"]
+        alpha = self.data["toy_config"]["alpha_seconds"]
+        bw_bytes_per_s = self.data["toy_config"]["effective_bandwidth_GBps"] * 1e9
+        self.assertEqual(comm["ring_rounds"], dp - 1)
+        expected_comm_time_per_block = (
+            alpha * (dp - 1) + comm["reported_payload_per_rank_per_block_bytes"] / bw_bytes_per_s
+        )
+        self.assertAlmostEqual(comm["comm_time_per_block_seconds"], expected_comm_time_per_block, delta=1e-9)
+
+    def test_hidden_comm_time_does_not_exceed_compute_time(self):
+        # Sanity bound for the forward-pass-only scope: hidden
+        # communication must never exceed the compute interval it
+        # overlaps with.
+        comm = self.data["communication"]
+        st = self.data["step_time"]
+        self.assertLessEqual(comm["hidden_comm_time_seconds"], st["compute_time_seconds"])
 
     def test_exposed_plus_hidden_equals_total_communication_time(self):
         comm = self.data["communication"]
@@ -100,10 +142,11 @@ class TestChapter5WorkedExample(unittest.TestCase):
         st = self.data["step_time"]
         self.assertGreaterEqual(st["step_time_with_overlap_seconds"], st["compute_time_seconds"])
 
-    def test_all_four_invalid_configuration_checks_raised(self):
+    def test_all_invalid_configuration_and_regression_checks_pass(self):
         checks = self.data["invalid_configuration_checks"]
+        self.assertGreaterEqual(len(checks), 7)
         for name, raised in checks.items():
-            self.assertTrue(raised, msg=f"{name} did not raise as expected")
+            self.assertTrue(raised, msg=f"{name} did not raise/hold as expected")
 
     def test_worked_example_numbers_appear_in_chapter_text(self):
         mm = self.data["model_state_memory"]
@@ -118,7 +161,8 @@ class TestChapter5WorkedExample(unittest.TestCase):
         self.assertIn(f"{mm['zero3_sharded_per_rank_GiB']:.1f}", self.chapter_text)
         self.assertIn(f"{act['no_recompute_GiB']:.2f}", self.chapter_text)
         self.assertIn(f"{act['boundary_only_estimate_GiB']:.2f}", self.chapter_text)
-        self.assertIn(f"{comm['zero3_allgather_payload_per_rank_per_block_MiB']:.0f}", self.chapter_text)
+        self.assertIn(f"{comm['ring_allgather_send_volume_per_rank_per_block_MiB']:.0f}", self.chapter_text)
+        self.assertIn(f"{comm['total_comm_time_all_blocks_ms']:.2f}", self.chapter_text)
         self.assertIn(f"{st['overlap_benefit_percent']:.1f}", self.chapter_text)
 
 

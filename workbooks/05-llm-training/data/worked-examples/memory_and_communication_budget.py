@@ -37,11 +37,40 @@ session, not from the registry summary):
       [@src-54;@src-17]
     - Activation memory (mixed precision):
       m_act = L*seq*bs*h*(34 + 5*n_heads*seq/h) bytes  [@src-17]
-    - ZeRO-3 per-transformer-block forward-pass parameter all-gather:
-      16*h^2 elements total, 16*h^2/DP elements/rank  [@src-17]
-    - Communication volume of one all-gather equals its message size
-      (one "Psi" of data moved per the collective's own definition)
-      [@src-54]
+    - ZeRO-3 per-transformer-block parameter all-gather: a full block
+      has 16*h^2 elements; this chapter declares the collective
+      algorithm explicitly as a RING all-gather over the DP group of
+      size P, and reports exactly one convention throughout: the
+      one-direction (send) volume moved BY one rank, which for a ring
+      all-gather is ((P-1)/P) of the full tensor -- NOT the local
+      shard size (which is only 1/P of the full tensor, the amount one
+      rank *starts with and ends up with locally*, not the amount it
+      *communicates*). The receive volume per rank is equal to the
+      send volume by the same ring symmetry. This (P-1)/P factor is
+      the standard collective-communication-volume result for a ring
+      algorithm (every rank forwards P-1 chunks around the ring and
+      receives P-1 chunks); it is consistent with -- not a
+      contradiction of -- ZeRO's own Section 7.2 Psi-based accounting
+      [@src-54], which states collective volumes using the large-P
+      asymptotic approximation (P-1)/P ~= 1 and drops the factor
+      entirely. This worked example's P=8 is small enough that
+      dropping that factor materially changes the numbers, so it is
+      kept explicit here rather than approximated away. The latency
+      term in the cost model below also uses P-1 (one message per ring
+      round), not a single message, for the same reason.
+    - Communication volume of one all-gather or reduce-scatter, in
+      ZeRO's own large-P asymptotic notation, is one "Psi" of data per
+      rank [@src-54] -- this worked example's exact (P-1)/P*Psi
+      accounting (above) specializes that asymptotic notation for a
+      concrete, small P.
+
+SCOPE of the communication/step-time numbers below: this worked
+example models only the FORWARD-PASS ZeRO-3 parameter all-gather
+across all 24 transformer blocks. It explicitly excludes backward-pass
+parameter all-gathers and gradient reduce-scatters -- see the
+"scope" field in the JSON output and the chapter prose, which both
+label every downstream number "forward-pass parameter all-gather
+communication," never "total step communication."
 
 Run: python3 workbooks/05-llm-training/data/worked-examples/memory_and_communication_budget.py
 Output: memory_and_communication_budget.json (beside this script)
@@ -115,12 +144,32 @@ def boundary_only_activation_estimate_bytes(L, seq, bs, h):
     return L * bytes_per_boundary
 
 
-def zero3_forward_allgather_payload_bytes(h, dp):
-    """16*h^2 elements per transformer block (total across the
-    collective); 16*h^2/dp elements/rank -- [@src-17]'s own ZeRO-3
-    communication-volume analysis. Converted to bytes at bf16 width."""
-    elements_per_rank = (16 * h ** 2) / dp
-    return elements_per_rank * BYTES_PER_ELEM_BF16
+def zero3_block_full_tensor_bytes(h):
+    """16*h^2 elements for one full transformer block's ZeRO-3-sharded
+    parameters -- [@src-17]'s own per-block element count. Converted
+    to bytes at bf16 width. This is the FULL tensor size S, not any
+    one rank's share of it."""
+    return (16 * h ** 2) * BYTES_PER_ELEM_BF16
+
+
+def zero3_ring_allgather_volumes_bytes(full_tensor_bytes, dp):
+    """For a full tensor of S bytes ring-all-gathered over a DP group
+    of P=dp ranks: local shard size = S/P (what one rank stores, NOT
+    what it communicates); ring all-gather SEND volume per rank =
+    ((P-1)/P)*S; RECEIVE volume per rank = ((P-1)/P)*S also, by ring
+    symmetry. Returns all three, explicitly distinguishing the local
+    shard from the communicated payload -- see this module's docstring
+    and the chapter prose for why conflating the two was a numerical
+    bug in an earlier draft."""
+    if dp <= 0:
+        raise InvalidTrainingConfig(f"dp must be positive, got {dp}")
+    local_shard_bytes = full_tensor_bytes / dp
+    one_direction_volume_bytes = ((dp - 1) / dp) * full_tensor_bytes
+    return {
+        "local_shard_bytes": local_shard_bytes,
+        "send_volume_per_rank_bytes": one_direction_volume_bytes,
+        "receive_volume_per_rank_bytes": one_direction_volume_bytes,
+    }
 
 
 def estimate_communication_time_seconds(bytes_moved, effective_bandwidth_bytes_per_s, alpha_seconds, num_messages=1):
@@ -172,12 +221,24 @@ def main():
         TOY_LAYERS, TOY_SEQ_LEN, TOY_MICROBATCH, TOY_HIDDEN,
     )
 
-    payload_bytes_per_rank = zero3_forward_allgather_payload_bytes(TOY_HIDDEN, TOY_DP_DEGREE)
-    payload_bytes_all_blocks = payload_bytes_per_rank * TOY_LAYERS
+    # Ring all-gather over the DP group (P = TOY_DP_DEGREE ranks, no TP
+    # active in this toy config). We report ONE convention throughout
+    # this chapter: the one-direction (send) volume per rank, which
+    # equals the receive volume per rank by ring symmetry -- see this
+    # module's docstring. This is explicitly NOT the local shard size.
+    full_block_bytes = zero3_block_full_tensor_bytes(TOY_HIDDEN)
+    ring_volumes = zero3_ring_allgather_volumes_bytes(full_block_bytes, TOY_DP_DEGREE)
+    send_volume_per_rank_bytes = ring_volumes["send_volume_per_rank_bytes"]
+    local_shard_bytes = ring_volumes["local_shard_bytes"]
+    ring_rounds = TOY_DP_DEGREE - 1  # one ring all-gather round per remaining rank
+
+    reported_payload_bytes_per_rank = send_volume_per_rank_bytes
+    payload_bytes_all_blocks = reported_payload_bytes_per_rank * TOY_LAYERS
 
     effective_bw_bytes_per_s = TOY_EFFECTIVE_BANDWIDTH_GBPS * 1e9
     comm_time_per_block = estimate_communication_time_seconds(
-        payload_bytes_per_rank, effective_bw_bytes_per_s, TOY_ALPHA_SECONDS,
+        reported_payload_bytes_per_rank, effective_bw_bytes_per_s, TOY_ALPHA_SECONDS,
+        num_messages=ring_rounds,
     )
     total_comm_time_all_blocks = comm_time_per_block * TOY_LAYERS
 
@@ -213,6 +274,24 @@ def main():
     except InvalidTrainingConfig:
         checks["invalid_n_heads_not_dividing_hidden_raised"] = True
 
+    # Regression check for the local-shard-as-payload bug: the
+    # reported communication payload must be the ring all-gather's
+    # (P-1)/P send volume, NOT the 1/P local shard size. This would
+    # have caught the earlier draft's error, which quoted the local
+    # shard (64 MiB) as if it were the per-rank communication volume.
+    checks["reported_payload_is_not_local_shard_size"] = (
+        reported_payload_bytes_per_rank != local_shard_bytes
+    )
+    checks["reported_payload_equals_ring_allgather_formula"] = (
+        abs(reported_payload_bytes_per_rank - ((TOY_DP_DEGREE - 1) / TOY_DP_DEGREE) * full_block_bytes) < 1e-6
+    )
+    # Sanity bound (item 2): hidden communication time must never
+    # exceed the compute interval it is overlapping with -- otherwise
+    # "hidden" is not a physically meaningful label for this toy step.
+    checks["hidden_comm_time_does_not_exceed_compute_time"] = (
+        hidden_s <= TOY_COMPUTE_TIME_SECONDS
+    )
+
     result = {
         "toy_config": {
             "hidden": TOY_HIDDEN, "vocab": TOY_VOCAB, "layers": TOY_LAYERS,
@@ -238,13 +317,28 @@ def main():
             "boundary_only_estimate_GiB": act_bytes_boundary_only / 2**30,
         },
         "communication": {
-            "zero3_allgather_payload_per_rank_per_block_bytes": payload_bytes_per_rank,
-            "zero3_allgather_payload_per_rank_per_block_MiB": payload_bytes_per_rank / 2**20,
-            "zero3_allgather_payload_all_blocks_bytes": payload_bytes_all_blocks,
+            "scope": "forward-pass ZeRO-3 parameter all-gather only (excludes backward-pass parameter all-gathers and gradient reduce-scatters)",
+            "collective_algorithm": "ring all-gather",
+            "volume_convention": "one-direction (send) volume per rank; receive volume per rank is equal by ring symmetry",
+            "ring_rounds": ring_rounds,
+            "full_block_tensor_bytes": full_block_bytes,
+            "full_block_tensor_MiB": full_block_bytes / 2**20,
+            "local_shard_per_rank_per_block_bytes": local_shard_bytes,
+            "local_shard_per_rank_per_block_MiB": local_shard_bytes / 2**20,
+            "ring_allgather_send_volume_per_rank_per_block_bytes": send_volume_per_rank_bytes,
+            "ring_allgather_send_volume_per_rank_per_block_MiB": send_volume_per_rank_bytes / 2**20,
+            "ring_allgather_receive_volume_per_rank_per_block_bytes": send_volume_per_rank_bytes,
+            "ring_allgather_receive_volume_per_rank_per_block_MiB": send_volume_per_rank_bytes / 2**20,
+            "reported_payload_per_rank_per_block_bytes": reported_payload_bytes_per_rank,
+            "reported_payload_per_rank_per_block_MiB": reported_payload_bytes_per_rank / 2**20,
+            "reported_payload_all_blocks_bytes": payload_bytes_all_blocks,
+            "reported_payload_all_blocks_GiB": payload_bytes_all_blocks / 2**30,
             "comm_time_per_block_seconds": comm_time_per_block,
+            "comm_time_per_block_ms": comm_time_per_block * 1000,
             "total_comm_time_all_blocks_seconds": total_comm_time_all_blocks,
             "total_comm_time_all_blocks_ms": total_comm_time_all_blocks * 1000,
             "hidden_comm_time_seconds": hidden_s,
+            "hidden_comm_time_ms": hidden_s * 1000,
             "exposed_comm_time_seconds": exposed_s,
             "exposed_comm_time_ms": exposed_s * 1000,
         },

@@ -130,7 +130,8 @@ def main():
     c.add_text(left_margin + 498, legend_y - 2, "Exposed communication (on critical path)", size=12, color="#333333", anchor="start")
 
     c.add_text(WIDTH / 2, legend_y + 35,
-              f"Total communication this step: {total_comm_s * 1000:.1f} ms — hidden + exposed must sum to this total.",
+              f"Total forward-pass parameter all-gather communication this step: {total_comm_s * 1000:.1f} ms — hidden + exposed must sum to this total. "
+              "Excludes backward-pass all-gathers and gradient reduce-scatters.",
               size=12, color="#555555", anchor="middle")
 
     c.save(OUTPUT_PATH)
