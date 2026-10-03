@@ -1,0 +1,100 @@
+## Answer Key: Chapter 5 {#sec-solutions-ch5 .unnumbered}
+
+Full solutions to Chapter 5's "Check your understanding" questions
+(@sec-ch5-check).
+
+**1. Conceptual distinction. A colleague reports "peak memory: 42 GiB"
+for a training run without saying more. List the four kinds of memory
+number this chapter distinguishes, and state which one a bare "peak
+memory" figure from `nvidia-smi` actually is.**
+
+*Answer.* The four kinds are: logical tensor memory (the exact byte
+count a tensor's shape and dtype imply); a theoretical lower bound
+(logical memory under a stated, idealized sharding/recomputation
+policy); an estimated peak (a formula applied to a configuration,
+computed in advance); and measured peak allocated/reserved memory
+(what a profiler or `nvidia-smi` actually reports for a real run). A
+bare `nvidia-smi` figure is the fourth kind — a *measured* value, which
+already includes allocator fragmentation and reserved-but-unused
+memory, not a clean logical or estimated count.
+
+*Common trap:* Treating a measured number as if it were a clean
+logical/theoretical count, or vice versa — the two can differ because
+measured memory includes fragmentation and framework overhead that a
+formula-based estimate does not model.
+
+**2. Calculation. A model has N=2 billion parameters, trained in mixed
+precision. What is the per-rank model-state memory (a) under vanilla
+data parallelism, and (b) under ZeRO-3 with a data-parallel degree of
+4?**
+
+*Answer.* (a) Vanilla DP: $16N = 16 \times 2\times10^9 = 3.2\times10^{10}$
+bytes $\approx 29.8$ GiB, fully replicated on every rank. (b) ZeRO-3
+with $N_d=4$: $16N/4 \approx 7.45$ GiB per rank — the same four objects
+(bf16 params, bf16 gradients, fp32 master weights, fp32 Adam state),
+each divided by 4.
+
+*Common trap:* Forgetting that mixed precision's total is still $16N$
+(not $8N$ or some other "halved" value) before any sharding is
+applied — see this chapter's own common-misconception callout.
+
+**3. Calculation. For a model with hidden size h=4096 and a
+data-parallel degree of 16, how many MiB does one rank move during one
+ZeRO-3 forward-pass all-gather of a single transformer block's
+parameters (bf16)?**
+
+*Answer.* Elements per rank: $16h^2/N_d = 16 \times 4096^2 / 16 =
+4096^2 = 16{,}777{,}216$ elements. In bf16 (2 bytes/element): $33{,}554{,}432$
+bytes $= 32$ MiB.
+
+*Common trap:* Forgetting the bytes-per-element conversion (reporting
+the element count as if it were already a byte count), or dividing by
+$N_d$ twice.
+
+**4. Bottleneck diagnosis. A training job's per-GPU throughput drops
+as more GPUs are added to a fixed-size problem, and profiling shows
+idle time between layers while waiting for parameter transfers to
+finish. Which resource most plausibly bounds this step, and which
+quantity from this chapter would you check first to confirm it?**
+
+*Answer.* The symptom (idle time waiting specifically for parameter
+transfers, worsening as more GPUs are added to the same problem size)
+points to an interconnect-bandwidth bottleneck, not a compute
+bottleneck — this is exactly the pattern Megatron-LM's own scaling
+experiment reports once "the per-GPU computation decreases and the
+memory bandwidth and communication overheads begin to dominate." The
+first thing to check is the relevant overlap ratio
+($t_{\text{comm}}/t_{\text{compute}}$) for whichever strategy is
+sharding/communicating parameters — if that ratio exceeds 1, the
+communication cannot be fully hidden and will show up as exactly this
+kind of idle time.
+
+*Common trap:* Assuming more GPUs always means more throughput, or
+blaming compute (e.g. recommending a bigger batch size) without first
+checking whether the bottleneck is actually bandwidth.
+
+**5. Synthesis/design. A 2-billion-parameter model (mixed precision,
+ZeRO-3) must fit its model-state memory within a 10 GiB-per-device
+budget, on a cluster whose total world size is fixed at 24 devices
+split only between DP (for ZeRO-3 sharding) and TP (no PP, CP, or EP).
+(a) What is the minimum DP degree that fits the stated memory budget?
+(b) Given that DP must evenly divide the 24-device world size, what is
+the smallest valid DP satisfying both the budget and the divisibility
+requirement, and what TP degree does that imply?**
+
+*Answer.* (a) Model-state memory is $16N = 16\times2\times10^9
+\approx 29.80$ GiB. Fitting this within a 10 GiB-per-device budget
+requires $29.80/N_d \le 10$, i.e. $N_d \ge 2.98$ — since $N_d$ must be
+a whole number of devices, the minimum is $N_d=3$ (at $N_d=2$, each
+device would need $14.90$ GiB, exceeding the budget). (b) The divisors
+of 24 are 1, 2, 3, 4, 6, 8, 12, 24; the smallest one that is also
+$\ge 3$ is exactly 3 — so the memory-budget minimum and the
+divisibility requirement agree on $\text{DP}=3$ without needing to
+search further up the divisor list. With $\text{DP}=3$ fixed and the
+world size fixed at 24, $\text{TP}=24/3=8$.
+
+*Common trap:* Rounding $29.80/10=2.98$ down to 2 instead of up to 3
+(a memory budget must not be exceeded, so a fractional device count
+always rounds up, not to the nearest integer), or picking a larger
+divisor of 24 (e.g. 4 or 6) without checking whether a smaller valid
+one already satisfies the budget.

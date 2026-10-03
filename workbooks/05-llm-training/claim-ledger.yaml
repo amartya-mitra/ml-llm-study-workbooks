@@ -359,6 +359,134 @@ entries:
     verification_status: "computed_by_script"
     note: "The general compositional principle (these axes multiply into total device count, subject to per-axis constraints) is supported by src-17's 5D-parallelism framing; the specific 64-device numeric example, rank decomposition convention, and invalid-configuration tests are computed by data/worked-examples/parallelism_layout.py."
 
+  - id: "claim-05-memcomm-001"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "The non-embedding-adjusted parameter count of a transformer is N = h*v + L*(12h^2 + 13h) + 2h, where h is hidden size, v is vocabulary size, and L is the number of layers."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-memcomm-002"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "In mixed-precision training (bf16 compute, fp32 master weights, fp32 Adam moments, no separate fp32 gradient accumulation), per-rank model-state memory is m_params=2N, m_grad=2N, m_params_fp32=4N, m_opt=8N, summing to 16N bytes -- the same total as full fp32 training (4N+4N+8N=16N), not a reduction."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: "The 'mixed precision does not reduce total model-state memory' point is this chapter's own common-misconception callout, directly supported by comparing the source's own two totals."
+
+  - id: "claim-05-memcomm-003"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "ZeRO-3/FSDP partitions all four model-state objects (parameters, gradients, master weights, optimizer states) across the data-parallel group of size Nd, reducing each rank's share to 16N/Nd bytes; ZeRO's own notation bundles the master-weight and optimizer terms into a single k*Psi term with k=12 for mixed-precision Adam."
+    source_ids: ["src-54", "src-17"]
+    verification_status: "verified_full_text"
+    note: "src-17 gives the four-way breakdown (2N+2N+4N+8N); src-54 gives the k=12 bundled notation -- same total, different bookkeeping granularity, both cited rather than smoothed into one."
+
+  - id: "claim-05-memcomm-004"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Mixed-precision activation memory is m_act = L*seq*bs*h*(34 + 5*n_heads*seq/h) bytes, scaling linearly with batch size and quadratically with sequence length through the attention term."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-memcomm-005"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Full activation recomputation (checkpointing only at layer boundaries) adds 'up to 30-40%' compute cost; selective recomputation (checkpointing expensive feedforward activations, recomputing cheap attention activations) achieves '70% activation memory reduction at a 2.7% compute cost' for a GPT-3-175B-scale model."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: "Both percentages are the source's own reported figures for its own stated cases, not a universal recomputation-cost guarantee for any model."
+
+  - id: "claim-05-memcomm-006"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "GPipe's own peak-activation-memory analysis with re-materialization gives O(N + (L/K)*(N/M)) for a model with L layers split into K pipeline partitions and M microbatches, versus O(N*L) with neither recomputation nor partitioning (N here is GPipe's own per-layer activation-size notation)."
+    source_ids: ["src-52"]
+    verification_status: "verified_full_text"
+    note: "Notation clash flagged explicitly in the chapter: this N is GPipe's per-layer activation size, not this chapter's own parameter count N."
+
+  - id: "claim-05-memcomm-007"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "ZeRO's own reported per-training-step communication volumes (in units of Psi, the sharded payload size) are: vanilla DP, 2*Psi; ZeRO-2 (Pos+g), also 2*Psi ('exactly the same as the baseline DP'); ZeRO-3 (Pos+g+p), 3*Psi ('1.5x compared to the baseline'). An all-reduce decomposes into a reduce-scatter (Psi) plus an all-gather (Psi)."
+    source_ids: ["src-54"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-memcomm-008"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "A latency-bandwidth communication cost model T_comm ~= alpha*num_messages + bytes_moved/effective_bandwidth is used to derive per-strategy communication/computation overlap ratios: for vanilla DP's gradient all-reduce, for ZeRO-3's per-layer parameter all-gather, for TP's activation all-gather (depending only on hidden size and TP degree, not sequence length or batch size), and for PP's point-to-point activation handoff (depending only on hidden size and layers-in-next-stage)."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: "The TP and PP ratios' independence from sequence length and batch size is the source's own stated observation, not this chapter's inference."
+
+  - id: "claim-05-memcomm-009"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Communication kernels typically execute on the same GPU streaming multiprocessors (SMs) that compute kernels use, so overlapping communication with computation shares a finite resource rather than using two independent ones, leading to decreased throughput relative to a naive estimate that assumes communication is simply invisible."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: "This is the chapter's primary support for 'overlap hides communication, it does not make it free.'"
+
+  - id: "claim-05-memcomm-010"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Gradient bucketing's default bucket size is often around 25MB, grouping many small gradients into one larger message to amortize the fixed per-message latency better than many small transfers."
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-memcomm-011"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Benchmarking several thousand distributed configurations (1-64 nodes of 8xH100s) found efficiency decreasing as node count increases, especially for smaller models with a lower compute-to-communication ratio, and found that which of TP or PP ran faster depended on implementation quality: 'when we first implemented both parallelism strategies, Tensor Parallelism (TP) outperformed Pipeline Parallelism (PP). After optimizing our PP code, it became the faster option.'"
+    source_ids: ["src-17"]
+    verification_status: "verified_full_text"
+    note: "Presented as this source's own measured benchmark finding, not a general law about TP vs PP performance for any implementation."
+
+  - id: "claim-05-memcomm-012"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Megatron-LM's own scaling experiment (fixed 1.2B-parameter model, fixed batch size of 8, increasing GPU count via model parallelism) found that 'using two GPUs makes training 64% faster,' with diminishing returns above that 'as the per-GPU computation decreases and the memory bandwidth and communication overheads begin to dominate.'"
+    source_ids: ["src-53"]
+    verification_status: "verified_full_text"
+    note: "A real, measured example of the bottleneck shifting from compute to bandwidth within a single reported experiment -- used in the chapter to ground the bottleneck-diagnosis framework in an actual result, not only theory."
+
+  - id: "claim-05-memcomm-013"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Megatron-LM discloses using activation checkpointing 'after every transformer layer' in its own training setup -- i.e. the 'full' recomputation strategy."
+    source_ids: ["src-53"]
+    verification_status: "verified_full_text"
+    note: null
+
+  - id: "claim-05-memcomm-014"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Arithmetic intensity is defined as the ratio of total FLOPs an operation performs to the number of bytes it needs to communicate (within a chip, for memory bandwidth, or between chips, for interconnect bandwidth); an operation is compute-bound when its own intensity exceeds the hardware's own peak intensity (peak FLOPs/s divided by peak bytes/s)."
+    source_ids: ["src-10"]
+    verification_status: "verified_full_text"
+    note: "Verified via direct fetch and grep of the cited page's raw HTML this session, not the registry summary."
+
+  - id: "claim-05-memcomm-015"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "Achieved compute throughput on real hardware falls short of nominal peak: 'H100s and B200s can usually only achieve around 80-85% of the claimed peak FLOPs, while TPUs can get closer to 95% in normal use.'"
+    source_ids: ["src-10"]
+    verification_status: "verified_full_text"
+    note: "Used in the chapter to support the general caution that effective bandwidth (and effective FLOPs) are never assumed equal to nominal/peak hardware specifications."
+
+  - id: "claim-05-memcomm-016"
+    workbook: "05-llm-training"
+    chapter: "ch5"
+    statement: "This chapter's own worked example (toy h=4096, v=32000, L=24, n_heads=32, seq=2048, bs=2, DP=8 configuration; the boundary-only activation-memory estimate; the declared 200 GB/s effective bandwidth, 10us alpha, 0.7 overlap fraction, and 120ms illustrative compute time) is a deliberately constructed illustration, not a claim about any real model, cluster, or measured run."
+    source_ids: ["src-17", "src-52", "src-54"]
+    verification_status: "computed_by_script"
+    note: "The underlying formulas (parameter count, model-state memory, activation memory, ZeRO-3 payload) are sourced per claims above; the specific toy inputs, the boundary-only recomputation estimate, and every derived number (communication time, exposed time, step-time impact) are computed by data/worked-examples/memory_and_communication_budget.py."
+
 planned_chapter_sources:
   - chapter: "ch1"
     source_ids: ["src-16"]
@@ -381,9 +509,9 @@ planned_chapter_sources:
     note: "GPipe (src-52), Megatron-LM (src-53), and ZeRO (src-54) were read in full text and registered during this chapter's own drafting (2026-09-27), resolving the prior candidate status. No additional primary MoE-systems source was registered for expert parallelism: src-17's own Expert Parallelism section (verified full-text) already covers placement, all-to-all routing, and the DP+EP combination at the mechanism level this chapter needs, and the chapter boundary explicitly defers MoE architecture itself to Workbook 04."
 
   - chapter: "ch5"
-    source_ids: ["src-10", "src-17"]
-    candidate_source_ids: ["GPipe (arXiv:1811.06965)", "Megatron-LM (arXiv:1909.08053)", "ZeRO (arXiv:1910.02054)"]
-    note: "Same candidate-source status as ch4 -- not yet verified, not yet registered."
+    source_ids: ["src-10", "src-17", "src-52", "src-53", "src-54"]
+    candidate_source_ids: []
+    note: "GPipe (src-52), Megatron-LM (src-53), and ZeRO (src-54) were already registered during Chapter 4's drafting and were re-read in full for this chapter's memory/communication-specific sections (GPipe's re-materialization formula; ZeRO's own communication-volume analysis; Megatron-LM's own activation-checkpointing disclosure and scaling experiment). src-10 (How to Scale Your Model) was already registered for workbook 05 as a supporting source and was read in full (not from the registry summary) for its roofline/arithmetic-intensity section specifically. No new source was registered this chapter."
 
   - chapter: "ch6"
     source_ids: ["src-32", "src-33"]

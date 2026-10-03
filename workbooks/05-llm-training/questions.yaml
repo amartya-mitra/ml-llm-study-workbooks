@@ -242,3 +242,63 @@ questions:
     explanation: "This question requires combining the world-size factorization with two separately stated, technically justified constraints (tp fixed at exactly 8 for per-layer memory; dp at least 8 for optimizer-state/gradient memory) -- together these two constraints force a single valid configuration, not merely one reasonable choice among several."
     common_wrong_answer: "Proposing degrees that do not multiply to 64, proposing tp != 8 (violating the per-layer memory/K-V-head requirement), or proposing dp < 8 (violating the optimizer-state/gradient memory requirement) -- or describing dp=8 as merely 'maximizing' the data-parallel group rather than recognizing it is mathematically forced by the two stated requirements."
     source_ids: ["src-17", "src-54"]
+
+  - id: "q-05-memcomm-001"
+    workbook: "05-llm-training"
+    chapter: "training-memory-and-communication"
+    topic: "Logical/estimated/measured memory distinction"
+    difficulty: "intro"
+    question_type: "recall"
+    prompt: "A colleague reports \"peak memory: 42 GiB\" for a training run without saying more. List the four kinds of memory number this chapter distinguishes, and state which one a bare \"peak memory\" figure from nvidia-smi actually is."
+    expected_answer: "The four kinds are: logical tensor memory; a theoretical lower bound (under a stated idealized policy); an estimated peak (a formula applied to a configuration); and measured peak allocated/reserved memory. A bare nvidia-smi figure is the fourth kind -- a measured value, which already includes allocator fragmentation and reserved-but-unused memory."
+    explanation: "This distinction matters because a formula-based estimate and a profiler's measured number are not interchangeable -- they can legitimately differ, and conflating them hides whether a discrepancy is a bug or just fragmentation/overhead."
+    common_wrong_answer: "Treating a measured number as if it were a clean logical/theoretical count, or assuming any memory number is automatically comparable to any other without checking which of the four kinds it is."
+    source_ids: ["src-17"]
+
+  - id: "q-05-memcomm-002"
+    workbook: "05-llm-training"
+    chapter: "training-memory-and-communication"
+    topic: "Model-state memory before and after ZeRO-3 sharding"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "A model has N=2 billion parameters, trained in mixed precision. What is the per-rank model-state memory (a) under vanilla data parallelism, and (b) under ZeRO-3 with a data-parallel degree of 4?"
+    expected_answer: "(a) Vanilla DP: 16N = 16 x 2e9 = 3.2e10 bytes ~= 29.8 GiB, fully replicated on every rank. (b) ZeRO-3 with Nd=4: 16N/4 ~= 7.45 GiB per rank -- the same four objects, each divided by 4."
+    explanation: "Mixed precision's total model-state memory is 16N bytes before any sharding (2N params + 2N grad + 4N master weights + 8N optimizer state); ZeRO-3 divides every one of those four objects by the DP degree."
+    common_wrong_answer: "Using 8N or some other 'halved' total for mixed precision instead of the correct 16N, or sharding only some of the four objects instead of all four under ZeRO-3."
+    source_ids: ["src-17", "src-54"]
+
+  - id: "q-05-memcomm-003"
+    workbook: "05-llm-training"
+    chapter: "training-memory-and-communication"
+    topic: "ZeRO-3 all-gather communication payload"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "For a model with hidden size h=4096 and a data-parallel degree of 16, how many MiB does one rank move during one ZeRO-3 forward-pass all-gather of a single transformer block's parameters (bf16)?"
+    expected_answer: "Elements per rank: 16h^2/Nd = 16 x 4096^2 / 16 = 4096^2 = 16,777,216 elements. In bf16 (2 bytes/element): 33,554,432 bytes = 32 MiB."
+    explanation: "The per-rank payload for ZeRO-3's forward-pass parameter all-gather is 16h^2/Nd elements per transformer block; converting to bytes requires multiplying by the bytes-per-element of the storage precision (2 for bf16)."
+    common_wrong_answer: "Reporting the element count as if it were already a byte count, or dividing by the DP degree twice."
+    source_ids: ["src-17"]
+
+  - id: "q-05-memcomm-004"
+    workbook: "05-llm-training"
+    chapter: "training-memory-and-communication"
+    topic: "Diagnosing a bandwidth-bound bottleneck"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "A training job's per-GPU throughput drops as more GPUs are added to a fixed-size problem, and profiling shows idle time between layers while waiting for parameter transfers to finish. Which resource most plausibly bounds this step, and which quantity from this chapter would you check first to confirm it?"
+    expected_answer: "The symptom points to an interconnect-bandwidth bottleneck, not a compute bottleneck -- matching Megatron-LM's own reported scaling experiment where 'the per-GPU computation decreases and the memory bandwidth and communication overheads begin to dominate.' The first thing to check is the relevant overlap ratio (t_comm/t_compute) for whichever strategy is communicating parameters -- if it exceeds 1, communication cannot be fully hidden and shows up as this kind of idle time."
+    explanation: "Idle time specifically tied to waiting for transfers, worsening with more devices on a fixed problem, is the signature of a bandwidth-bound regime rather than a compute-bound one; the overlap ratio is the quantity that directly tests this."
+    common_wrong_answer: "Assuming more GPUs always means more throughput, or recommending a bigger batch size without first checking whether the bottleneck is actually bandwidth."
+    source_ids: ["src-53", "src-17"]
+
+  - id: "q-05-memcomm-005"
+    workbook: "05-llm-training"
+    chapter: "training-memory-and-communication"
+    topic: "Memory-budget-constrained DP degree under a fixed world size"
+    difficulty: "stretch"
+    question_type: "design"
+    prompt: "A 2-billion-parameter model (mixed precision, ZeRO-3) must fit its model-state memory within a 10 GiB-per-device budget, on a cluster whose total world size is fixed at 24 devices split only between DP (for ZeRO-3 sharding) and TP (no PP, CP, or EP). (a) What is the minimum DP degree that fits the stated memory budget? (b) Given that DP must evenly divide the 24-device world size, what is the smallest valid DP satisfying both the budget and the divisibility requirement, and what TP degree does that imply?"
+    expected_answer: "(a) Model-state memory is 16N ~= 29.80 GiB. Fitting within 10 GiB/device requires Nd >= 2.98, so the minimum integer is Nd=3 (at Nd=2, each device needs 14.90 GiB, exceeding the budget). (b) The divisors of 24 are 1,2,3,4,6,8,12,24; the smallest one >=3 is exactly 3, so DP=3 satisfies both requirements simultaneously. With DP=3 and world size 24, TP=24/3=8."
+    explanation: "This combines a continuous memory-budget inequality (minimum number of shards needed to fit) with a discrete divisibility constraint (DP must divide the fixed world size) -- the two happen to agree on the same minimal value, which is confirmed by brute-force enumeration over the divisors of 24, not merely asserted."
+    common_wrong_answer: "Rounding 29.80/10=2.98 down to 2 instead of up to 3 (a memory budget must not be exceeded, so a fractional device count always rounds up), or picking a larger valid divisor of 24 (e.g. 4 or 6) without checking whether a smaller one already satisfies the budget."
+    source_ids: ["src-17", "src-54"]

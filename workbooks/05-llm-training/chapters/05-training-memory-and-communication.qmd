@@ -1,37 +1,532 @@
 ## Memory and Communication at Training Scale {#sec-ch5}
 
-*Status: scaffold only — drafting has not yet begun for this chapter.*
+*What Fills the Memory, What Crosses the Wire, and What That Costs*
 
-**Purpose:** Distinguish logical/architectural memory estimates from
-measured training-run memory, applied specifically to optimizer state,
-activations, and gradients; cover communication-computation overlap
-during distributed training.
+### Learning objectives
 
-**Planned subsections** (following `shared/chapter-template.qmd`'s
-established structure):
+By the end of this chapter you should be able to:
 
-- Learning objectives
-- Why this matters
-- Mental model or analogy
-- Visual overview
-- Technical core
-- Worked example
-- Compare and contrast
-- Check your understanding
-- Common misconception
-- Applied exercise
-- Interview lens
-- Chapter recap
-- Sources and further reading
+- Name every category that occupies accelerator memory during
+  training, and distinguish a logical/theoretical memory estimate
+  from a measured peak-allocated value.
+- Derive a per-parameter memory accounting for a given precision and
+  optimizer, and state how data parallelism versus ZeRO/FSDP sharding
+  changes residency without changing which objects exist.
+- State why activation memory cannot be inferred from parameter count
+  alone, and name the variables it actually depends on.
+- Compute a collective's communication payload and distinguish payload
+  volume from wall-clock communication time.
+- Use a simple latency-bandwidth cost model to estimate communication
+  time, and state why nominal link bandwidth is not the same as
+  effective application bandwidth.
+- Distinguish exposed from hidden communication, and explain why
+  overlap reduces exposed time without making communication free.
+- Diagnose, from a short list of symptoms, which resource (compute,
+  memory bandwidth, interconnect bandwidth, or a scheduling bubble)
+  most plausibly bounds a given training step's throughput.
 
-**Source IDs this chapter will draw on:** [@src-10], [@src-17].
+### Why this matters
 
-**Boundary note:** Connects to, but does not repeat, workbook 04
-chapter 7's architecture-general resource ledger — that ledger
-distinguishes weight/cache/activation/communication/workspace
-categories in the abstract; this chapter's version is training-specific
-and quantitative (optimizer-state memory, activation memory under a
-stated parallelism configuration, gradient-synchronization
-communication volume). GPipe/Megatron-LM/ZeRO remain candidate
-supplementary sources for this chapter too, same status as chapter 4's
-boundary note.
+Chapter 4 established what data parallelism, ZeRO/FSDP, tensor
+parallelism, sequence/context parallelism, pipeline parallelism, and
+expert parallelism each replicate, shard, and communicate. This
+chapter does not reteach those mechanisms. Its job is the next
+question every one of them raises in practice: given a specific model,
+cluster, and parallelism configuration, will it actually fit in
+memory, and will communication actually slow it down — and by how
+much? Answering "it depends on the configuration" is not useful on its
+own; this chapter gives the accounting and the cost model that turn
+"it depends" into an actual number, together with the discipline to
+label every such number as an estimate or a measurement, never both.
+
+### Mental model or analogy
+
+::: {.callout-note title="Analogy"}
+Picture a kitchen with a fixed amount of counter space (accelerator
+memory) and a conveyor belt to a shared pantry down the hall
+(interconnect bandwidth). Some items must sit on the counter the whole
+shift — the recipe cards, the master ingredient list (model
+parameters, optimizer state). Some items pile up and get cleared as
+each dish finishes (activations). Walking to the pantry takes a fixed
+amount of time per trip plus more time for a bigger order (the
+latency-bandwidth cost model) — and if a cook can keep chopping while
+a runner fetches the next order, that walk is "hidden"; if everyone
+has to stop and wait for the runner, it is "exposed." **Where this
+breaks down:** a real accelerator's "runner" (communication kernels)
+and "cook" (compute kernels) often share the same hands — the same
+streaming multiprocessors — so a walk to the pantry is never perfectly
+free even when it overlaps with chopping, just cheaper than stopping
+entirely.
+:::
+
+### Visual overview
+
+![A training-step resource timeline for this chapter's own worked
+example, computed programmatically. Communication splits into a hidden
+portion (overlapping compute, dashed) and an exposed portion (extending
+the critical path, solid) — the critical-path bracket spans compute
+plus only the exposed
+portion.](figures/rendered/fig-training-step-timeline.svg){#fig-training-step-timeline}
+
+### Technical core
+
+**Memory taxonomy: what actually occupies accelerator memory.**
+Training memory is not one number. The items that occupy it are:
+parameters; gradients; optimizer states; a mixed-precision master-weight
+copy of the parameters (and sometimes of the gradients); saved
+activations needed for the backward pass; temporary workspaces a
+kernel allocates transiently; communication buffers (contiguous
+staging memory a collective needs, which itself "contributes in part
+to the peak memory usage during training" [@src-17]); and
+fragmentation/runtime overhead the allocator cannot fully pack. A
+separate axis distinguishes *how confidently* a number describes any
+of these: **logical tensor memory** (the exact byte count a tensor's
+shape and dtype imply); a **theoretical lower bound** (logical memory
+under a stated, idealized sharding/recomputation policy); an
+**estimated peak** (a formula applied to a configuration, as in this
+chapter's own worked example below); and **measured peak
+allocated/reserved memory** (what a profiler or `nvidia-smi` actually
+reports for a real run, which includes the allocator's own
+fragmentation and reserved-but-unused blocks [@src-17]). Every number
+in this chapter is one of the first three kinds — a calculation — not
+the fourth. There is no single "bytes per parameter" constant: the
+right multiplier depends on precision and on which optimizer states
+exist, declared explicitly every time below.
+
+**Model-state memory: parameters, gradients, optimizer states.** For
+a transformer with hidden size $h$, vocabulary size $v$, and $L$
+layers, the non-embedding-adjusted parameter count is
+
+$$
+N = h \cdot v + L \cdot (12h^2 + 13h) + 2h
+$$ {#eq-param-count}
+
+[@src-17]. In mixed-precision training (BF16 compute, FP32 "master
+weight" copy, Adam momentum and variance in FP32, no separate FP32
+gradient accumulation), the per-rank memory for the four model-state
+objects is
+
+$$
+m_{\text{params}} = 2N, \quad m_{\text{grad}} = 2N, \quad m_{\text{params\_fp32}} = 4N, \quad m_{\text{opt}} = 8N
+$$ {#eq-model-state-bytes}
+
+summing to $16N$ bytes [@src-17]. Under **vanilla data parallelism**,
+every one of these four objects is fully replicated on every rank — a
+real memory redundancy, not a design requirement. **ZeRO-3/FSDP**
+partitions all four across the data-parallel group of size $N_d$,
+reducing each rank's share to $16N/N_d$ bytes — the ZeRO paper's own
+notation bundles the master-weight and optimizer terms into a single
+"$k\Psi$" term with $k=12$ for mixed-precision Adam (here,
+$4N + 8N = 12N$), a coarser bookkeeping than the Playbook's four-way
+split but the same total [@src-54;@src-17]. Sharding changes *where*
+each object's bytes live and *what* must be communicated to
+reconstruct them when needed — it does not add, remove, or redefine
+any of the four objects themselves, and it does not change the
+mathematical quantity the optimizer is computing.
+
+::: {.callout-warning title="Common misconception"}
+**"Mixed precision roughly halves total training memory versus full
+FP32."** It does not. Full FP32 training needs $4N + 4N + 8N = 16N$
+bytes (params, gradients, optimizer states); mixed precision needs
+$2N + 2N + 4N + 8N = 16N$ bytes — the *same* total, just redistributed
+across more objects, because the FP32 master-weight copy adds back
+what BF16 saved on the live parameters and gradients [@src-17]. Mixed
+precision's real benefit is faster, lower-memory *activations* and
+faster compute kernels, not a smaller model-state total.
+:::
+
+**Activation memory depends on far more than parameter count.** For a
+microbatch size $bs$, sequence length $seq$, hidden size $h$, layer
+count $L$, and attention head count $n_{\text{heads}}$, mixed-precision
+activation memory is
+
+$$
+m_{\text{act}} = L \cdot seq \cdot bs \cdot h \cdot \left(34 + \frac{5 \cdot n_{\text{heads}} \cdot seq}{h}\right)
+$$ {#eq-activation-memory}
+
+[@src-17]. This scales *linearly* with batch size but *quadratically*
+with sequence length through the attention term — a model with twice
+the parameters but the same $h$, $L$, $seq$, and $bs$ does not
+automatically need twice the activation memory, and a model with the
+same parameter count run at 4x the sequence length needs far more than
+4x the activation memory. Parameter count alone determines none of
+this. **Activation recomputation** (gradient checkpointing) trades
+compute for memory: a **full** strategy checkpoints only at each
+layer's boundary and recomputes everything between boundaries during
+the backward pass, at "up to 30-40%" added compute cost [@src-17];
+a **selective** strategy checkpoints the expensive feedforward
+activations and recomputes only the cheap-to-redo attention
+activations, reported for a GPT-3-175B-scale model as "70% activation
+memory reduction at a 2.7% compute cost" [@src-17]. Pipeline
+parallelism changes the picture again: GPipe's own peak-activation
+analysis with re-materialization gives $O\left(N + \frac{L}{K}\cdot\frac{N}{M}\right)$
+for a model with $L$ layers split into $K$ pipeline partitions and $M$
+microbatches (where $N$ here is GPipe's own per-layer activation-size
+notation, not this chapter's parameter count) — versus
+$O(N \cdot L)$ with neither recomputation nor partitioning
+[@src-52]. More pipeline stages and more microbatches both shrink this
+peak, for different structural reasons.
+
+**Communication primitives and their payload volumes.** Chapter 4
+introduced which strategy uses which primitive; here is what each
+primitive actually moves, in terms of a payload of $\Psi$ elements.
+An **all-reduce** (vanilla DP's gradient sync) costs $2\Psi$ — ZeRO's
+own accounting: it decomposes into a reduce-scatter ($\Psi$) followed
+by an all-gather ($\Psi$) [@src-54]. A **reduce-scatter** or an
+**all-gather** alone costs $\Psi$ each. Per training step, ZeRO's own
+reported totals are: vanilla DP, $2\Psi$; ZeRO-2 ($P_{os+g}$, optimizer
+state + gradient partitioning), *also* $2\Psi$ — "exactly the same as
+the baseline DP" [@src-54]; ZeRO-3 ($P_{os+g+p}$, full parameter
+partitioning too), $3\Psi$, "1.5x compared to the baseline"
+[@src-54]. **All-to-all** (expert-parallel token routing) and
+**point-to-point send/receive** (pipeline-parallel activation/gradient
+handoff) do not fit this $\Psi$-per-rank accounting at all: their cost
+depends on how tokens are routed or which two neighboring ranks are
+exchanging data, not on an all-ranks-participate collective pattern.
+The number of *participating devices* ($N_d$ in the formulas above),
+the *payload size*, and the *wall-clock time* a collective takes are
+three different quantities — the next section is about the last of
+these.
+
+**A communication cost model.** A simple latency-bandwidth model for
+one collective or point-to-point transfer is
+
+$$
+T_{\text{comm}} \approx \alpha \cdot \text{(number of messages)} + \frac{\text{bytes moved}}{\text{effective bandwidth}}
+$$ {#eq-comm-cost-model}
+
+where $\alpha$ is a fixed per-message latency (independent of size) and
+*effective bandwidth* is **not** a link's nominal/peak bandwidth — it
+is whatever throughput the collective implementation, network topology,
+and contention from other traffic actually deliver, and it must be
+measured or conservatively assumed, never assumed equal to a
+datasheet number. On real hardware, achieved compute throughput alone
+already falls short of peak: "H100s and B200s can usually only achieve
+around 80-85% of the claimed peak FLOPs, while TPUs can get closer to
+95% in normal use" [@src-10] — the same caution applies to bandwidth.
+The Ultra-Scale Playbook's own derivation applies this cost model
+directly to each parallelism strategy's dominant collective, yielding
+a *ratio* of communication time to compute time that must stay $\le 1$
+for full overlap: for vanilla DP's gradient all-reduce, the ratio is
+$\frac{N}{2 \cdot \text{tokens}} \cdot \frac{N_d-1}{N_d} \cdot \frac{\text{peak\_flops}}{\text{peak\_bw}}$;
+for ZeRO-3's per-layer parameter all-gather,
+$\frac{1}{2 \cdot seq \cdot bs} \cdot \frac{N_d-1}{N_d} \cdot \frac{\text{peak\_flops}}{\text{peak\_bw}}$;
+for tensor parallelism's activation all-gather,
+$\frac{TP-1}{2h} \cdot \frac{\text{peak\_flops}}{\text{peak\_bw}}$ — notably
+independent of sequence length or batch size, depending only on $h$
+and the TP degree; and for pipeline parallelism's point-to-point
+activation handoff,
+$\frac{\text{peak\_flops}}{32h \cdot L_{\text{next stage}} \cdot \text{peak\_bw}}$ —
+also independent of sequence length and batch size [@src-17]. Each
+ratio names exactly which configuration variables push a strategy
+toward being communication-bound.
+
+**Overlap hides communication; it does not make it free.** Real
+implementations reduce exposed communication through **bucketing**
+(grouping many small gradients into one larger message — "the default
+bucket size is often around 25MB" [@src-17] — since one large transfer
+amortizes the fixed per-message latency $\alpha$ better than many
+small ones), **prefetching** (starting the next layer's parameter
+all-gather while the current layer still computes, as ZeRO-3 does),
+and **asynchronous collectives** that let compute proceed without
+waiting. All of these reduce *exposed* time, not the underlying
+*payload*, and all are constrained by real dependencies: a rank cannot
+use a parameter it has not yet received, and cannot start a backward
+pass on a layer whose forward activations were discarded and not yet
+recomputed. Crucially, overlap is not free even when it succeeds:
+communication kernels typically execute on the same GPU streaming
+multiprocessors that compute kernels use, so "overlapping communication
+with computation" shares a finite resource rather than using two
+independent ones, which is exactly why real implementations see
+"decreased throughput when communication is overlapped with
+computation" relative to a naive estimate that assumes communication
+is simply invisible [@src-17]. The critical path for a training step
+is compute time plus *whatever communication could not be hidden* —
+never less than compute time alone.
+
+::: {.callout-warning title="Common misconception"}
+**"If communication is fully overlapped, it doesn't affect step
+time."** Fully *hidden* communication does not *extend* the critical
+path, but it still occupies real GPU resources (SMs, memory bandwidth)
+concurrently with compute, and it still required real engineering
+(bucketing, prefetching, correctly ordered async calls) to hide.
+"Overlapped" means "not on the critical path," not "did not happen."
+:::
+
+**Throughput and bottleneck diagnosis.** Tokens/second and
+samples/second are *observed* metrics — read from a running job, not
+computed in advance. Model FLOP utilization (MFU) compares the FLOPs a
+model's forward-and-backward pass actually requires (excluding
+recomputation) against the accelerator's peak FLOPs over the step's
+wall-clock time; it is a measured-versus-theoretical *ratio*, not
+either quantity alone. Whether a step is compute-bound or
+bandwidth-bound can be read from its **arithmetic intensity** — "the
+ratio of the total FLOPs [an operation] performs to the number of
+bytes it needs to communicate," either within a chip (memory
+bandwidth) or between chips (interconnect bandwidth) [@src-10]. An
+operation is compute-bound when its own intensity exceeds the
+hardware's own peak intensity (peak FLOPs/s divided by peak
+bytes/s) [@src-10] — below that threshold, adding more FLOPs/s does not
+help, because the bottleneck is how fast bytes can move, not how fast
+they can be multiplied. The Ultra-Scale Playbook's own benchmarks
+(several thousand configurations across up to 64 nodes) found
+efficiency decreasing as node count increases, especially for smaller
+models with a lower compute-to-communication ratio, and found that
+*which* strategy (tensor versus pipeline parallelism) ran faster
+depended on *implementation* quality, not just theory — "when we first
+implemented both parallelism strategies, Tensor Parallelism (TP)
+outperformed Pipeline Parallelism (PP). After optimizing our PP code,
+it became the faster option" [@src-17]. Megatron-LM's own scaling
+experiment shows the same bottleneck *shifting* within a single
+measured run: "using two GPUs makes training 64% faster. Above that we
+see diminishing returns as the per-GPU computation decreases and the
+memory bandwidth and communication overheads begin to dominate"
+[@src-53] — the bottleneck moved from compute to bandwidth as more
+GPUs were added to the same fixed problem. **Pipeline bubbles**,
+**load imbalance** (uneven work per stage or per rank), and
+**stragglers** (one slow rank pacing everyone else) are separate
+throughput limiters from a bandwidth bottleneck — diagnosing which one
+applies requires looking at where idle time actually falls, not
+assuming a single universal cause.
+
+**Architecture shape and systems behavior are not the same axis.**
+Two models with equal total parameter counts but different
+depth/width allocations (more layers and a narrower hidden size, versus
+fewer layers and a wider hidden size) need not behave equally as
+systems problems, even before any data or measured benchmark enters
+the discussion. Greater sequential depth means more pipeline stages
+are structurally possible, but also a longer chain of strictly
+sequential forward (and backward) steps per microbatch, which is
+exactly what creates the fill/drain bubble Chapter 4 covered — a
+deeper model offers more pipeline-partitioning opportunities at the
+cost of more inherent sequential latency per token. A wider hidden
+size changes the matrix dimensions inside every matmul: Megatron-LM's
+own tensor-parallel communication ratio above depends only on $h$ and
+the TP degree, so width directly changes how much TP communication a
+fixed TP degree implies, independent of depth. Width also changes
+per-layer activation residency directly (every term in
+@eq-activation-memory scales with $h$), while depth changes how many
+times that per-layer cost is paid. Neither "deeper" nor "wider" is
+universally better for hardware utilization, latency, or throughput —
+each shifts a different term in the equations above, and the right
+allocation for a fixed parameter budget depends on which of those
+terms is already the binding constraint for a given cluster and
+sequence length.
+
+### Worked example
+
+**Setup — a toy configuration, not a real model or cluster.** Hidden
+size $h=4096$, vocabulary $v=32{,}000$, $L=24$ layers,
+$n_{\text{heads}}=32$, sequence length $seq=2048$, micro-batch size
+$bs=2$, a data-parallel degree of 8 (equal to the toy world size, so
+no other parallelism axis is active), and three declared, illustrative
+assumptions: an effective interconnect bandwidth of 200 GB/s, a fixed
+per-message latency $\alpha = 10\,\mu s$, and a step's pure compute
+time of 120 ms. None of these numbers describes a measured run.
+
+**Model-state memory, before and after sharding.** From
+@eq-param-count, this configuration has $N \approx 4.96$ billion
+parameters. From @eq-model-state-bytes, replicated (vanilla DP) model-state
+memory per rank is 74.0 GiB — 9.2 GiB bf16 parameters, 9.2 GiB bf16
+gradients, 18.5 GiB fp32 master weights, 37.0 GiB fp32 Adam state.
+After ZeRO-3/FSDP sharding across the 8-way DP group, every one of
+those four numbers is divided by 8: 9.2 GiB total per rank (1.2 GiB +
+1.2 GiB + 2.3 GiB + 4.6 GiB) — the same four objects, an eighth of
+each.
+
+**One activation-memory estimate.** From @eq-activation-memory, this
+configuration's activation memory without recomputation is 42.75 GiB
+for one microbatch — already more than half of the replicated
+model-state total, illustrating why activation memory cannot be
+ignored even when parameter count alone looks "small." Applying the
+general recomputation *principle* (store only each layer's boundary
+activation, recompute the rest) to this same toy configuration gives
+an illustrative boundary-only estimate of 0.75 GiB — a reduction of
+more than 50x in this toy case, at the cost of redoing each layer's
+forward pass during the backward pass. This specific reduced-case
+number is this chapter's own script-computed application of the
+source's stated principle, not a formula the source gives directly for
+this exact case.
+
+**Communication payload for one collective.** For ZeRO-3's per-block
+forward-pass parameter all-gather, each rank's share of one
+transformer block's $16h^2$ parameters is $16h^2/8$ elements, or 64 MiB
+in bf16 — and 1536 MiB summed across all 24 blocks for one full
+forward pass.
+
+**Estimated communication time.** Using @eq-comm-cost-model with the
+declared 200 GB/s effective bandwidth and $10\,\mu s$ per-message
+latency, one block's all-gather takes an estimated 0.346 ms; summed
+across 24 blocks, 8.29 ms of total communication for the forward
+pass's parameter all-gathers.
+
+**Exposed communication after a declared overlap fraction.** Declaring
+that 70% of this communication is successfully hidden via prefetching
+(an illustrative assumption, not a measured overlap rate) leaves 5.81 ms
+hidden and 2.49 ms **exposed** — the portion that actually extends the
+critical path.
+
+**Resulting illustrative step-time impact.** Step time with this
+overlap is compute (120 ms) plus exposed communication (2.49 ms) =
+122.49 ms. Without any overlap at all, step time would be 120 ms plus
+the *entire* 8.29 ms = 128.29 ms. Overlap's benefit in this toy
+scenario is therefore about 4.5% — illustrative of the *mechanism*,
+not a claim about what any real model's overlap actually saves.
+
+**Invalid configurations are rejected.** The worked example's own
+script rejects a DP degree that does not evenly divide the declared
+world size, an overlap fraction outside $[0,1]$, a non-positive
+effective bandwidth, and a head count that does not evenly divide the
+hidden size — each confirmed to raise before any of the numbers above
+are trusted.
+
+### Compare and contrast
+
+| Aspect | Vanilla DP | ZeRO-1 | ZeRO-2 | ZeRO-3/FSDP | TP (per layer) | PP (per stage) |
+|---|---|---|---|---|---|---|
+| Model-state mem/rank | $16N$ | $4N+\frac{12N}{N_d}$ | $2N+\frac{14N}{N_d}$ | $\frac{16N}{N_d}$ | $\approx\frac{16N}{TP}$\* | $\approx\frac{16N}{PP}$\* |
+| Comm volume/step | $2\Psi$ | $2\Psi$ (same as DP) | $2\Psi$ (same as DP) | $3\Psi$ (1.5x DP) | per-layer, scales with $seq\cdot bs\cdot h$ | per-microbatch, scales with $seq\cdot bs\cdot h$ |
+| Dominant pattern | all-reduce | reduce-scatter + all-gather | reduce-scatter + all-gather | on-demand param all-gather | all-reduce / all-gather | point-to-point send/recv |
+| Overlap ratio depends on | tokens, $N_d$, peak flops/bw | same as DP | same as DP | $seq\cdot bs$, $N_d$, peak flops/bw | only $h$, $TP$ | only $h$, $L_{\text{next}}$ |
+| Key constraint | redundant by design | — | — | extra 50% volume vs. baseline | ratio independent of $seq$/$bs$ | ratio independent of $seq$/$bs$ |
+
+: Model-state memory and communication, compared across the strategies Chapter 4 introduced — not a claim about which is fastest in general, since that depends on $h$, $seq$, $bs$, and hardware bandwidth. \*TP/PP entries assume even partitioning across ranks/stages; real partitioning is rarely perfectly even. {#tbl-memory-comm-compare}
+
+![A per-device model-state memory ledger for this chapter's own
+worked example: the same four objects (bf16 parameters, bf16
+gradients, fp32 master weights, fp32 Adam state) stacked for the
+replicated-DP case and the ZeRO-3/FSDP sharded case. Sharding divides
+every segment by the DP degree; it does not remove or merge any of
+the four
+objects.](figures/rendered/fig-memory-ledger-dp-vs-sharded.svg){#fig-memory-ledger-dp-vs-sharded}
+
+### Check your understanding {#sec-ch5-check}
+
+Full solutions are in [Answer Key: Chapter 5](#sec-solutions-ch5):
+
+1. **Conceptual distinction.** A colleague reports "peak memory: 42
+   GiB" for a training run without saying more. List the four kinds of
+   memory number this chapter distinguishes, and state which one a
+   bare "peak memory" figure from `nvidia-smi` actually is.
+   ________________________________________________
+2. **Calculation.** A model has $N=2$ billion parameters, trained in
+   mixed precision. What is the per-rank model-state memory (a) under
+   vanilla data parallelism, and (b) under ZeRO-3 with a data-parallel
+   degree of 4? ________________________________________________
+3. **Calculation.** For a model with hidden size $h=4096$ and a
+   data-parallel degree of 16, how many MiB does one rank move during
+   one ZeRO-3 forward-pass all-gather of a single transformer block's
+   parameters (bf16)? ________________________________________________
+4. **Bottleneck diagnosis.** A training job's per-GPU throughput drops
+   as more GPUs are added to a fixed-size problem, and profiling shows
+   idle time between layers while waiting for parameter transfers to
+   finish. Which resource most plausibly bounds this step, and which
+   quantity from this chapter would you check first to confirm it?
+   ________________________________________________
+5. **Synthesis/design.** A 2-billion-parameter model (mixed precision,
+   ZeRO-3) must fit its model-state memory within a 10 GiB-per-device
+   budget, on a cluster whose total world size is fixed at 24 devices
+   split only between DP (for ZeRO-3 sharding) and TP (no PP, CP, or
+   EP). (a) What is the minimum DP degree that fits the stated memory
+   budget? (b) Given that DP must evenly divide the 24-device world
+   size, what is the smallest valid DP satisfying both the budget and
+   the divisibility requirement, and what TP degree does that imply?
+   ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+Using this chapter's own worked example as a template, redo the
+communication-time and step-time calculation for a declared overlap
+fraction of 0.4 instead of 0.7, keeping every other toy input the same
+(the same 8.29 ms total communication and 120 ms compute time).
+Compute the new exposed communication time, the new step time, and the
+new overlap-benefit percentage relative to the fully-exposed case, and
+confirm that a *lower* overlap fraction produces a *smaller* benefit
+percentage than this chapter's own 4.5% — i.e. that less effective
+overlap is strictly worse, not merely different.
+
+### Interview lens
+
+*"A model that fits in memory during a quick test OOMs once you start
+real training. What would you check?"* A strong answer separates the
+memory categories this chapter distinguishes rather than guessing: the
+quick test likely ran forward-only or with a tiny batch, so it never
+allocated the optimizer states (which only appear after the first
+optimizer step) or the full activation memory a real batch size and
+sequence length require — both of which this chapter's own formulas
+show scale with factors a forward-only smoke test would not exercise.
+A complete answer also distinguishes an *estimated* peak (computed
+from the model's configuration) from a *measured* peak (what a
+profiler actually reports, including fragmentation and allocator
+overhead), and checks whether communication buffers for a newly added
+parallelism strategy were accounted for. An answer that jumps straight
+to "reduce batch size" without first identifying *which* memory
+category grew is incomplete — it might work, but it does not explain
+why the quick test passed.
+
+### Chapter recap
+
+- Training memory is not one number: parameters, gradients, optimizer
+  states, master weights, activations, workspaces, communication
+  buffers, and fragmentation are distinct categories, and a number
+  describing any of them is either a logical count, a theoretical
+  bound, an estimate, or a measurement — never more than one of those
+  at once (@eq-param-count, @eq-model-state-bytes).
+- Mixed precision does not reduce total model-state memory versus full
+  FP32 (both are $16N$ bytes) — its benefit is in activations and
+  compute speed, not a smaller optimizer footprint.
+- Activation memory depends on sequence length, batch size, hidden
+  size, layer count, and attention heads — not parameter count alone —
+  and scales quadratically with sequence length through attention
+  (@eq-activation-memory); recomputation trades compute for a large
+  memory reduction, more dramatically under pipeline parallelism's own
+  partition-aware formula.
+- Payload volume, number of participating devices, and wall-clock
+  communication time are three different quantities; ZeRO's own
+  reported volumes show sharding stages do not all cost equally more
+  communication (ZeRO-2 matches vanilla DP's $2\Psi$; only ZeRO-3 adds
+  50%).
+- A latency-bandwidth cost model (@eq-comm-cost-model) estimates
+  communication time, but effective bandwidth is never the same as
+  nominal/peak bandwidth, and overlap hides exposed time without
+  making communication resource-free, since communication kernels
+  typically share GPU execution resources with compute kernels.
+- Diagnosing a throughput bottleneck means checking arithmetic
+  intensity against hardware's own peak intensity, and distinguishing
+  a bandwidth-bound regime from a bubble, load-imbalance, or straggler
+  problem — real measured runs (this chapter's two cited examples) show
+  the bottleneck can shift as configuration changes, and that
+  implementation quality, not just theory, determines which strategy
+  wins.
+
+### Sources and further reading
+
+Primary sources for this chapter: [@src-17] (the Ultra-Scale
+Playbook's "Memory usage in Transformers," "Activation recomputation,"
+"Finding the Best Training Configuration," and Appendix A2/A3
+sections — the parameter-count and activation-memory formulas, the
+per-strategy communication-overlap ratios, the SM-contention caution,
+and the multi-thousand-configuration benchmark findings — verified via
+full-text extraction of the article's own markdown source),
+[@src-54] (the ZeRO paper's Sections 7.1-7.2 — the $2\Psi$/$2\Psi$/$3\Psi$
+communication-volume results per stage and the $k\Psi$ notation —
+verified via full-text extraction of the arXiv PDF), [@src-52]
+(GPipe's Section 2.3 — the re-materialization peak-activation-memory
+formula under pipeline partitioning — verified via full-text
+extraction of the arXiv PDF), and [@src-53] (Megatron-LM's own
+disclosed activation-checkpointing practice and its two-GPU-to-more-GPUs
+scaling experiment showing the bottleneck shift from compute to
+bandwidth — verified via full-text extraction of the arXiv PDF).
+Supporting source: [@src-10] (the arithmetic-intensity/roofline
+definition and the nominal-versus-achieved-FLOPs caution — verified via
+full-text extraction of the page's own HTML). This chapter does not
+reteach what Chapter 4 already covers about *how* DP, ZeRO/FSDP, TP,
+SP/CP, PP, and EP replicate, shard, and communicate — only the memory
+and communication-cost consequences of those choices. Model-FLOP
+utilization, roofline, and distributed-training-specific profiling
+tools are introduced only as far as this chapter's diagnosis framework
+requires; a dedicated treatment of reading real training-run logs and
+dashboards is Chapter 6's subject, not this chapter's.

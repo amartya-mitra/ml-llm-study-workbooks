@@ -356,6 +356,15 @@ left in the shipped checkers):
   project-wide file discovery tried to process its unfilled
   `__PLACEHOLDER__` include directive. Fixed by using a `.qmd.tmpl`
   extension instead.
+- `build_chapter_review.py`'s first real exercise (drafting Chapter 5)
+  found that the generated `ch0N-review.qmd` and Quarto's own rendered
+  `ch0N-review.pdf` byproduct were left behind in `workbooks/<id>/` as
+  untracked cruft after a successful build — unlike Chapters 1-4's
+  hand-written, intentionally committed `ch0N-review.qmd` files, this
+  generated one has no reason to persist once the PDF is copied to its
+  real destination. Fixed generically (not via a bespoke per-chapter
+  script) by having the builder delete both staging files in its own
+  final step.
 
 No universal rule was encoded from a single chapter's one-off choice:
 the bibliography-split diagnostic was explicitly tested against both

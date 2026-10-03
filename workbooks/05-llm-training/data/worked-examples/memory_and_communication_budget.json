@@ -1,0 +1,68 @@
+{
+  "toy_config": {
+    "hidden": 4096,
+    "vocab": 32000,
+    "layers": 24,
+    "n_heads": 32,
+    "seq_len": 2048,
+    "microbatch": 2,
+    "world_size": 8,
+    "dp_degree": 8,
+    "effective_bandwidth_GBps": 200.0,
+    "alpha_seconds": 1e-05,
+    "overlap_fraction": 0.7,
+    "illustrative_compute_time_seconds": 0.12
+  },
+  "parameter_count_N": 4964196352,
+  "parameter_count_N_billions": 4.964196352,
+  "model_state_memory": {
+    "replicated_per_rank_bytes": {
+      "m_params_bf16": 9928392704,
+      "m_grad_bf16": 9928392704,
+      "m_params_fp32_master": 19856785408,
+      "m_opt_fp32_adam": 39713570816,
+      "total": 79427141632
+    },
+    "replicated_per_rank_GiB": 73.9722900390625,
+    "zero3_sharded_per_rank_bytes": {
+      "m_params_bf16": 1241049088.0,
+      "m_grad_bf16": 1241049088.0,
+      "m_params_fp32_master": 2482098176.0,
+      "m_opt_fp32_adam": 4964196352.0,
+      "total": 9928392704.0
+    },
+    "zero3_sharded_per_rank_GiB": 9.246536254882812
+  },
+  "activation_memory": {
+    "no_recompute_bytes": 45902462976.0,
+    "no_recompute_GiB": 42.75,
+    "boundary_only_estimate_bytes": 805306368,
+    "boundary_only_estimate_GiB": 0.75
+  },
+  "communication": {
+    "zero3_allgather_payload_per_rank_per_block_bytes": 67108864.0,
+    "zero3_allgather_payload_per_rank_per_block_MiB": 64.0,
+    "zero3_allgather_payload_all_blocks_bytes": 1610612736.0,
+    "comm_time_per_block_seconds": 0.00034554432,
+    "total_comm_time_all_blocks_seconds": 0.00829306368,
+    "total_comm_time_all_blocks_ms": 8.293063680000001,
+    "hidden_comm_time_seconds": 0.005805144576,
+    "exposed_comm_time_seconds": 0.0024879191040000003,
+    "exposed_comm_time_ms": 2.4879191040000004
+  },
+  "step_time": {
+    "compute_time_seconds": 0.12,
+    "step_time_with_overlap_seconds": 0.12248791910399999,
+    "step_time_with_overlap_ms": 122.48791910399999,
+    "step_time_fully_exposed_seconds": 0.12829306367999999,
+    "step_time_fully_exposed_ms": 128.29306368,
+    "overlap_benefit_fraction": 0.04524909149008793,
+    "overlap_benefit_percent": 4.524909149008793
+  },
+  "invalid_configuration_checks": {
+    "invalid_dp_not_dividing_world_size_raised": true,
+    "invalid_overlap_fraction_raised": true,
+    "invalid_zero_bandwidth_raised": true,
+    "invalid_n_heads_not_dividing_hidden_raised": true
+  }
+}

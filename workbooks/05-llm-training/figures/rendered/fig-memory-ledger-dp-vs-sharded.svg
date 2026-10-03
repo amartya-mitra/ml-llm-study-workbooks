@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="620" viewBox="0 0 860 620">
+  <title>Per-device model-state memory: replicated DP vs. ZeRO-3/FSDP sharded</title>
+  <defs></defs>
+  <rect x="0" y="0" width="860" height="620" fill="#ffffff"/>
+  <rect x="20" y="15" width="820" height="32" rx="4" fill="#f2f2f2" stroke="#666666" stroke-width="1.2"/>
+  <text x="430.0" y="36" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#333333" text-anchor="middle">PER-DEVICE MODEL-STATE MEMORY — this chapter&#x27;s own worked example, not a measured allocation</text>
+  <rect x="170.0" y="427.6086956521739" width="180" height="42.39130434782609" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1"/>
+  <text x="260.0" y="452.80434782608694" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">9.2</text>
+  <rect x="170.0" y="385.21739130434776" width="180" height="42.39130434782609" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="260.0" y="410.4130434782608" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">9.2</text>
+  <rect x="170.0" y="300.43478260869557" width="180" height="84.78260869565219" rx="6" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="260.0" y="346.82608695652164" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">18.5</text>
+  <rect x="170.0" y="130.8695652173912" width="180" height="169.56521739130437" rx="6" fill="#888888" stroke="#333333" stroke-width="1"/>
+  <text x="260.0" y="219.65217391304338" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">37.0</text>
+  <text x="260.0" y="494" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">Replicated DP</text>
+  <text x="260.0" y="514" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="middle">every rank stores the full total</text>
+  <text x="260.0" y="118.8695652173912" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">74.0 GiB total</text>
+  <rect x="510.0" y="464.70108695652175" width="180" height="5.298913043478262" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1"/>
+  <rect x="510.0" y="459.4021739130435" width="180" height="5.298913043478262" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <rect x="510.0" y="448.804347826087" width="180" height="10.597826086956523" rx="6" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <rect x="510.0" y="427.60869565217394" width="180" height="21.195652173913047" rx="6" fill="#888888" stroke="#333333" stroke-width="1"/>
+  <text x="600.0" y="442.20652173913044" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">4.6</text>
+  <text x="600.0" y="494" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">ZeRO-3 / FSDP sharded</text>
+  <text x="600.0" y="514" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="middle">every rank stores total ÷ DP=8</text>
+  <text x="600.0" y="415.60869565217394" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">9.2 GiB total</text>
+  <line x1="150.0" y1="80" x2="150.0" y2="470" stroke="#666666" stroke-width="1.5"/>
+  <text x="140.0" y="90" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="end">GiB per device</text>
+  <rect x="170.0" y="536" width="24" height="14" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="200.0" y="547" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#333333" text-anchor="start">Params (bf16)</text>
+  <rect x="355.0" y="536" width="24" height="14" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="385.0" y="547" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#333333" text-anchor="start">Gradients (bf16)</text>
+  <rect x="540.0" y="536" width="24" height="14" rx="6" fill="#009E73" stroke="#333333" stroke-width="1.5"/>
+  <text x="570.0" y="547" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#333333" text-anchor="start">Master weights (fp32)</text>
+  <rect x="725.0" y="536" width="24" height="14" rx="6" fill="#888888" stroke="#333333" stroke-width="1.5"/>
+  <text x="755.0" y="547" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#333333" text-anchor="start">Adam states (fp32)</text>
+  <text x="430.0" y="585" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="middle">Same four model-state objects in both bars — sharding changes residency (divides each by DP), not which objects exist.</text>
+</svg>

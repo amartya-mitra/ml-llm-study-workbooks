@@ -1,6 +1,6 @@
 ---
 title: "LLM Pretraining and Distributed Training"
-subtitle: "Partial Content Draft — Chapters 1-4 Drafted, Chapters 5-6 Scaffold Only"
+subtitle: "Partial Content Draft — Chapters 1-5 Drafted, Chapter 6 Scaffold Only"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -9,10 +9,10 @@ number-sections: true
 wide, in the repo-root _quarto.yml -- do not repeat them here (see
 AGENTS.md and workbook 04's own index.qmd for why).
 
-This is a partial draft, not a finished workbook. Chapters 1-4 are
+This is a partial draft, not a finished workbook. Chapters 1-5 are
 fully drafted with real content, worked examples, questions, answer
 keys, and one or more figures each, per this task's own approval
-gates. Chapters 5-6 remain structural scaffolds only (title, planned
+gates. Chapter 6 remains a structural scaffold only (title, planned
 subsections, source ids, a boundary note -- no drafted prose).
 `includes/` remains empty (placeholder-tracked via .gitkeep) until a
 chapter needs it. Do not call this workbook release-ready. -->
@@ -60,3 +60,5 @@ chapter needs it. Do not call this workbook release-ready. -->
 {{< include solutions/03-optimization-and-scaling-laws-solutions.qmd >}}
 
 {{< include solutions/04-distributed-parallelism-solutions.qmd >}}
+
+{{< include solutions/05-training-memory-and-communication-solutions.qmd >}}

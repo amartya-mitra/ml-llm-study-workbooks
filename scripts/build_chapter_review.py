@@ -274,6 +274,18 @@ def main():
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
     print(f"\nwrote {os.path.relpath(manifest_path, REPO_ROOT)}")
+
+    print("\n--- Step 7: clean up generated staging files ---")
+    # review_qmd_path and rendered_pdf are disposable: the PDF has
+    # already been copied to output_pdf, so nothing in workbooks/<id>/
+    # needs to persist -- unlike Chapters 1-4's hand-written,
+    # intentionally committed ch0N-review.qmd files, this one is
+    # regenerated from the template on every run.
+    for staging_path in (review_qmd_path, rendered_pdf):
+        if os.path.exists(staging_path):
+            os.remove(staging_path)
+            print(f"removed staging file {os.path.relpath(staging_path, REPO_ROOT)}")
+
     print(f"\nOK: review package assembled at {os.path.relpath(review_dir, REPO_ROOT)}")
 
 

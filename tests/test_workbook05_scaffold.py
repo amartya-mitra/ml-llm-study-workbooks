@@ -90,13 +90,14 @@ class TestWorkbook05ChapterStructure(unittest.TestCase):
         "02-multi-token-prediction.qmd",
         "03-optimization-and-scaling-laws.qmd",
         "04-distributed-parallelism.qmd",
+        "05-training-memory-and-communication.qmd",
     ]
 
     def test_undrafted_chapters_have_an_explicit_pending_status_note(self):
-        # Chapters 1-4 were drafted (2026-09-26 and 2026-09-27,
+        # Chapters 1-5 were drafted (2026-09-26 through 2026-09-30,
         # reports/05_llm_training_scope_and_source_decision.md's approval
         # gates) and no longer carry this marker -- checked separately
-        # below. Chapters 5-6 remain scaffold-only and must still say so
+        # below. Chapter 6 remains scaffold-only and must still say so
         # explicitly.
         for fname in EXPECTED_CHAPTER_FILES:
             if fname in self.DRAFTED_CHAPTER_FILES:
