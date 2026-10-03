@@ -15,7 +15,7 @@
   <line x1="160" y1="325" x2="940.0" y2="325" stroke="#333333" stroke-width="2.5"/>
   <line x1="160" y1="317" x2="160" y2="333" stroke="#333333" stroke-width="2.5"/>
   <line x1="940.0" y1="317" x2="940.0" y2="333" stroke="#333333" stroke-width="2.5"/>
-  <text x="550.0" y="349" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle">critical path / step time ≈ 137.4 ms</text>
+  <text x="550.0" y="349" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle">critical path / partial step-time estimate ≈ 137.4 ms</text>
   <line x1="841.1461963237097" y1="110" x2="841.1461963237097" y2="290" stroke="#999999" stroke-width="1" stroke-dasharray="3,3"/>
   <rect x="160" y="371" width="30" height="16" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
   <text x="198" y="383" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#333333" text-anchor="start">Compute</text>

@@ -115,7 +115,7 @@ def main():
     c.add_raw(f'<line x1="{x0}" y1="{bracket_y}" x2="{x1}" y2="{bracket_y}" stroke="#333333" stroke-width="2.5"/>')
     c.add_raw(f'<line x1="{x0}" y1="{bracket_y - 8}" x2="{x0}" y2="{bracket_y + 8}" stroke="#333333" stroke-width="2.5"/>')
     c.add_raw(f'<line x1="{x1}" y1="{bracket_y - 8}" x2="{x1}" y2="{bracket_y + 8}" stroke="#333333" stroke-width="2.5"/>')
-    c.add_text((x0 + x1) / 2, bracket_y + 24, f"critical path / step time ≈ {step_with_overlap_s * 1000:.1f} ms", size=13, weight="bold", color="#333333", anchor="middle")
+    c.add_text((x0 + x1) / 2, bracket_y + 24, f"critical path / partial step-time estimate ≈ {step_with_overlap_s * 1000:.1f} ms", size=13, weight="bold", color="#333333", anchor="middle")
 
     # Dashed vertical guide at end of compute, where exposed comm begins.
     guide_x = left_margin + compute_s * px_per_s

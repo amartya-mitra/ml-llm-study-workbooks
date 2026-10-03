@@ -448,18 +448,27 @@ the 120 ms compute interval it overlaps with, as it must for "hidden"
 to be a physically meaningful label rather than a claim communication
 vanished.
 
-**Resulting illustrative step-time impact.** Step time with this
-overlap is compute (120 ms) plus exposed communication (17.42 ms) =
-137.42 ms. Without any overlap at all, step time would be 120 ms plus
-the *entire* 58.05 ms = 178.05 ms. Overlap's benefit in this toy
-scenario is therefore about 22.8% — illustrative of the *mechanism*,
-not a claim about what any real model's overlap actually saves. Every
-number in this section is scoped to the **forward-pass ZeRO-3
-parameter all-gather only**: it excludes backward-pass parameter
-all-gathers and gradient reduce-scatters, so none of it is "total
-communication for the training step" — compare the Compare and
-contrast table's own fuller $3\Psi$-per-step ZeRO-3 accounting, which
-is not this worked example's narrower, illustrative scope.
+**Resulting illustrative partial step-time estimate.** Every number in
+this section is scoped to the **forward-pass ZeRO-3 parameter
+all-gather only**: it excludes backward-pass parameter all-gathers and
+gradient reduce-scatters, so nothing below is "total communication for
+the training step" or the complete training-step time — compare the
+Compare and contrast table's own fuller $3\Psi$-per-step ZeRO-3
+accounting, which is not this worked example's narrower, illustrative
+scope. With that scope declared, the **partial step-time estimate**
+with this overlap is compute (120 ms) plus the exposed forward-pass
+communication this section models (17.42 ms) = 137.42 ms. Without any
+overlap at all, the partial estimate would be 120 ms plus the *entire*
+modeled 58.05 ms = 178.05 ms. Overlap's benefit within this modeled
+scope is therefore about 22.8% — illustrative of the *mechanism*, not
+a claim about what any real model's overlap actually saves. Both
+137.42 ms and 178.05 ms are **lower-bound estimates under the modeled
+communication scope**, not complete step times: the actual training-step
+time is at least the partial estimate plus whatever backward-pass
+all-gather and gradient reduce-scatter communication stays exposed
+after its own overlap, i.e. actual step time $\geq$ partial step-time
+estimate $+$ other exposed backward/gradient communication, which this
+worked example does not compute.
 
 **Invalid configurations are rejected.** The worked example's own
 script rejects a DP degree that does not evenly divide the declared
@@ -536,15 +545,15 @@ a workbook exercise, not only a reading.)*
 ### Applied exercise
 
 Using this chapter's own worked example as a template, redo the
-communication-time and step-time calculation for a declared overlap
-fraction of 0.4 instead of 0.7, keeping every other toy input the same
-(the same 58.05 ms total forward-pass parameter all-gather
-communication and 120 ms compute time). Compute the new exposed
-communication time, the new step time, and the new overlap-benefit
-percentage relative to the fully-exposed case, and confirm that a
-*lower* overlap fraction produces a *smaller* benefit percentage than
-this chapter's own 22.8% — i.e. that less effective overlap is
-strictly worse, not merely different.
+communication-time and partial-step-time-estimate calculation for a
+declared overlap fraction of 0.4 instead of 0.7, keeping every other
+toy input the same (the same 58.05 ms total forward-pass parameter
+all-gather communication and 120 ms compute time). Compute the new
+exposed communication time, the new partial step-time estimate, and
+the new overlap-benefit percentage relative to the fully-exposed case,
+and confirm that a *lower* overlap fraction produces a *smaller*
+benefit percentage than this chapter's own 22.8% — i.e. that less
+effective overlap is strictly worse, not merely different.
 
 ### Interview lens
 

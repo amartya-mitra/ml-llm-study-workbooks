@@ -62,9 +62,9 @@ $\frac{N_d-1}{N_d}\times512 = \frac{15}{16}\times512=480$ MiB; the
 receive volume per rank is the same, $480$ MiB, by ring symmetry.
 
 *Common trap:* Reporting the local shard size (32 MiB) as if it were
-the communication payload — the exact bug an earlier draft of this
-chapter's own worked example made and then corrected — or reporting
-the element count as if it were already a byte count.
+the communication payload — a shard is what one rank stores, not what
+it moves across the network — or reporting the element count as if it
+were already a byte count.
 
 **4. Bottleneck diagnosis. A training job's per-GPU throughput drops
 as more GPUs are added to a fixed-size problem, and profiling shows
@@ -132,8 +132,4 @@ one factorization over another.
 that even TP partitioning *also* shards model-state memory — this
 wrongly suggests a "minimum DP" exists on memory grounds alone, when
 in fact $DP\times TP=24$ is fixed and $16N/(DP\times TP)$ never
-changes across factorizations. (An earlier version of this question
-used exactly that flawed $16N/DP$-only framing and concluded DP=3 was
-uniquely forced; that conclusion does not survive once TP's own
-sharding contribution is correctly accounted for, and is not the
-answer here.)
+changes across factorizations.
