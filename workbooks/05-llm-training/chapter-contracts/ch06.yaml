@@ -1,0 +1,95 @@
+# Chapter contract for Workbook 05, Chapter 6 ("Reading Real
+# Pretraining Runs"). Validated by scripts/validate_chapter_contract.py
+# against shared/chapter-contract-schema.yaml. This is the first real
+# (non-illustrative) chapter-contract instance in the repo, created as
+# part of the chapter-factory infrastructure task -- it describes
+# Chapter 6's existing, already-drafted state; it does not re-draft or
+# re-grade the chapter, and it does NOT mark the chapter accepted.
+#
+# identity.status here must exactly match
+# config/chapter-status-registry.yaml's entry for
+# workbooks."05-llm-training".chapters."06" -- both currently say
+# drafted_pending_human_review.
+
+identity:
+  workbook: "05-llm-training"
+  chapter: "06"
+  title: "Reading Real Pretraining Runs"
+  status: "drafted_pending_human_review"
+
+scope:
+  allowed_paths:
+    - "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"
+    - "workbooks/05-llm-training/solutions/06-reading-real-pretraining-runs-solutions.qmd"
+    - "workbooks/05-llm-training/data/worked-examples/pretraining_run_telemetry.py"
+    - "workbooks/05-llm-training/data/worked-examples/pretraining_run_telemetry.json"
+    - "workbooks/05-llm-training/figures/source/fig_run_diagnosis_pipeline.py"
+    - "workbooks/05-llm-training/figures/rendered/fig-run-diagnosis-pipeline.svg"
+    - "workbooks/05-llm-training/questions.yaml"
+    - "workbooks/05-llm-training/claim-ledger.yaml"
+  frozen_paths:
+    - "workbooks/05-llm-training/chapters/0[1-5]-*.qmd"
+    - "workbooks/05-llm-training/solutions/0[1-5]-*-solutions.qmd"
+    - "workbooks/04-llm-architecture/**"
+  canonical_output_allowed: false
+  release_output_allowed: false
+  push_allowed: false
+
+sources:
+  required_source_ids: ["src-32", "src-33"]
+  full_text_required: true
+  evidence_locators_required: true
+
+content:
+  required_sections:
+    - "Learning objectives"
+    - "Why this matters"
+    - "Mental model or analogy"
+    - "Visual overview"
+    - "Technical core"
+    - "Worked example"
+    - "Compare and contrast"
+    - "Check your understanding"
+    - "Applied exercise"
+    - "Interview lens"
+    - "Chapter recap"
+    - "Sources and further reading"
+    - "Answer Key"
+  question_count: 5
+  answer_count: 5
+  worked_example_count_minimum: 1
+  figure_count_minimum: 1
+
+worked_examples:
+  structured_output_required: true
+  prose_crosscheck_required: true
+  units_required: true
+
+figures:
+  semantic_tests_required: true
+  numeric_source_of_truth_required: true
+
+learner_facing:
+  forbid_source_ids: true
+  forbid_repo_paths: true
+  forbid_implementation_filenames: true
+  forbid_revision_history: true
+  require_scope_qualification: true
+
+# Filled in from the audit-only dry run performed while building this
+# contract mechanism (see docs/chapter-factory-operator-guide.md and
+# the infrastructure task's own final report for the exact command and
+# output path) -- deterministic checks only; the four LLM audit
+# subagents were not invoked for Chapter 6 in that dry run (fixture
+# coverage was used for the orchestration logic instead, per that
+# task's explicit instruction not to spend paid nested sessions testing
+# static configuration). Re-run the real subagents via
+# /review-workbook-chapter before treating this chapter as
+# accepted_frozen.
+acceptance:
+  source_audit: "not_yet_run"
+  numerical_audit: "not_yet_run"
+  figure_audit: "not_yet_run"
+  learner_pdf_audit: "not_yet_run"
+  scoped_tests: "pass"
+  visual_review: "not_yet_run"

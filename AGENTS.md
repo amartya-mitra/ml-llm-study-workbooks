@@ -53,3 +53,13 @@ and should not need to be repeated in every task prompt.
 - Never overwrite an existing validated PDF without preserving it (copy the
   prior version aside, e.g. with a date or hash suffix, before replacing
   `outputs/*.pdf`).
+
+## Chapter factory workflow
+
+Chapter-level drafting/review for any workbook goes through
+`.claude/skills/draft-workbook-chapter/` and
+`.claude/skills/review-workbook-chapter/` (explicit invocation only).
+See `docs/chapter-factory-operator-guide.md` for the full mechanism
+(audit subagents, the deterministic gate, the frozen-chapter status
+registry and its override process) -- that detail stays out of this
+file on purpose.

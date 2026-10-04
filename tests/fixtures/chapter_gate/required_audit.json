@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "required",
+    "file": "fixture",
+    "issue": "synthetic required-severity finding, used only by tests/",
+    "evidence": "fixture",
+    "proposed_correction": "fixture",
+    "affected_acceptance_criterion": "fixture"
+  }
+]

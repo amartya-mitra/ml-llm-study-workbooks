@@ -1,0 +1,89 @@
+# Chapter contract for Workbook 05, Chapter 5 ("Memory and
+# Communication at Training Scale") -- accepted_frozen. Created
+# retroactively as part of the chapter-factory infrastructure task, to
+# give scripts/chapter_gate.py a real accepted-chapter fixture to
+# validate the gate's own logic against (see
+# docs/chapter-factory-operator-guide.md). This file describes
+# Chapter 5's already-accepted state; it does not re-open, re-grade,
+# or modify the chapter itself.
+#
+# identity.status must exactly match
+# config/chapter-status-registry.yaml's entry for
+# workbooks."05-llm-training".chapters."05" (accepted_frozen).
+
+identity:
+  workbook: "05-llm-training"
+  chapter: "05"
+  title: "Memory and Communication at Training Scale"
+  status: "accepted_frozen"
+
+scope:
+  # Accepted and frozen: no further edits are in scope without an
+  # explicit human-authorized override recorded in
+  # config/chapter-status-registry.yaml's active_overrides list.
+  allowed_paths: []
+  frozen_paths:
+    - "workbooks/05-llm-training/chapters/05-training-memory-and-communication.qmd"
+    - "workbooks/05-llm-training/solutions/05-training-memory-and-communication-solutions.qmd"
+    - "workbooks/05-llm-training/data/worked-examples/memory_and_communication_budget.py"
+    - "workbooks/05-llm-training/data/worked-examples/memory_and_communication_budget.json"
+    - "workbooks/05-llm-training/figures/source/fig_training_step_timeline.py"
+    - "workbooks/05-llm-training/figures/source/fig_memory_ledger_dp_vs_sharded.py"
+    - "workbooks/04-llm-architecture/**"
+  canonical_output_allowed: false
+  release_output_allowed: false
+  push_allowed: false
+
+sources:
+  required_source_ids: ["src-10", "src-17", "src-52", "src-53", "src-54", "src-55"]
+  full_text_required: true
+  evidence_locators_required: true
+
+content:
+  required_sections:
+    - "Learning objectives"
+    - "Why this matters"
+    - "Mental model or analogy"
+    - "Visual overview"
+    - "Technical core"
+    - "Worked example"
+    - "Compare and contrast"
+    - "Check your understanding"
+    - "Applied exercise"
+    - "Interview lens"
+    - "Chapter recap"
+    - "Sources and further reading"
+    - "Answer Key"
+  question_count: 5
+  answer_count: 5
+  worked_example_count_minimum: 1
+  figure_count_minimum: 1
+
+worked_examples:
+  structured_output_required: true
+  prose_crosscheck_required: true
+  units_required: true
+
+figures:
+  semantic_tests_required: true
+  numeric_source_of_truth_required: true
+
+learner_facing:
+  forbid_source_ids: true
+  forbid_repo_paths: true
+  forbid_implementation_filenames: true
+  forbid_revision_history: true
+  require_scope_qualification: true
+
+# Chapter 5 went through its own adversarial review and two scoped
+# correction passes (all-gather payload accounting; step-time scope
+# qualification and editorial-history leakage removal) before this
+# contract was written -- those passes are what `acceptance` below
+# reflects, not a fresh re-audit performed by this infrastructure task.
+acceptance:
+  source_audit: "pass"
+  numerical_audit: "pass"
+  figure_audit: "pass"
+  learner_pdf_audit: "pass"
+  scoped_tests: "pass"
+  visual_review: "pass"

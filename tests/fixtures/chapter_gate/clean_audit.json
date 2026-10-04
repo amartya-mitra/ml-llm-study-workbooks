@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "no_action",
+    "file": "fixture",
+    "issue": "no issue found",
+    "evidence": "synthetic fixture representing a clean audit pass, used only by tests/ -- not a real subagent run",
+    "proposed_correction": null,
+    "affected_acceptance_criterion": "fixture"
+  }
+]

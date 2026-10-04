@@ -1,0 +1,41 @@
+{
+  "_STAGED_NOT_ACTIVE": "This file is deliberately NOT named settings.json and is NOT read by Claude Code automatically. It exists so a human can review and deliberately activate the chapter-factory hooks by merging the 'hooks' key below into .claude/settings.json (creating that file if it does not exist). See docs/chapter-factory-operator-guide.md, section 'How to disable or re-enable hooks safely', for the exact activation and rollback steps, and for which hook (final_stop_gate.py) needs the most careful manual testing before activation. Every hook script referenced below was tested standalone via synthetic stdin before this file was written -- see that same doc section for the exact test commands.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_action_guard.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/post_edit_quick_checks.py",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/final_stop_gate.py",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  }
+}

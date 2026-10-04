@@ -1,0 +1,270 @@
+# Schema for a per-chapter "chapter contract" -- a machine-readable
+# declaration of what a chapter must contain, which paths it may touch,
+# which sources it depends on, and what must pass before it can be
+# treated as accepted. Written by hand, following this project's
+# existing no-PyYAML/no-jsonschema convention (see
+# shared/question-schema.yaml and shared/claim-ledger-schema.yaml, which
+# this file extends rather than duplicates):
+#
+#   - shared/question-schema.yaml validates one QUESTION record.
+#   - shared/claim-ledger-schema.yaml validates one CLAIM record.
+#   - THIS file validates one CHAPTER CONTRACT -- the chapter-level
+#     declaration that the chapter-factory workflow (see
+#     .claude/skills/draft-workbook-chapter/, .claude/skills/
+#     review-workbook-chapter/, and the four sequential, non-executable
+#     audit profiles under docs/audit-profiles/*.md -- performed
+#     directly by the main agent, never by a subagent) reads before
+#     drafting or auditing, and that scripts/chapter_gate.py reads to
+#     decide pass/pass_with_warnings/fail. It does not replace
+#     docs/chapter-review-checklist.md (the prose policy); it is that
+#     policy's machine-readable surface for exactly the fields a gate
+#     needs to check mechanically.
+#
+# Validated by scripts/validate_chapter_contract.py against every file
+# under workbooks/*/chapter-contracts/*.yaml.
+#
+# Created 2026-10-04 as part of the "chapter factory" infrastructure
+# task (see docs/chapter-factory-operator-guide.md). No chapter's
+# contract is authoritative over the actual accepted/frozen status of
+# that chapter -- that lives in config/chapter-status-registry.yaml,
+# which this contract's own `identity.status` field must agree with
+# (checked by scripts/validate_chapter_contract.py).
+
+schema_version: 1
+
+sections:
+  - name: "identity"
+    required: true
+    fields:
+      - name: "workbook"
+        type: "string"
+        required: true
+        description: "Workbook id, e.g. 05-llm-training. Must exist under workbooks/."
+      - name: "chapter"
+        type: "string"
+        required: true
+        pattern: "^[0-9]{2}$"
+        description: "Two-digit chapter number, e.g. '06'."
+      - name: "title"
+        type: "string"
+        required: true
+        description: "Chapter title, for human-readable reports only -- not authoritative over the title actually rendered in the chapter's own heading."
+      - name: "status"
+        type: "string"
+        required: true
+        allowed_values:
+          - "scaffold_only"
+          - "drafted_pending_human_review"
+          - "accepted_frozen"
+        description: "Must match config/chapter-status-registry.yaml's entry for this workbook/chapter exactly. A contract declaring 'accepted_frozen' while the registry says otherwise (or vice versa) is a validation error, not a warning -- these two files must never silently disagree about whether a chapter is safe to edit."
+
+  - name: "scope"
+    required: true
+    fields:
+      - name: "allowed_paths"
+        type: "list[string]"
+        required: true
+        description: "Repo-relative path globs this chapter's drafting/correction work may touch. A chapter contract with an empty list for an 'accepted_frozen' chapter is normal (no further edits expected without an explicit override)."
+      - name: "frozen_paths"
+        type: "list[string]"
+        required: false
+        description: "Repo-relative path globs this chapter's work must NOT touch even while drafting -- e.g. other chapters' files, Workbook 04, canonical/release outputs."
+      - name: "canonical_output_allowed"
+        type: "bool"
+        required: true
+        description: "Must be false for every chapter-level contract -- a canonical workbook PDF is a whole-workbook integration artifact (see .claude/skills/integrate-workbook/), never a single chapter's output."
+      - name: "release_output_allowed"
+        type: "bool"
+        required: true
+        description: "Must be false for every chapter-level contract -- a release candidate is produced only by .claude/skills/freeze-workbook-release/."
+      - name: "push_allowed"
+        type: "bool"
+        required: true
+        description: "Must be false unless a task has explicitly authorized a push -- chapter drafting/review never pushes by default (see AGENTS.md and docs/chapter-review-checklist.md)."
+
+  - name: "sources"
+    required: true
+    fields:
+      - name: "required_source_ids"
+        type: "list[string]"
+        required: true
+        description: "src-NN ids this chapter depends on. Every id here must exist in sources/registry.yaml (checked against the real registry, not just required to be present)."
+      - name: "full_text_required"
+        type: "bool"
+        required: true
+        description: "Should be true for every real chapter -- registry-summary-only sourcing is never sufficient (AGENTS.md)."
+      - name: "evidence_locators_required"
+        type: "bool"
+        required: true
+
+  - name: "content"
+    required: true
+    fields:
+      - name: "required_sections"
+        type: "list[string]"
+        required: true
+        description: "The chapter's required section headings, in order, matching the established Workbook pattern (Learning objectives, Why this matters, Mental model or analogy, Visual overview, Technical core, Worked example, Compare and contrast, Check your understanding, Applied exercise, Interview lens, Chapter recap, Sources and further reading, Answer Key)."
+      - name: "question_count"
+        type: "int"
+        required: true
+      - name: "answer_count"
+        type: "int"
+        required: true
+        description: "Must equal question_count -- a contract declaring a mismatch here is itself a defect, independent of what the actual chapter files contain."
+      - name: "worked_example_count_minimum"
+        type: "int"
+        required: true
+      - name: "figure_count_minimum"
+        type: "int"
+        required: true
+
+  - name: "worked_examples"
+    required: true
+    fields:
+      - name: "structured_output_required"
+        type: "bool"
+        required: true
+        description: "The worked example must write machine-readable (JSON) output, not only appear in prose."
+      - name: "prose_crosscheck_required"
+        type: "bool"
+        required: true
+        description: "Every number repeated in chapter prose/figure/questions/answers must be asserted, by a test, to match the worked-example script's own output."
+      - name: "units_required"
+        type: "bool"
+        required: true
+
+  - name: "figures"
+    required: true
+    fields:
+      - name: "semantic_tests_required"
+        type: "bool"
+        required: true
+        description: "Generic bounds/well-formed-XML checks (tests/test_figures.py) are necessary but not sufficient -- see docs/chapter-review-checklist.md section 5."
+      - name: "numeric_source_of_truth_required"
+        type: "bool"
+        required: true
+        description: "Every figure must load its numbers from the worked-example JSON rather than hardcoding or re-deriving them independently."
+
+  - name: "learner_facing"
+    required: true
+    fields:
+      - name: "forbid_source_ids"
+        type: "bool"
+        required: true
+      - name: "forbid_repo_paths"
+        type: "bool"
+        required: true
+      - name: "forbid_implementation_filenames"
+        type: "bool"
+        required: true
+      - name: "forbid_revision_history"
+        type: "bool"
+        required: true
+        description: "No 'an earlier draft/version of this...' language -- a real, repeated defect class in this project's history (see docs/chapter-review-checklist.md)."
+      - name: "require_scope_qualification"
+        type: "bool"
+        required: true
+        description: "Every estimate/measurement/synthetic-vs-real distinction this chapter makes must be stated explicitly, not left implicit."
+
+  - name: "acceptance"
+    required: true
+    fields:
+      - name: "source_audit"
+        type: "string"
+        required: true
+        allowed_values: ["pass", "pass_with_warnings", "fail", "not_yet_run"]
+      - name: "numerical_audit"
+        type: "string"
+        required: true
+        allowed_values: ["pass", "pass_with_warnings", "fail", "not_yet_run"]
+      - name: "figure_audit"
+        type: "string"
+        required: true
+        allowed_values: ["pass", "pass_with_warnings", "fail", "not_yet_run"]
+      - name: "learner_pdf_audit"
+        type: "string"
+        required: true
+        allowed_values: ["pass", "pass_with_warnings", "fail", "not_yet_run"]
+      - name: "scoped_tests"
+        type: "string"
+        required: true
+        allowed_values: ["pass", "fail", "not_yet_run"]
+      - name: "visual_review"
+        type: "string"
+        required: true
+        allowed_values: ["pass", "fail", "not_yet_run"]
+        description: "Always 'not_yet_run' until a human (or a fresh-context adversarial pass satisfying docs/chapter-review-checklist.md section 8) has actually viewed every rendered page -- never auto-set to 'pass' by a script."
+
+validation_rules:
+  - "identity.workbook must be a directory under workbooks/."
+  - "identity.status must exactly match config/chapter-status-registry.yaml's entry for the same workbook/chapter."
+  - "Every id in sources.required_source_ids must exist in sources/registry.yaml."
+  - "content.question_count must equal content.answer_count."
+  - "scope.canonical_output_allowed and scope.release_output_allowed must both be false."
+  - "scope.push_allowed must be false unless the contract file itself carries an explicit override record (see config/chapter-status-registry.yaml's override mechanism)."
+
+# Illustrative example only -- matches the exact shape requested when
+# this schema was specified. NOT a real entry; see
+# workbooks/05-llm-training/chapter-contracts/ch06.yaml for the first
+# real one.
+example_entry:
+  identity:
+    workbook: "05-llm-training"
+    chapter: "06"
+    title: "Reading Real Pretraining Runs"
+    status: "drafted_pending_human_review"
+  scope:
+    allowed_paths:
+      - "workbooks/05-llm-training/chapters/06-*.qmd"
+      - "workbooks/05-llm-training/solutions/06-*-solutions.qmd"
+      - "workbooks/05-llm-training/data/worked-examples/*.py"
+      - "workbooks/05-llm-training/figures/source/fig_*.py"
+    frozen_paths:
+      - "workbooks/05-llm-training/chapters/0[1-5]-*.qmd"
+      - "workbooks/04-llm-architecture/**"
+    canonical_output_allowed: false
+    release_output_allowed: false
+    push_allowed: false
+  sources:
+    required_source_ids: ["src-32", "src-33"]
+    full_text_required: true
+    evidence_locators_required: true
+  content:
+    required_sections:
+      - "Learning objectives"
+      - "Why this matters"
+      - "Mental model or analogy"
+      - "Visual overview"
+      - "Technical core"
+      - "Worked example"
+      - "Compare and contrast"
+      - "Check your understanding"
+      - "Applied exercise"
+      - "Interview lens"
+      - "Chapter recap"
+      - "Sources and further reading"
+      - "Answer Key"
+    question_count: 5
+    answer_count: 5
+    worked_example_count_minimum: 1
+    figure_count_minimum: 1
+  worked_examples:
+    structured_output_required: true
+    prose_crosscheck_required: true
+    units_required: true
+  figures:
+    semantic_tests_required: true
+    numeric_source_of_truth_required: true
+  learner_facing:
+    forbid_source_ids: true
+    forbid_repo_paths: true
+    forbid_implementation_filenames: true
+    forbid_revision_history: true
+    require_scope_qualification: true
+  acceptance:
+    source_audit: "not_yet_run"
+    numerical_audit: "not_yet_run"
+    figure_audit: "not_yet_run"
+    learner_pdf_audit: "not_yet_run"
+    scoped_tests: "not_yet_run"
+    visual_review: "not_yet_run"

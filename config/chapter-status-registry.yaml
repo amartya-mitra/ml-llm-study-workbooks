@@ -1,0 +1,125 @@
+# Authoritative accepted/frozen-chapter status registry for the
+# "chapter factory" workflow (see docs/chapter-factory-operator-guide.md
+# and .claude/skills/*). This is NOT config/project.yaml (that file is
+# coarse, whole-workbook, and currently stale -- it still says
+# "05-llm-training: not started"). This file is chapter-granular and is
+# the one source of truth scripts/chapter_gate.py and the pre-action
+# guard hook read to decide whether a path may be edited.
+#
+# Updated by hand, at the END of whatever task accepts or drafts a
+# chapter -- never speculatively. "frozen" here means "accepted and not
+# to be re-opened absent an explicit override" -- it does NOT mean
+# "cannot ever be corrected"; Workbook 05 Chapter 5's own history
+# (accepted, then corrected twice via explicitly-scoped follow-up
+# tasks) is exactly the case the override mechanism below exists for.
+#
+# commit_sha values are the real `git log -1 --format=%H -- <path>`
+# result at the time this registry entry was last updated -- not
+# invented, and not updated except by actually re-running that command.
+
+schema_version: 1
+
+workbooks:
+  05-llm-training:
+    chapters:
+      01:
+        status: "accepted_frozen"
+        commit_sha: "f2bbd1a5859a8a239609b3abca03161afd625529"
+        chapter_path: "workbooks/05-llm-training/chapters/01-pretraining-objectives-and-data.qmd"
+      02:
+        status: "accepted_frozen"
+        commit_sha: "cf827ee666f7beb705ed7ec6a13c6cca01c5a9e8"
+        chapter_path: "workbooks/05-llm-training/chapters/02-multi-token-prediction.qmd"
+      03:
+        status: "accepted_frozen"
+        commit_sha: "989dbd9e83a50d0bf40bb67c02e797fa8678b3e0"
+        chapter_path: "workbooks/05-llm-training/chapters/03-optimization-and-scaling-laws.qmd"
+      04:
+        status: "accepted_frozen"
+        commit_sha: "69036288e69dbc53e4f0d67ef57d7c26b435236c"
+        chapter_path: "workbooks/05-llm-training/chapters/04-distributed-parallelism.qmd"
+      05:
+        status: "accepted_frozen"
+        commit_sha: "21e157a8b81dd80169a695af2a8470cb024234d7"
+        chapter_path: "workbooks/05-llm-training/chapters/05-training-memory-and-communication.qmd"
+      06:
+        status: "drafted_pending_human_review"
+        commit_sha: "15cd4309e85068ebae5bded97cc48871de9bbaeb"
+        chapter_path: "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"
+        note: "Final content chapter of Workbook 05. Drafted and internally reviewed; awaiting independent human PDF review. Do NOT mark accepted_frozen except by a task that explicitly records that human review happened."
+  04-llm-architecture:
+    status: "frozen"
+    note: "Whole workbook frozen -- Release Candidate 7, complete. Chapter-granular entries are not needed since no further chapter-level work on this workbook is in scope for the chapter-factory workflow."
+    last_touched_commit_sha: "a78a15eae569390627c5fbd6d6e7e494a5e9885a"
+
+# --------------------------------------------------------------------
+# Override mechanism
+# --------------------------------------------------------------------
+# An override authorizes editing a frozen chapter/workbook ONLY for the
+# task named in `granted_for`, and ONLY while the matching entry below
+# is present. There is no time-based expiry field on purpose: the
+# override is scoped to a task, not a duration, and must be removed
+# (by hand, in the same commit that finishes the authorized task) once
+# that task's work is committed -- an override left in this list after
+# its task is done is itself a defect to fix, not a feature.
+#
+# scripts/chapter_gate.py, scripts/visual_regression.py, and the
+# staged pre-action guard hook (see .claude/hooks/pre_action_guard.py
+# and .claude/hooks.staged.json -- staged/inactive by default, see
+# docs/chapter-factory-operator-guide.md for activation) all read this
+# list fresh on every invocation -- never cached -- and treat a
+# frozen-path edit as blocked unless a matching, path-scoped entry
+# exists here.
+#
+# Fields:
+#   workbook      -- must match a key under `workbooks:` above.
+#   chapter       -- two-digit chapter number, or "*" for a
+#                     whole-workbook override (e.g. Workbook 04).
+#                     Prefer a specific chapter number; "*" is a
+#                     broader grant and should be used only when the
+#                     authorized task genuinely spans the whole
+#                     workbook.
+#   allowed_paths -- REQUIRED, non-empty list of exact repo-relative
+#                     paths (or path globs) this override authorizes
+#                     editing -- not merely "this chapter in general."
+#                     An edit to any frozen path NOT listed here is
+#                     still blocked even with a matching workbook/
+#                     chapter override. This is the "name exact
+#                     allowed paths" / "bounded scope" requirement:
+#                     an override grants access to specific files, not
+#                     blanket permission over a whole chapter.
+#   granted_for   -- REQUIRED. One-sentence description of the exact
+#                     task that was given explicit human authorization
+#                     to make this edit (e.g. "Chapter 5 all-gather
+#                     payload correction pass, 2026-10-03"). This is
+#                     the "state the reason" requirement.
+#   granted_by    -- REQUIRED, must be the literal string "human" --
+#                     this registry does not support a model granting
+#                     its own override (see
+#                     docs/chapter-factory-operator-guide.md's warning
+#                     against permission laundering).
+#
+# An override NEVER implies push or publication permission on its
+# own: scope.push_allowed and scope.release_output_allowed in every
+# chapter contract stay false regardless of any active override here,
+# unless a separate task explicitly authorizes a push or a release.
+#
+# Empty by design right now (the default): this infrastructure task is
+# explicitly NOT a correction task for any chapter, so it grants no
+# override. An override entry left in this list after its authorized
+# task is committed is itself a defect -- remove it in that same
+# commit.
+active_overrides: []
+
+# Illustrative example only -- NOT a real entry, and not parsed by any
+# script (everything above `active_overrides:` above is the real,
+# live list). Shown so the required shape is unambiguous:
+#
+# active_overrides:
+#   - workbook: 05-llm-training
+#     chapter: "05"
+#     allowed_paths:
+#       - "workbooks/05-llm-training/chapters/05-training-memory-and-communication.qmd"
+#       - "workbooks/05-llm-training/solutions/05-training-memory-and-communication-solutions.qmd"
+#     granted_for: "Chapter 5 all-gather payload correction pass, 2026-10-03"
+#     granted_by: human

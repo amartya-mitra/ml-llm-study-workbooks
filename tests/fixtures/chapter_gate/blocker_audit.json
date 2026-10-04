@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "blocker",
+    "file": "fixture",
+    "issue": "synthetic blocker-severity finding, used only by tests/",
+    "evidence": "fixture",
+    "proposed_correction": "fixture",
+    "affected_acceptance_criterion": "fixture"
+  }
+]
