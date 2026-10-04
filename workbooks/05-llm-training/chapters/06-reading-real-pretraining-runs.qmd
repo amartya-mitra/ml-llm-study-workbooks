@@ -1,38 +1,620 @@
 ## Reading Real Pretraining Runs {#sec-ch6}
 
-*Status: scaffold only — drafting has not yet begun for this chapter.*
+*What the Log Actually Says, What You Computed From It, and What You Still Don't Know*
 
-**Purpose:** Read a real model's technical report for its
-training-configuration facts (batch size, cluster size, learning-rate
-schedule, reported training FLOPs), strictly separate from the
-architecture facts workbook 04 chapter 6 already covered for the same
-models.
+### Learning objectives
 
-**Planned subsections** (following `shared/chapter-template.qmd`'s
-established structure):
+By the end of this chapter you should be able to:
 
-- Learning objectives
-- Why this matters
-- Mental model or analogy
-- Visual overview
-- Technical core
-- Worked example
-- Compare and contrast
-- Check your understanding
-- Common misconception
-- Applied exercise
-- Interview lens
-- Chapter recap
-- Sources and further reading
+- Classify any specific number from a training run as *configured*
+  (declared ahead of time), *observed/measured* (logged from the
+  running job), or *derived* (computed from one or more of the other
+  two) — and state why conflating these three leads to wrong
+  conclusions.
+- State the exact relation between tokens, optimizer steps, global
+  batch size, and sequence length for a declared logging convention,
+  and use it to compute consumed tokens and consumed sequences from a
+  raw log.
+- Distinguish training loss from validation/evaluation loss, and a
+  checkpoint's own metric from a "final model" metric, and explain why
+  a sparse checkpoint schedule can miss a transient event entirely.
+- Compute per-device and global throughput from a logged step time,
+  and distinguish an *instantaneous* per-step reading from an
+  *averaged/rolling-window* metric computed over several steps — and
+  show how the second can mask an ongoing problem the first still
+  reveals.
+- Distinguish nominal/peak compute throughput from achieved throughput
+  for a declared cluster, continuing Chapter 5's roofline and
+  achieved-versus-peak framework rather than re-deriving it.
+- Given a symptom in a run's telemetry (a loss spike or a throughput
+  drop), generate at least two competing diagnoses consistent with the
+  same observed evidence, and name the *specific additional
+  measurement* that would distinguish between them — without treating
+  temporal correlation between two logged signals as proof of which
+  one caused the other.
+- State what must hold (hardware, precision, sequence length, global
+  batch size, token budget, model size, checkpoint position, and
+  evaluation protocol) before two real runs' numbers can be compared
+  directly, and recognize when a comparison should be declined or
+  explicitly flagged instead of smoothed over.
 
-**Source IDs this chapter will draw on:** [@src-32], [@src-33].
+### Why this matters
 
-**Boundary note:** Reuses workbook 04 chapter 6's exact source
-registrations, but must cite only training-configuration facts — never
-re-teach architecture, which stays workbook 04's domain. A spot-check
-of these sources' already-verified full text specifically for
-training-infrastructure numbers (e.g. Llama 3's cluster-size/GPU-count
-disclosure) is still pending — see
-`reports/05_llm_training_scope_and_source_decision.md`, section 3,
-chapter 6 row — and should happen during this chapter's own drafting,
-not as a scaffolding task.
+Chapters 1 through 5 gave you mechanisms: what next-token prediction
+and multi-token prediction actually optimize, how compute-optimal
+scaling and learning-rate schedules work, how data/tensor/pipeline/
+expert parallelism replicate and shard work across devices, and how to
+turn a parallelism configuration into a memory and communication-time
+estimate. None of that preparation tells you, by itself, how to read
+an actual run. In practice you are handed a log file or a dashboard: a
+column of step numbers, a loss curve with a bump in it, a tokens/second
+readout, maybe a technical report's own disclosed batch-size and
+learning-rate schedule. The gap between "I understand how a ZeRO-3
+all-gather works" and "I can tell, from this specific run's own
+numbers, whether a reported symptom is explained by an optimizer issue
+or a bad data shard" is exactly this chapter's subject. This chapter
+does not reteach any mechanism from Chapters 1-5 — it teaches the
+discipline of reading telemetry that those mechanisms produce.
+
+### Mental model or analogy
+
+::: {.callout-note title="Analogy"}
+Treat a run's log like a patient's hospital chart. Vital signs
+(observed telemetry — loss, step time, gradient norm) are not
+themselves a diagnosis. A derived quantity (e.g. heart-rate
+variability, computed *from* a sequence of heartbeat readings) is not
+something a sensor reports directly — it is computed from observed
+readings, exactly like tokens/second is computed from a logged step
+time. A chart from one patient cannot be compared to another's without
+accounting for age, weight, and condition — exactly the comparability
+controls a run-to-run comparison needs. And two different underlying
+conditions can produce the same vital-sign pattern: ordering the right
+follow-up test, not staring harder at the existing chart, is what
+actually tells them apart. **Where this breaks down:** a hospital can
+always draw a new blood sample from the same patient to resolve an
+ambiguous chart. A training run's *past* steps cannot be
+re-instrumented after the fact — if a critical signal was never
+logged, no amount of correlation-hunting over the columns that *were*
+logged will recover it. The only remedies are logging it going
+forward, or reasoning from what the existing log structurally can and
+cannot distinguish.
+:::
+
+### Visual overview
+
+![The evidence-to-diagnosis pipeline this chapter's worked example
+walks through: configuration and training telemetry are observed;
+consumed tokens, throughput, and anomaly deviations are derived from
+them; comparability controls state what must hold for a comparison
+(here, against the run's own recent history) to be valid; a symptom
+supports more than one diagnosis; and confirming one over the other
+needs a specific measurement this run's own log does not
+contain.](figures/rendered/fig-run-diagnosis-pipeline.svg){#fig-run-diagnosis-pipeline}
+
+### Technical core
+
+**Three kinds of number, not two.** Every quantity attached to a
+training run is one of exactly three kinds. A **configured** quantity
+is declared before the run starts and does not change on its own:
+global batch size, sequence length, device count, the learning-rate
+schedule's own formula. An **observed/measured** quantity is logged
+*from* the running job: a step's training loss, its gradient norm, its
+wall-clock step time, a periodic evaluation loss. A **derived**
+quantity is computed *from* configured and/or observed values, never
+logged directly: tokens consumed so far, tokens/second, model FLOP
+utilization, a deviation from a trailing average. Treating a derived
+number as if it had been measured directly (or a configured number as
+if it had been observed) is the single most common way a reader
+misreads a dashboard. This chapter's own worked example below is built
+so that every number is explicitly tagged as one of these three kinds,
+and every derived number's formula is stated, not assumed.
+
+**Tokens, sequences, steps, and consumed data — one declared
+convention.** For a run with no gradient accumulation (one optimizer
+step per logged step) and a fixed global batch size and sequence
+length, the exact relation is
+
+$$
+\text{tokens per step} = \text{global\_batch\_size (sequences)} \times \text{seq\_len (tokens/sequence)} \times \text{gradient\_accumulation\_steps}
+$$
+
+and, through step $s$,
+
+$$
+\text{consumed tokens} = s \times \text{tokens per step}, \qquad \text{consumed sequences} = s \times \text{global\_batch\_size}.
+$$
+
+Gradient accumulation (several forward/backward micro-steps sharing
+one optimizer update) and pipeline microbatches (Chapter 4's own
+subject) are exactly the two mechanisms that can make "a step" in a
+given log ambiguous between a micro-step and an optimizer step — this
+chapter does not re-derive either mechanism, but any real log must
+declare which one "step" means before the relation above can be
+applied. "Samples" is used loosely across real logs to mean either a
+document before packing or a packed sequence after packing; this
+chapter's own convention (and its worked example below) always means
+the packed sequence, declared explicitly rather than left implicit.
+
+**Training loss versus validation/evaluation loss.** Training loss is
+computed on the current training batch, immediately before that
+batch's gradient update — it is a per-step, per-batch, potentially
+noisy quantity, and the model has not been evaluated so much as
+"scored while being updated." Validation/evaluation loss is computed
+on a held-out set the optimizer never updates against, typically on a
+much sparser schedule (e.g. only at designated checkpoint steps) —
+it is the quantity that actually estimates generalization, at the cost
+of being available far less often. A validation loss slightly *higher*
+than the training loss around it is an expected generalization gap,
+not automatically a bug.
+
+**Checkpoint metrics versus final-model metrics.** A checkpoint's own
+logged metric describes the model's state at exactly that step — no
+more, no less. If evaluation only happens at a sparse set of
+checkpoint steps, a transient event *between* two checkpoints can be
+completely invisible in the checkpoint record, even though the
+per-step training log shows it clearly. The "final model" is simply
+whichever checkpoint is actually shipped or reported — usually the
+last one, but only if evaluation confirms it is not worse than an
+earlier checkpoint on the metric that matters; "final" and "best" are
+not synonyms unless a complete evaluation record confirms they
+coincide.
+
+**Per-device versus global throughput, and instantaneous versus
+averaged.** Global throughput is tokens (or sequences) per second
+*for the whole job*; per-device throughput divides that by the device
+count. The two are not interchangeable: global throughput staying flat
+while a device count changes implies per-device throughput changed
+inversely, and per-device throughput staying flat while a device count
+grows implies global throughput grew — scaling claims must specify
+which one they mean. Separately, *instantaneous* throughput is
+computed from one single step's own logged wall-clock time;
+*averaged* throughput is computed over a window of several steps (a
+rolling average, or total tokens over total elapsed wall time across a
+range). A rolling average is not strictly worse than an instantaneous
+reading — it smooths out step-to-step jitter that is not itself
+meaningful — but it necessarily lags, and once enough slow steps have
+entered its own window, it can stop flagging an ongoing problem that
+the instantaneous reading still shows clearly. This chapter's own
+worked example below produces exactly this outcome from a declared,
+fixed anomaly-detection rule, not a hand-picked anecdote.
+
+**Nominal versus achieved FLOPs — continuing Chapter 5's roofline
+framework.** Chapter 5 already established that real hardware achieves
+only a fraction of its own claimed peak throughput — "H100s and B200s
+can usually only achieve around 80-85% of the claimed peak FLOPs,
+while TPUs can get closer to 95% in normal use" [@src-10] — and that
+model FLOP utilization (MFU) is a measured-versus-theoretical *ratio*,
+never either quantity alone. This chapter applies exactly that
+distinction to a run's own derived metrics: a cluster's *nominal*
+peak throughput is a declared hardware assumption (device count times
+a per-device peak FLOPs/s figure); *achieved* throughput is estimated
+training FLOPs for a step (Chapter 3's own $C \approx 6ND$
+compute-estimate relation [@src-50;@src-51], with $D$ here equal to
+that step's own tokens-per-step) divided by that step's *observed*
+wall-clock time. The ratio of the two is this chapter's own
+achieved-fraction-of-nominal metric, used in the worked example below
+exactly as Chapter 5 used MFU: as a *derived* diagnostic signal, never
+a logged one.
+
+**Logical versus measured memory, reused, not re-derived.** Chapter 5
+distinguished five kinds of memory number: logical tensor bytes, an
+analytical/theoretical estimate, a framework max-allocated counter, a
+framework max-reserved/allocator-level counter, and a sampled device
+framebuffer reading. Reading a real run's own memory telemetry means
+applying that same taxonomy — a dashboard's "peak memory" field is
+almost always the fourth or fifth kind, not the first or second, and
+this chapter does not reopen that distinction beyond noting that it
+transfers directly to whatever memory field a real run's dashboard
+happens to expose.
+
+::: {.callout-warning title="Common misconception"}
+**"If loss and gradient norm spike together, the gradient norm spike
+caused the loss spike (or vice versa)."** Temporal correlation between
+two *observed* signals in the same log does not establish which one
+caused the other, or whether a third factor (e.g. an anomalous batch)
+caused both simultaneously. Both competing diagnoses this chapter
+walks through below — an optimizer/gradient-dynamics issue, and a
+data-quality problem — predict a *joint* loss-and-gradient-norm spike
+at the same step; the log's own two correlated columns cannot, by
+themselves, tell you which produced the other. Confirming one requires
+a measurement neither column provides: here, a per-parameter-group (or
+per-layer) breakdown of the gradient norm, which would show a
+broad-based spike under the optimizer-instability diagnosis versus a
+more concentrated one under the data-quality diagnosis.
+:::
+
+**Optimization instability versus data-quality problems — one symptom,
+two families of cause.** A sudden loss spike (optionally accompanied
+by a gradient-norm spike) is consistent with at least two distinct
+underlying problems: an **optimization instability** (the current
+learning rate or optimizer state interacting badly with a locally
+sharp region of the loss landscape, producing a broad-based gradient
+update) or a **data-quality problem** (an anomalous, corrupted, or
+mismatched batch entering training, producing an unusually hard or
+malformed example). Distinguishing them is not a matter of staring
+harder at the loss curve — it requires a measurement the existing log
+may not contain, as the worked example below makes concrete.
+
+**Compute bottlenecks versus communication/pipeline-bubble/
+load-imbalance/straggler bottlenecks — continuing Chapter 5's
+diagnosis framework.** Chapter 5 already gave the arithmetic-intensity
+test for whether a step is compute-bound or bandwidth-bound, and named
+pipeline bubbles, load imbalance, and stragglers as separate
+throughput limiters from a bandwidth bottleneck. Reading a real run's
+own sustained throughput drop means applying that same framework to
+distinguish, for example, a **communication bottleneck** (a collective
+operation getting slower, affecting every device roughly equally) from
+a **straggler device** (one slow participant pacing an entire
+synchronous collective, while every other device sits idle waiting for
+it) — two causes that can produce an identical *global* step-time
+symptom while requiring completely different fixes, and that the
+global step-time log alone cannot distinguish between.
+
+**Comparable versus non-comparable runs.** Two real runs' numbers can
+be compared directly only if hardware, numeric precision, sequence
+length, global batch size, total token/compute budget, model size,
+checkpoint position, and evaluation protocol are either identical or
+their differences are explicitly accounted for. The Llama 3 technical
+report [@src-32] discloses, for its 405B-parameter dense model's main
+pretraining stage, an AdamW optimizer with peak learning rate
+$8\times10^{-5}$, a linear warmup of 8,000 steps, and a cosine decay to
+$8\times10^{-7}$ over 1,200,000 steps, together with a batch-size
+schedule that starts at 4M tokens (sequence length 4,096), doubles to
+8M tokens (sequence length 8,192) after 252M tokens of pretraining, and
+doubles again to 16M tokens after 2.87T tokens — reaching a total
+pretraining corpus of 15.6T tokens, run on up to 16K H100 GPUs (drawn
+from a larger 24K-GPU RoCE cluster) at an overall reported BF16 model
+FLOP utilization of 38-43% [@src-32]. The same report's own Table 4
+gives three *internally comparable* configurations for the same model
+on the same hardware generation and precision — 8,192 GPUs (tensor
+parallel degree 8, pipeline parallel degree 16, data-parallel degree
+64, sequence length 8,192) at 43% MFU; 16,384 GPUs (same TP/PP, DP=128,
+same sequence length) at 41% MFU; and 16,384 GPUs (TP=8, PP=16, a
+context-parallel degree of 16, sequence length extended to 131,072) at
+38% MFU — with the *same* 16M-token global batch held constant across
+all three rows [@src-32]. This is a *valid* comparison: same model,
+same hardware, same precision, with every varied axis (device count,
+parallelism degrees, sequence length) named explicitly, which is
+exactly why the report itself can attribute the MFU drop to specific,
+named causes (a smaller per-DP-group batch at higher DP; added
+context-parallel communication at the long-context stage) rather than
+leaving it unexplained.
+
+Contrast this with comparing Llama 3 405B against the DeepSeek-V3
+technical report [@src-33], which discloses its own pretraining recipe
+in incompatible terms on nearly every axis: a 671B-total/37B-activated
+mixture-of-experts architecture (versus Llama 3's dense 405B) trained
+on 2,048 H800 GPUs (versus Llama 3's up to 16K H100s) using FP8 mixed
+precision for GEMM-heavy operations (versus Llama 3's BF16) with a
+maximum sequence length of 4,096 during pretraining (versus Llama 3's
+4,096-to-131,072 progression) and a batch-size schedule reported in
+*sequences* — gradually increased from 3,072 to 15,360 over the first
+469B tokens, then held constant — rather than in *tokens* the way
+Llama 3's 4M/8M/16M figures are reported [@src-33]. DeepSeek-V3's total
+pretraining budget is 14.8T tokens, and its own reported training-cost
+accounting is in a third currency again: 180K H800-GPU-hours per
+trillion tokens (3.7 days on its 2,048-GPU cluster), 2.664M GPU-hours
+for the full pretraining stage, and 2.788M GPU-hours overall including
+context-length extension and post-training, which the report prices
+at \$5.576M assuming \$2 per GPU-hour [@src-33]. None of the two
+reports' headline numbers — MFU for Llama 3, GPU-hours and dollar cost
+for DeepSeek-V3 — are even measuring the same thing, let alone the
+same hardware, precision, architecture, or batch-size unit; a reader
+who divides one report's tokens-per-second-sounding number by the
+other's without naming every one of these differences has not produced
+a comparison, only a coincidence of two numbers that happen to divide.
+The right response to this pair of reports is not to force a ranking
+between them, but to extract what each one *validly* supports on its
+own terms, and to say explicitly which axes make a direct comparison
+unsound.
+
+### Worked example
+
+**Setup — a synthetic, illustrative training log, not a real disclosed
+run.** Every number in this section comes from a script-generated,
+deliberately constructed log: 30 logged optimizer steps, a global
+batch size of 256 sequences, a sequence length of 4,096 tokens, 32
+devices, and no gradient accumulation (1 logged step = 1 optimizer
+step unambiguously). None of this describes any real model, cluster,
+or training job — it is built to contain exactly two visible behavior
+changes so this chapter can walk through diagnosing each one, the same
+"toy configuration" discipline Chapter 5 used for its own worked
+example.
+
+**Tokens, sequences, and throughput from the raw log.** Tokens per
+step is $256 \times 4{,}096 = 1{,}048{,}576$. By step 18, consumed
+tokens are $18 \times 1{,}048{,}576 = 18{,}874{,}368$ and consumed
+sequences are $18\times256=4{,}608$. At the run's baseline step time of
+1.800 s, global throughput is $1{,}048{,}576 / 1.800 \approx 582{,}542$
+tokens/second, and per-device throughput is
+$582{,}542/32\approx18{,}204$ tokens/second — three different numbers
+answering three different questions, none of them logged directly.
+
+**Nominal versus achieved FLOPs for this toy cluster.** Using a toy
+parameter count of 2 billion and Chapter 3's $C\approx6ND$ relation
+with $D=1{,}048{,}576$ tokens per step, estimated training FLOPs per
+step are $6\times2\times10^9\times1{,}048{,}576\approx1.258\times10^{16}$.
+Declaring (not measuring) a toy per-device nominal peak of 400 TFLOP/s
+for this 32-device cluster gives a nominal cluster peak of
+$32\times4\times10^{14}=1.28\times10^{16}$ FLOPs/second. At the
+baseline 1.800 s step time, achieved throughput is
+$\approx6.99\times10^{15}$ FLOPs/second — about 54.6% of nominal.
+
+**Event A — detecting a loss-and-gradient-norm spike at step 18.**
+This synthetic log's step-18 entry reports train_loss = 4.350 and grad_norm =
+3.950, both well above their smoothly decreasing trend over the
+preceding steps, while step_time stays exactly at the 1.800 s baseline
+— ruling out a throughput event as the cause of anything unusual at
+this step. Comparing step 18's loss against the trailing average of
+the four steps immediately before it (3.259) gives a relative
+deviation of +33.5% — comfortably past this chapter's own declared
+20% anomaly threshold, so the run's own derived anomaly flag correctly
+fires at step 18 and nowhere else. **Two competing diagnoses** fit this
+same evidence equally well: (A) an *optimization instability* — the
+current learning rate interacting badly with a locally sharp region of
+the loss landscape, producing a broad-based gradient-norm spike across
+most parameter groups, with loss rising as a direct consequence; or
+(B) a *data-quality problem* — an anomalous or corrupted batch (e.g.
+duplicated, truncated, or mixed-up tokens) producing an unusually hard
+or malformed training example, with a large gradient concentrated in a
+smaller subset of parameter groups, unrelated to the optimizer's own
+dynamics. This log's learning-rate column is smooth and unremarkable
+at step 18 (it follows the same declared linear schedule throughout,
+with no scheduled change at this step), which rules out "a scheduled
+learning-rate change" as a third, simpler explanation — but it does
+not, by itself, distinguish diagnosis (A) from diagnosis (B). **The
+measurement this log does not contain**: a per-parameter-group (or
+per-layer) breakdown of the gradient norm. A broad-based spike across
+most groups would favor the optimization-instability diagnosis; a
+spike concentrated in a small subset of groups would favor the
+data-quality diagnosis. This log only reports one aggregate,
+whole-model gradient norm, so the two diagnoses remain open on this
+evidence alone.
+
+**Event B — a sustained throughput drop across steps 24-27.** In this
+same synthetic log, starting at step 24, logged step_time jumps from the 1.800 s baseline to 2.880 s
+and stays there through step 27, while train_loss and grad_norm
+continue their ordinary smooth trend throughout — ruling out an
+optimization event as the cause. Global throughput over these four
+steps falls to $1{,}048{,}576/2.880\approx364{,}089$ tokens/second
+(per-device, $\approx11{,}378$), and the achieved-fraction-of-nominal
+metric falls from 54.6% to 34.1% — a derived signal that a bottleneck
+is present, without on its own naming which one. **Two competing
+diagnoses** again fit the same evidence: (A) a *communication
+bottleneck* — a collective operation (e.g. an all-reduce or
+all-gather) getting slower, affecting every device roughly equally, so
+the whole step's wall-clock time rises uniformly; or (B) a *straggler
+device* — one slow participant (thermal throttling, a flaky network
+interface) pacing an entire synchronous step, while every other device
+sits idle waiting for it. **The measurement this log does not
+contain**: a per-device (per-rank) step-time or utilization breakdown.
+Diagnosis (A) predicts every device showing roughly the same elevated
+time; diagnosis (B) predicts one device showing a far higher time than
+the rest. The log as given only reports one *global* step time, so it
+cannot distinguish them.
+
+**Instantaneous versus a rolling average — the same sustained event,
+two different readings.** Comparing each step's step_time against the
+mean of the *previous* four steps (never including the current step)
+gives relative deviations of +60.0% at step 24, +39.1% at step 25,
++23.1% at step 26, and only +10.3% at step 27 — because by step 27, the
+four-step trailing window itself already contains three of the four
+slow steps, pulling the comparison baseline up and shrinking the
+apparent deviation. Under this chapter's own declared 20% threshold,
+the derived anomaly flag correctly fires at steps 24, 25, and 26 — and
+then goes silent exactly at step 27, even though step 27's own
+*instantaneous* step time (2.880 s) is identical to 24-26's and still
+60% above the run's true 1.800 s baseline. A rolling-average-based
+check and a single instantaneous reading are not interchangeable: the
+averaged metric here is not wrong, but it structurally lags, and a
+sustained problem can "age into" its own comparison baseline long
+before it actually ends.
+
+::: {.callout-warning title="Common misconception"}
+**"If the throughput number on the dashboard looks fine, nothing is
+wrong."** Depending on which throughput number — instantaneous or
+averaged over a trailing window — "looks fine" can mean different
+things at the same step. This chapter's own synthetic worked example
+shows a trailing four-step average stop flagging a throughput drop by step 27
+even while the problem that caused it (step_time still 60% above true
+baseline) had not gone away. Checking only a smoothed, already-averaged
+dashboard figure is not equivalent to checking the instantaneous
+per-step reading, and a bottleneck that persists long enough can make
+even a short rolling average "recover" on its own without the
+underlying problem being fixed.
+:::
+
+**Checkpoint metrics versus the full per-step record.** This synthetic
+run evaluates on a held-out set only at steps 10, 20, and 30. At step 20,
+eval_loss is 3.310 against a train_loss of 3.160 — an ordinary
+generalization gap, and nothing in this single checkpoint reading
+hints that a loss spike happened two steps earlier, at step 18,
+because by step 20 training loss had already returned to its smooth
+baseline trend. A reader who only has access to the checkpoint-level
+record (steps 10, 20, 30) would never see Event A at all; it is
+visible only in the full per-step log. At step 30 — this run's final
+logged step and the model actually used going forward — eval_loss is
+3.090 against a train_loss of 2.940, the same ordinary gap, confirming
+step 30 is both the final and (on this limited two-point record) the
+best-performing checkpoint; a run with a non-monotonic eval curve would
+need the full checkpoint history, not just the last point, before
+"final" and "best" could be treated as the same checkpoint.
+
+**Invalid configurations are rejected.** The worked example's own
+script rejects a non-positive global batch size, sequence length,
+device count, or gradient-accumulation count; an anomaly-detection
+threshold outside $(0,1)$; a non-positive trailing-window size; a
+checkpoint step outside the logged run's range; and a relative-deviation
+computation against a zero trailing average — each confirmed to raise
+before any of the numbers above are trusted.
+
+### Compare and contrast
+
+| Aspect | Observed (logged) | Derived (computed) | Example from this chapter |
+|---|---|---|---|
+| Tokens/sequences/steps | global_batch_size, seq_len, step index | consumed_tokens = step × tokens_per_step | 18 × 1,048,576 = 18,874,368 tokens by step 18 |
+| Throughput | step_time_seconds (one step) | global and per-device tokens/second | 582,542 tok/s global, 18,204 tok/s per-device at baseline |
+| Throughput, time-averaged | step_time_seconds over several steps | trailing-window average and its deviation | step 27's instantaneous reading still +60%, trailing-average deviation only +10.3% |
+| Compute efficiency | step_time_seconds | achieved FLOPs/s ÷ declared nominal peak | 54.6% baseline, 34.1% during the throughput-drop event |
+| Loss | train_loss (every step), eval_loss (checkpoints only) | relative deviation from trailing average | step 18: +33.5% deviation, flagged |
+
+: Observed versus derived quantities from this chapter's own worked
+example — every "Derived" column entry is computed from the
+"Observed" column, never logged directly. {#tbl-observed-vs-derived}
+
+| Aspect | Llama 3 405B main pretraining [@src-32] | DeepSeek-V3 pretraining [@src-33] | Directly comparable? |
+|---|---|---|---|
+| Architecture | Dense, 405B parameters | MoE, 671B total / 37B activated | No — different parameter-counting convention |
+| Hardware | Up to 16K H100 GPUs | 2,048 H800 GPUs | No — different accelerator generation |
+| Precision | BF16 | FP8 (GEMM-heavy ops) mixed precision | No |
+| Sequence length | 4,096 → 8,192 → 131,072 (staged) | 4,096 (fixed during pretraining) | No |
+| Batch size unit | Tokens (4M → 8M → 16M) | Sequences (3,072 → 15,360) | No — incompatible units without conversion |
+| Token budget | 15.6T tokens | 14.8T tokens | Close, but not identical |
+| Headline efficiency metric | BF16 MFU (38-43%) | GPU-hours and dollar cost | No — different metric families entirely |
+
+: Why a direct Llama 3-versus-DeepSeek-V3 "which is more efficient"
+comparison is not valid without separately accounting for every row
+above — contrast this with Table 4's own three *internally*
+comparable Llama 3 configurations (same model, hardware, and
+precision), discussed in the Technical core. {#tbl-comparability}
+
+### Check your understanding {#sec-ch6-check}
+
+Full solutions are in [Answer Key: Chapter 6](#sec-solutions-ch6):
+
+1. **Terminology/evidence classification.** For a training run, classify each of the following as *configured*, *observed/measured*, or *derived* -- item (a) global batch size, item (b) a single step's training loss, item (c) tokens consumed through step 500, item (d) model FLOP utilization. For each, state in one sentence why it belongs in that category and not one of the other two.
+   ________________________________________________
+2. **Calculation.** Using this chapter's worked example's declared
+   configuration (global batch size 256 sequences, sequence length
+   4,096 tokens, 32 devices, no gradient accumulation), compute (a)
+   tokens consumed through step 24, and (b) the global and per-device
+   throughput in tokens/second at step 24's own logged step time of
+   2.880 s.
+   ________________________________________________
+3. **Run-comparison validity.** A colleague wants to compare Llama 3
+   405B's and DeepSeek-V3's pretraining runs and conclude which one
+   trained "more efficiently." List at least four specific, named
+   differences between the two disclosed configurations that make a
+   direct comparison invalid as stated, and state what would need to be
+   true for the comparison to become valid.
+   ________________________________________________
+4. **Bottleneck/instability diagnosis.** A run's global throughput
+   drops sharply for several consecutive steps while its training loss
+   and gradient norm continue their ordinary trend. Name the two
+   competing diagnoses this chapter discusses for this exact symptom
+   pattern, and the one additional measurement that would distinguish
+   between them.
+   ________________________________________________
+5. **Synthesis/design.** You are handed this chapter's own worked
+   example's log (as described in Question 2) and told only that "loss
+   looked fine throughout." Using the trailing-window anomaly check
+   this chapter defines (compare each step's value to the mean of the
+   four steps immediately before it; flag if the relative deviation
+   exceeds 20%), identify the one step in the 30-step log where this
+   check would have caught a problem the checkpoint-only record (steps
+   10, 20, 30) completely misses, and justify, from the log's own
+   structure, why a checkpoint-only readout would not have caught it.
+   ________________________________________________
+
+*(Space intentionally left for written answers if you are using this as
+a workbook exercise, not only a reading.)*
+
+### Applied exercise
+
+Using this chapter's own worked example as a template, repeat its
+Event B walk-through for the exact same log, but now compute the
+trailing-window-based throughput check using a window of 2 previous
+steps instead of 4 (keeping the same 20% relative-deviation threshold
+and the same declared step-time values: baseline 1.800 s, and 2.880 s
+for steps 24-27). Determine which of steps 24-27 the 2-step-window
+check flags versus which the original 4-step-window check flags
+(steps 24, 25, and 26), and state whether a *shorter* trailing window
+makes a sustained throughput drop easier or harder to keep flagging
+for its full duration — and why, in terms of how quickly a shorter
+window fills with already-slow steps.
+
+### Interview lens
+
+*"A run's dashboard shows throughput looking normal, but the team
+suspects something is wrong. How do you investigate?"* A strong answer
+starts by asking which throughput number the dashboard actually shows
+— instantaneous or an averaged/rolling figure — since this chapter's
+own worked example shows a rolling average can stop flagging a
+sustained problem well before the problem itself has ended. It then
+separates the three kinds of quantity this chapter distinguishes:
+check the *configured* values first (did anything in the job's own
+configuration actually change), then the *observed* per-step log
+(not just a dashboard summary) for the actual instantaneous step
+times, and only then look at *derived* metrics like achieved-FLOPs
+fraction, which can reveal a drop the raw throughput number alone
+might not make obvious depending on how it is computed. A complete
+answer also names at least two competing causes for whatever symptom
+is found (e.g. a communication regression versus a straggler device)
+and states which additional measurement — not already on the
+dashboard — would be needed to tell them apart, rather than guessing
+from the existing numbers alone. An answer that jumps straight to "it's
+probably the network" without first establishing which throughput
+number was checked, and without naming a confirming measurement, is
+incomplete even if the guess happens to be right.
+
+### Chapter recap
+
+- Every number attached to a training run is configured, observed, or
+  derived — never more than one of these at once — and conflating them
+  is the most common way a reader misreads a dashboard.
+- Tokens, sequences, and optimizer steps relate by one declared
+  convention (tokens per step = global batch size × sequence length ×
+  gradient-accumulation steps); training loss and validation loss
+  measure different things on different schedules; a checkpoint's
+  metric describes only that checkpoint, and a sparse checkpoint
+  schedule can miss a transient event the full per-step log still
+  shows.
+- Per-device and global throughput are different questions, and an
+  averaged/rolling-window throughput metric can stop flagging a
+  sustained problem well before the problem itself ends, even while
+  the instantaneous per-step reading still shows it clearly.
+- Nominal and achieved compute throughput are a declared assumption and
+  a measured ratio, respectively — continuing Chapter 5's roofline
+  framework rather than re-deriving it — and the same logical-versus-
+  measured-memory taxonomy Chapter 5 introduced transfers directly to a
+  real run's own memory telemetry.
+- A single symptom (a loss spike, or a throughput drop) is consistent
+  with more than one root cause — optimization instability versus a
+  data-quality problem; a communication bottleneck versus a straggler
+  device — and temporal correlation between two logged signals never by
+  itself identifies which cause is responsible. Confirming one requires
+  a specific measurement the existing log may not contain.
+- Two real runs' numbers are comparable only once hardware, precision,
+  sequence length, batch-size units, token budget, model size,
+  checkpoint position, and evaluation protocol are accounted for;
+  Llama 3's own internal Table 4 configurations are a valid comparison
+  because every varied axis is named, while a Llama-3-versus-DeepSeek-V3
+  "which is more efficient" comparison is not valid as stated, because
+  none of its headline numbers even measure the same thing.
+
+### Sources and further reading
+
+Primary sources for this chapter: [@src-32] (the Llama 3 technical
+report's Section 3.3, "Training Infrastructure," and Section 3.4,
+"Training Recipe," including Table 4's scaling configurations and MFU
+figures — the AdamW schedule, batch-size progression, token budget, and
+GPU/parallelism/MFU numbers quoted above — verified via full-text
+extraction of the arXiv PDF, specifically re-checked this session for
+the training-infrastructure and training-recipe numbers this chapter
+needed, beyond the architecture detail Workbook 04 already verified
+from the same source) and [@src-33] (the DeepSeek-V3 technical report's
+Section 3.1, "Compute Clusters," Section 4.2, "Hyper-Parameters," and
+its training-cost summary — the AdamW/learning-rate/batch-size schedule,
+cluster composition, and GPU-hour/dollar-cost figures quoted above —
+verified via full-text extraction of the arXiv PDF, specifically
+re-checked this session for the training-infrastructure and
+training-cost numbers this chapter needed). Supporting sources,
+restated from where Chapters 3 and 5 already established and cited
+them rather than re-verified here: [@src-50;@src-51] (the $C\approx6ND$
+compute-estimate relation this chapter's worked example reuses) and
+[@src-10] (the nominal-versus-achieved-FLOPs caution this chapter's
+worked example reuses). This chapter does not reteach any mechanism
+from Chapters 1-5 — tokenization and training objectives, multi-token
+prediction, scaling laws and optimization, parallelism strategies, or
+the memory/communication accounting framework — only how to read the
+telemetry those mechanisms produce.

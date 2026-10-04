@@ -1,0 +1,130 @@
+## Answer Key: Chapter 6 {#sec-solutions-ch6 .unnumbered}
+
+Full solutions to Chapter 6's "Check your understanding" questions
+(@sec-ch6-check).
+
+**1. Terminology/evidence classification. For a training run, classify each of the following as configured, observed/measured, or derived -- item (a) global batch size, item (b) a single step's training loss, item (c) tokens consumed through step 500, item (d) model FLOP utilization. For each, state in one sentence why it belongs in that category and not one of the other two.**
+
+*Answer.* (a) *Configured* — global batch size is declared before the
+run starts and does not change on its own; it is not read from the
+running job and not computed from other quantities. (b) *Observed/
+measured* — a single step's training loss is logged directly from the
+running job on that exact batch; it is not declared in advance and is
+not computed from other logged fields. (c) *Derived* — tokens consumed
+through step 500 is computed as step × tokens_per_step (itself
+step × global_batch_size × seq_len), using configured values and the
+step index; no training log field reports a running token total
+directly. (d) *Derived* — MFU is a measured-versus-theoretical ratio
+(achieved FLOPs/second over a hardware's own peak FLOPs/second), never
+itself a single logged field; it requires combining an observed step
+time with a declared/estimated FLOPs-per-step and a declared peak
+hardware figure.
+
+*Common trap:* Treating a derived quantity (like consumed tokens or
+MFU) as if a dashboard reported it directly, or treating a configured
+quantity (like global batch size) as something that must be "measured"
+to be trusted — it is declared, not observed, and checking it means
+checking the configuration, not the log.
+
+**2. Calculation. Using this chapter's worked example's declared
+configuration (global batch size 256 sequences, sequence length 4,096
+tokens, 32 devices, no gradient accumulation), compute (a) tokens
+consumed through step 24, and (b) the global and per-device throughput
+in tokens/second at step 24's own logged step time of 2.880 s.**
+
+*Answer.* Tokens per step = $256\times4{,}096=1{,}048{,}576$. Part (a): tokens consumed through step 24 = $24\times1{,}048{,}576=25{,}165{,}824$. Part (b): global throughput = $1{,}048{,}576/2.880\approx364{,}088.9$ tokens/second; per-device throughput = $364{,}088.9/32\approx11{,}377.8$ tokens/second.
+
+*Common trap:* Using the run's *baseline* step time (1.800 s) instead
+of step 24's own logged, elevated step time (2.880 s) — step 24 falls
+inside this chapter's own throughput-drop event, so its throughput is
+lower than the baseline figure quoted elsewhere in the chapter, not the
+same number.
+
+**3. Run-comparison validity. A colleague wants to compare Llama 3
+405B's and DeepSeek-V3's pretraining runs and conclude which one
+trained "more efficiently." List at least four specific, named
+differences between the two disclosed configurations that make a
+direct comparison invalid as stated, and state what would need to be
+true for the comparison to become valid.**
+
+*Answer.* At least four independently disqualifying differences: (1)
+architecture — Llama 3 405B is dense; DeepSeek-V3 is a 671B-total/
+37B-activated mixture-of-experts model, so "parameter count" is not
+even counted the same way between them. (2) Hardware — Llama 3 trained
+on up to 16K H100 GPUs; DeepSeek-V3 on 2,048 H800 GPUs, a different
+accelerator generation with different peak throughput. (3) Numeric
+precision — Llama 3 used BF16; DeepSeek-V3 used FP8 mixed precision
+for its GEMM-heavy operations, which changes achievable throughput
+independently of everything else. (4) Batch-size units — Llama 3's
+batch size is reported in tokens (4M/8M/16M); DeepSeek-V3's is reported
+in sequences (3,072 to 15,360), so the raw numbers cannot be compared
+without first converting one into the other's units. Additional valid
+differences include sequence length (Llama 3 staged from 4,096 up to
+131,072; DeepSeek-V3 fixed at 4,096 during pretraining) and the two
+reports' headline efficiency metrics themselves (Llama 3 reports BF16
+MFU; DeepSeek-V3 reports GPU-hours and dollar cost — not the same kind
+of number at all). For the comparison to become valid, every one of
+these axes would need to be held equal or explicitly converted and
+accounted for — e.g. normalizing to FLOPs-per-dollar or FLOPs-per-token
+at a stated, shared precision and hardware-efficiency assumption —
+not simply placed side by side as reported.
+
+*Common trap:* Treating "both are large published LLM pretraining
+runs" as sufficient grounds for comparison, or converting only one of
+the several incompatible axes (e.g. normalizing token budgets but
+ignoring the precision and hardware differences) and treating the
+result as if it were now fully comparable.
+
+**4. Bottleneck/instability diagnosis. A run's global throughput drops
+sharply for several consecutive steps while its training loss and
+gradient norm continue their ordinary trend. Name the two competing
+diagnoses this chapter discusses for this exact symptom pattern, and
+the one additional measurement that would distinguish between them.**
+
+*Answer.* The two competing diagnoses are a *communication bottleneck*
+(a collective operation such as an all-reduce or all-gather getting
+slower, affecting every device roughly equally, so the whole step's
+wall-clock time rises uniformly) and a *straggler device* (one slow
+participant pacing an entire synchronous step, while every other
+device sits idle waiting for it). The measurement that distinguishes
+them is a per-device (per-rank) step-time or utilization breakdown:
+the communication-bottleneck diagnosis predicts every device showing
+roughly the same elevated time, while the straggler diagnosis predicts
+one device showing a far higher time than the rest.
+
+*Common trap:* Assuming a global throughput drop must be a
+communication problem by default, or trying to diagnose which cause
+applies using only the global step-time number — the log as given
+reports one aggregate figure and cannot, by itself, distinguish a
+uniform slowdown from one straggling device.
+
+**5. Synthesis/design. You are handed this chapter's own worked
+example's log (as described in Question 2) and told only that "loss
+looked fine throughout." Using the trailing-window anomaly check this
+chapter defines (compare each step's value to the mean of the four
+steps immediately before it; flag if the relative deviation exceeds
+20%), identify the one step in the 30-step log where this check would
+have caught a problem the checkpoint-only record (steps 10, 20, 30)
+completely misses, and justify, from the log's own structure, why a
+checkpoint-only readout would not have caught it.**
+
+*Answer.* Step 18. Its train_loss (4.350) deviates +33.5% from the
+trailing average of the four preceding steps (3.259) — comfortably
+past the 20% threshold, so the per-step trailing-window check flags it
+clearly. The checkpoint-only record evaluates only at steps 10, 20,
+and 30; step 20's own eval_loss (3.310, against a train_loss of 3.160)
+shows an ordinary generalization gap with no sign of anything unusual,
+because by step 20 training loss had already returned to its smooth
+baseline trend. A reader with access only to the three checkpoint
+readings would see nothing at all between steps 10 and 20 that
+suggests a transient event happened in between — the event is visible
+only in the full per-step log, not in any sparser checkpoint summary,
+which is exactly the gap a trailing-window check on the full log
+closes.
+
+*Common trap:* Assuming "loss looked fine throughout" must be true
+because the checkpoint-level numbers look unremarkable, without
+checking whether the checkpoint schedule is sparse enough to miss a
+transient event entirely — a checkpoint record and a full per-step
+record are not the same evidence, even when both ultimately come from
+the same run.

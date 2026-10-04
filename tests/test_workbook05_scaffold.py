@@ -91,6 +91,7 @@ class TestWorkbook05ChapterStructure(unittest.TestCase):
         "03-optimization-and-scaling-laws.qmd",
         "04-distributed-parallelism.qmd",
         "05-training-memory-and-communication.qmd",
+        "06-reading-real-pretraining-runs.qmd",
     ]
 
     def test_undrafted_chapters_have_an_explicit_pending_status_note(self):

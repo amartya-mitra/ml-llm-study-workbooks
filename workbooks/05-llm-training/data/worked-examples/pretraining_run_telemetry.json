@@ -1,0 +1,812 @@
+{
+  "synthetic_run_config": {
+    "num_steps": 30,
+    "global_batch_size_sequences": 256,
+    "seq_len_tokens": 4096,
+    "device_count": 32,
+    "gradient_accumulation_steps": 1,
+    "checkpoint_steps": [
+      10,
+      20,
+      30
+    ],
+    "toy_param_count": 2000000000,
+    "toy_declared_nominal_peak_flops_per_device": 400000000000000.0,
+    "anomaly_relative_threshold": 0.2,
+    "trailing_window_size": 4
+  },
+  "tokens_per_step": 1048576,
+  "estimated_training_flops_per_step": 12582912000000000,
+  "nominal_peak_flops_per_second_cluster": 1.28e+16,
+  "per_step_log": [
+    {
+      "step": 1,
+      "observed": {
+        "train_loss": 3.5780000000000003,
+        "grad_norm": 1.19,
+        "learning_rate": 0.0003,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 1048576,
+        "consumed_sequences": 256,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": null,
+        "trailing_window_avg_step_time_seconds": null,
+        "loss_relative_deviation": null,
+        "step_time_relative_deviation": null,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 2,
+      "observed": {
+        "train_loss": 3.556,
+        "grad_norm": 1.18,
+        "learning_rate": 0.00029310344827586203,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 2097152,
+        "consumed_sequences": 512,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.5780000000000003,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.0061486864169928,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 3,
+      "observed": {
+        "train_loss": 3.5340000000000003,
+        "grad_norm": 1.17,
+        "learning_rate": 0.0002862068965517241,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 3145728,
+        "consumed_sequences": 768,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.567,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.009251471825063055,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 4,
+      "observed": {
+        "train_loss": 3.512,
+        "grad_norm": 1.16,
+        "learning_rate": 0.0002793103448275862,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 4194304,
+        "consumed_sequences": 1024,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.5560000000000005,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.012373453318335342,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 5,
+      "observed": {
+        "train_loss": 3.49,
+        "grad_norm": 1.15,
+        "learning_rate": 0.00027241379310344825,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 5242880,
+        "consumed_sequences": 1280,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.5450000000000004,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.015514809590973245,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 6,
+      "observed": {
+        "train_loss": 3.468,
+        "grad_norm": 1.14,
+        "learning_rate": 0.0002655172413793103,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 6291456,
+        "consumed_sequences": 1536,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.523,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.01561169457848429,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 7,
+      "observed": {
+        "train_loss": 3.446,
+        "grad_norm": 1.13,
+        "learning_rate": 0.00025862068965517237,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 7340032,
+        "consumed_sequences": 1792,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.5010000000000003,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.015709797200799815,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 8,
+      "observed": {
+        "train_loss": 3.424,
+        "grad_norm": 1.1199999999999999,
+        "learning_rate": 0.0002517241379310345,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 8388608,
+        "consumed_sequences": 2048,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.479,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.015809140557631548,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 9,
+      "observed": {
+        "train_loss": 3.402,
+        "grad_norm": 1.1099999999999999,
+        "learning_rate": 0.00024482758620689653,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 9437184,
+        "consumed_sequences": 2304,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.457,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.015909748336708048,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 10,
+      "observed": {
+        "train_loss": 3.38,
+        "grad_norm": 1.0999999999999999,
+        "learning_rate": 0.0002379310344827586,
+        "step_time_seconds": 1.8,
+        "eval_loss": 3.53
+      },
+      "derived": {
+        "consumed_tokens": 10485760,
+        "consumed_sequences": 2560,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.4349999999999996,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.016011644832605452,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 11,
+      "observed": {
+        "train_loss": 3.358,
+        "grad_norm": 1.0899999999999999,
+        "learning_rate": 0.00023103448275862065,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 11534336,
+        "consumed_sequences": 2816,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.4130000000000003,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.01611485496630535,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 12,
+      "observed": {
+        "train_loss": 3.3360000000000003,
+        "grad_norm": 1.08,
+        "learning_rate": 0.00022413793103448276,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 12582912,
+        "consumed_sequences": 3072,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.391,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.016219404305514513,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 13,
+      "observed": {
+        "train_loss": 3.314,
+        "grad_norm": 1.0699999999999998,
+        "learning_rate": 0.00021724137931034481,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 13631488,
+        "consumed_sequences": 3328,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.369,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.016325319085782178,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 14,
+      "observed": {
+        "train_loss": 3.2920000000000003,
+        "grad_norm": 1.06,
+        "learning_rate": 0.00021034482758620687,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 14680064,
+        "consumed_sequences": 3584,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.347,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.016432626232446883,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 15,
+      "observed": {
+        "train_loss": 3.27,
+        "grad_norm": 1.05,
+        "learning_rate": 0.00020344827586206895,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 15728640,
+        "consumed_sequences": 3840,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.325,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.016541353383458694,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 16,
+      "observed": {
+        "train_loss": 3.248,
+        "grad_norm": 1.04,
+        "learning_rate": 0.00019655172413793104,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 16777216,
+        "consumed_sequences": 4096,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.303,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.01665152891310921,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 17,
+      "observed": {
+        "train_loss": 3.226,
+        "grad_norm": 1.03,
+        "learning_rate": 0.0001896551724137931,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 17825792,
+        "consumed_sequences": 4352,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.2809999999999997,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.016763181956720427,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 18,
+      "observed": {
+        "train_loss": 4.35,
+        "grad_norm": 3.95,
+        "learning_rate": 0.00018275862068965515,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 18874368,
+        "consumed_sequences": 4608,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.2590000000000003,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": 0.3347652654188399,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": true,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 19,
+      "observed": {
+        "train_loss": 3.182,
+        "grad_norm": 1.01,
+        "learning_rate": 0.0001758620689655172,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 19922944,
+        "consumed_sequences": 4864,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.5235,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.09692067546473675,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 20,
+      "observed": {
+        "train_loss": 3.16,
+        "grad_norm": 1.0,
+        "learning_rate": 0.0001689655172413793,
+        "step_time_seconds": 1.8,
+        "eval_loss": 3.31
+      },
+      "derived": {
+        "consumed_tokens": 20971520,
+        "consumed_sequences": 5120,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.5015,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.09752963015850347,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 21,
+      "observed": {
+        "train_loss": 3.138,
+        "grad_norm": 0.99,
+        "learning_rate": 0.00016206896551724135,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 22020096,
+        "consumed_sequences": 5376,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.4795,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.09814628538583128,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 22,
+      "observed": {
+        "train_loss": 3.116,
+        "grad_norm": 0.98,
+        "learning_rate": 0.00015517241379310343,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 23068672,
+        "consumed_sequences": 5632,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.4575,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.09877078814172087,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 23,
+      "observed": {
+        "train_loss": 3.0940000000000003,
+        "grad_norm": 0.97,
+        "learning_rate": 0.00014827586206896551,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 24117248,
+        "consumed_sequences": 5888,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.149,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.017465862178469266,
+        "step_time_relative_deviation": 0.0,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 24,
+      "observed": {
+        "train_loss": 3.072,
+        "grad_norm": 0.96,
+        "learning_rate": 0.00014137931034482757,
+        "step_time_seconds": 2.88,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 25165824,
+        "consumed_sequences": 6144,
+        "global_throughput_tokens_per_s": 364088.8888888889,
+        "per_device_throughput_tokens_per_s": 11377.777777777777,
+        "achieved_flops_per_second": 4369066666666667.0,
+        "achieved_fraction_of_nominal": 0.3413333333333334,
+        "trailing_window_avg_loss": 3.127,
+        "trailing_window_avg_step_time_seconds": 1.8,
+        "loss_relative_deviation": -0.01758874320434913,
+        "step_time_relative_deviation": 0.5999999999999999,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": true
+      }
+    },
+    {
+      "step": 25,
+      "observed": {
+        "train_loss": 3.0500000000000003,
+        "grad_norm": 0.95,
+        "learning_rate": 0.00013448275862068965,
+        "step_time_seconds": 2.88,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 26214400,
+        "consumed_sequences": 6400,
+        "global_throughput_tokens_per_s": 364088.8888888889,
+        "per_device_throughput_tokens_per_s": 11377.777777777777,
+        "achieved_flops_per_second": 4369066666666667.0,
+        "achieved_fraction_of_nominal": 0.3413333333333334,
+        "trailing_window_avg_loss": 3.1049999999999995,
+        "trailing_window_avg_step_time_seconds": 2.0700000000000003,
+        "loss_relative_deviation": -0.017713365539452262,
+        "step_time_relative_deviation": 0.3913043478260867,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": true
+      }
+    },
+    {
+      "step": 26,
+      "observed": {
+        "train_loss": 3.028,
+        "grad_norm": 0.94,
+        "learning_rate": 0.0001275862068965517,
+        "step_time_seconds": 2.88,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 27262976,
+        "consumed_sequences": 6656,
+        "global_throughput_tokens_per_s": 364088.8888888889,
+        "per_device_throughput_tokens_per_s": 11377.777777777777,
+        "achieved_flops_per_second": 4369066666666667.0,
+        "achieved_fraction_of_nominal": 0.3413333333333334,
+        "trailing_window_avg_loss": 3.083,
+        "trailing_window_avg_step_time_seconds": 2.34,
+        "loss_relative_deviation": -0.017839766461239102,
+        "step_time_relative_deviation": 0.2307692307692308,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": true
+      }
+    },
+    {
+      "step": 27,
+      "observed": {
+        "train_loss": 3.0060000000000002,
+        "grad_norm": 0.9299999999999999,
+        "learning_rate": 0.00012068965517241377,
+        "step_time_seconds": 2.88,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 28311552,
+        "consumed_sequences": 6912,
+        "global_throughput_tokens_per_s": 364088.8888888889,
+        "per_device_throughput_tokens_per_s": 11377.777777777777,
+        "achieved_flops_per_second": 4369066666666667.0,
+        "achieved_fraction_of_nominal": 0.3413333333333334,
+        "trailing_window_avg_loss": 3.0610000000000004,
+        "trailing_window_avg_step_time_seconds": 2.61,
+        "loss_relative_deviation": -0.0179679843188501,
+        "step_time_relative_deviation": 0.10344827586206898,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 28,
+      "observed": {
+        "train_loss": 2.984,
+        "grad_norm": 0.9199999999999999,
+        "learning_rate": 0.00011379310344827585,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 29360128,
+        "consumed_sequences": 7168,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.039,
+        "trailing_window_avg_step_time_seconds": 2.88,
+        "loss_relative_deviation": -0.018098058571898702,
+        "step_time_relative_deviation": -0.37499999999999994,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 29,
+      "observed": {
+        "train_loss": 2.962,
+        "grad_norm": 0.9099999999999999,
+        "learning_rate": 0.00010689655172413793,
+        "step_time_seconds": 1.8,
+        "eval_loss": null
+      },
+      "derived": {
+        "consumed_tokens": 30408704,
+        "consumed_sequences": 7424,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 3.017,
+        "trailing_window_avg_step_time_seconds": 2.6100000000000003,
+        "loss_relative_deviation": -0.01823002983095781,
+        "step_time_relative_deviation": -0.31034482758620696,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    },
+    {
+      "step": 30,
+      "observed": {
+        "train_loss": 2.9400000000000004,
+        "grad_norm": 0.8999999999999999,
+        "learning_rate": 9.999999999999999e-05,
+        "step_time_seconds": 1.8,
+        "eval_loss": 3.0900000000000003
+      },
+      "derived": {
+        "consumed_tokens": 31457280,
+        "consumed_sequences": 7680,
+        "global_throughput_tokens_per_s": 582542.2222222222,
+        "per_device_throughput_tokens_per_s": 18204.444444444445,
+        "achieved_flops_per_second": 6990506666666666.0,
+        "achieved_fraction_of_nominal": 0.5461333333333332,
+        "trailing_window_avg_loss": 2.995,
+        "trailing_window_avg_step_time_seconds": 2.34,
+        "loss_relative_deviation": -0.01836393989983296,
+        "step_time_relative_deviation": -0.2307692307692307,
+        "loss_anomaly_flagged": false,
+        "throughput_anomaly_flagged": false
+      }
+    }
+  ],
+  "detected_loss_anomaly_steps": [
+    18
+  ],
+  "detected_throughput_anomaly_steps": [
+    24,
+    25,
+    26
+  ],
+  "comparability_controls": {
+    "device_count_unchanged_in_window": true,
+    "global_batch_size_unchanged_in_window": true,
+    "seq_len_unchanged_in_window": true,
+    "gradient_accumulation_unchanged_in_window": true
+  },
+  "diagnoses": {
+    "loss_spike_event": {
+      "step": 18,
+      "observed_signals": [
+        "train_loss spike",
+        "grad_norm spike",
+        "step_time_seconds stays at baseline"
+      ],
+      "competing_diagnoses": [
+        {
+          "name": "optimization_instability",
+          "description": "A transient optimizer/gradient-dynamics issue (e.g. the current learning rate interacting badly with a locally sharp region of the loss landscape) produces a broad-based gradient-norm spike across most parameter groups, with loss rising as a direct consequence."
+        },
+        {
+          "name": "data_quality_problem",
+          "description": "An anomalous or corrupted batch/shard entering training at this step (e.g. duplicated, truncated, or mixed-up tokens) produces an unusually hard or malformed training example, raising loss and producing a large gradient largely concentrated in a small subset of parameter groups, unrelated to the optimizer's own dynamics."
+        }
+      ],
+      "distinguishing_measurement_not_logged": "per-parameter-group (or per-layer) gradient-norm breakdown"
+    },
+    "throughput_drop_event": {
+      "steps": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "observed_signals": [
+        "step_time_seconds elevated",
+        "train_loss and grad_norm stay at baseline trend"
+      ],
+      "competing_diagnoses": [
+        {
+          "name": "communication_bottleneck",
+          "description": "A collective-communication regression (e.g. increased all-reduce or all-gather time) slows every device roughly equally, so the whole step's wall-clock time rises uniformly across the cluster."
+        },
+        {
+          "name": "straggler_device",
+          "description": "One slow device (e.g. thermal throttling, a flaky network interface) paces the entire synchronous step, since a collective operation waits for its slowest participant -- every other device sits idle, not uniformly slow."
+        }
+      ],
+      "distinguishing_measurement_not_logged": "per-device (per-rank) step-time or utilization breakdown"
+    }
+  },
+  "invalid_configuration_checks": {
+    "trailing_average_at_step_one_is_none": true,
+    "invalid_zero_step_time_raised": true,
+    "invalid_zero_device_count_raised": true,
+    "invalid_zero_nominal_flops_raised": true,
+    "invalid_zero_trailing_average_raised": true,
+    "detected_loss_anomaly_matches_declared_event": true,
+    "step27_not_flagged_despite_being_above_baseline": true,
+    "achieved_fraction_never_exceeds_one": true,
+    "achieved_fraction_drops_during_throughput_event": true
+  }
+}

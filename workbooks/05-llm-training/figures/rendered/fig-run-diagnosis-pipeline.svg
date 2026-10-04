@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1016" viewBox="0 0 1000 1016">
+  <title>Evidence-to-diagnosis pipeline for reading a pretraining run&#x27;s telemetry</title>
+  <defs><marker id="arrow-333333" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker></defs>
+  <rect x="0" y="0" width="1000" height="1016" fill="#ffffff"/>
+  <rect x="20" y="15" width="960" height="36" rx="4" fill="#f2f2f2" stroke="#666666" stroke-width="1.2"/>
+  <text x="500.0" y="38" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle">RUN-DIAGNOSIS PIPELINE — this chapter&#x27;s own synthetic worked example, not a measured dashboard</text>
+  <rect x="60" y="70" width="880" height="88" rx="8" fill="#ffffff" stroke="#0072B2" stroke-width="3"/>
+  <rect x="60" y="70" width="14" height="88" rx="4" fill="#0072B2" stroke="#0072B2" stroke-width="1"/>
+  <text x="86" y="92" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">1. Configuration (observed / declared)</text>
+  <text x="86" y="118" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">global_batch_size = 256 sequences, seq_len = 4096 tokens, devices = 32</text>
+  <text x="86" y="138" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">-&gt; tokens per optimizer step = 1,048,576 (= global_batch_size x seq_len x grad_accum_steps)</text>
+  <line x1="500.0" y1="160" x2="500.0" y2="200" stroke="#333333" stroke-width="2.5" marker-end="url(#arrow-333333)"/>
+  <rect x="60" y="204" width="880" height="68" rx="8" fill="#ffffff" stroke="#0072B2" stroke-width="3"/>
+  <rect x="60" y="204" width="14" height="68" rx="4" fill="#0072B2" stroke="#0072B2" stroke-width="1"/>
+  <text x="86" y="226" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">2. Training telemetry logged at step 18 (observed)</text>
+  <text x="86" y="252" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">train_loss = 4.350, grad_norm = 3.950, step_time = 1.800 s, learning_rate = 1.83e-04</text>
+  <line x1="500.0" y1="274" x2="500.0" y2="314" stroke="#333333" stroke-width="2.5" marker-end="url(#arrow-333333)"/>
+  <rect x="60" y="318" width="880" height="88" rx="8" fill="#ffffff" stroke="#E69F00" stroke-width="3"/>
+  <rect x="60" y="318" width="14" height="88" rx="4" fill="#E69F00" stroke="#E69F00" stroke-width="1"/>
+  <text x="86" y="340" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">3. Derived metrics (computed from the telemetry above)</text>
+  <text x="86" y="366" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">consumed_tokens = 18,874,368, global_throughput = 582,542 tok/s, achieved/nominal FLOPs = 54.6%</text>
+  <text x="86" y="386" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">loss vs. trailing-4-step average: 33.5% deviation -&gt; anomaly flagged = True</text>
+  <line x1="500.0" y1="408" x2="500.0" y2="448" stroke="#333333" stroke-width="2.5" marker-end="url(#arrow-333333)"/>
+  <rect x="60" y="452" width="880" height="88" rx="8" fill="#ffffff" stroke="#888888" stroke-width="3"/>
+  <rect x="60" y="452" width="14" height="88" rx="4" fill="#888888" stroke="#888888" stroke-width="1"/>
+  <text x="86" y="474" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">4. Comparability controls (must hold for this comparison to be valid)</text>
+  <text x="86" y="500" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">device count, global batch size, sequence length, and gradient-accumulation steps unchanged within the trailing</text>
+  <text x="86" y="520" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">window: True -- a within-run comparison against recent history, not a cross-run comparison.</text>
+  <line x1="500.0" y1="542" x2="500.0" y2="582" stroke="#333333" stroke-width="2.5" marker-end="url(#arrow-333333)"/>
+  <rect x="60" y="586" width="880" height="168" rx="8" fill="#ffffff" stroke="#D55E00" stroke-width="3"/>
+  <rect x="60" y="586" width="14" height="168" rx="4" fill="#D55E00" stroke="#D55E00" stroke-width="1"/>
+  <text x="86" y="608" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">5. Bottleneck / failure hypothesis (two diagnoses, same observed evidence)</text>
+  <text x="86" y="634" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">(A) optimization instability: A transient optimizer/gradient-dynamics issue (e.g. the current learning rate</text>
+  <text x="86" y="654" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">interacting badly with a locally sharp region of the loss landscape) produces a broad-based gradient-norm spike across</text>
+  <text x="86" y="674" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">most parameter groups, with loss rising as a direct consequence.</text>
+  <text x="86" y="694" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">(B) data quality problem: An anomalous or corrupted batch/shard entering training at this step (e.g. duplicated,</text>
+  <text x="86" y="714" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">truncated, or mixed-up tokens) produces an unusually hard or malformed training example, raising loss and producing a</text>
+  <text x="86" y="734" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">large gradient largely concentrated in a small subset of parameter groups, unrelated to the optimizer&#x27;s own dynamics.</text>
+  <line x1="500.0" y1="756" x2="500.0" y2="796" stroke="#333333" stroke-width="2.5" marker-end="url(#arrow-333333)"/>
+  <rect x="60" y="800" width="880" height="68" rx="8" fill="#ffffff" stroke="#D55E00" stroke-width="3" stroke-dasharray="6,4"/>
+  <rect x="60" y="800" width="14" height="68" rx="4" fill="#D55E00" stroke="#D55E00" stroke-width="1"/>
+  <text x="86" y="822" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">6. Measurement needed to confirm (not yet taken)</text>
+  <text x="86" y="848" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#222222" text-anchor="start">per-parameter-group (or per-layer) gradient-norm breakdown</text>
+  <rect x="60" y="918" width="22" height="14" rx="6" fill="#0072B2" stroke="#333333" stroke-width="1.5"/>
+  <text x="90" y="929" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#333333" text-anchor="start">Observed (logged)</text>
+  <rect x="60" y="940" width="22" height="14" rx="6" fill="#E69F00" stroke="#333333" stroke-width="1.5"/>
+  <text x="90" y="951" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#333333" text-anchor="start">Derived (computed from observed fields)</text>
+  <rect x="60" y="962" width="22" height="14" rx="6" fill="#888888" stroke="#333333" stroke-width="1.5"/>
+  <text x="90" y="973" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#333333" text-anchor="start">Assumption / control (must hold for the comparison to be valid)</text>
+  <rect x="60" y="984" width="22" height="14" rx="6" fill="#D55E00" stroke="#333333" stroke-width="1.5"/>
+  <text x="90" y="995" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#333333" text-anchor="start">Diagnostic conclusion (solid border = hypothesis; dashed border = still unconfirmed)</text>
+</svg>

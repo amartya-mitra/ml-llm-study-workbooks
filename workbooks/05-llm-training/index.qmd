@@ -1,6 +1,6 @@
 ---
 title: "LLM Pretraining and Distributed Training"
-subtitle: "Partial Content Draft — Chapters 1-5 Drafted, Chapter 6 Scaffold Only"
+subtitle: "Partial Content Draft — Chapters 1-6 Fully Drafted (Final Content Chapter Complete)"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -9,13 +9,16 @@ number-sections: true
 wide, in the repo-root _quarto.yml -- do not repeat them here (see
 AGENTS.md and workbook 04's own index.qmd for why).
 
-This is a partial draft, not a finished workbook. Chapters 1-5 are
-fully drafted with real content, worked examples, questions, answer
-keys, and one or more figures each, per this task's own approval
-gates. Chapter 6 remains a structural scaffold only (title, planned
-subsections, source ids, a boundary note -- no drafted prose).
-`includes/` remains empty (placeholder-tracked via .gitkeep) until a
-chapter needs it. Do not call this workbook release-ready. -->
+This is a partial draft, not a finished workbook. Chapters 1-6 are now
+all fully drafted with real content, worked examples, questions,
+answer keys, and one or more figures each, per this task's own
+approval gates. Chapter 6 ("Reading Real Pretraining Runs") is the
+last content chapter planned for this workbook -- there is no further
+chapter scaffold pending. `includes/` remains empty (placeholder-tracked
+via .gitkeep) until a chapter needs it. Do not call this workbook
+release-ready: integration/publication-freeze work (a canonical PDF,
+a release candidate, cross-chapter consistency passes) has not
+happened and is explicitly out of scope for chapter-drafting tasks. -->
 
 {{< include chapters/01-pretraining-objectives-and-data.qmd >}}
 
@@ -62,3 +65,5 @@ chapter needs it. Do not call this workbook release-ready. -->
 {{< include solutions/04-distributed-parallelism-solutions.qmd >}}
 
 {{< include solutions/05-training-memory-and-communication-solutions.qmd >}}
+
+{{< include solutions/06-reading-real-pretraining-runs-solutions.qmd >}}

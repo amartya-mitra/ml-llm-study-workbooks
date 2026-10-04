@@ -503,6 +503,54 @@ entries:
     verification_status: "verified_full_text"
     note: "Quoted/paraphrased directly from src-55's own Section 2.2 ('Standard attention implementations materialize the matrices S and P to HBM, which takes O(N^2) memory') and Figure 1 caption ('FlashAttention uses tiling to prevent materialization of the large N x N attention matrix ... on (relatively) slow GPU HBM'). Used to qualify, not contradict, src-17's own Equation 3 activation-memory formula -- that formula encodes src-17's own declared conventional accounting, not a universal law independent of attention implementation."
 
+  - id: "claim-06-readingruns-001"
+    workbook: "05-llm-training"
+    chapter: "ch6"
+    statement: "Llama 3 405B's main pretraining stage uses AdamW with a peak learning rate of 8x10^-5, a linear warmup of 8,000 steps, and a cosine learning-rate schedule decaying to 8x10^-7 over 1,200,000 steps; batch size starts at 4M tokens (sequence length 4,096), doubles to 8M tokens (sequence length 8,192) after pre-training 252M tokens, and doubles again to 16M tokens after pre-training on 2.87T tokens; total pretraining corpus is 15.6T tokens."
+    source_ids: ["src-32"]
+    verification_status: "verified_full_text"
+    note: "Verified via full-text extraction of the arXiv PDF's Section 3.4 ('Training Recipe') and Section 3.2.1, specifically re-checked this session for training-infrastructure/training-recipe numbers beyond the architecture detail Workbook 04 already verified from the same source."
+
+  - id: "claim-06-readingruns-002"
+    workbook: "05-llm-training"
+    chapter: "ch6"
+    statement: "Llama 3 405B's own Table 4 reports three scaling configurations for the same model, hardware generation, and precision: 8,192 GPUs (TP=8, CP=1, PP=16, DP=64, sequence length 8,192) at 43% BF16 MFU; 16,384 GPUs (TP=8, CP=1, PP=16, DP=128, sequence length 8,192) at 41% MFU; and 16,384 GPUs (TP=8, CP=16, PP=16, DP=8, sequence length 131,072) at 38% MFU -- all three holding a 16M-token global batch constant."
+    source_ids: ["src-32"]
+    verification_status: "verified_full_text"
+    note: "Verified via full-text extraction of the arXiv PDF's Table 4 and its surrounding Section 3.3.2 discussion of the MFU drop from 43% to 41% as GPU count/DP degree increases."
+
+  - id: "claim-06-readingruns-003"
+    workbook: "05-llm-training"
+    chapter: "ch6"
+    statement: "Llama 3 405B pretraining used up to 16K H100 GPUs (drawn from a larger 24K-GPU RoCE-based cluster), on Meta's Grand Teton AI server platform with eight GPUs and two CPUs per server, NVLink within a server, and RoCE/InfiniBand fabrics at 400 Gbps between GPUs; overall reported BF16 model FLOP utilization across pretraining configurations was 38-43%."
+    source_ids: ["src-32"]
+    verification_status: "verified_full_text"
+    note: "Verified via full-text extraction of the arXiv PDF's Section 3.3.1 ('Training Infrastructure')."
+
+  - id: "claim-06-readingruns-004"
+    workbook: "05-llm-training"
+    chapter: "ch6"
+    statement: "DeepSeek-V3 uses AdamW with beta1=0.9, beta2=0.95, weight_decay=0.1; maximum sequence length 4,096 (4K) during pretraining; 14.8T total pretraining tokens; a learning-rate schedule linearly increasing from 0 to 2.2x10^-4 over the first 2K steps, held constant at 2.2x10^-4 until 10T tokens are consumed, cosine-decayed to 2.2x10^-5 over the next 4.3T tokens, then held at 2.2x10^-5 for 333B tokens and 7.3x10^-6 for the final 167B tokens; gradient-clipping norm 1.0; and a batch-size schedule gradually increasing from 3,072 to 15,360 sequences over the first 469B tokens, then held constant."
+    source_ids: ["src-33"]
+    verification_status: "verified_full_text"
+    note: "Verified via full-text extraction of the arXiv PDF's Section 4.2 ('Hyper-Parameters' -> 'Training Hyper-Parameters'), re-checked this session specifically for training-configuration numbers beyond the architecture hyperparameters Workbook 04 already verified from the same source."
+
+  - id: "claim-06-readingruns-005"
+    workbook: "05-llm-training"
+    chapter: "ch6"
+    statement: "DeepSeek-V3 is trained on a cluster of 2,048 NVIDIA H800 GPUs (8 GPUs per node, NVLink/NVSwitch intra-node, InfiniBand across nodes); pretraining on each trillion tokens requires approximately 180K H800-GPU-hours (3.7 days on this 2,048-GPU cluster), the full pretraining stage costs 2.664M GPU-hours, and total training (including context-length extension and post-training) costs 2.788M GPU-hours, priced at $5.576M assuming $2 per GPU-hour."
+    source_ids: ["src-33"]
+    verification_status: "verified_full_text"
+    note: "Verified via full-text extraction of the arXiv PDF's Section 3.1 ('Compute Clusters') and its training-cost summary table/discussion."
+
+  - id: "claim-06-readingruns-006"
+    workbook: "05-llm-training"
+    chapter: "ch6"
+    statement: "This chapter's own worked example (a 30-logged-step synthetic training log: global batch size 256 sequences, sequence length 4,096 tokens, 32 devices, a declared loss/grad-norm spike at step 18, and a declared sustained step-time increase across steps 24-27) is a deliberately constructed, clearly-labeled synthetic illustration, not a claim about any real model, cluster, or measured run. Its FLOPs-per-step estimate reuses Chapter 3's C~=6ND relation, and its nominal-vs-achieved-FLOPs framing reuses Chapter 5's roofline distinction and its citation of real hardware achieving only 80-85% of claimed peak FLOPs."
+    source_ids: ["src-50", "src-51", "src-10"]
+    verification_status: "computed_by_script"
+    note: "The C~=6ND relation and the 80-85%-of-peak caution are restated from Chapter 3's and Chapter 5's own already-verified citations (see claim-05-memcomm-015 for the latter's original verification), not re-verified here; every specific number in this chapter's worked example is computed by data/worked-examples/pretraining_run_telemetry.py from declared, labeled-synthetic inputs."
+
 planned_chapter_sources:
   - chapter: "ch1"
     source_ids: ["src-16"]
@@ -532,4 +580,4 @@ planned_chapter_sources:
   - chapter: "ch6"
     source_ids: ["src-32", "src-33"]
     candidate_source_ids: []
-    note: "Reuses workbook 04 ch. 6's exact source registrations. A spot-check of these sources' already-verified full text specifically for training-infrastructure numbers is still pending -- do this during this chapter's own drafting, per reports/05_llm_training_scope_and_source_decision.md section 3."
+    note: "UPDATED 2026-10-04 (this chapter's own drafting): the pending spot-check is complete. Both src-32 and src-33 were re-fetched and re-read in full text specifically for training-infrastructure/training-recipe numbers (Llama 3's Section 3.3 'Training Infrastructure' and Section 3.4 'Training Recipe', including Table 4; DeepSeek-V3's Section 3.1 'Compute Clusters' and Section 4.2 'Hyper-Parameters', including its training-cost summary) -- distinct from the architecture-only sections Workbook 04 Chapter 6 already verified from the same two sources. No additional primary source was registered: both sources disclose sufficient training-configuration detail for this chapter's needs; the worked example's per-step telemetry (loss/LR/grad-norm/tokens-per-step with a diagnosable behavior change) uses a clearly-labeled synthetic log instead, since no real disclosed per-step log of this shape was found in either source, per this task's own explicit guidance. See claim-06-readingruns-001 through claim-06-readingruns-006 above for the specific claims and their verification."
