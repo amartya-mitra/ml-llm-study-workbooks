@@ -21,6 +21,12 @@ schema_version: 1
 
 workbooks:
   05-llm-training:
+    status: "accepted_frozen"
+    note: "Whole workbook accepted for canonical publication. RC1 (outputs/_releases/05-llm-training/05-llm-training-workbook-rc1.pdf, 64 pages) passed independent human acceptance review; RC2 was not required. Ready for canonical publication build (outputs/05-llm-training-workbook.pdf)."
+    rc1_accepted: true
+    rc1_sha256: "2e14d7156dfc87967d2a3214fa2dc349add2d4582d910f7894e08a7231b347bb"
+    rc1_page_count: 64
+    acceptance_date: "2026-10-05"
     chapters:
       01:
         status: "accepted_frozen"
