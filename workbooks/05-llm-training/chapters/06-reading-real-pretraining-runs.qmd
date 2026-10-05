@@ -180,11 +180,16 @@ fixed anomaly-detection rule, not a hand-picked anecdote.
 
 **Nominal versus achieved FLOPs — continuing Chapter 5's roofline
 framework.** Chapter 5 already established that real hardware achieves
-only a fraction of its own claimed peak throughput — "H100s and B200s
-can usually only achieve around 80-85% of the claimed peak FLOPs,
-while TPUs can get closer to 95% in normal use" [@src-10] — and that
-model FLOP utilization (MFU) is a measured-versus-theoretical *ratio*,
-never either quantity alone. This chapter applies exactly that
+only a fraction of its own claimed peak throughput, and that model
+FLOP utilization (MFU) is a measured-versus-theoretical *ratio*, never
+either quantity alone. As of the source version verified for this
+workbook on 2026-09-22, the JAX scaling guide reports that "H100s and
+B200s can usually only achieve around 80-85% of the claimed peak
+FLOPs, while TPUs can get closer to 95% in normal use" [@src-10] —
+treat these figures as that source's own workload- and
+hardware-generation-specific operating heuristics for the gap between
+*advertised* peak FLOPs and *measured* achieved throughput, not as
+fixed properties of these hardware families. This chapter applies exactly that
 distinction to a run's own derived metrics: a cluster's *nominal*
 peak throughput is a declared hardware assumption (device count times
 a per-device peak FLOPs/s figure); *achieved* throughput is estimated
