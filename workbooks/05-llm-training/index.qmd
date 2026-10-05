@@ -1,6 +1,6 @@
 ---
 title: "LLM Pretraining and Distributed Training"
-subtitle: "Complete Content Draft (Release Candidate 1)"
+subtitle: "Release Candidate 1"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true

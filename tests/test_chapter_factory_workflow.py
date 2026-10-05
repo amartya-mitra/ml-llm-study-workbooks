@@ -763,8 +763,24 @@ class TestAuditOnlyModePreservesRepoState(unittest.TestCase):
         self.assertEqual(before, after)
 
     def test_no_canonical_pdf_or_release_dir_exists(self):
-        self.assertFalse(os.path.exists(os.path.join(REPO_ROOT, "outputs", "05-llm-training-workbook.pdf")))
-        self.assertFalse(os.path.exists(os.path.join(REPO_ROOT, "outputs", "_releases", "05-llm-training")))
+        # Workbook 05 now has a legitimately-produced RC1 under
+        # outputs/_releases/05-llm-training/ (created by a real RC
+        # build task, not by gate-report/visual-regression calls), so
+        # this checks before/after state around those calls rather
+        # than assuming the path never exists -- consistent with the
+        # sibling test above, which does the same for tracked files.
+        canonical = os.path.join(REPO_ROOT, "outputs", "05-llm-training-workbook.pdf")
+        release_dir = os.path.join(REPO_ROOT, "outputs", "_releases", "05-llm-training")
+        canonical_before = os.path.exists(canonical)
+        release_before = os.path.exists(release_dir)
+        cg.build_gate_report(
+            "05-llm-training", "06", None, ALL_CLEAN_AUDITS, "/tmp/unused",
+            run_scoped_qa=fake_run_scoped_qa_factory(status="pass"),
+        )
+        self.assertEqual(os.path.exists(canonical), canonical_before,
+                          msg="gate-report building must not create the canonical workbook PDF")
+        self.assertEqual(os.path.exists(release_dir), release_before,
+                          msg="gate-report building must not create the release directory")
 
 
 class TestAuditProfilesAreNonExecutableAndSequential(unittest.TestCase):

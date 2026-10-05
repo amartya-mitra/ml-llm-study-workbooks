@@ -146,14 +146,19 @@ class TestWorkbook05RegistryAndOutputConventions(unittest.TestCase):
             self.assertFalse(fname.endswith(".pdf"), msg=f"a generated PDF exists under chapters/: {fname}")
 
     def test_release_and_development_directories_not_prematurely_created(self):
-        # This scaffolding task does not generate an RC PDF; if a
-        # scaffold-validation build has run, its evidence must live
-        # under outputs/_development/, never outputs/_releases/ (which
-        # is reserved for actual, reviewed release candidates).
+        # Historically (the scaffolding/drafting phase, before any
+        # chapter was reviewed) this directory stayed empty -- it is
+        # reserved for actual, reviewed release candidates. Workbook 05
+        # now has one (RC1, produced after all six chapters were
+        # accepted), so its recorded artifacts are expected here, not
+        # premature; this test now guards against anything ELSE
+        # appearing alongside them.
         releases_dir = os.path.join(REPO_ROOT, "outputs", "_releases", "05-llm-training")
         if os.path.isdir(releases_dir):
             contents = os.listdir(releases_dir)
-            self.assertEqual(contents, [], msg="outputs/_releases/05-llm-training/ must stay empty until an actual RC is produced")
+            expected = {"05-llm-training-workbook-rc1.pdf", "pages"}
+            unexpected = [c for c in contents if c not in expected]
+            self.assertEqual(unexpected, [], msg="outputs/_releases/05-llm-training/ contains unexpected content beyond the recorded RC1 artifacts")
 
 
 class TestWorkbook04Untouched(unittest.TestCase):

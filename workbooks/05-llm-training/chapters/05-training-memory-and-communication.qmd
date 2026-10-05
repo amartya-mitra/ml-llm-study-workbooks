@@ -1,5 +1,10 @@
 ## Memory and Communication at Training Scale {#sec-ch5}
 
+```{=typst}
+#set block(spacing: 0.9em)
+#set par(leading: 0.55em)
+```
+
 *What Fills the Memory, What Crosses the Wire, and What That Costs*
 
 ### Learning objectives
@@ -637,27 +642,31 @@ per-strategy communication-overlap ratios, the SM-contention caution,
 and the multi-thousand-configuration benchmark findings — verified via
 full-text extraction of the article's own markdown source),
 [@src-54] (the ZeRO paper's Sections 7.1-7.2 — the $2\Psi$/$2\Psi$/$3\Psi$
-communication-volume results per stage and the $k\Psi$ notation —
-verified via full-text extraction of the arXiv PDF), [@src-52]
+communication-volume results per stage — verified via full-text
+extraction of the arXiv PDF), [@src-52]
 (GPipe's Section 2.3 — the re-materialization peak-activation-memory
 formula under pipeline partitioning — verified via full-text
-extraction of the arXiv PDF), and [@src-53] (Megatron-LM's own
-disclosed activation-checkpointing practice and its two-GPU-to-more-GPUs
+extraction of the arXiv PDF), and [@src-53] (Megatron-LM's disclosed
+activation-checkpointing practice and its two-GPU-to-more-GPUs
 scaling experiment showing the bottleneck shift from compute to
 bandwidth — verified via full-text extraction of the arXiv PDF).
 Supporting sources: [@src-10] (the arithmetic-intensity/roofline
 definition and the nominal-versus-achieved-FLOPs caution — verified via
 full-text extraction of the page's own HTML) and [@src-55] (the
-FlashAttention paper's own statement that standard attention
+FlashAttention paper's statement that standard attention
 implementations materialize the full $N\times N$ score/probability
 matrix to HBM while its tiling avoids that materialization — verified
-via full-text extraction of the arXiv PDF — used narrowly to qualify
+via full-text extraction of the arXiv PDF — used to qualify
 Equation 3's activation-memory formula as implementation-dependent).
 This chapter does not
 reteach what Chapter 4 already covers about *how* DP, ZeRO/FSDP, TP,
 SP/CP, PP, and EP replicate, shard, and communicate — only the memory
 and communication-cost consequences of those choices. Model-FLOP
-utilization, roofline, and distributed-training-specific profiling
-tools are introduced only as far as this chapter's diagnosis framework
-requires; a dedicated treatment of reading real training-run logs and
-dashboards is Chapter 6's subject, not this chapter's.
+utilization, roofline, and profiling tools are introduced only as far
+as this chapter's diagnosis requires; reading real training-run logs
+and dashboards is Chapter 6's subject, not this chapter's.
+
+```{=typst}
+#set block(spacing: 1.2em)
+#set par(leading: 0.65em)
+```

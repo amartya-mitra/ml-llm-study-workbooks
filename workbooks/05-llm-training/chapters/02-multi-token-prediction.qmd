@@ -1,5 +1,9 @@
 ## Multi-token Prediction as a Training Objective {#sec-ch2}
 
+```{=typst}
+#set block(spacing: 0.9em)
+```
+
 *Predicting Further Ahead, Without Changing What You Serve*
 
 ### Learning objectives
@@ -322,8 +326,10 @@ independent-heads MTP design, its factorization, and its
 memory-efficient implementation — verified via full-text extraction of
 the arXiv PDF, Section 2) and [@src-33] (DeepSeek-V3's Section 2.2, the
 sequential causal-chain MTP design — verified via full-text extraction
-of the same arXiv PDF already registered for workbook 04 chapter 6,
-this time read for its MTP section specifically rather than its
-architecture case-study content). This chapter deliberately does not
-teach speculative decoding's own acceptance/verification mechanics —
-that is workbook 06's assigned primary home.
+of the arXiv PDF). This chapter deliberately does not teach
+speculative decoding's own acceptance/verification mechanics — that is
+workbook 06's assigned primary home.
+
+```{=typst}
+#set block(spacing: 1.2em)
+```
