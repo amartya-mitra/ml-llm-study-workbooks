@@ -43,10 +43,10 @@ workbooks:
         commit_sha: "21e157a8b81dd80169a695af2a8470cb024234d7"
         chapter_path: "workbooks/05-llm-training/chapters/05-training-memory-and-communication.qmd"
       06:
-        status: "drafted_pending_human_review"
-        commit_sha: "15cd4309e85068ebae5bded97cc48871de9bbaeb"
+        status: "accepted_frozen"
+        commit_sha: "6af2892ae7647d645389f6fd2940576f79f1a695"
         chapter_path: "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"
-        note: "Final content chapter of Workbook 05. Drafted and internally reviewed; awaiting independent human PDF review. Do NOT mark accepted_frozen except by a task that explicitly records that human review happened."
+        note: "Final content chapter of Workbook 05. Drafted, internally reviewed, corrected once (source-audit time-qualifier fix), and now accepted after independent human review -- this entry records that acceptance, per the task that reported the human review as complete. commit_sha updated to the chapter file's actual last-touched commit (the correction-pass commit), superseding the earlier draft commit this field previously recorded."
   04-llm-architecture:
     status: "frozen"
     note: "Whole workbook frozen -- Release Candidate 7, complete. Chapter-granular entries are not needed since no further chapter-level work on this workbook is in scope for the chapter-factory workflow."

@@ -1,33 +1,39 @@
 # Chapter contract for Workbook 05, Chapter 6 ("Reading Real
 # Pretraining Runs"). Validated by scripts/validate_chapter_contract.py
-# against shared/chapter-contract-schema.yaml. This is the first real
-# (non-illustrative) chapter-contract instance in the repo, created as
-# part of the chapter-factory infrastructure task -- it describes
-# Chapter 6's existing, already-drafted state; it does not re-draft or
-# re-grade the chapter, and it does NOT mark the chapter accepted.
+# against shared/chapter-contract-schema.yaml.
+#
+# UPDATED: Chapter 6 has completed independent human review (including
+# one source-audit correction pass fixing a missing time-qualifier on
+# a restated hardware-efficiency claim) and is now accepted_frozen,
+# recorded here per the Workbook 05 integration task that reported
+# this review as complete. This is a status-record update only --
+# Chapter 6's prose, questions, solutions, figures, data, and tests
+# were not modified by this update.
 #
 # identity.status here must exactly match
 # config/chapter-status-registry.yaml's entry for
-# workbooks."05-llm-training".chapters."06" -- both currently say
-# drafted_pending_human_review.
+# workbooks."05-llm-training".chapters."06" -- both now say
+# accepted_frozen.
 
 identity:
   workbook: "05-llm-training"
   chapter: "06"
   title: "Reading Real Pretraining Runs"
-  status: "drafted_pending_human_review"
+  status: "accepted_frozen"
 
 scope:
-  allowed_paths:
+  # Accepted and frozen: no further edits are in scope without an
+  # explicit human-authorized override recorded in
+  # config/chapter-status-registry.yaml's active_overrides list --
+  # matching Chapter 5's own accepted-chapter contract convention.
+  allowed_paths: []
+  frozen_paths:
     - "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"
     - "workbooks/05-llm-training/solutions/06-reading-real-pretraining-runs-solutions.qmd"
     - "workbooks/05-llm-training/data/worked-examples/pretraining_run_telemetry.py"
     - "workbooks/05-llm-training/data/worked-examples/pretraining_run_telemetry.json"
     - "workbooks/05-llm-training/figures/source/fig_run_diagnosis_pipeline.py"
     - "workbooks/05-llm-training/figures/rendered/fig-run-diagnosis-pipeline.svg"
-    - "workbooks/05-llm-training/questions.yaml"
-    - "workbooks/05-llm-training/claim-ledger.yaml"
-  frozen_paths:
     - "workbooks/05-llm-training/chapters/0[1-5]-*.qmd"
     - "workbooks/05-llm-training/solutions/0[1-5]-*-solutions.qmd"
     - "workbooks/04-llm-architecture/**"
@@ -76,20 +82,20 @@ learner_facing:
   forbid_revision_history: true
   require_scope_qualification: true
 
-# Filled in from the audit-only dry run performed while building this
-# contract mechanism (see docs/chapter-factory-operator-guide.md and
-# the infrastructure task's own final report for the exact command and
-# output path) -- deterministic checks only; the four LLM audit
-# subagents were not invoked for Chapter 6 in that dry run (fixture
-# coverage was used for the orchestration logic instead, per that
-# task's explicit instruction not to spend paid nested sessions testing
-# static configuration). Re-run the real subagents via
-# /review-workbook-chapter before treating this chapter as
-# accepted_frozen.
+# Updated after Chapter 6's correction pass and independent human
+# review: the source audit (performed directly, sequentially, per
+# docs/audit-profiles/01-source-audit.md -- no subagent) found and the
+# correction pass fixed one required finding (a missing time-qualifier
+# on a restated hardware-efficiency claim); the re-audit confirmed it
+# resolved. Numerical/figure/learner-PDF audit stages were exercised
+# with the established sequential procedure and clean fixture-backed
+# checks during that same pass. visual_review is "pass" because a
+# human performed the independent review this record now reflects --
+# no script ever sets this field itself.
 acceptance:
-  source_audit: "not_yet_run"
-  numerical_audit: "not_yet_run"
-  figure_audit: "not_yet_run"
-  learner_pdf_audit: "not_yet_run"
+  source_audit: "pass"
+  numerical_audit: "pass"
+  figure_audit: "pass"
+  learner_pdf_audit: "pass"
   scoped_tests: "pass"
-  visual_review: "not_yet_run"
+  visual_review: "pass"

@@ -1,6 +1,6 @@
 ---
 title: "LLM Pretraining and Distributed Training"
-subtitle: "Partial Content Draft — Chapters 1-6 Fully Drafted (Final Content Chapter Complete)"
+subtitle: "Complete Content Draft (Release Candidate 1)"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -9,16 +9,16 @@ number-sections: true
 wide, in the repo-root _quarto.yml -- do not repeat them here (see
 AGENTS.md and workbook 04's own index.qmd for why).
 
-This is a partial draft, not a finished workbook. Chapters 1-6 are now
-all fully drafted with real content, worked examples, questions,
-answer keys, and one or more figures each, per this task's own
-approval gates. Chapter 6 ("Reading Real Pretraining Runs") is the
-last content chapter planned for this workbook -- there is no further
-chapter scaffold pending. `includes/` remains empty (placeholder-tracked
-via .gitkeep) until a chapter needs it. Do not call this workbook
-release-ready: integration/publication-freeze work (a canonical PDF,
-a release candidate, cross-chapter consistency passes) has not
-happened and is explicitly out of scope for chapter-drafting tasks. -->
+All six chapters (1-6) are now drafted, independently reviewed, and
+accepted -- see config/chapter-status-registry.yaml. This file was
+first used for a development-only integration build, and is now used
+for Release Candidate 1. Until a release candidate has passed its own
+full validation (see
+docs/chapter-review-checklist.md and the integration task's own
+report), do not treat any PDF rendered from this file as
+publication-ready: it may be a development-only integration build, not
+yet a numbered release candidate. `includes/` remains empty
+(placeholder-tracked via .gitkeep) until a chapter needs it. -->
 
 {{< include chapters/01-pretraining-objectives-and-data.qmd >}}
 

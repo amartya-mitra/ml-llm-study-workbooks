@@ -102,7 +102,7 @@ class TestChapterContractSchemaValidation(unittest.TestCase):
             bad_path = os.path.join(d, "ch06.yaml")
             with open(os.path.join(REPO_ROOT, "workbooks", "05-llm-training", "chapter-contracts", "ch06.yaml"), encoding="utf-8") as f:
                 content = f.read()
-            content = content.replace('status: "drafted_pending_human_review"', 'status: "accepted_frozen"', 1)
+            content = content.replace('status: "accepted_frozen"', 'status: "drafted_pending_human_review"', 1)
             with open(bad_path, "w", encoding="utf-8") as f:
                 f.write(content)
             errors = vcc.validate_one(bad_path, schema, known_source_ids, status_registry)
@@ -302,12 +302,18 @@ class TestPreActionGuardFrozenScope(unittest.TestCase):
         )
         self.assertEqual(r.returncode, 2)
 
-    def test_real_repo_allows_edit_to_real_pending_chapter(self):
+    def test_real_repo_blocks_edit_to_chapter06_now_accepted(self):
+        # Chapter 6 was accepted (accepted_frozen) after its own
+        # independent human review and correction pass -- as of that
+        # point, editing it is blocked exactly like every other
+        # accepted Workbook 05 chapter. ("Allowed when genuinely not
+        # frozen" is still covered by test_allows_edit_to_unrelated_path
+        # below, using a real non-tracked path.)
         r = run_hook(
             os.path.join(".claude", "hooks", "pre_action_guard.py"),
             {"tool_name": "Edit", "tool_input": {"file_path": "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"}},
         )
-        self.assertEqual(r.returncode, 0)
+        self.assertEqual(r.returncode, 2)
 
     def test_allows_edit_to_unrelated_path(self):
         r = run_hook(os.path.join(".claude", "hooks", "pre_action_guard.py"),
@@ -455,15 +461,27 @@ class TestChapterGateReportLogic(unittest.TestCase):
         new = crc.new_failures_beyond_baseline(synthetic)
         self.assertEqual(new, ["test_something_new (test_foo.TestBar)"])
 
-    def test_chapter06_registry_status_is_pending_not_accepted(self):
+    def test_chapter06_registry_status_is_accepted(self):
+        # Chapter 6 completed its own independent human review and
+        # correction pass and was recorded as accepted_frozen -- see
+        # config/chapter-status-registry.yaml's own note on this entry.
         status, _ = cg.load_frozen_status("05-llm-training", "06")
-        self.assertEqual(status, "drafted_pending_human_review")
+        self.assertEqual(status, "accepted_frozen")
 
     def test_chapter05_registry_status_is_accepted(self):
         status, _ = cg.load_frozen_status("05-llm-training", "05")
         self.assertEqual(status, "accepted_frozen")
 
-    def test_chapter06_report_status_pending_even_when_technical_gate_passes(self):
+    def test_gate_report_echoes_registry_status_verbatim_never_a_different_value(self):
+        # A passing technical gate must never substitute its own
+        # opinion for the registry's recorded status -- it only ever
+        # echoes whatever the registry already says, whether that is
+        # "accepted_frozen" (Chapter 6's current, real status) or any
+        # other value a future chapter might carry. This is checked
+        # directly against load_frozen_status's own return value
+        # rather than hardcoding an expected status string that would
+        # otherwise go stale the next time a chapter's real status
+        # legitimately changes.
         with tempfile.TemporaryDirectory() as d:
             fake_pdf = os.path.join(d, "review.pdf")
             open(fake_pdf, "w").close()
@@ -472,9 +490,10 @@ class TestChapterGateReportLogic(unittest.TestCase):
                 "05-llm-training", "06", fake_pdf, ALL_CLEAN_AUDITS, "/tmp/unused",
                 run_scoped_qa=fake_run_scoped_qa_factory(status="pass"),
             )
+            actual_registry_status, _ = cg.load_frozen_status("05-llm-training", "06")
         self.assertEqual(report["status"], "pass")
-        self.assertEqual(report["frozen_status"]["status"], "drafted_pending_human_review",
-                          msg="a passing technical gate must never imply acceptance")
+        self.assertEqual(report["frozen_status"]["status"], actual_registry_status,
+                          msg="the gate must echo the registry's real status, never invent or override it")
 
     def test_gate_report_building_never_writes_the_status_registry(self):
         registry_path = os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml")
@@ -610,16 +629,29 @@ class TestVisualRegression(unittest.TestCase):
     REAL_PDF = os.path.join(REPO_ROOT, "outputs", "_development", "05-llm-training",
                              "chapter-06-review", "05-llm-training-ch06-review.pdf")
 
-    def _run_on(self, pdf_path, **extra_args):
+    def _run_on(self, pdf_path, chapter="99", override_frozen=False, **extra_args):
+        # Default chapter "99" is deliberately not a real, registered
+        # chapter -- these synthetic-PDF logic tests exercise
+        # visual_regression.py's own mechanics and must not depend on
+        # any real chapter's current accepted/frozen status (Chapter 6
+        # itself moved from pending to accepted_frozen during this
+        # project's lifetime, which is exactly the kind of real-world
+        # status change these tests must stay decoupled from).
         cmd = [PY, os.path.join(REPO_ROOT, "scripts", "visual_regression.py"),
-               "--workbook", "05-llm-training", "--chapter", "06", "--pdf", pdf_path]
+               "--workbook", "05-llm-training", "--chapter", chapter, "--pdf", pdf_path]
+        if override_frozen:
+            cmd.append("--override-frozen")
         for k, v in extra_args.items():
             cmd += [k, v]
         return subprocess.run(cmd, cwd=REPO_ROOT, capture_output=True, text=True, timeout=30)
 
     def test_real_chapter06_pdf_page_count_matches_declared(self):
-        # The one real-PDF exercise in this class.
-        r = self._run_on(self.REAL_PDF)
+        # The one real-PDF exercise in this class. Chapter 6 is now
+        # accepted_frozen, so this real (non-chapter-99) invocation
+        # needs --override-frozen to write its dev-only hash manifest
+        # -- a deliberate, test-scoped use of that flag, not a
+        # correction to accepted content.
+        r = self._run_on(self.REAL_PDF, chapter="06", override_frozen=True)
         data = json.loads(r.stdout)
         self.assertTrue(data["page_count_matches"])
         self.assertEqual(data["declared_page_count"], data["rendered_page_count"])
@@ -670,17 +702,24 @@ class TestVisualRegression(unittest.TestCase):
         # before any pdftoppm call, so it is already cheap regardless
         # of PDF size; use the real ch05 PDF path for realism (the
         # file need not even exist, since the frozen-check runs first).
+        # Captures the manifest's state (present-or-absent, and its
+        # bytes if present) BEFORE the call and asserts it is
+        # byte-for-byte unchanged after -- robust to a manifest already
+        # legitimately existing from an earlier, separate
+        # --override-frozen run (e.g. a pre-integration audit), rather
+        # than assuming a fixed "must not exist yet" precondition.
         pdf05 = os.path.join(REPO_ROOT, "outputs", "_development", "05-llm-training",
                               "chapter-05-review", "05-llm-training-ch05-review.pdf")
         manifest_path = os.path.join(os.path.dirname(pdf05), "visual-regression-hashes.json")
-        self.assertFalse(os.path.exists(manifest_path), "test precondition: ch05 must not already have a manifest")
+        before = open(manifest_path, "rb").read() if os.path.exists(manifest_path) else None
         r = subprocess.run(
             [PY, os.path.join(REPO_ROOT, "scripts", "visual_regression.py"),
              "--workbook", "05-llm-training", "--chapter", "05", "--pdf", pdf05],
             cwd=REPO_ROOT, capture_output=True, text=True, timeout=15,
         )
         self.assertEqual(r.returncode, 1)
-        self.assertFalse(os.path.exists(manifest_path))
+        after = open(manifest_path, "rb").read() if os.path.exists(manifest_path) else None
+        self.assertEqual(before, after, msg="a refused (frozen, no override) call must not touch the manifest at all, whether or not one already existed")
 
 
 class TestAuditOnlyModePreservesRepoState(unittest.TestCase):
@@ -717,7 +756,7 @@ class TestAuditOnlyModePreservesRepoState(unittest.TestCase):
                 f.write(MINIMAL_TWO_PAGE_PDF)
             subprocess.run(
                 [PY, os.path.join(REPO_ROOT, "scripts", "visual_regression.py"),
-                 "--workbook", "05-llm-training", "--chapter", "06", "--pdf", pdf_path],
+                 "--workbook", "05-llm-training", "--chapter", "99", "--pdf", pdf_path],
                 cwd=REPO_ROOT, capture_output=True, text=True, timeout=15,
             )
         after = self._checksums()
