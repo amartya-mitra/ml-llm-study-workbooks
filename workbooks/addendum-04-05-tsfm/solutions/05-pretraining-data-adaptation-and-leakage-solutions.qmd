@@ -1,0 +1,16 @@
+### Answer Key: Module 5 {#sec-solutions-ch5 .unnumbered}
+
+Solutions to Module 5's "Check your understanding" questions
+(@sec-ch5-check).
+
+**1.** Capped sizes are 2M, 2M and 1M, total 5M, so shares are 0.4, 0.4 and 0.2 (the toy rule from the worked example; it is not any model's rule).
+
+**2.** A normalization-statistics leak: the scaler's mean already reflects the held-out final 20%, so the "past" input encodes information from the evaluation window.
+
+**3.** A different series from the same period and domain can contain the same events (a holiday spike, a shock), so a model trained on it may have seen the evaluation answer without any series being repeated: time overlap.
+
+**4.** Zero-shot means no weight updates on the target series. It says nothing about what the pretraining corpus contained, and overlap with the benchmark is exactly what leakage checks examine.
+
+**5.** Similar: allocation is weight times budget, and pretraining must stay separate from evaluation. Different: the units are series, sub-datasets are capped, and leakage includes time overlap and normalization windows.
+
+**6.** For example: exclude pretraining datasets that overlap the benchmark's series; check time overlap between pretraining periods and evaluation windows; confirm scaler statistics use only data before the forecast origin; state what could not be checked.

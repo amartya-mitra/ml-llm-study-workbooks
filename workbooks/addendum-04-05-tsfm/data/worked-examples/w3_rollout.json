@@ -1,0 +1,52 @@
+{
+  "t_ctx": 256,
+  "horizon": 256,
+  "p_in": 32,
+  "p_out": 128,
+  "rows": [
+    {
+      "strategy": "iterative, output patch 128 (TimesFM-paper example)",
+      "klass": "iterative",
+      "p_out": 128,
+      "forward_passes": 2,
+      "label": "reported example; count derived"
+    },
+    {
+      "strategy": "iterative, output patch 32 (same as input patch)",
+      "klass": "iterative",
+      "p_out": 32,
+      "forward_passes": 8,
+      "label": "derived"
+    },
+    {
+      "strategy": "iterative, one value per pass",
+      "klass": "iterative",
+      "p_out": 1,
+      "forward_passes": 256,
+      "label": "derived"
+    },
+    {
+      "strategy": "single pass over placeholder patches",
+      "klass": "placeholder",
+      "p_out": null,
+      "forward_passes": 1,
+      "placeholder_patches": 8,
+      "label": "illustrative counting device"
+    },
+    {
+      "strategy": "direct head over the whole horizon",
+      "klass": "direct",
+      "p_out": 256,
+      "forward_passes": 1,
+      "label": "derived"
+    }
+  ],
+  "truncation_example": {
+    "horizon": 100,
+    "p_out": 32,
+    "forward_passes": 4,
+    "generated_steps": 128,
+    "truncated_steps": 28
+  },
+  "note": "Forward-pass counts are logical counts. A recurrent backbone can still be sequential inside one pass; passes are not wall-clock time."
+}

@@ -1,0 +1,578 @@
+# Claim ledger for the TSFM addendum. Schema: shared/claim-ledger-schema.yaml.
+#
+# `chapter` is the module tag (ch1 .. ch6). Each note records, in this
+# order: kind (paper claim / documentation claim / vendor claim / derived
+# value / frozen-workbook recap / original explanation), model generation
+# described, and a time-sensitivity flag (every post-2025 source and every
+# release fact is "as of October 2026"). Hard rules honored: no claim cites
+# a source for a different generation than the one it describes;
+# documentation sources support only statements that appear in them; any
+# claim resting on an unread section is marked unverified or omitted.
+
+schema_version: 1
+entries:
+  # ------------------------------ Module 1 ------------------------------
+  - id: "claim-tsfm-inputs-001"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "In an LLM a token id selects a row of an embedding table giving a d_model-wide vector; the residual stream keeps that width; each layer adds an attention and a position-wise feed-forward sublayer; RMSNorm and RoPE are conventions layered on this skeleton; losses are not comparable across tokenizer changes."
+    source_ids: []
+    verification_status: "verified_full_text"
+    note: "Frozen-workbook recap (Workbook 04 Ch.1 embedding step, residual stream, feed-forward sublayer; Workbook 05 Ch.1 tokenizer point). No external source. Not time-sensitive."
+
+  - id: "claim-tsfm-inputs-002"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Chronos scales each series by the mean absolute value of its context (zeros stay zero) and then quantizes into uniform bins."
+    source_ids: ["src-56"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original Chronos only (not Bolt, not Chronos-2). TMLR 2024."
+
+  - id: "claim-tsfm-inputs-003"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Chronos's vocabulary has 4096 entries including padding and end-of-sequence tokens, and its bins cover [-15, +15] in the paper's experiments."
+    source_ids: ["src-56"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original Chronos."
+
+  - id: "claim-tsfm-inputs-004"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Chronos-2 standardizes each variate and applies an inverse hyperbolic sine transform; TiRex-2 does the same per variate (with a binary-variate gate)."
+    source_ids: ["src-57", "src-60"]
+    verification_status: "verified_full_text"
+    note: "Paper claims; Chronos-2 (Oct 2025) and TiRex-2 (Jul 2026 preprint). Time-sensitive: as of October 2026. Only the architecture/setup of TiRex-2 was read."
+
+  - id: "claim-tsfm-inputs-005"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "TiRex uses per-series z-score normalization; Moirai 2.0 computes its normalization statistics from only the first 30 percent of each series."
+    source_ids: ["src-59", "src-62"]
+    verification_status: "verified_full_text"
+    note: "Paper claims; original univariate TiRex and Moirai 2.0 (preprint revised Feb 2026, time-sensitive). The Moirai 2.0 passage was not independently re-read in a second pass; the scope report asked that this be noted."
+
+  - id: "claim-tsfm-inputs-006"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "PatchTST uses instance normalization and adds the statistics back to the output; Moirai uses instance normalization."
+    source_ids: ["src-64", "src-61"]
+    verification_status: "verified_full_text"
+    note: "Paper claims; PatchTST (pre-foundation-model, supervised) and original Moirai."
+
+  - id: "claim-tsfm-inputs-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "The Lag-Llama paper describes both a mean/variance scaling heuristic and a robust median/IQR standardization; which one is used is left open."
+    source_ids: ["src-63"]
+    verification_status: "verified_full_text"
+    note: "Source ambiguity preserved, not resolved (registry asks that Section 4.4 be re-read before stating which is used)."
+
+  - id: "claim-tsfm-inputs-008"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Quantization discards position inside a bin, and the representable range ends at the outer bin centers."
+    source_ids: ["src-56"]
+    verification_status: "verified_full_text"
+    note: "Paper claim (stated limitation); original Chronos."
+
+  - id: "claim-tsfm-inputs-009"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Patch inputs pass through a residual MLP: Chronos-2 from [value, time index, mask]; TimesFM with a padding mask; TiRex as 32-step windows with a missing-value mask through a two-layer residual block."
+    source_ids: ["src-57", "src-58", "src-59"]
+    verification_status: "verified_full_text"
+    note: "Paper claims; original TimesFM, Chronos-2, original TiRex. The Chronos-2 patch length is not stated (not located in the sections read)."
+
+  - id: "claim-tsfm-inputs-010"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "With end padding and stride S_p the patch count is floor((T_ctx - P)/S_p) + 2; without overlap or padding it is floor(T_ctx/P)."
+    source_ids: ["src-64"]
+    verification_status: "verified_full_text"
+    note: "Paper claim for the N formula; the non-overlapping count is derived. PatchTST's own L/P/S configurations were NOT used (unverified); the 512/16/8 line in the text is an illustrative configuration, not attributed."
+
+  - id: "claim-tsfm-inputs-011"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Cutting the token count by a factor k cuts attention score-matrix entries by about k squared and per-token work by about k."
+    source_ids: ["src-64"]
+    verification_status: "computed_by_script"
+    note: "Derived value (logical count, not measured). The patching-reduces-tokens motivation is from the PatchTST paper."
+
+  - id: "claim-tsfm-inputs-012"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Moirai chose its patch size by data frequency, which its authors call somewhat heuristic; Moirai 2.0 uses a single patch size."
+    source_ids: ["src-61", "src-62"]
+    verification_status: "verified_full_text"
+    note: "Paper claims; each generation attributed to its own paper (source disagreement/replacement preserved)."
+
+  - id: "claim-tsfm-inputs-013"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Lag-Llama builds one token per time step from values at chosen lags plus date-time features and summary statistics, linearly projected; the first token needs a history as long as the largest lag."
+    source_ids: ["src-63"]
+    verification_status: "verified_full_text"
+    note: "Paper claim (architecture section only); the largest-lag requirement is a derived consequence."
+
+  - id: "claim-tsfm-inputs-014"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Worked example numbers: mean absolute value 18.33, bin ids, max reconstruction shift about 2.04, 6 end-padded patches with 2 padded steps versus 3 non-overlapping, 8 lag tokens for lags {1,2,4}, 64 versus 32 patches and 64-fold fewer score entries for the illustrative 512/16/8 setting."
+    source_ids: ["src-56", "src-64"]
+    verification_status: "computed_by_script"
+    note: "Derived from illustrative inputs by w1_inputs.py; settings are not those of any named model."
+
+  # ------------------------------ Module 2 ------------------------------
+  - id: "claim-tsfm-context-001"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Self-attention is softmax(QK^T/sqrt(d_head)+mask)V; a causal mask allows earlier-or-equal positions; the score matrix grows with the square of the token count and the cache grows linearly."
+    source_ids: []
+    verification_status: "verified_full_text"
+    note: "Frozen-workbook recap (Workbook 04 Ch.1 attention sublayer and causal mask; Ch.4 cost axes). No external source."
+
+  - id: "claim-tsfm-context-002"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Chronos reports a training context of 512 and prediction length 64 (time steps); Chronos-2 trains with context 2048 then 8192 (unit not stated here); TiRex trains with context 2048; Moirai trains on windows of at most 512 positions."
+    source_ids: ["src-56", "src-57", "src-59", "src-61"]
+    verification_status: "verified_full_text"
+    note: "Paper claims (training settings, not inference guarantees); each for its own generation."
+
+  - id: "claim-tsfm-context-003"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "The TimesFM README states that TimesFM 2.5 supports up to 16k context."
+    source_ids: ["src-65"]
+    verification_status: "verified_full_text"
+    note: "Documentation claim (README), TimesFM 2.5; an inference-supported maximum, not a training value. As of October 2026."
+
+  - id: "claim-tsfm-context-004"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Chronos, the original TimesFM, Lag-Llama, TiRex and Moirai 2.0 are univariate; Moirai 2.0 dropped multivariate and covariate support for lack of benefit in its experiments."
+    source_ids: ["src-56", "src-58", "src-59", "src-62", "src-63"]
+    verification_status: "verified_full_text"
+    note: "Paper claims. Moirai 2.0 is a preprint (time-sensitive); its multivariate wording is the authors' own."
+
+  - id: "claim-tsfm-context-005"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "PatchTST splits a multivariate series into univariate series that share one backbone and are processed independently."
+    source_ids: ["src-64"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; pre-foundation-model, supervised."
+
+  - id: "claim-tsfm-context-006"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Moirai flattens all variates into one sequence with binary attention biases (plus RoPE) marking the variate; Chronos-2 alternates time attention with group attention where group IDs define univariate, multivariate and covariate-informed tasks; TiRex-2 alternates a recurrent time mixer with a variate mixer."
+    source_ids: ["src-61", "src-57", "src-60"]
+    verification_status: "verified_full_text"
+    note: "Paper claims, each for its own generation. Chronos-2 time/group alignment details are not stated and not drawn. TiRex-2 is a July 2026 preprint (time-sensitive); the variate-mixer section was only partly read."
+
+  - id: "claim-tsfm-context-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "The TimesFM-3 vendor blog describes a stack alternating causal temporal attention with full variate attention."
+    source_ids: ["src-67"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim, TimesFM 3.0, as of August-October 2026; no paper exists for this release."
+
+  - id: "claim-tsfm-context-008"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Chronos-2 supports past-only and known-future covariates; TiRex-2 supports both; Moirai's formulation includes dynamic covariates; Chronos, the original TimesFM, TiRex and Moirai 2.0 use none."
+    source_ids: ["src-57", "src-60", "src-61", "src-56", "src-58", "src-59", "src-62"]
+    verification_status: "verified_full_text"
+    note: "Paper claims per generation. Chronos-2's related-work comparisons of other models were not used."
+
+  - id: "claim-tsfm-context-009"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "The TimesFM README documents covariate support for 2.5 through XReg and claims past-only and past-and-future covariates for 3.0; the mechanism is not explained by any paper."
+    source_ids: ["src-65", "src-67"]
+    verification_status: "verified_full_text"
+    note: "Documentation and vendor claims; TimesFM 2.5 and 3.0. As of October 2026. Mechanism deliberately not stated."
+
+  - id: "claim-tsfm-context-010"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "None of the sources read describes a dedicated static-covariate mechanism."
+    source_ids: []
+    verification_status: "unverified_candidate"
+    note: "Negative finding about the sections actually read, not a claim about the literature. Definitions of known-future, observed and static covariates are original explanatory statements."
+
+  - id: "claim-tsfm-context-011"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Lag-Llama uses date-time features and Chronos-2 a time index; these are computed from timestamps, not user-supplied covariates."
+    source_ids: ["src-63", "src-57"]
+    verification_status: "verified_full_text"
+    note: "Paper claims for the features; the covariate/feature distinction is an original explanatory statement."
+
+  - id: "claim-tsfm-context-012"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Chronos-2 uses 21 quantile levels and an output of shape horizon x targets x quantiles; TiRex-2's output is targets x quantiles x patches x steps per patch; TiRex, Moirai 2.0 and the TimesFM documentation use nine quantile levels."
+    source_ids: ["src-57", "src-60", "src-59", "src-62", "src-65"]
+    verification_status: "verified_full_text"
+    note: "Paper claims and one documentation claim (TimesFM README example: point (12,), quantiles (12, 9)). TiRex-2's tensor notation translated into the addendum's axis names."
+
+  - id: "claim-tsfm-context-013"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Four targets over 16 steps give 64 values across 16 timestamps; with 9 quantile levels 576 numbers; sampling replaces the quantile axis; flattening 4x16 positions gives 4096 score entries versus 1024 for independent processing."
+    source_ids: ["src-57"]
+    verification_status: "computed_by_script"
+    note: "Derived (w2_shapes.py); n_q = 9 and the group-ID layouts are illustrative."
+
+  # ------------------------------ Module 3 ------------------------------
+  - id: "claim-tsfm-architecture-001"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "Autoregressive decoding of N tokens needs at least N passes; teacher forcing supplies true previous tokens in training; recurrent state is fixed size; MTP heads are discarded at inference by default in the LLM workbooks; depth recurrence differs from sequence recurrence."
+    source_ids: []
+    verification_status: "verified_full_text"
+    note: "Frozen-workbook recap (Workbook 04 Ch.1, Ch.4, Ch.8; Workbook 05 Ch.2). Encoder-only, masked-encoder and encoder-decoder families are marked as not in those workbooks."
+
+  - id: "claim-tsfm-architecture-002"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "Chronos is an encoder-decoder (T5) model that samples bin tokens and feeds them back; a GPT-2 decoder-only run is a feasibility check."
+    source_ids: ["src-56"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original Chronos."
+
+  - id: "claim-tsfm-architecture-003"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "The original TimesFM is a decoder-only patch model whose output patch may be longer than its input patch (paper example: input 32, output 128), rolled out autoregressively, trained with randomized patch masking."
+    source_ids: ["src-58"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original TimesFM (about 200M), not 2.0, 2.5 or 3.0."
+
+  - id: "claim-tsfm-architecture-004"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "Lag-Llama is decoder-only and produces forecasts by autoregressively sampling trajectories."
+    source_ids: ["src-63"]
+    verification_status: "verified_full_text"
+    note: "Paper claim."
+
+  - id: "claim-tsfm-architecture-005"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "Moirai 2.0 is decoder-only with one patch size, predicts several future patches per output (multi-token prediction) and the paper mentions recursive multi-quantile decoding (hence class (i) in the module's table, qualified by the paper's wording); its feedback details are not covered."
+    source_ids: ["src-62"]
+    verification_status: "verified_abstract_only"
+    note: "Paper claim at abstract/architecture level only (inference details unread; scope gap G8). Moirai 2.0, time-sensitive. No description of the feedback mechanism is given."
+
+  - id: "claim-tsfm-architecture-006"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "TiRex is an xLSTM (sLSTM, chosen for state-tracking) model with 32-step windows that forecasts long horizons by feeding future inputs as missing values, enabled by training-time Contiguous Patch Masking."
+    source_ids: ["src-59"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original TiRex. TiRex 1.1 not verified."
+
+  - id: "claim-tsfm-architecture-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "Moirai is a masked-encoder model whose horizon patches are replaced by a learnable mask token and filled in one pass."
+    source_ids: ["src-61"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original Moirai only, verified against its own paper (not through another model's related work)."
+
+  - id: "claim-tsfm-architecture-008"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "Chronos-2 is an encoder-only model (T5-encoder style with RoPE) with a quantile head that produces multiple output patches in one pass."
+    source_ids: ["src-57"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; Chronos-2."
+
+  - id: "claim-tsfm-architecture-009"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "PatchTST flattens its encoded patches and uses a linear head over the whole horizon."
+    source_ids: ["src-64"]
+    verification_status: "verified_full_text"
+    note: "Paper claim (model-structure text), per the scope report's architecture taxonomy; pre-foundation-model, supervised."
+
+  - id: "claim-tsfm-architecture-010"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "The TimesFM-3 blog describes one non-autoregressive pass over placeholder tokens while building on decoder-only predecessors; the Chronos-Bolt README describes patches with direct multi-step quantile output."
+    source_ids: ["src-67", "src-68"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim and documentation claim; TimesFM 3.0 and Chronos-Bolt; no paper exists; classified only as documented hybrid / documented direct output. As of October 2026."
+
+  - id: "claim-tsfm-architecture-011"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "The TimesFM-3 blog uses the name Contiguous Patch Masking, which shares a name with TiRex's training-time device; no source read equates them."
+    source_ids: ["src-67", "src-59"]
+    verification_status: "verified_full_text"
+    note: "Name collision preserved, not resolved."
+
+  - id: "claim-tsfm-architecture-012"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "Rollout counts: ceil(256/128) = 2 passes versus ceil(256/32) = 8; 256 for one value per pass; 1 for a direct head or a single pass over placeholders; for F=100 and P_out=32, 4 passes give 128 steps with 28 truncated."
+    source_ids: ["src-58"]
+    verification_status: "computed_by_script"
+    note: "The 32/128/256/256 setting is the TimesFM paper's own example; counts are derived (w3_rollout.py); 8 placeholder patches of 32 is an illustrative counting device."
+
+  # ------------------------------ Module 4 ------------------------------
+  - id: "claim-tsfm-outputs-001"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "An LLM head maps hidden states to logits, softmax gives a distribution, and next-token training minimizes cross-entropy; objective is separate from architecture."
+    source_ids: []
+    verification_status: "verified_full_text"
+    note: "Frozen-workbook recap (Workbook 04 Ch.1; Workbook 05 Ch.1-2, whose loss is written with a capital P)."
+
+  - id: "claim-tsfm-outputs-002"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "The original TimesFM and PatchTST are trained with squared error on point forecasts."
+    source_ids: ["src-58", "src-64"]
+    verification_status: "verified_full_text"
+    note: "Paper claims."
+
+  - id: "claim-tsfm-outputs-003"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "Chronos-2 (21 levels), TiRex (9), TiRex-2 (K) and Moirai 2.0 (9) output quantiles trained with the pinball loss."
+    source_ids: ["src-57", "src-59", "src-60", "src-62"]
+    verification_status: "verified_full_text"
+    note: "Paper claims; time-sensitive for the 2026 preprints. Whether the loss is averaged over levels and steps was not confirmed per paper and is not stated."
+
+  - id: "claim-tsfm-outputs-004"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "Lag-Llama outputs Student-t parameters trained by negative log-likelihood; Moirai outputs a mixture (Student-t, negative binomial, log-normal, low-variance normal) trained by mixture log-likelihood; Chronos uses cross-entropy over bins and then samples paths."
+    source_ids: ["src-63", "src-61", "src-56"]
+    verification_status: "verified_full_text"
+    note: "Paper claims, each for its own generation."
+
+  - id: "claim-tsfm-outputs-005"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "The pinball loss is tau*max(z - zhat, 0) + (1 - tau)*max(zhat - z, 0), as printed in the Chronos-2 and TiRex papers (written with tau)."
+    source_ids: ["src-57", "src-59"]
+    verification_status: "verified_full_text"
+    note: "Paper claim (form); symbol translated to the addendum's tau."
+
+  - id: "claim-tsfm-outputs-006"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "At tau = 0.5 pinball loss equals half the absolute error, so a quantile model's point forecast is its median; minimizing pinball loss targets the tau-quantile."
+    source_ids: []
+    verification_status: "computed_by_script"
+    note: "Derived (w4_losses.py checks the 0.5 relation numerically); the quantile-targeting statement is a standard result stated as explanation."
+
+  - id: "claim-tsfm-outputs-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "Cross-entropy over bins is not distance-aware; the Chronos paper says so itself."
+    source_ids: ["src-56"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original Chronos."
+
+  - id: "claim-tsfm-outputs-008"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "A bin cross-entropy is a probability mass while Student-t and mixture likelihoods are densities; for fine bin width w, mass is about density times w, so they differ by log w; losses are comparable only within one output type and scaling."
+    source_ids: []
+    verification_status: "computed_by_script"
+    note: "Derived relation (original explanatory statement); approximate for fine bins."
+
+  - id: "claim-tsfm-outputs-009"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "TiRex applies pinball loss at every output token; Chronos-2 computes it on target dimensions only."
+    source_ids: ["src-59", "src-57"]
+    verification_status: "verified_full_text"
+    note: "Paper claims."
+
+  - id: "claim-tsfm-outputs-010"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "The TimesFM-3 blog documents point forecasts and nine quantiles and the Chronos-Bolt README documents quantile output, but neither documents the training loss; the original TimesFM paper only proposes quantile or likelihood heads."
+    source_ids: ["src-67", "src-68", "src-58"]
+    verification_status: "verified_full_text"
+    note: "Vendor and documentation claims (as of October 2026) and a paper statement (proposed, not trained)."
+
+  - id: "claim-tsfm-outputs-011"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "Worked example: pinball 0.2, 0.5 and 0.3 for the three cases; 2.7 versus 0.3 at tau = 0.9 (ratio 9); equal cross-entropy of about 2.303 for a near and a far miss; figure shapes 4x16, 4x16x9, 4x16x1000."
+    source_ids: ["src-57", "src-59", "src-56"]
+    verification_status: "computed_by_script"
+    note: "Derived from illustrative inputs by w4_losses.py; the predictive distribution in the figure is an invented mixture and not a measurement."
+
+  # ------------------------------ Module 5 ------------------------------
+  - id: "claim-tsfm-data-001"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "In LLM pretraining a mixing weight w_i gives source i a share of the token budget; mixtures can be fixed or multi-stage; pretraining and evaluation data must be strictly separate; scaling laws are fitted relations, not universal laws."
+    source_ids: []
+    verification_status: "verified_full_text"
+    note: "Frozen-workbook recap (Workbook 05 Ch.1 and Ch.3). The scope report's 'single-axis fits' wording for Ch.3 was not found in that chapter and is not used."
+
+  - id: "claim-tsfm-data-002"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "The Moirai archive LOTSA holds 27,646,462,733 observations across nine domains and samples sub-datasets subject to a cap whose value and rule are unverified."
+    source_ids: ["src-61"]
+    verification_status: "verified_full_text"
+    note: "Paper claim (counts); the cap formula text extracted garbled, so no cap value or rule is stated or attributed. Original Moirai."
+
+  - id: "claim-tsfm-data-003"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Chronos adds a mixing augmentation (TSMixup) and synthetic data."
+    source_ids: ["src-56"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original Chronos."
+
+  - id: "claim-tsfm-data-004"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "The Chronos-2 report names a synthetic-data-only variant, and TiRex-2 composes multivariate pretraining samples from univariate corpora."
+    source_ids: ["src-57", "src-60"]
+    verification_status: "verified_abstract_only"
+    note: "Paper claims at abstract level; ablation statements and the coupling pipeline details were not read (unverified). TiRex-2 is a July 2026 preprint."
+
+  - id: "claim-tsfm-data-005"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Moirai 2.0 reports a corpus of 36M series."
+    source_ids: ["src-62"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; preprint, time-sensitive."
+
+  - id: "claim-tsfm-data-006"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "The TimesFM 3.0 model card lists GiftEvalPretrain excluding datasets that overlap fev-bench, Wikipedia page views (November 2023 cutoff), Google Trends top queries (end-of-2022 cutoff), and synthetic and augmented data; the blog says more than 1 trillion time points."
+    source_ids: ["src-66", "src-67"]
+    verification_status: "verified_full_text"
+    note: "Documentation claim (model card) and vendor claim (blog); TimesFM 3.0. As of October 2026. No paper."
+
+  - id: "claim-tsfm-data-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Moirai picks a patch size by frequency, while the TimesFM 2.5 README says it dropped the frequency indicator."
+    source_ids: ["src-61", "src-65"]
+    verification_status: "verified_full_text"
+    note: "Paper claim (original Moirai) and documentation claim (TimesFM 2.5). As of October 2026."
+
+  - id: "claim-tsfm-data-008"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Moirai 2.0 computes normalization statistics from only the first 30 percent of each series to avoid leaking future information in causal training; this is a normalization design choice distinct from benchmark leakage."
+    source_ids: ["src-62"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; Moirai 2.0 (time-sensitive). The scope report asked that the passage be re-read before the leakage figure; it was not re-read independently, so the statement is limited to what the registry records."
+
+  - id: "claim-tsfm-data-009"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "The Chronos-2 benchmark table reports a per-model leakage percentage, with leakage handling attributed to the benchmark's authors; the addendum defines no benchmark's leakage protocol."
+    source_ids: ["src-57"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; Chronos-2 (Oct 2025). Benchmark leakage definitions (fev-bench, GIFT-Eval) were not read."
+
+  - id: "claim-tsfm-data-010"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "The Chronos-2 report frames its model as zero-shot or in-context; the only fine-tuning evidence read is a documentation-level LoRA example in the TimesFM README."
+    source_ids: ["src-57", "src-65"]
+    verification_status: "verified_full_text"
+    note: "Paper claim and documentation claim. Adaptation evidence is thin; fine-tuning behavior in the papers was not read (scope gap G4)."
+
+  - id: "claim-tsfm-data-011"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Reported sizes: TiRex about 35M, Chronos-2 120M (a 28M variant is named), original TimesFM about 200M, TimesFM 2.5 200M (README), TimesFM-3 330M (vendor blog)."
+    source_ids: ["src-59", "src-57", "src-58", "src-65", "src-67"]
+    verification_status: "verified_full_text"
+    note: "Paper claims, one documentation claim and one vendor claim, each labeled by type; not a field-wide bound. The TimesFM-3 figure is the unreconciled one (see Module 6)."
+
+  - id: "claim-tsfm-data-012"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Moirai 2.0 reports that performance degraded with more parameters in its experiments; no source read gives a scaling law for TSFMs."
+    source_ids: ["src-62"]
+    verification_status: "verified_full_text"
+    note: "Paper claim (limitations); single-paper observation, time-sensitive. The absence of a TSFM scaling-law source is a statement about the registered sources (scope gap G10)."
+
+  - id: "claim-tsfm-data-013"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Toy capped allocation: shares 0.80/0.15/0.05 uncapped versus 0.50/0.375/0.125 with a 2,000,000 cap, allocating 500M/375M/125M of a 1B budget."
+    source_ids: []
+    verification_status: "computed_by_script"
+    note: "Illustrative toy rule invented here (w5_mixture_cap.py); no source formula is attributed and it is not any model's rule."
+
+  # ------------------------------ Module 6 ------------------------------
+  - id: "claim-tsfm-release-001"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "The Workbook 04 architecture-reading checklist has ten items (block structure, normalization, position, sequence mixing, heads, feed-forward density, experts, growing state, always-active components, training/serving complications); Workbook 05 labels numbers configured, observed or derived."
+    source_ids: []
+    verification_status: "verified_full_text"
+    note: "Frozen-workbook recap (Workbook 04 Ch.6; Workbook 05 Ch.6, used as an analogy only; the addendum uses 'source type' instead)."
+
+  - id: "claim-tsfm-release-002"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "The TimesFM 3.0 model card states 20 layers, model dimension 1280 and 16 heads; context patch length 32 and horizon patch length 64; an architecture label it does not define; and 'see paper' pointers that lead to the 2023 TimesFM paper."
+    source_ids: ["src-66"]
+    verification_status: "verified_full_text"
+    note: "Documentation claim; TimesFM 3.0; as of October 2026; the card's quantile values did not survive the fetch."
+
+  - id: "claim-tsfm-release-003"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "The TimesFM-3 vendor blog states 330 million parameters, 32-step patches, one-pass decoding with placeholder tokens it calls Contiguous Patch Masking, and alternating temporal and variate attention."
+    source_ids: ["src-67"]
+    verification_status: "verified_full_text"
+    note: "Vendor claims; TimesFM 3.0; published 2026-08-31; no paper found."
+
+  - id: "claim-tsfm-release-004"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "The 330-million-parameter statement and the 20-layer, width-1280, 16-head statement are not reconciled by either page; the 32-step versus 32-and-64 patch statements and the decoder-only-versus-single-pass wording are also left open."
+    source_ids: ["src-66", "src-67"]
+    verification_status: "verified_full_text"
+    note: "Unresolved source disagreement preserved on purpose. No reconciliation attempted and no explanation (different checkpoints, counting conventions, a variant) is supported or asserted."
+
+  - id: "claim-tsfm-release-005"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "No paper describing TimesFM 2.0, 2.5 or 3.0, or Chronos-Bolt, was found."
+    source_ids: ["src-65", "src-66", "src-67", "src-68"]
+    verification_status: "unverified_candidate"
+    note: "Search-based negative finding as of 2026-10-06, not a claim that none exists. Used to justify documentation-only treatment."
+
+  - id: "claim-tsfm-release-006"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "Synthesis table: each paper-group row restates facts from the same paper-backed claims in Modules 1 to 5; documentation-group rows state only what the documentation says and use 'not covered here' where it is silent."
+    source_ids: ["src-56", "src-57", "src-58", "src-59", "src-62", "src-63", "src-66", "src-67", "src-68"]
+    verification_status: "verified_full_text"
+    note: "The chapter table is checked cell by cell against one data file by the scoped tests; no cell ranks models or states a mechanism for a documentation-only release."
+
+  - id: "claim-tsfm-release-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "Source-type classification of eight TimesFM 3.0 statements: four vendor claims, four documentation statements, none paper-backed."
+    source_ids: ["src-66", "src-67"]
+    verification_status: "computed_by_script"
+    note: "Derived classification (w6_release_labels.py)."

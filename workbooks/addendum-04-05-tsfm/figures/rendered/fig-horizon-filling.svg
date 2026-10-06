@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="330" viewBox="0 0 620 330">
+  <title>Horizon filling strategies on one shared timeline</title>
+  <defs></defs>
+  <rect x="0" y="0" width="620" height="330" fill="#ffffff"/>
+  <text x="310.0" y="18" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">Filling a 256-step horizon: passes depend on the strategy (illustrative setting)</text>
+  <rect x="168.0" y="30" width="186.0" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1.2"/>
+  <text x="261.0" y="45" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="middle">context  T_ctx = 256</text>
+  <rect x="354.0" y="30" width="186.0" height="22" rx="3" fill="#fdf1d6" stroke="#E69F00" stroke-width="1.2"/>
+  <text x="447.0" y="45" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="middle">horizon  F = 256</text>
+  <text x="168.0" y="64" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">time step 0</text>
+  <text x="540.0" y="64" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">512</text>
+  <text x="10" y="87" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">iterative, P_out = 128</text>
+  <text x="10" y="101" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">output patch longer than input</text>
+  <rect x="168.0" y="74" width="186.0" height="22" rx="2" fill="#eaf2fb" stroke="#0072B2" stroke-width="0.8"/>
+  <g id="pass-0-0">
+  <rect x="354.0" y="74" width="93.0" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="400.5" y="89" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">1</text>
+  </g>
+  <g id="pass-0-1">
+  <rect x="447.0" y="74" width="93.0" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="493.5" y="89" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">2</text>
+  </g>
+  <text x="548" y="89" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">2 passes</text>
+  <text x="10" y="123" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">iterative, P_out = 32</text>
+  <text x="10" y="137" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">output patch = input patch</text>
+  <rect x="168.0" y="110" width="186.0" height="22" rx="2" fill="#eaf2fb" stroke="#0072B2" stroke-width="0.8"/>
+  <g id="pass-1-0">
+  <rect x="354.0" y="110" width="23.25" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="365.625" y="125" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">1</text>
+  </g>
+  <g id="pass-1-1">
+  <rect x="377.25" y="110" width="23.25" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="388.875" y="125" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">2</text>
+  </g>
+  <g id="pass-1-2">
+  <rect x="400.5" y="110" width="23.25" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="412.125" y="125" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">3</text>
+  </g>
+  <g id="pass-1-3">
+  <rect x="423.75" y="110" width="23.25" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="435.375" y="125" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">4</text>
+  </g>
+  <g id="pass-1-4">
+  <rect x="447.0" y="110" width="23.25" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="458.625" y="125" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">5</text>
+  </g>
+  <g id="pass-1-5">
+  <rect x="470.25" y="110" width="23.25" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="481.875" y="125" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">6</text>
+  </g>
+  <g id="pass-1-6">
+  <rect x="493.5" y="110" width="23.25" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="505.125" y="125" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">7</text>
+  </g>
+  <g id="pass-1-7">
+  <rect x="516.75" y="110" width="23.25" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="528.375" y="125" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">8</text>
+  </g>
+  <text x="548" y="125" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">8 passes</text>
+  <text x="10" y="159" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">iterative, 1 value per pass</text>
+  <text x="10" y="173" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">one token or value at a time</text>
+  <rect x="168.0" y="146" width="186.0" height="22" rx="2" fill="#eaf2fb" stroke="#0072B2" stroke-width="0.8"/>
+  <rect x="354.0" y="146" width="186.0" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <g id="pass-2-dense"></g>
+  <text x="447.0" y="161" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">1 … 256</text>
+  <text x="548" y="161" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">256 passes</text>
+  <text x="10" y="195" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">one pass, placeholders</text>
+  <text x="10" y="209" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">no feedback loop</text>
+  <rect x="168.0" y="182" width="186.0" height="22" rx="2" fill="#eaf2fb" stroke="#0072B2" stroke-width="0.8"/>
+  <g id="placeholder-0">
+  <rect x="354.0" y="182" width="23.25" height="22" rx="2" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="365.625" y="197" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">?</text>
+  </g>
+  <g id="placeholder-1">
+  <rect x="377.25" y="182" width="23.25" height="22" rx="2" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="388.875" y="197" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">?</text>
+  </g>
+  <g id="placeholder-2">
+  <rect x="400.5" y="182" width="23.25" height="22" rx="2" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="412.125" y="197" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">?</text>
+  </g>
+  <g id="placeholder-3">
+  <rect x="423.75" y="182" width="23.25" height="22" rx="2" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="435.375" y="197" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">?</text>
+  </g>
+  <g id="placeholder-4">
+  <rect x="447.0" y="182" width="23.25" height="22" rx="2" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="458.625" y="197" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">?</text>
+  </g>
+  <g id="placeholder-5">
+  <rect x="470.25" y="182" width="23.25" height="22" rx="2" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="481.875" y="197" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">?</text>
+  </g>
+  <g id="placeholder-6">
+  <rect x="493.5" y="182" width="23.25" height="22" rx="2" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="505.125" y="197" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">?</text>
+  </g>
+  <g id="placeholder-7">
+  <rect x="516.75" y="182" width="23.25" height="22" rx="2" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="528.375" y="197" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">?</text>
+  </g>
+  <text x="548" y="197" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">1 pass</text>
+  <text x="10" y="231" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">direct head</text>
+  <text x="10" y="245" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">one head over the whole horizon</text>
+  <rect x="168.0" y="218" width="186.0" height="22" rx="2" fill="#eaf2fb" stroke="#0072B2" stroke-width="0.8"/>
+  <g id="direct-4">
+  <rect x="354.0" y="218" width="186.0" height="22" rx="2" fill="#E69F00" stroke="#333333" stroke-width="0.8"/>
+  <text x="447.0" y="233" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">whole horizon at once</text>
+  </g>
+  <text x="548" y="233" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">1 pass</text>
+  <rect x="10" y="264" width="292" height="54" rx="4" fill="#ffffff" stroke="#888888" stroke-width="1.4" stroke-dasharray="6,4"/>
+  <text x="18" y="281" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">Training only</text>
+  <text x="18" y="296" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">patch masking, contiguous patch masking,</text>
+  <text x="18" y="310" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">extra future-patch targets</text>
+  <rect x="318" y="264" width="292" height="54" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.4"/>
+  <text x="326" y="281" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">Inference only</text>
+  <text x="326" y="296" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">rollout (own output fed back) or one pass</text>
+  <text x="326" y="310" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">over placeholders; feedback errors need a rollout</text>
+</svg>

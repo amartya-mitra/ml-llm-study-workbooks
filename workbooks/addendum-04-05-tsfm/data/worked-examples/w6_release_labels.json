@@ -1,0 +1,85 @@
+{
+  "labels": {
+    "statements": "reported (restated from documentation)",
+    "classification": "derived"
+  },
+  "statements": [
+    {
+      "id": "S1",
+      "text": "The model has 330 million parameters.",
+      "where": "vendor blog",
+      "type": "vendor claim"
+    },
+    {
+      "id": "S2",
+      "text": "The model has 20 layers, model dimension 1280 and 16 heads.",
+      "where": "model card",
+      "type": "documentation"
+    },
+    {
+      "id": "S3",
+      "text": "The context patch length is 32 and the forecast-horizon patch length is 64.",
+      "where": "model card",
+      "type": "documentation"
+    },
+    {
+      "id": "S4",
+      "text": "Patches are 32 time steps long.",
+      "where": "vendor blog",
+      "type": "vendor claim"
+    },
+    {
+      "id": "S5",
+      "text": "The whole horizon is decoded in one forward pass using placeholder tokens that the blog calls Contiguous Patch Masking.",
+      "where": "vendor blog",
+      "type": "vendor claim"
+    },
+    {
+      "id": "S6",
+      "text": "The stack alternates causal temporal attention with full variate attention.",
+      "where": "vendor blog",
+      "type": "vendor claim"
+    },
+    {
+      "id": "S7",
+      "text": "The architecture is labeled 'Stacked Mixing Transformer with Variate Attention and CPM Iterative RevIN'; the card does not define these terms.",
+      "where": "model card",
+      "type": "documentation"
+    },
+    {
+      "id": "S8",
+      "text": "The card's pointers to 'the paper' lead to the 2023 TimesFM paper, which predates this release.",
+      "where": "model card",
+      "type": "documentation"
+    }
+  ],
+  "unresolved": [
+    {
+      "pair": [
+        "S1",
+        "S2"
+      ],
+      "issue": "330 million parameters versus 20 layers, width 1280 and 16 heads: the pages do not state how, or whether, the two relate."
+    },
+    {
+      "pair": [
+        "S4",
+        "S3"
+      ],
+      "issue": "32-step patches (blog) versus context patch 32 and horizon patch 64 (card): the pages do not state how the 64 relates to the blog's description."
+    },
+    {
+      "pair": [
+        "S5",
+        "S6"
+      ],
+      "issue": "The blog says it builds on predecessors' decoder-only design and also describes whole-horizon single-pass decoding with placeholders: a documented hybrid, not plain autoregression."
+    }
+  ],
+  "counts_by_type": {
+    "vendor claim": 4,
+    "documentation": 4
+  },
+  "paper_backed_count": 0,
+  "reconciliation_attempted": false
+}

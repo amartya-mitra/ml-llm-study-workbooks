@@ -1,0 +1,53 @@
+---
+title: "Addendum 04–05: From Language Models to Time-Series Foundation Models"
+subtitle: "Tokens, patches, channels, horizons, and forecast distributions: what carries over from the LLM workbooks and what does not"
+author: "ML/LLM Study Workbooks"
+number-sections: true
+format:
+  typst:
+    include-in-header:
+      text: |
+        #show table: set text(size: 8.5pt)
+        #show table: set par(justify: false)
+        #set table.cell(align: left)
+        #show enum: it => if it.children.len() <= 6 { block(breakable: false, it) } else { it }
+        #show figure.caption: set text(size: 9pt)
+crossref:
+  fig-title: "Figure"
+  tbl-title: "Table"
+---
+<!-- Standalone companion to Workbooks 04 and 05; neither frozen workbook is
+modified. Project-wide page, margin and bibliography settings live in the
+repo-root _quarto.yml. -->
+
+{{< include includes/front-matter.qmd >}}
+
+{{< include chapters/01-model-inputs.qmd >}}
+
+{{< include chapters/02-context-channels-covariates-horizons.qmd >}}
+
+{{< include chapters/03-architecture-families-and-horizon-filling.qmd >}}
+
+{{< include chapters/04-outputs-and-losses.qmd >}}
+
+{{< include chapters/05-pretraining-data-adaptation-and-leakage.qmd >}}
+
+{{< include chapters/06-reading-a-tsfm-release.qmd >}}
+
+## Answer keys {.unnumbered}
+
+{{< include solutions/01-model-inputs-solutions.qmd >}}
+
+{{< include solutions/02-context-channels-covariates-horizons-solutions.qmd >}}
+
+{{< include solutions/03-architecture-families-and-horizon-filling-solutions.qmd >}}
+
+{{< include solutions/04-outputs-and-losses-solutions.qmd >}}
+
+{{< include solutions/05-pretraining-data-adaptation-and-leakage-solutions.qmd >}}
+
+{{< include solutions/06-reading-a-tsfm-release-solutions.qmd >}}
+
+```{=typst}
+#pagebreak()
+```

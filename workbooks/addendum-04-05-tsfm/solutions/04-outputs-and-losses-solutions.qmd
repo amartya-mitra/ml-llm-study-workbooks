@@ -1,0 +1,16 @@
+### Answer Key: Module 4 {#sec-solutions-ch4 .unnumbered}
+
+Solutions to Module 4's "Check your understanding" questions
+(@sec-ch4-check).
+
+**1.** Forecast 6 is 4 below the observation: $0.9\times4=3.6$. Forecast 14 is 4 above: $0.1\times4=0.4$. At $\tau=0.9$ under-forecasting costs nine times as much as over-forecasting by the same amount.
+
+**2.** Pinball loss is $0.5\times4=2$, half the absolute error. A model trained at $\tau=0.5$ therefore targets the median, so its point forecast is the median.
+
+**3.** No. Cross-entropy depends only on the probability given to the target bin, $-\ln p(\text{target bin})$. A near miss and a far miss cost the same, which is the paper's own "not distance-aware" point.
+
+**4.** Cross-entropy: bins (Chronos). Squared error: point forecasts. Pinball: quantiles. Mixture likelihood: mixture distributions (Moirai).
+
+**5.** Bin cross-entropy is a probability mass over bins; a Student-t likelihood is a density. For a fine bin width $w$, mass $\approx$ density $\times\,w$, so the two differ by $\log w$.
+
+**6.** Any three of: different scalers (losses are on scaled values); different output types (mass versus density versus pinball); different bin or quantile settings; different data and horizons; averaging over different levels and steps. A training loss is also not an evaluation metric.

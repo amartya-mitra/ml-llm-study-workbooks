@@ -1,0 +1,48 @@
+## Context, channels, covariates and horizons {#sec-ch2}
+
+### Quick recap from LLMs
+
+Self-attention scores every pair of positions with $\text{softmax}(QK^\top/\sqrt{d_\text{head}}+\text{mask})V$: queries and keys decide how strongly positions attend to each other, and the mask decides who is allowed to. A causal mask lets each position see only earlier-or-equal positions. The score matrix grows with the square of the token count, while a cache of past keys and values grows linearly; windows, sparsity and recurrent state are the usual ways to cut that cost. The LLM *context window* is the number of tokens the model can attend to at once, and generated tokens join it.
+
+- **Same idea:** attention weights positions, and the mask decides who may see whom.
+- **Adapted idea:** the mask now has a time part and a series (group or variate) part, and patching shrinks the token count.
+- **Time-series-specific idea:** context and horizon are separate axes, and "known future" inputs are legitimately visible even though they lie after the forecast origin.
+
+### Context length is not horizon
+
+$T_\text{ctx}$ is how many past time steps the model reads; $F$ is how many future steps you ask for. A long context does not by itself allow a long horizon, and a patch length is a third quantity (@tbl-context). Reported context numbers have different kinds and units, so they are never compared bare.
+
+| Model | Context figure | Kind and unit |
+|---|---|---|
+| Chronos [@src-56] | 512 (prediction length 64) | training setting, time steps |
+| Chronos-2 [@src-57] | 2048, then 8192 in a second stage | two training stages; unit not stated here |
+| TiRex [@src-59] | 2048 | training context |
+| Moirai [@src-61] | at most 512 | training windows, sequence *positions* |
+| TimesFM 2.5 [@src-65] | up to 16k | documented maximum; documentation, as of October 2026 |
+
+: Context figures by kind. A training setting is not a guarantee of inference behavior. {#tbl-context}
+
+### Channels: one series, independent series, or mixed
+
+A *univariate* interface forecasts one series per call (Chronos, the original TimesFM, Lag-Llama, TiRex and Moirai 2.0 are described this way; Moirai 2.0 dropped multivariate support for lack of benefit in its experiments [@src-56; @src-58; @src-59; @src-62; @src-63]). *Channel-independent* designs split a multivariate series into univariate ones that share one backbone and never mix (PatchTST [@src-64]). *Channel-mixed* designs let variates exchange information: Moirai flattens all variates into one sequence with attention biases that mark which variate a position belongs to [@src-61]; Chronos-2 alternates time attention with *group attention*, where group IDs define univariate, multivariate and covariate-informed tasks [@src-57]; TiRex-2 alternates a recurrent time mixer with a variate mixer [@src-60]. For TimesFM-3 the vendor blog describes alternating temporal and variate attention [@src-67].
+
+![Who may exchange information under three channel designs. Rows are variates and columns are time steps, so sequence positions = rows × columns. The figure is schematic: it shows permitted attention, not cost or accuracy.](figures/rendered/fig-attention-regimes.svg){#fig-attention-regimes}
+
+### Covariates and time features
+
+Define three kinds by when their values are available (these definitions are explanatory, not source claims). A *known-future* covariate has values over the horizon (a planned price, a holiday flag). An *observed* (past-only) covariate is available only up to the forecast origin. A *static* covariate is fixed for the series (a store identifier). Among the sources read, Chronos-2 supports past-only and known-future covariates [@src-57], TiRex-2 supports both [@src-60], and Moirai's formulation includes dynamic covariates [@src-61]; the TimesFM documentation describes covariate support for 2.5 (XReg) and 3.0 without a paper explaining the mechanism [@src-65; @src-67]. Chronos, the original TimesFM, TiRex and Moirai 2.0 use none. No source read here describes a dedicated static-covariate mechanism, so how any named model treats one is not established. *Deterministic time features* such as date-time features (Lag-Llama [@src-63]) or a time index (Chronos-2) are computed from timestamps and are not covariates. Masks mark missing values, and some designs also mark positions whose future values are unknown.
+
+### Worked example: counting what comes out
+
+Forecast $n_\text{tgt}=4$ variables for $F=16$ steps. The point output has $4\times16=64$ values *across 16 future timestamps*, not 64 timestamps. A quantile output with an illustrative $n_q=9$ has $4\times16\times9=576$ numbers (Chronos-2 uses 21 levels; TiRex, Moirai 2.0 and the TimesFM documentation use 9). Sampling instead gives $4\times16\times n_\text{samples}$: the sample axis *replaces* the quantile axis, since both represent the same distribution. Covariates add inputs but no output axis. Axis order differs by source (Chronos-2: horizon × targets × quantiles; TiRex-2: targets × quantiles × patches × steps per patch), so label axes, never assume an order.
+
+Flattening has a cost: 4 independent sequences of 16 give $4\times16^2=1024$ score entries per head per layer, whereas one flattened sequence of 64 gives $64^2=4096$ (derived, logical counts; full attention assumed, and a causal mask would change both counts alike). Group IDs, illustratively: three independent series get IDs 0, 1, 2; four targets forecast jointly share ID 0; one target with two covariates share ID 0.
+
+### Check your understanding {#sec-ch2-check}
+
+1. **Calculation.** How many values, and across how many timestamps, does a point forecast of 3 variables over 10 steps contain?
+2. **Calculation.** With $n_q=9$ quantile levels, how many numbers does the forecast from question 1 contain? With 500 sampled paths instead?
+3. **Misconception check.** "A model with an 8192-step context can forecast 8192 steps ahead." What is wrong?
+4. **Classify.** Sort into known-future, observed or static: a promotion calendar, yesterday's temperature, a sensor's installation site.
+5. **Compare.** For 5 variates over 8 steps, compare score entries for channel-independent processing and flattening.
+6. **Interview practice.** When would you choose channel-independent over channel-mixed processing, and what evidence in this module cuts both ways?

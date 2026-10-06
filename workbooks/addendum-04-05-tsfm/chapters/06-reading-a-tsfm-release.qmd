@@ -1,0 +1,56 @@
+## Reading a TSFM release {#sec-ch6}
+
+### Quick recap from LLMs
+
+The LLM architecture workbook reads any model report with a fixed checklist: (1) what is the block structure; (2) where is normalization applied; (3) what represents position; (4) what is the attention or sequence-mixing mechanism; (5) how many query and key/value heads; (6) is the feed-forward path dense or mixture-of-experts; (7) if experts, how many in total and active; (8) what state grows with context length; (9) which components are active for every token; (10) what training or serving complication follows. The training workbook adds a habit: label every number by origin, and do not compare numbers from different setups. Its labels (configured, observed, derived) describe training-run numbers, so this module uses a different term, *source type*, for where a fact about a release comes from.
+
+- **Same idea:** ask the same questions of every report, and label numbers by origin.
+- **Adapted idea:** the questions become the TSFM checklist below.
+- **Time-series-specific idea:** many releases have *no paper*, and a fact true of one generation is often wrongly carried to the next.
+
+### A reading checklist
+
+1. **Generation and source type.** Which release exactly, and is each fact from a paper for *that* generation, documentation, or a vendor claim? Links to an earlier paper do not make it describe a later release.
+2. **Input.** Scaler, token or patch type, patch length, and the unit of every context figure (time steps, tokens or positions).
+3. **Channels and covariates.** Univariate, independent or mixed; past-only, known-future or static.
+4. **Family and horizon filling.** Iterative, placeholder or direct; what is training-only.
+5. **Output and loss.** Point, quantiles, distribution or bins; is the loss documented?
+6. **Data and leakage.** What is in the corpus, and is overlap with your benchmark excluded?
+7. **Adaptation.** Zero-shot only, or fine-tuning, and on what evidence?
+8. **Numbers.** Reported, derived or illustrative; as of which date.
+9. **What is unverified.** Say so; do not fill gaps with a plausible mechanism.
+
+### Worked example: reading the TimesFM 3.0 pages
+
+Sort eight statements about TimesFM 3.0 by source type (as of October 2026; no paper for this release was found). The vendor blog claims 330 million parameters, 32-step patches, one-pass decoding with placeholder tokens it calls Contiguous Patch Masking, and alternating temporal and variate attention: four *vendor claims*. The model card states 20 layers, model dimension 1280 and 16 heads; context and horizon patch lengths of 32 and 64; an architecture label ("Stacked Mixing Transformer with Variate Attention and CPM Iterative RevIN") it does not define; and pointers to "the paper" that lead to the 2023 TimesFM paper, which predates the release: four *documentation* statements. None is paper-backed.
+
+Three pairs stay unresolved, and this addendum attempts no reconciliation. The blog says 330 million parameters while the card lists 20 layers, width 1280 and 16 heads: neither page says how the two relate, and no explanation (different checkpoints, counting conventions, a variant) is supported. The blog's 32-step patches and the card's 32 and 64 are not tied together either. And the blog says it builds on decoder-only predecessors while describing one non-autoregressive pass over placeholders. Its "Contiguous Patch Masking" shares a name with TiRex's training-time device, but no source equates them [@src-59].
+
+### Synthesis of the earlier modules
+
+@tbl-synthesis and @tbl-synthesis-docs put the modules side by side. Read each row against the checklist: the first group is backed by a paper for that exact generation, the second only by documentation.
+
+| Model | Input | Family | Horizon | Channels; covariates | Output | Loss |
+|:---|:---|:---|:---|:---|:---|:---|
+| Chronos [@src-56] | mean-scaled values in bins | encoder-decoder | iterative sampling | univariate; none | bin probabilities, sampled paths | cross-entropy |
+| Chronos-2 [@src-57] | standardized, arcsinh; patches | encoder-only | one pass, direct quantile head | group attention; past and known-future | 21 quantiles | pinball |
+| TimesFM (2024) [@src-58] | residual-MLP patches | decoder-only | iterative over output patches | univariate; none | point | MSE |
+| TiRex [@src-59] | z-score; 32-step windows | xLSTM, decoder-style | future fed as missing inputs | univariate; none | 9 quantiles | pinball at every output token |
+| Moirai 2.0 [@src-62] | first-30% statistics; one patch size | decoder-only | multi-patch prediction | univariate; none | 9 quantiles | pinball |
+| Lag-Llama [@src-63] | lag-feature vectors | decoder-only | iterative sampling | univariate; date-time features | Student-t parameters, sampled paths | NLL |
+
+: Synthesis of the earlier modules, paper-backed group: each row is backed by a paper for that exact generation. Not a ranking. {#tbl-synthesis}
+
+| Model | Input | Family | Horizon | Channels; covariates | Output | Loss |
+|:---|:---|:---|:---|:---|:---|:---|
+| TimesFM 3.0 [@src-66; @src-67] | doc: 32-step patches (blog); 32 and 64 (card) | doc: label undefined (card) | doc: one pass, placeholders (blog) | doc: variate attention; past and future (blog) | doc: point and 9 quantiles (blog) | not covered here |
+| Chronos-Bolt [@src-68] | doc: patches of the history | doc: encoder and decoder wording | doc: direct multi-step quantiles | not covered here | doc: quantiles | not covered here |
+
+: Synthesis, documentation-only group: no paper exists for these releases, so cells state only what the documentation says ("doc:") and never a mechanism. Not a ranking. {#tbl-synthesis-docs}
+
+### Check your understanding {#sec-ch6-check}
+
+1. **Classify.** "The model has 330 million parameters" appears in a vendor blog. What is its source type, and is it paper-backed?
+2. **Diagnose.** A slide says "TimesFM 2.5 predicts the horizon in one pass, as the TimesFM paper shows." Identify the generation error.
+3. **Explain.** Which two statements about TimesFM 3.0 cannot be reconciled from the pages alone, and what must you *not* do about it?
+4. **Interview practice.** You are asked whether to adopt a new TSFM. Which five checklist items do you ask about first, and why?

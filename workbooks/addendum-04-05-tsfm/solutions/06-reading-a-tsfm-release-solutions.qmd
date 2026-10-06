@@ -1,0 +1,12 @@
+### Answer Key: Module 6 {#sec-solutions-ch6 .unnumbered}
+
+Solutions to Module 6's "Check your understanding" questions
+(@sec-ch6-check).
+
+**1.** A vendor claim (a statement in a vendor blog about size). It is not paper-backed: no paper for this release was found.
+
+**2.** A generation error. The TimesFM paper describes the original 2024 model, which rolls out output patches iteratively; it does not describe 2.5, and the sources read give no mechanism for 2.5.
+
+**3.** The blog's 330 million parameters and the card's 20 layers, width 1280 and 16 heads (also the 32-step versus 32-and-64 patch statements). Neither page says how they relate, so do not guess an explanation or pick one number; report the discrepancy and name what would settle it.
+
+**4.** For example: (1) exact generation and each fact's source type; (2) scaler, patch length and the unit of the context figure; (3) horizon filling and what is training-only; (4) output and whether the loss is documented; (5) pretraining data and leakage against your benchmark.

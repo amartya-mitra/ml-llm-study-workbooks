@@ -1,0 +1,16 @@
+### Answer Key: Module 1 {#sec-solutions-ch1 .unnumbered}
+
+Solutions to Module 1's "Check your understanding" questions
+(@sec-ch1-check).
+
+**1.** A bin id selects one row of an embedding table. A patch model has no table: a learned projection of the patch's $P_\text{in}$ values plays that role. *Trap:* assuming every input unit is a table lookup.
+
+**2.** With end padding, $N_p=\lfloor(20-5)/2\rfloor+2=7+2=9$. Non-overlapping: $\lfloor20/5\rfloor=4$. *Trap:* forgetting the $+2$ (the $+1$ for the first patch and the padded final patch).
+
+**3.** The representable range ends at the outer bin centers, so a scaled value beyond them cannot be represented, and values inside a bin lose their exact position. Mean scaling helps by putting series on a common scale, but it does not remove the limit.
+
+**4.** In common: each token becomes one $d_\text{model}$ vector through a learned projection, with no vocabulary lookup. Different: a patch token covers several *consecutive* values (stride $S_p$), whereas a lag token covers *one time step* described by earlier values at chosen lags and needs a history as long as the largest lag.
+
+**5.** The model works on scaled values, so its output is in scaled units and must be mapped back to the original level to be useful. Because a loss measured on scaled values depends on the scaler, two runs with different scalers do not measure the same quantity (the same logic as a tokenizer change).
+
+**6.** Token count halves and the score matrix shrinks about fourfold (score entries grow with the square of the token count), and the total per-token work falls about twofold. Nothing follows about accuracy: each token now has to encode twice as many values, and accuracy was not measured here.

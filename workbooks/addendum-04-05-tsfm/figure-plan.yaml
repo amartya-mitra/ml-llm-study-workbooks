@@ -1,0 +1,67 @@
+# Figure plan for the TSFM addendum. All figures are ORIGINAL diagrams
+# generated from figures/source/*.py into figures/rendered/*.svg; none
+# reproduces a source figure (must_be_redrawn: true for every entry).
+# Every figure loads its numbers from data/worked-examples/*.json and its
+# colors from config/visual-style.yaml. Each has a semantic invariant test
+# in tests/test_addendum_tsfm_figures.py.
+
+figures:
+  - id: "fig-tokenization-styles"
+    chapter: "ch1"
+    status: "drawn"
+    source_script: "figures/source/fig_tokenization_styles.py"
+    numeric_source: "data/worked-examples/w1_inputs.json"
+    teaching_purpose: "Contrast bin-id lookup, patch projection with no table, and lag-vector tokens on the same 12 values."
+    semantic_invariant: "Drawn patch count equals N_p (6, last patch end-padded); drawn bin ids equal the worked-example ids; only lag tokens with a full lag history are drawn (8)."
+    must_be_redrawn: true
+    settings_label: "illustrative"
+
+  - id: "fig-attention-regimes"
+    chapter: "ch2"
+    status: "drawn"
+    source_script: "figures/source/fig_attention_regimes.py"
+    numeric_source: "data/worked-examples/w2_shapes.json"
+    teaching_purpose: "Show who may exchange information under channel-independent, flattened and group-attention designs on a variates x time grid."
+    semantic_invariant: "Rows and columns are generated from (n_tgt, F); the step count appears only on the time axis; the flattened box spans all rows; the 4 x 16 output box is not drawn."
+    must_be_redrawn: true
+    settings_label: "schematic"
+
+  - id: "fig-horizon-filling"
+    chapter: "ch3"
+    status: "drawn"
+    source_script: "figures/source/fig_horizon_filling.py"
+    numeric_source: "data/worked-examples/w3_rollout.json"
+    teaching_purpose: "Show iterative, placeholder and direct horizon filling on one timeline, plus a training-only versus inference strip."
+    semantic_invariant: "Pass blocks drawn equal ceil(F / P_out) (2, 8) and the labeled counts are 2, 8, 256, 1, 1; context and horizon do not overlap."
+    must_be_redrawn: true
+    settings_label: "illustrative (TimesFM paper's example setting)"
+
+  - id: "fig-output-types"
+    chapter: "ch4"
+    status: "drawn"
+    source_script: "figures/source/fig_output_types.py"
+    numeric_source: "data/worked-examples/w4_losses.json"
+    teaching_purpose: "One illustrative predictive distribution as point, quantile fan, mixture density and sample paths, with tensor shapes."
+    semantic_invariant: "Empirical quantiles of the sample paths match the quantile fan within tolerance; shape labels match 4 x 16, 4 x 16 x n_q, 4 x 16 x n_samples; the point panel is the median."
+    must_be_redrawn: true
+    settings_label: "illustrative"
+
+  - id: "fig-leakage-timeline"
+    chapter: "ch5"
+    status: "drawn"
+    source_script: "figures/source/fig_leakage_timeline.py"
+    numeric_source: "data/worked-examples/w5_mixture_cap.json"
+    teaching_purpose: "Where leakage enters along one series: training region, normalization-statistics window, evaluation window."
+    semantic_invariant: "Windows do not overlap evaluation in the no-overlap panel and do overlap in the leaky panel; overlap highlights are drawn exactly where the data overlap."
+    must_be_redrawn: true
+    settings_label: "original illustration, illustrative windows"
+
+  - id: "tbl-synthesis"
+    chapter: "ch6"
+    status: "rendered as a table"
+    source_script: null
+    numeric_source: "data/synthesis-map.yaml"
+    teaching_purpose: "Models x design axes synthesis with the documentation-only releases in a separate group."
+    semantic_invariant: "At most 8 models; every row names its registry ids; documentation-group cells carry the doc: marker or 'not covered here' and state no mechanism; the chapter table equals the data file cell for cell."
+    must_be_redrawn: true
+    settings_label: "reported, by source type"

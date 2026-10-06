@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="425" viewBox="0 0 620 425">
+  <title>Three ways to tokenize the same 12 values</title>
+  <defs><marker id="arrow-555555" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker><marker id="arrow-0072B2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0072B2"/></marker></defs>
+  <rect x="0" y="0" width="620" height="425" fill="#ffffff"/>
+  <text x="310.0" y="18" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">The same 12 values, three input styles (all settings illustrative)</text>
+  <text x="10" y="52" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">A. Bin tokens</text>
+  <text x="10" y="67" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">scaled, then binned</text>
+  <rect x="118.0" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="133.25" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">10</text>
+  <rect x="151.5" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="166.75" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">12</text>
+  <rect x="185.0" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="200.25" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">14</text>
+  <rect x="218.5" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="233.75" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">13</text>
+  <rect x="252.0" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="267.25" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">15</text>
+  <rect x="285.5" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="300.75" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">18</text>
+  <rect x="319.0" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="334.25" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">20</text>
+  <rect x="352.5" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="367.75" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">19</text>
+  <rect x="386.0" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="401.25" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">22</text>
+  <rect x="419.5" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="434.75" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">25</text>
+  <rect x="453.0" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="468.25" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">24</text>
+  <rect x="486.5" y="40" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="501.75" y="55" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">28</text>
+  <rect x="118.0" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="133.25" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 2</text>
+  <line x1="133.25" y1="63" x2="133.25" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="151.5" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="166.75" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 2</text>
+  <line x1="166.75" y1="63" x2="166.75" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="185.0" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="200.25" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 3</text>
+  <line x1="200.25" y1="63" x2="200.25" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="218.5" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="233.75" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 2</text>
+  <line x1="233.75" y1="63" x2="233.75" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="252.0" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="267.25" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 3</text>
+  <line x1="267.25" y1="63" x2="267.25" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="285.5" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="300.75" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 3</text>
+  <line x1="300.75" y1="63" x2="300.75" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="319.0" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="334.25" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 4</text>
+  <line x1="334.25" y1="63" x2="334.25" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="352.5" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="367.75" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 4</text>
+  <line x1="367.75" y1="63" x2="367.75" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="386.0" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="401.25" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 4</text>
+  <line x1="401.25" y1="63" x2="401.25" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="419.5" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="434.75" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 5</text>
+  <line x1="434.75" y1="63" x2="434.75" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="453.0" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="468.25" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 5</text>
+  <line x1="468.25" y1="63" x2="468.25" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <rect x="486.5" y="76" width="30.5" height="22" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="501.75" y="91" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">id 6</text>
+  <line x1="501.75" y1="63" x2="501.75" y2="75" stroke="#555555" stroke-width="1" marker-end="url(#arrow-555555)"/>
+  <text x="118" y="116" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">each id selects one row of an embedding table (8 bins here; a table lookup, no arithmetic on the values)</text>
+  <text x="10" y="152" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">B. Patch tokens</text>
+  <text x="10" y="167" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">P = 4, S_p = 2</text>
+  <rect x="118.0" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="133.25" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">10</text>
+  <rect x="151.5" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="166.75" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">12</text>
+  <rect x="185.0" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="200.25" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">14</text>
+  <rect x="218.5" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="233.75" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">13</text>
+  <rect x="252.0" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="267.25" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">15</text>
+  <rect x="285.5" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="300.75" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">18</text>
+  <rect x="319.0" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="334.25" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">20</text>
+  <rect x="352.5" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="367.75" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">19</text>
+  <rect x="386.0" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="401.25" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">22</text>
+  <rect x="419.5" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="434.75" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">25</text>
+  <rect x="453.0" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="468.25" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">24</text>
+  <rect x="486.5" y="140" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="501.75" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">28</text>
+  <rect x="520.0" y="140" width="30.5" height="22" rx="3" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="535.25" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">pad</text>
+  <rect x="553.5" y="140" width="30.5" height="22" rx="3" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="568.75" y="155" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">pad</text>
+  <g id="patch-0">
+  <rect x="118.0" y="172" width="131.0" height="14" rx="3" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+  <text x="183.5" y="183" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">patch 1</text>
+  </g>
+  <g id="patch-1">
+  <rect x="185.0" y="190" width="131.0" height="14" rx="3" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+  <text x="250.5" y="201" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">patch 2</text>
+  </g>
+  <g id="patch-2">
+  <rect x="252.0" y="172" width="131.0" height="14" rx="3" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+  <text x="317.5" y="183" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">patch 3</text>
+  </g>
+  <g id="patch-3">
+  <rect x="319.0" y="190" width="131.0" height="14" rx="3" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+  <text x="384.5" y="201" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">patch 4</text>
+  </g>
+  <g id="patch-4">
+  <rect x="386.0" y="172" width="131.0" height="14" rx="3" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+  <text x="451.5" y="183" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">patch 5</text>
+  </g>
+  <g id="patch-5">
+  <rect x="453.0" y="190" width="131.0" height="14" rx="3" fill="#ffffff" stroke="#009E73" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="518.5" y="201" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="middle">patch 6</text>
+  </g>
+  <text x="118" y="230" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">6 patches, last one end-padded (dashed). Each patch of P values goes through a learned</text>
+  <text x="118" y="244" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">projection to one d_model vector: no table. Without overlap and padding: 3 patches.</text>
+  <text x="10" y="274" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">C. Lag tokens</text>
+  <text x="10" y="289" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">lags 1, 2, 4</text>
+  <rect x="118.0" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="133.25" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">10</text>
+  <rect x="151.5" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="166.75" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">12</text>
+  <rect x="185.0" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="200.25" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">14</text>
+  <rect x="218.5" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="233.75" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">13</text>
+  <rect x="252.0" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="267.25" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">15</text>
+  <rect x="285.5" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="300.75" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">18</text>
+  <rect x="319.0" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="334.25" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">20</text>
+  <rect x="352.5" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="367.75" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">19</text>
+  <rect x="386.0" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="401.25" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">22</text>
+  <rect x="419.5" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="434.75" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">25</text>
+  <rect x="453.0" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="468.25" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">24</text>
+  <rect x="486.5" y="262" width="30.5" height="22" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="501.75" y="277" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">28</text>
+  <g id="lag-token-5">
+  <rect x="252.0" y="302" width="30.5" height="22" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="267.25" y="317" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">t=5</text>
+  </g>
+  <g id="lag-token-6">
+  <rect x="285.5" y="302" width="30.5" height="22" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="300.75" y="317" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">t=6</text>
+  </g>
+  <g id="lag-token-7">
+  <rect x="319.0" y="302" width="30.5" height="22" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="334.25" y="317" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">t=7</text>
+  </g>
+  <g id="lag-token-8">
+  <rect x="352.5" y="302" width="30.5" height="22" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="367.75" y="317" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">t=8</text>
+  </g>
+  <g id="lag-token-9">
+  <rect x="386.0" y="302" width="30.5" height="22" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="401.25" y="317" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">t=9</text>
+  </g>
+  <g id="lag-token-10">
+  <rect x="419.5" y="302" width="30.5" height="22" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="434.75" y="317" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">t=10</text>
+  </g>
+  <g id="lag-token-11">
+  <rect x="453.0" y="302" width="30.5" height="22" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="468.25" y="317" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">t=11</text>
+  </g>
+  <g id="lag-token-12">
+  <rect x="486.5" y="302" width="30.5" height="22" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="501.75" y="317" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">t=12</text>
+  </g>
+  <text x="133.25" y="317" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#444444" text-anchor="middle">–</text>
+  <text x="166.75" y="317" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#444444" text-anchor="middle">–</text>
+  <text x="200.25" y="317" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#444444" text-anchor="middle">–</text>
+  <text x="233.75" y="317" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#444444" text-anchor="middle">–</text>
+  <line x1="501.75" y1="302" x2="468.25" y2="286" stroke="#0072B2" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-0072B2)"/>
+  <line x1="501.75" y1="302" x2="434.75" y2="286" stroke="#0072B2" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-0072B2)"/>
+  <line x1="501.75" y1="302" x2="367.75" y2="286" stroke="#0072B2" stroke-width="1.2" stroke-dasharray="2,3" marker-end="url(#arrow-0072B2)"/>
+  <text x="118" y="344" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">one token per time step; needs the largest lag (4) of history, so 8 of 12 steps</text>
+  <text x="118" y="358" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">yield a token (dotted arrows: the lags feeding the last token).</text>
+  <rect x="10" y="392" width="14" height="14" rx="3" fill="#eaf2fb" stroke="#0072B2" stroke-width="1"/>
+  <text x="30" y="403" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">observed value</text>
+  <rect x="140" y="392" width="14" height="14" rx="3" fill="#E69F00" stroke="#333333" stroke-width="1"/>
+  <text x="160" y="403" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">discrete token (lookup)</text>
+  <rect x="310" y="392" width="14" height="14" rx="3" fill="#009E73" stroke="#333333" stroke-width="1"/>
+  <text x="330" y="403" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">continuous input (projected)</text>
+  <rect x="500" y="392" width="14" height="14" rx="3" fill="#ffffff" stroke="#888888" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="520" y="403" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">padding</text>
+</svg>

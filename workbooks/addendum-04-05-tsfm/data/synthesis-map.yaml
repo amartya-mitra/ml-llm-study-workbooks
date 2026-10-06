@@ -1,0 +1,80 @@
+# Source of truth for Module 6's synthesis table. The table in the
+# chapter must match this file cell for cell (checked by the scoped
+# tests). Every row names its registry ids. Documentation-group rows
+# state only what the documentation states; each such cell begins with
+# "doc:" or reads "not covered here".
+schema_version: 1
+columns: ["input", "family", "horizon", "channels_covariates", "output", "loss"]
+rows:
+  - model: "Chronos"
+    group: "paper"
+    source_ids: ["src-56"]
+    input: "mean-scaled values in bins"
+    family: "encoder-decoder"
+    horizon: "iterative sampling"
+    channels_covariates: "univariate; none"
+    output: "bin probabilities, sampled paths"
+    loss: "cross-entropy"
+  - model: "Chronos-2"
+    group: "paper"
+    source_ids: ["src-57"]
+    input: "standardized, arcsinh; patches"
+    family: "encoder-only"
+    horizon: "one pass, direct quantile head"
+    channels_covariates: "group attention; past and known-future"
+    output: "21 quantiles"
+    loss: "pinball"
+  - model: "TimesFM (2024)"
+    group: "paper"
+    source_ids: ["src-58"]
+    input: "residual-MLP patches"
+    family: "decoder-only"
+    horizon: "iterative over output patches"
+    channels_covariates: "univariate; none"
+    output: "point"
+    loss: "MSE"
+  - model: "TiRex"
+    group: "paper"
+    source_ids: ["src-59"]
+    input: "z-score; 32-step windows"
+    family: "xLSTM, decoder-style"
+    horizon: "future fed as missing inputs"
+    channels_covariates: "univariate; none"
+    output: "9 quantiles"
+    loss: "pinball at every output token"
+  - model: "Moirai 2.0"
+    group: "paper"
+    source_ids: ["src-62"]
+    input: "first-30% statistics; one patch size"
+    family: "decoder-only"
+    horizon: "multi-patch prediction"
+    channels_covariates: "univariate; none"
+    output: "9 quantiles"
+    loss: "pinball"
+  - model: "Lag-Llama"
+    group: "paper"
+    source_ids: ["src-63"]
+    input: "lag-feature vectors"
+    family: "decoder-only"
+    horizon: "iterative sampling"
+    channels_covariates: "univariate; date-time features"
+    output: "Student-t parameters, sampled paths"
+    loss: "NLL"
+  - model: "TimesFM 3.0"
+    group: "documentation"
+    source_ids: ["src-66", "src-67"]
+    input: "doc: 32-step patches (blog); 32 and 64 (card)"
+    family: "doc: label undefined (card)"
+    horizon: "doc: one pass, placeholders (blog)"
+    channels_covariates: "doc: variate attention; past and future (blog)"
+    output: "doc: point and 9 quantiles (blog)"
+    loss: "not covered here"
+  - model: "Chronos-Bolt"
+    group: "documentation"
+    source_ids: ["src-68"]
+    input: "doc: patches of the history"
+    family: "doc: encoder and decoder wording"
+    horizon: "doc: direct multi-step quantiles"
+    channels_covariates: "not covered here"
+    output: "doc: quantiles"
+    loss: "not covered here"

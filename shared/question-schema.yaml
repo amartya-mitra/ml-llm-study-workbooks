@@ -29,6 +29,7 @@ fields:
       - "06-llm-inference"
       - "07-llm-post-training"
       - "08-research-careers"
+      - "addendum-04-05-tsfm"
     description: "Workbook id this question belongs to."
 
   - name: "chapter"

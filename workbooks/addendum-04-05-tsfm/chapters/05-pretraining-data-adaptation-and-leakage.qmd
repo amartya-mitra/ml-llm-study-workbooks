@@ -1,0 +1,38 @@
+## Pretraining data, adaptation and leakage {#sec-ch5}
+
+### Quick recap from LLMs
+
+LLM pretraining draws from several data sources, and a *mixing weight* $w_i$ gives each source's share, so source $i$ receives $w_i\times$ (total budget) tokens. A mixture can be fixed for the whole run or change in stages, for example an annealing stage near the end. Pretraining data and evaluation data must be kept strictly separate, or a benchmark score measures memory, not skill. Scaling laws relate loss to model size, data size and compute; they are fitted relations, not universal laws, and a loss prediction is not a downstream-capability prediction.
+
+- **Same idea:** allocation is weight times budget, and pretraining must stay separate from evaluation.
+- **Adapted idea:** the mixture is over many sub-datasets of series, with per-dataset caps, rather than over a few web-scale text sources.
+- **Time-series-specific idea:** leakage can enter through *time overlap* and through *normalization statistics*, and the evidence on adaptation is thin.
+
+### What goes into a pretraining corpus
+
+Reported ingredients differ widely. The Moirai archive (LOTSA) holds 27,646,462,733 observations across nine domains and samples each sub-dataset subject to a cap [@src-61]; the cap's value and rule could not be verified, so none is stated here. Chronos adds a mixing augmentation (TSMixup) and synthetic data [@src-56]. The Chronos-2 report names a synthetic-data-only variant, and TiRex-2 composes multivariate samples from univariate corpora [@src-57; @src-60]; the ablation statements behind these were not verified here. Moirai 2.0 reports a corpus of 36M series [@src-62]. By documentation (as of October 2026), TimesFM 3.0 lists GiftEvalPretrain minus datasets that overlap with an evaluation benchmark (fev-bench), Wikipedia page views with a November 2023 cutoff, Google Trends top queries with an end-of-2022 cutoff, and synthetic and augmented data [@src-66]; the vendor blog says "more than 1 trillion time points" [@src-67]. Frequency is handled differently too: Moirai picks a patch size by frequency [@src-61], while the TimesFM 2.5 README says it dropped the frequency indicator [@src-65].
+
+### Leakage routes specific to series
+
+**Time overlap.** A different series from the same period and domain as an evaluation window may carry the same events, so training on it can leak the evaluation answer even though no series is repeated. **Normalization statistics.** If a scaler's mean or spread is computed over a window that includes the future of the forecast origin, the "past" input already encodes the answer. Moirai 2.0 computes its statistics from only the first 30% of each series, to avoid leaking future information in causal training [@src-62]: a *design choice about normalization*, distinct from benchmark leakage. Chronos-2's benchmark table reports a per-model leakage percentage, with the handling attributed to the benchmark's authors [@src-57]; this addendum does not define any benchmark's leakage protocol.
+
+![Where leakage can enter along one series. In the first design both the training region and the statistics window end before evaluation starts; in the second, both reach into it. Original illustration with illustrative windows.](figures/rendered/fig-leakage-timeline.svg){#fig-leakage-timeline}
+
+### Adaptation, and what transfers from LLM training systems
+
+*Zero-shot* means forecasting a series with no weight updates on it; *fine-tuning* updates weights on target data. The Chronos-2 report frames its model as zero-shot or in-context [@src-57]. The only fine-tuning evidence read here is a documentation-level LoRA example in the TimesFM README [@src-65]; paper-level fine-tuning behavior was not read, so no claim about how much it helps is made.
+
+Registered releases are small next to LLMs: about 35M parameters for TiRex, 120M for Chronos-2 (a 28M variant is named), about 200M for the original TimesFM [@src-59; @src-57; @src-58], 200M for TimesFM 2.5 per its README [@src-65], and 330M for TimesFM-3 per its vendor blog [@src-67] (see the next module). These are examples, not a field-wide bound. The parallelism and memory machinery of the training workbook targets far larger models; whether a given TSFM run needs it is a measured question. What transfers is the labeling discipline (logical estimate versus measured value), throughput as a measured quantity, and data/evaluation separation. No source read here gives a scaling law for TSFMs; Moirai 2.0 reports that performance degraded with more parameters in its experiments [@src-62], a single-paper observation, not a law.
+
+### Worked example: a toy cap
+
+Three illustrative sub-datasets have 8,000,000, 1,500,000 and 500,000 observations. Proportional shares are 0.80, 0.15 and 0.05. With an invented cap of 2,000,000 per sub-dataset the effective sizes are 2.0M, 1.5M and 0.5M, so shares become 0.50, 0.375 and 0.125. Allocation is weight times budget as in LLM mixing: for a budget of 1,000,000,000 observations, 500M, 375M and 125M. The rule is a toy, not any model's pipeline.
+
+### Check your understanding {#sec-ch5-check}
+
+1. **Calculation.** Sizes 6M, 3M, 1M and a cap of 2M: what are the capped shares?
+2. **Classify.** A scaler's mean is computed over the whole series, then the last 20% is held out for evaluation. Which leakage route is this?
+3. **Explain.** Why can training on a *different* series leak the answer for an evaluation series?
+4. **Misconception check.** "A zero-shot result proves the model saw nothing like the test series." What is wrong?
+5. **Compare.** Name one way TSFM data mixing resembles LLM mixing and one way it differs.
+6. **Interview practice.** Before claiming zero-shot performance on a new benchmark, what leakage checks would you run?

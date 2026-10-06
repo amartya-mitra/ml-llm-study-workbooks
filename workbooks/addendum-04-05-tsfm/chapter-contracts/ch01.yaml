@@ -1,0 +1,73 @@
+# Module contract for Addendum 04-05 (TSFM), Module 1 "Model inputs: scaling,
+# tokens and patches". Validated by scripts/validate_chapter_contract.py.
+# identity.status must equal config/chapter-status-registry.yaml.
+
+identity:
+  workbook: "addendum-04-05-tsfm"
+  chapter: "01"
+  title: "Model inputs: scaling, tokens and patches"
+  status: "drafted_pending_human_review"
+
+scope:
+  allowed_paths:
+    - "workbooks/addendum-04-05-tsfm/chapters/01-model-inputs.qmd"
+    - "workbooks/addendum-04-05-tsfm/solutions/01-model-inputs-solutions.qmd"
+    - "workbooks/addendum-04-05-tsfm/data/worked-examples/w1_inputs.py"
+    - "workbooks/addendum-04-05-tsfm/figures/source/fig_tokenization_styles.py"
+  frozen_paths:
+    - "workbooks/04-llm-architecture/**"
+    - "workbooks/05-llm-training/**"
+    - "workbooks/addendum-04-05-tsfm/chapters/0[2-6]-*.qmd"
+  canonical_output_allowed: false
+  release_output_allowed: false
+  push_allowed: false
+
+sources:
+  required_source_ids: ["src-56", "src-57", "src-58", "src-59", "src-60", "src-61", "src-62", "src-63", "src-64"]
+  full_text_required: true
+  evidence_locators_required: true
+
+content:
+  required_sections:
+    - "Quick recap from LLMs"
+    - "Why scaling comes first"
+    - "Three ways to build input tokens"
+    - "Worked example: one series, three inputs"
+    - "Check your understanding"
+    - "Answer Key"
+  question_count: 6
+  answer_count: 6
+  worked_example_count_minimum: 1
+  figure_count_minimum: 1
+
+worked_examples:
+  structured_output_required: true
+  prose_crosscheck_required: true
+  units_required: true
+
+figures:
+  semantic_tests_required: true
+  numeric_source_of_truth_required: true
+
+learner_facing:
+  forbid_source_ids: true
+  forbid_repo_paths: true
+  forbid_implementation_filenames: true
+  forbid_revision_history: true
+  require_scope_qualification: true
+
+# Extra, module-specific declarations (not part of the shared schema).
+claims:
+  required_claim_prefix: "claim-tsfm-inputs-"
+  forbidden_statements:
+    - "any PatchTST configuration (L, P, S) presented as a verified source value"
+    - "a Chronos-2 patch length"
+    - "any scaler presented as best in general"
+
+acceptance:
+  source_audit: "not_yet_run"
+  numerical_audit: "not_yet_run"
+  figure_audit: "not_yet_run"
+  learner_pdf_audit: "not_yet_run"
+  scoped_tests: "not_yet_run"
+  visual_review: "not_yet_run"

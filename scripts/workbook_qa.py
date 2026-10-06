@@ -64,6 +64,10 @@ WORKBOOK_REGISTRY = {
         "title": "LLM Pretraining and Distributed Training",
         "canonical_pdf": "05-llm-training-workbook.pdf",
     },
+    "addendum-04-05-tsfm": {
+        "title": "Addendum 04-05: From Language Models to Time-Series Foundation Models",
+        "canonical_pdf": "addendum-04-05-tsfm.pdf",  # not built: no canonical addendum PDF exists
+    },
 }
 
 PLACEHOLDER_PATTERNS = [

@@ -1,0 +1,71 @@
+# Module contract for Addendum 04-05 (TSFM), Module 6 "Reading a TSFM release".
+
+identity:
+  workbook: "addendum-04-05-tsfm"
+  chapter: "06"
+  title: "Reading a TSFM release"
+  status: "drafted_pending_human_review"
+
+scope:
+  allowed_paths:
+    - "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
+    - "workbooks/addendum-04-05-tsfm/solutions/06-reading-a-tsfm-release-solutions.qmd"
+    - "workbooks/addendum-04-05-tsfm/data/worked-examples/w6_release_labels.py"
+    - "workbooks/addendum-04-05-tsfm/data/synthesis-map.yaml"
+  frozen_paths:
+    - "workbooks/04-llm-architecture/**"
+    - "workbooks/05-llm-training/**"
+    - "workbooks/addendum-04-05-tsfm/chapters/0[1-5]-*.qmd"
+  canonical_output_allowed: false
+  release_output_allowed: false
+  push_allowed: false
+
+sources:
+  required_source_ids: ["src-56", "src-57", "src-58", "src-59", "src-62", "src-63", "src-65", "src-66", "src-67", "src-68"]
+  full_text_required: true
+  evidence_locators_required: true
+
+content:
+  required_sections:
+    - "Quick recap from LLMs"
+    - "A reading checklist"
+    - "Worked example: reading the TimesFM 3.0 pages"
+    - "Check your understanding"
+    - "Answer Key"
+  question_count: 4
+  answer_count: 4
+  worked_example_count_minimum: 1
+  figure_count_minimum: 0
+
+worked_examples:
+  structured_output_required: true
+  prose_crosscheck_required: true
+  units_required: true
+
+figures:
+  semantic_tests_required: true
+  numeric_source_of_truth_required: true
+
+learner_facing:
+  forbid_source_ids: true
+  forbid_repo_paths: true
+  forbid_implementation_filenames: true
+  forbid_revision_history: true
+  require_scope_qualification: true
+
+claims:
+  required_claim_prefix: "claim-tsfm-release-"
+  forbidden_statements:
+    - "any reconciliation or guessed explanation of the TimesFM-3 parameter-count discrepancy"
+    - "any ranking of models"
+    - "a mechanism claim in a documentation-only table cell"
+    - "equating the TimesFM-3 and TiRex Contiguous Patch Masking"
+    - "Moirai-MoE"
+
+acceptance:
+  source_audit: "not_yet_run"
+  numerical_audit: "not_yet_run"
+  figure_audit: "not_yet_run"
+  learner_pdf_audit: "not_yet_run"
+  scoped_tests: "not_yet_run"
+  visual_review: "not_yet_run"

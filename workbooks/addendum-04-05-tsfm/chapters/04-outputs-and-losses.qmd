@@ -1,0 +1,38 @@
+## Outputs and losses {#sec-ch4}
+
+### Quick recap from LLMs
+
+An LLM's head maps the final hidden state to logits; softmax turns them into a probability distribution over the vocabulary; sampling draws from it. Training minimizes cross-entropy, the negative log probability the model gave the true token, which for next-token prediction is $-\sum_t \log p_\theta(x_{t+1}\mid x_{\le t})$ (the LLM workbooks write the probability with a capital $P$; here lowercase $p$ keeps $P$ for patch lengths). The *objective* is separate from the *architecture*: the same backbone can be trained with different losses. A loss value depends on what the model predicts, so it is not comparable across a tokenizer change.
+
+- **Same idea:** a head turns hidden states into a predictive object, and cross-entropy is exactly $-\log p(\text{target})$.
+- **Adapted idea:** the "classes" can be bins, or the head can emit quantiles or distribution parameters.
+- **Time-series-specific idea:** squared error, pinball loss and density likelihoods sit beside cross-entropy, and the loss lives on *scaled* values.
+
+### What each output lets you compute
+
+| Output | Models | Loss | What you can compute |
+|---|---|---|---|
+| point | TimesFM 2024 [@src-58]; PatchTST [@src-64] | squared error (MSE) | one value per step, no uncertainty |
+| quantiles | Chronos-2, 21 levels [@src-57]; TiRex, 9 [@src-59]; TiRex-2 [@src-60]; Moirai 2.0, 9 [@src-62] | pinball | intervals at the trained levels; no density |
+| parametric | Lag-Llama, Student-t [@src-63] | negative log-likelihood | density and samples |
+| mixture | Moirai: Student-t, negative binomial, log-normal, low-variance normal [@src-61] | mixture negative log-likelihood | flexible density; samples |
+| categorical over bins | Chronos [@src-56] | cross-entropy | sample paths, then un-bin and un-scale |
+
+: Output types in the papers read. The TimesFM-3 blog and Chronos-Bolt README document quantile outputs but not the loss [@src-67; @src-68]; the TimesFM paper only proposes quantile or likelihood heads [@src-58]. {#tbl-outputs}
+
+![One illustrative predictive distribution handed over four ways. The fan shows marginal quantiles per step; sample paths are joint scenarios. Shapes use 4 targets, 16 steps, 9 quantiles and 1000 samples; all curves are illustrative.](figures/rendered/fig-output-types.svg){#fig-output-types width=88%}
+
+@fig-output-types shows one illustrative distribution handed over in each of these ways. **Pinball loss** for level $\tau$ with observation $z$ and forecast $\hat z$ is $\tau\max(z-\hat z,0)+(1-\tau)\max(\hat z-z,0)$ [@src-57; @src-59]. It charges under-forecasts with weight $\tau$ and over-forecasts with weight $1-\tau$, which is why minimizing it targets the $\tau$-quantile. At $\tau=0.5$ it equals half the absolute error, so a quantile model's point forecast is its median. MSE, by contrast, gives no uncertainty. **Cross-entropy over bins** is the negative log-likelihood of a categorical distribution, but it is not distance-aware: the paper says so itself [@src-56]. It is also a *probability mass* over bins, while Student-t and mixture likelihoods are *densities*; for a fine bin width $w$, $p_\text{bin}\approx f(z)\,w$, so the two differ by $\log w$ and are not comparable. Because losses are computed on scaled values, they are comparable only within one output type and one scaling. Training can supervise every output position, not only the last: TiRex applies pinball loss at every output token [@src-59], and Chronos-2 computes it on target dimensions only [@src-57].
+
+### Worked example: three losses by hand
+
+Observed $z=10$. At $\tau=0.1$ a forecast of 8 costs $0.1\times2=0.2$; at $\tau=0.5$ a forecast of 11 costs $0.5\times1=0.5$, half its absolute error of 1; at $\tau=0.9$ a forecast of 13 costs $0.1\times3=0.3$. Asymmetry: at $\tau=0.9$, forecasting 7 (3 too low) costs $0.9\times3=2.7$, nine times the 0.3 of forecasting 13. For cross-entropy take six bins with the target in bin 2. Model A puts 0.10 on bin 2 and 0.70 on neighboring bin 3; model B puts 0.10 on bin 2 and 0.70 on distant bin 0. Both pay $-\ln0.10\approx2.303$: the loss cannot tell a near miss from a far one (all derived, illustrative).
+
+### Check your understanding {#sec-ch4-check}
+
+1. **Calculation.** Observed 10, forecast 6, $\tau=0.9$: what is the pinball loss? And for forecast 14?
+2. **Calculation.** At $\tau=0.5$ with absolute error 4, what is the pinball loss, and what does that imply for the point forecast?
+3. **Misconception check.** Two bin models assign the target bin the same probability. Must their cross-entropy differ if one puts its remaining mass nearer the target?
+4. **Match.** Which output type goes with each loss: cross-entropy, squared error, pinball, mixture likelihood?
+5. **Compare.** Why is a bin cross-entropy not directly comparable with a Student-t likelihood?
+6. **Interview practice.** Two forecasting models report different training losses. List three reasons the numbers cannot be ranked.

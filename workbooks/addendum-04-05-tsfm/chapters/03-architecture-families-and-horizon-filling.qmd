@@ -1,0 +1,44 @@
+## Architecture families and horizon filling {#sec-ch3}
+
+### Quick recap from LLMs
+
+An autoregressive LLM generates $N$ new tokens with at least $N$ forward passes, because each token is fed back before the next is predicted (this count is for autoregressive decoding; a model with a direct head over the whole output is a contrast, not a contradiction). During *training* the true previous tokens are supplied, so all positions are predicted in parallel (teacher forcing); errors can compound only at *inference*, when the model reads its own outputs. A transformer's key-value cache grows with the sequence, whereas a recurrent model carries a fixed-size state. Multi-token prediction (MTP) adds extra training-time heads that predict further offsets $n$; in the LLM workbooks those heads are discarded at inference by default. Looped transformers repeat depth, which is different from recurrence along the sequence.
+
+- **Same idea:** rollout cost counts passes, and training-time behavior differs from inference-time behavior.
+- **Adapted idea:** a step is a *patch*, and an output patch can be longer than an input patch. The MTP default does *not* carry over: Moirai 2.0 uses the same idea at inference.
+- **Time-series-specific idea:** a forecast can come from placeholder inputs or a direct head with no feedback loop.
+- **Not in the LLM workbooks:** those teach causal decoder-only attention only. Encoder-only, masked-encoder and encoder–decoder families and bidirectional attention are new here.
+
+### Three ways to fill a horizon
+
+There are three classes. Class (i), **iterative feedback:** each pass's output becomes input to the next. Class (ii), **single pass over placeholders:** the future positions are present as masked or missing inputs, and the model fills them without feedback. Class (iii), **direct head:** one head maps the encoded context to the whole horizon. Forward passes and sequential compute are different things: a recurrent backbone steps through time even inside one pass.
+
+| Model | Backbone and step | Horizon filling | Class |
+|---|---|---|---|
+| Chronos [@src-56] | encoder–decoder; one bin token | samples tokens, feeds them back | (i) |
+| TimesFM, 2024 [@src-58] | decoder-only; patches, longer output patch | rolls out output patches | (i) |
+| Lag-Llama [@src-63] | decoder-only; one time step | samples trajectories | (i) |
+| Moirai 2.0 [@src-62] | decoder-only; one patch size | several future patches per output; recursive multi-quantile decoding | (i), from the paper's "recursive" wording; details not covered here |
+| TiRex [@src-59] | xLSTM; 32-step windows | future fed as missing inputs | (ii) |
+| Moirai [@src-61] | masked encoder; patches | horizon patches replaced by a mask token | (ii) |
+| Chronos-2 [@src-57] | encoder-only; patch per variate | future patches in one pass, quantile head | (ii) |
+| PatchTST [@src-64] | encoder; patches | flatten and a linear head over the horizon | (iii) |
+
+: Paper-backed families. TimesFM 3.0 is described by its vendor blog as one non-autoregressive pass over placeholder tokens while also building on decoder-only predecessors [@src-67]: a documented hybrid. Chronos-Bolt's README describes patches with direct multi-step quantile output [@src-68]. Neither has a paper, so neither is classified by mechanism here. {#tbl-families}
+
+A model that outputs nine quantiles cannot feed "its prediction" back as one value without a rule; Moirai 2.0's abstract and architecture description mention recursive multi-quantile decoding [@src-62], but its feedback details are not covered here, so they are not described. TiRex's *Contiguous Patch Masking* is a *training-time* device that lets it forecast long horizons by feeding future inputs as missing values rather than feeding back its own estimates [@src-59]; the TimesFM-3 blog uses the same name for something the sources do not equate with it [@src-67]. TimesFM's randomized patch masking during training lets it see every context length [@src-58]. TiRex's sLSTM backbone was chosen because it supports state-tracking [@src-59].
+
+![Horizon filling on one timeline (context 256, horizon 256, input patch 32). Pass counts follow the strategy and the output-patch length, not the horizon alone; the dashed box lists training-only devices.](figures/rendered/fig-horizon-filling.svg){#fig-horizon-filling width=90%}
+
+### Worked example: counting passes
+
+The TimesFM paper's own example has context 256, horizon 256, input patch 32 and output patch 128 [@src-58]. The number of autoregressive passes is $\lceil F/P_\text{out}\rceil=\lceil256/128\rceil=2$, versus $\lceil256/32\rceil=8$ if the output patch were also 32 (derived). One value per pass needs 256 passes; a direct head needs 1. A single pass over placeholder patches also needs 1 (illustratively 8 placeholder patches of 32). If $F=100$ and $P_\text{out}=32$, 4 passes produce 128 steps and 28 are discarded.
+
+### Check your understanding {#sec-ch3-check}
+
+1. **Calculation.** $F=96$, $P_\text{out}=32$: how many passes? And for $F=100$? What happens to the surplus?
+2. **Classify.** A model receives context plus eight masked horizon patches and outputs all eight in one pass. Which class is this, and does error accumulate through feedback?
+3. **Misconception check.** "One forward pass means the compute is not sequential." Why can this be false?
+4. **Training versus inference.** Under teacher forcing, where can feedback errors appear, and where can they not?
+5. **Explain.** Why is feeding back a nine-quantile output not automatic?
+6. **Interview practice.** Compare iterative and direct horizon filling on pass count and exposure to a model's own errors, and say which claims you could not make without evidence.

@@ -1,0 +1,16 @@
+### Answer Key: Module 3 {#sec-solutions-ch3 .unnumbered}
+
+Solutions to Module 3's "Check your understanding" questions
+(@sec-ch3-check).
+
+**1.** $\lceil96/32\rceil=3$ passes. For $F=100$: $\lceil100/32\rceil=4$ passes produce 128 steps, and the surplus 28 is truncated.
+
+**2.** Class (ii), a single pass over placeholder inputs. No model output is fed back, so there is no feedback accumulation.
+
+**3.** Passes are not time. A recurrent backbone updates its state step by step even within one forecast pass, so the work is sequential in time; a direct head over a transformer encoder is not.
+
+**4.** Under teacher forcing the true previous values are supplied, so feedback errors do not occur during training. They can appear only in an inference rollout where the model reads its own outputs.
+
+**5.** The next input must be one value (or one patch), but the output holds nine numbers. Some rule must reduce or choose among them; how Moirai 2.0 does this is not covered here.
+
+**6.** Iterative filling needs $\lceil F/P_\text{out}\rceil$ passes and reads its own outputs, so earlier errors can reach later steps; a direct head needs one pass and has no feedback. You could not claim that direct is therefore more accurate, or that iterative error growth is large, without evidence from experiments on the models in question.

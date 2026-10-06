@@ -1,0 +1,21 @@
+## How to use this addendum {.unnumbered}
+
+This addendum carries the language-model ideas from the architecture and pretraining workbooks over to time-series foundation models (TSFMs): large models pretrained on many series and then asked to forecast series they were not trained on. It is self-contained. Each module opens with a **Quick recap from LLMs** that restates what you need, then labels each carried-over idea as the **same idea**, an **adapted idea**, or a **time-series-specific idea**.
+
+**Three labels for every number.** *Reported* means a source states it. *Derived* means it is arithmetic done in this addendum from stated definitions. *Illustrative* means it was chosen for teaching and says nothing about any named model.
+
+**Source types.** A *paper* is an article or technical report describing that exact model generation. *Documentation* is a repository README or model card: it states configuration facts, not mechanisms. A *vendor claim* is a statement in a vendor blog post about size, mechanism or capability. Mechanism claims in this addendum rest on papers only. No paper was found for TimesFM 2.0, 2.5 or 3.0, or for Chronos-Bolt, so those releases appear only as documentation. Facts about releases are time-sensitive and are stated as of October 2026; Moirai 2.0 and TiRex-2 are 2026 preprints and may change.
+
+| Symbol | Meaning |
+|---|---|
+| $T_\text{ctx}$, $F$ | context length and forecast horizon, in time steps |
+| $P_\text{in}$, $P_\text{out}$, $S_p$ | input and output patch length, patch stride (time steps) |
+| $N_p$ | number of patches |
+| $n_\text{tgt}$, $n_\text{cov}$ | number of target variables, number of covariates |
+| $n_q$, $\tau$ | number of quantile levels; one quantile level |
+| $n_\text{bins}$, $n_\text{samples}$ | number of bins; number of sampled paths |
+| $p(\cdot)$ | a probability; never a patch length |
+| $w_j$ | share of sub-dataset $j$ in a pretraining mixture |
+| $d_\text{model}$ | hidden width (as in the LLM workbooks) |
+
+: Notation used throughout. Axis order in a model's output tensor differs by source, so every tensor axis is labeled where it appears. {#tbl-notation}

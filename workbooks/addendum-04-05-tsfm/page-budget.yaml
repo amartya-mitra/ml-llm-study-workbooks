@@ -1,0 +1,20 @@
+# Page budget for the TSFM addendum (planning figures, then measured build).
+# Target about 22 pages all-in; hard ceiling 24 including front matter,
+# questions, answer keys and references.
+
+target_pages: 22
+hard_ceiling_pages: 24
+
+planning:
+  front_matter: 1.0
+  module_1: 3.5
+  module_2: 3.5
+  module_3: 4.0
+  module_4: 3.5
+  module_5: 3.0
+  module_6: 2.0
+  answer_keys: 1.0
+  references: 0.5
+
+# Cut order if a module overruns: Module 6 practice material, Module 5
+# adaptation subsection, then the synthesis table. Quick recaps are never cut.

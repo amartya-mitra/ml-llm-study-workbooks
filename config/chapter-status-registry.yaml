@@ -53,6 +53,28 @@ workbooks:
         commit_sha: "6af2892ae7647d645389f6fd2940576f79f1a695"
         chapter_path: "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"
         note: "Final content chapter of Workbook 05. Drafted, internally reviewed, corrected once (source-audit time-qualifier fix), and now accepted after independent human review -- this entry records that acceptance, per the task that reported the human review as complete. commit_sha updated to the chapter file's actual last-touched commit (the correction-pass commit), superseding the earlier draft commit this field previously recorded."
+  addendum-04-05-tsfm:
+    status: "drafted_pending_human_review"
+    note: "Standalone TSFM addendum. Drafted and reviewed by four role-separated internal audit passes in the drafting session (no subagents were admitted); awaiting independent human review of the integrated review PDF. Not accepted, not frozen, no canonical PDF, no release candidate. Companion to frozen Workbooks 04 and 05, which it does not modify."
+    chapters:
+      01:
+        status: "drafted_pending_human_review"
+        chapter_path: "workbooks/addendum-04-05-tsfm/chapters/01-model-inputs.qmd"
+      02:
+        status: "drafted_pending_human_review"
+        chapter_path: "workbooks/addendum-04-05-tsfm/chapters/02-context-channels-covariates-horizons.qmd"
+      03:
+        status: "drafted_pending_human_review"
+        chapter_path: "workbooks/addendum-04-05-tsfm/chapters/03-architecture-families-and-horizon-filling.qmd"
+      04:
+        status: "drafted_pending_human_review"
+        chapter_path: "workbooks/addendum-04-05-tsfm/chapters/04-outputs-and-losses.qmd"
+      05:
+        status: "drafted_pending_human_review"
+        chapter_path: "workbooks/addendum-04-05-tsfm/chapters/05-pretraining-data-adaptation-and-leakage.qmd"
+      06:
+        status: "drafted_pending_human_review"
+        chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
   04-llm-architecture:
     status: "frozen"
     note: "Whole workbook frozen -- Release Candidate 7, complete. Chapter-granular entries are not needed since no further chapter-level work on this workbook is in scope for the chapter-factory workflow."
@@ -114,8 +136,8 @@ publications:
   addendum-04-05-tsfm:
     title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
     workbook_id: "addendum-04-05-tsfm"
-    status: "planned"
-    note: "Scope approved and sources registered (reports/addendum_04_05_tsfm_scope_and_source_decision.md). No chapters, figures or PDF exist; implementation not started."
+    status: "review_pending"
+    note: "Drafted (status drafted_pending_human_review in the chapter registry); integrated review PDF awaiting independent human inspection. No canonical PDF, release candidate or release exists."
 
 # --------------------------------------------------------------------
 # Override mechanism

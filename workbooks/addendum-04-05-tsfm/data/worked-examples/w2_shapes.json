@@ -1,0 +1,65 @@
+{
+  "labels": {
+    "shapes": "derived",
+    "settings": "illustrative"
+  },
+  "n_tgt": 4,
+  "horizon": 16,
+  "n_q": 9,
+  "n_samples": 1000,
+  "point_values": 64,
+  "future_timestamps": 16,
+  "quantile_numbers": 576,
+  "sample_numbers": 64000,
+  "covariate_extra_output_axes": 0,
+  "positions_flattened": 64,
+  "score_entries_independent": 1024,
+  "score_entries_flattened": 4096,
+  "score_ratio_flattened_over_independent": 4.0,
+  "group_layouts": {
+    "independent_series": {
+      "rows": [
+        "target A",
+        "target B",
+        "target C"
+      ],
+      "group_ids": [
+        0,
+        1,
+        2
+      ]
+    },
+    "multivariate": {
+      "rows": [
+        "target A",
+        "target B",
+        "target C",
+        "target D"
+      ],
+      "group_ids": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "targets_plus_covariates": {
+      "rows": [
+        "target",
+        "covariate 1",
+        "covariate 2"
+      ],
+      "group_ids": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "reported_axis_orders": {
+    "chronos_2": "horizon x targets x quantiles",
+    "tirex_2": "targets x quantiles x patches x steps-per-patch",
+    "timesfm_readme_example": "point (12,); quantiles (12, 9)"
+  },
+  "note": "Score-entry counts are logical (counted), per head per layer, for the future positions only; not measured."
+}

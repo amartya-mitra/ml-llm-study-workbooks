@@ -40,3 +40,8 @@ workbooks:
     number: 8
     title: "ML/LLM Research Careers"
     status: "not started"
+  - id: "addendum-04-05-tsfm"
+    number: null
+    kind: "addendum"
+    title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
+    status: "drafted pending human review"

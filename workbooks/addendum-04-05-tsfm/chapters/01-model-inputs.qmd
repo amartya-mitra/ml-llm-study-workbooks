@@ -1,0 +1,48 @@
+## Model inputs: scaling, tokens and patches {#sec-ch1}
+
+### Quick recap from LLMs
+
+In an LLM, a token id selects one row of an *embedding table* (one learned row per vocabulary entry), producing a vector of width $d_\text{model}$. That vector enters the *residual stream*, which keeps the same width through every layer; each layer adds the output of an attention sublayer and of a feed-forward sublayer, a small two-layer network applied to each position separately. Normalization and position-encoding choices such as RMSNorm and RoPE are conventions layered on this skeleton, not part of the idea. One more fact carries over: if two runs use different tokenizers, the same text becomes a different number of tokens, so their losses are not comparable.
+
+- **Same idea:** every input unit becomes a $d_\text{model}$-wide vector, and everything downstream works on vectors.
+- **Adapted idea:** the table lookup becomes either a lookup of a *bin id* or a learned projection of a *patch* of $P_\text{in}$ real values, which has no table.
+- **Time-series-specific idea:** values are *scaled first*, and a mask or time index may ride along.
+
+### Why scaling comes first
+
+Series differ in units and level: one counts thousands, another measures tenths. A fixed vocabulary or one shared projection cannot serve both, so each series is rescaled before it becomes input, and the forecast is mapped back afterward. Reported choices differ (@tbl-scalers). The Lag-Llama paper describes both a mean/variance heuristic and a median/IQR standardization; which one is used is left open here.
+
+| Scaling | Model | Source type |
+|---|---|---|
+| mean absolute value of the context; zeros stay zero | Chronos [@src-56] | paper |
+| standardization plus inverse hyperbolic sine | Chronos-2 [@src-57], TiRex-2 [@src-60] | paper |
+| z-score of the series | TiRex [@src-59] | paper |
+| statistics from only the first 30% of each series | Moirai 2.0 [@src-62] | paper |
+| instance normalization; PatchTST adds the statistics back to its output | PatchTST [@src-64]; Moirai [@src-61] | paper |
+
+: Scalers reported by the papers. No scaler is best in general; each is paired with its own model. {#tbl-scalers}
+
+### Three ways to build input tokens
+
+@fig-tokenization-styles shows all three on the same 12 values.
+
+**Bin tokens (Chronos).** After mean scaling, each value is assigned to one of a fixed set of uniform bins; the paper's vocabulary has 4096 entries including padding and end-of-sequence tokens, covering [−15, +15] in its experiments [@src-56]. The model is then an ordinary language model over these ids. Two limits follow: quantization discards position inside a bin, and the representable range ends at the outer bin centers.
+
+**Patch tokens.** $P_\text{in}$ consecutive values (plus a missing-value mask, and in Chronos-2 a time index) pass through a residual MLP into one $d_\text{model}$ vector [@src-57; @src-58; @src-59]. With stride $S_p$ and the series end-padded, the patch count is $N_p=\lfloor (T_\text{ctx}-P)/S_p\rfloor+2$; without overlap or padding it is $\lfloor T_\text{ctx}/P\rfloor$ [@src-64]. Fewer tokens means cheaper attention: the score matrix grows with the square of the token count, so cutting tokens by a factor $k$ cuts score entries by about $k^2$ and the total work done per token (summed over all tokens) by about $k$. The patch length trades token count against how much each token must encode. Moirai chose patch size by data frequency, which its authors call somewhat heuristic [@src-61]; Moirai 2.0 uses one patch size [@src-62].
+
+**Lag tokens (Lag-Llama).** One token per time step, built from values at chosen lags plus date-time features and summary statistics, then linearly projected [@src-63]. The first token needs a history as long as the largest lag.
+
+![Three input styles for the same 12 values. A bin id indexes an embedding table; a patch goes through a learned projection with no table; a lag token is one time step described by earlier values. Settings are illustrative, and the counts (6 patches, 8 lag tokens) are computed in the worked example.](figures/rendered/fig-tokenization-styles.svg){#fig-tokenization-styles}
+
+### Worked example: one series, three inputs
+
+The 12 illustrative values are 10, 12, 14, 13, 15, 18, 20, 19, 22, 25, 24, 28. Their mean absolute value is $220/12\approx18.33$ (derived), so mean scaling gives 0.55 to 1.53. Cutting an illustrative range [0, 2) into 8 bins gives the ids in @fig-tokenization-styles; mapping each id back to its bin center and rescaling shifts a value by up to about 2.04 (derived), the quantization loss. With $P=4$ and $S_p=2$, $N_p=\lfloor(12-4)/2\rfloor+2=6$, the last patch containing 2 padded steps, versus $\lfloor12/4\rfloor=3$ without overlap. For lags $\{1,2,4\}$, steps 1 to 4 lack a full history, leaving 8 tokens. Finally, with an illustrative $T_\text{ctx}=512$, $P=16$, $S_p=8$: $N_p=64$ patches (32 without overlap), so 8 times fewer tokens and $512^2/64^2=64$ times fewer score entries per head per layer (logical counts, not measured cost).
+
+### Check your understanding {#sec-ch1-check}
+
+1. **Quick check.** In a bin-token model, what does a bin id select, and in a patch model what plays that role?
+2. **Calculation.** A series has 20 steps. Compute $N_p$ for $P=5$, $S_p=2$ with end padding, and for non-overlapping patches of 5.
+3. **Misconception check.** "Chronos treats the series like text, so it can forecast any value." What limit does the bin design impose?
+4. **Compare.** Name one thing a lag token and a patch token have in common and one thing that differs.
+5. **Explain.** Why does the forecast have to be un-scaled, and why can losses on differently scaled series not be compared directly?
+6. **Interview practice.** A colleague proposes doubling the patch length with non-overlapping patches. What happens to token count and score-matrix size, and what can you not conclude about accuracy?

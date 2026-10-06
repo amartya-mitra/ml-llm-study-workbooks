@@ -17,6 +17,7 @@ EXPECTED_DIRS = [
     "workbooks/03-ml-systems-design", "workbooks/04-llm-architecture",
     "workbooks/05-llm-training", "workbooks/06-llm-inference",
     "workbooks/07-llm-post-training", "workbooks/08-research-careers",
+    "workbooks/addendum-04-05-tsfm",
     "figures/source", "figures/rendered", "scripts", "reports", "tests", "outputs",
 ]
 
@@ -24,6 +25,7 @@ EXPECTED_WORKBOOK_IDS = [
     "01-ml-foundations", "02-ml-interviews", "03-ml-systems-design",
     "04-llm-architecture", "05-llm-training", "06-llm-inference",
     "07-llm-post-training", "08-research-careers",
+    "addendum-04-05-tsfm",
 ]
 
 
@@ -33,7 +35,7 @@ class TestProjectStructure(unittest.TestCase):
             path = os.path.join(REPO_ROOT, rel)
             self.assertTrue(os.path.isdir(path), msg=f"missing expected directory: {rel}")
 
-    def test_project_yaml_lists_all_eight_workbooks(self):
+    def test_project_yaml_lists_all_eight_workbooks_and_the_tsfm_addendum(self):
         project = safe_load_path(os.path.join(REPO_ROOT, "config", "project.yaml"))
         ids = [wb["id"] for wb in project["workbooks"]]
         self.assertEqual(ids, EXPECTED_WORKBOOK_IDS)
