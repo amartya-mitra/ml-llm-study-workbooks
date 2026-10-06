@@ -1,6 +1,10 @@
 # Addendum 04-05 (TSFM): internal audit report and dispositions
 
-Status of the addendum: `drafted_pending_human_review`.
+Status of the addendum at the time of this audit: `drafted_pending_human_review`.
+**Update, 2026-10-06:** after independent human review of the corrected
+18-page review PDF, the content was accepted and frozen
+(`accepted_frozen`); see `reports/addendum_04_05_tsfm_rc1_report.md`.
+The sections below are the historical audit record and are unchanged.
 Date: 2026-10-06.
 
 ## How this audit was performed (read this first)

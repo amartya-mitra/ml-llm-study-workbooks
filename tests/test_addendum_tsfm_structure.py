@@ -75,9 +75,11 @@ class TestScaffold(unittest.TestCase):
     def test_no_canonical_release_or_rc_artifacts_exist(self):
         out = os.path.join(REPO_ROOT, "outputs")
         self.assertFalse(os.path.exists(os.path.join(out, "addendum-04-05-tsfm.pdf")))
-        rel = os.path.join(out, "_releases")
+        # Release Candidate 1 is the only permitted release-area artifact
+        rel = os.path.join(out, "_releases", WB_ID)
         if os.path.isdir(rel):
-            self.assertNotIn(WB_ID, os.listdir(rel))
+            names = [n for n in os.listdir(rel) if ".prev-" not in n]
+            self.assertEqual(names, [f"{WB_ID}-rc1.pdf"])
 
     def test_exactly_six_modules_and_no_depth_diagnostics_module(self):
         files = sorted(os.listdir(os.path.join(ADD, "chapters")))
@@ -141,10 +143,14 @@ class TestRegistration(unittest.TestCase):
         self.assertIn(WB_ID, [w["id"] for w in project["workbooks"]])
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
         entry = reg["workbooks"][WB_ID]
-        self.assertEqual(entry["status"], "drafted_pending_human_review")
+        self.assertEqual(entry["status"], "accepted_frozen")
+        self.assertEqual(entry["acceptance_date"], "2026-10-06")
+        self.assertEqual(entry["accepted_source_commit"], "aea2e38673556a8701c68fdb0fecddaab1a91d02")
+        self.assertEqual(entry["accepted_review_pdf_sha256"], "d2fcd1cff746cbeeb154de0143d4996c6238f6fe715748ef713d8c589c4e3319")
+        self.assertEqual(entry["accepted_review_pdf_page_count"], 18)
         self.assertEqual(sorted(str(k).zfill(2) for k in entry["chapters"]), sorted(MODULES))
         for ch in entry["chapters"].values():
-            self.assertEqual(ch["status"], "drafted_pending_human_review")
+            self.assertEqual(ch["status"], "accepted_frozen")
         self.assertNotEqual(reg["publications"][WB_ID]["status"], "published")
         self.assertEqual(reg["publications"]["workbook-04"]["status"], "published")
         self.assertEqual(reg["publications"]["workbook-05"]["status"], "published")
@@ -429,20 +435,24 @@ class TestTechnicalQualifications(unittest.TestCase):
     def test_status_vocabulary_is_valid_and_consistent(self):
         schema = safe_load_path(os.path.join(REPO_ROOT, "shared", "chapter-contract-schema.yaml"))
         enum = [f for s in schema["sections"] if s["name"] == "identity" for f in s["fields"] if f["name"] == "status"][0]["allowed_values"]
-        self.assertIn("drafted_pending_human_review", enum)
+        self.assertIn("accepted_frozen", enum)
         project = safe_load_path(os.path.join(REPO_ROOT, "config", "project.yaml"))
         entry = [w for w in project["workbooks"] if w["id"] == WB_ID][0]
-        self.assertEqual(entry["status"], "drafted_pending_human_review")
+        self.assertEqual(entry["status"], "accepted_frozen")
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
-        self.assertEqual(reg["workbooks"][WB_ID]["status"], "drafted_pending_human_review")
+        self.assertEqual(reg["workbooks"][WB_ID]["status"], "accepted_frozen")
         for n in MODULES:
             contract = safe_load_path(os.path.join(ADD, "chapter-contracts", f"ch{n}.yaml"))
             self.assertIn(contract["identity"]["status"], enum)
-            self.assertEqual(contract["identity"]["status"], "drafted_pending_human_review")
-        # the publication lifecycle uses its own valid value and is never accepted/published
+            self.assertEqual(contract["identity"]["status"], "accepted_frozen")
+            # frozen convention: nothing is allowed to change, and the contract says so
+            self.assertEqual(contract["scope"]["allowed_paths"], [])
+            self.assertTrue(any("chapters/" + n in p for p in contract["scope"]["frozen_paths"]))
+            self.assertEqual(contract["acceptance"]["visual_review"], "pass")
+        # the publication lifecycle stays at its valid pre-publication value
         self.assertEqual(reg["publications"][WB_ID]["status"], "review_pending")
         report = read(os.path.join(REPO_ROOT, "reports", "addendum_04_05_tsfm_internal_audit.md"))
-        self.assertIn("`drafted_pending_human_review`", report)
+        self.assertIn("`drafted_pending_human_review`", report)  # historical record of the draft stage
 
 
 class TestProjectWideValidators(unittest.TestCase):

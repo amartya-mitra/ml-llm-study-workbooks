@@ -54,26 +54,30 @@ workbooks:
         chapter_path: "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"
         note: "Final content chapter of Workbook 05. Drafted, internally reviewed, corrected once (source-audit time-qualifier fix), and now accepted after independent human review -- this entry records that acceptance, per the task that reported the human review as complete. commit_sha updated to the chapter file's actual last-touched commit (the correction-pass commit), superseding the earlier draft commit this field previously recorded."
   addendum-04-05-tsfm:
-    status: "drafted_pending_human_review"
-    note: "Standalone TSFM addendum. Drafted and reviewed by four role-separated internal audit passes in the drafting session (no subagents were admitted); awaiting independent human review of the integrated review PDF. Not accepted, not frozen, no canonical PDF, no release candidate. Companion to frozen Workbooks 04 and 05, which it does not modify."
+    status: "accepted_frozen"
+    note: "Standalone TSFM addendum. Content accepted and frozen after independent human review of the corrected 18-page integrated review PDF. Release Candidate 1 is built separately and awaits its own independent review. No canonical PDF, tag or release. Companion to frozen Workbooks 04 and 05, which it does not modify."
+    acceptance_date: "2026-10-06"
+    accepted_source_commit: "aea2e38673556a8701c68fdb0fecddaab1a91d02"
+    accepted_review_pdf_sha256: "d2fcd1cff746cbeeb154de0143d4996c6238f6fe715748ef713d8c589c4e3319"
+    accepted_review_pdf_page_count: 18
     chapters:
       01:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/01-model-inputs.qmd"
       02:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/02-context-channels-covariates-horizons.qmd"
       03:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/03-architecture-families-and-horizon-filling.qmd"
       04:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/04-outputs-and-losses.qmd"
       05:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/05-pretraining-data-adaptation-and-leakage.qmd"
       06:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
   04-llm-architecture:
     status: "frozen"
@@ -137,7 +141,7 @@ publications:
     title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
     workbook_id: "addendum-04-05-tsfm"
     status: "review_pending"
-    note: "Pending human acceptance. Two valid vocabularies apply: the chapter-level status is drafted_pending_human_review (the chapter-contract schema's value, used in the workbooks section above, in the contracts and in config/project.yaml); this publication-lifecycle value review_pending is its counterpart here. Integrated review PDF awaiting independent human inspection. No canonical PDF, release candidate or release exists."
+    note: "Content is accepted_frozen (workbooks section above, contracts, config/project.yaml; accepted 2026-10-06). This publication-lifecycle record deliberately stays at the valid pre-publication value review_pending: Release Candidate 1 (outputs/_releases/addendum-04-05-tsfm/) awaits its own independent review, and no canonical PDF, tag or release exists. It is not canonical_built or published."
 
 # --------------------------------------------------------------------
 # Override mechanism

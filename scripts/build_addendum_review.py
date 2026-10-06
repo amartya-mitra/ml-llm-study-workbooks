@@ -120,7 +120,7 @@ def main():
                 f"</style></head><body><div>{items}</div></body></html>")
     manifest = {
         "workbook": WB_ID,
-        "status": "drafted_pending_human_review",
+        "status": "accepted_frozen",
         "pdf": os.path.relpath(REVIEW_PDF, REPO_ROOT),
         "page_count": pages,
         "page_ceiling": PAGE_CEILING,

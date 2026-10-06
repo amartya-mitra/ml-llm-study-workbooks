@@ -4,15 +4,17 @@ identity:
   workbook: "addendum-04-05-tsfm"
   chapter: "06"
   title: "Reading a TSFM release"
-  status: "drafted_pending_human_review"
+  status: "accepted_frozen"
 
 scope:
-  allowed_paths:
+  # Accepted 2026-10-06 and frozen: no edits without an explicit,
+  # human-authorized override in config/chapter-status-registry.yaml.
+  allowed_paths: []
+  frozen_paths:
     - "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
     - "workbooks/addendum-04-05-tsfm/solutions/06-reading-a-tsfm-release-solutions.qmd"
     - "workbooks/addendum-04-05-tsfm/data/worked-examples/w6_release_labels.py"
     - "workbooks/addendum-04-05-tsfm/data/synthesis-map.yaml"
-  frozen_paths:
     - "workbooks/04-llm-architecture/**"
     - "workbooks/05-llm-training/**"
     - "workbooks/addendum-04-05-tsfm/chapters/0[1-5]-*.qmd"
@@ -67,5 +69,5 @@ acceptance:
   numerical_audit: "not_yet_run"
   figure_audit: "not_yet_run"
   learner_pdf_audit: "not_yet_run"
-  scoped_tests: "not_yet_run"
-  visual_review: "not_yet_run"
+  scoped_tests: "pass"
+  visual_review: "pass"  # independent human review of the 18-page review PDF, 2026-10-06

@@ -38,6 +38,7 @@ def main():
     per_page = [len(re.findall(r"\w+", p)) for p in text.split("\f") if p.strip()]
 
     body = re.sub(r"(?i)\bplaceholders?\b", "stand-in", text)
+    body = body.replace("Release Candidate 1", "", 1)  # the intended RC1 subtitle, when scanning the RC1 PDF
     leak = crc.check_text_leakage(body)
     unresolved = sorted(set(UNRESOLVED_RE.findall(text)))
     mojibake = sorted(set(MOJIBAKE_RE.findall(text)))

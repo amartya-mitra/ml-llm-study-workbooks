@@ -5,15 +5,17 @@ identity:
   workbook: "addendum-04-05-tsfm"
   chapter: "03"
   title: "Architecture families and horizon filling"
-  status: "drafted_pending_human_review"
+  status: "accepted_frozen"
 
 scope:
-  allowed_paths:
+  # Accepted 2026-10-06 and frozen: no edits without an explicit,
+  # human-authorized override in config/chapter-status-registry.yaml.
+  allowed_paths: []
+  frozen_paths:
     - "workbooks/addendum-04-05-tsfm/chapters/03-architecture-families-and-horizon-filling.qmd"
     - "workbooks/addendum-04-05-tsfm/solutions/03-architecture-families-and-horizon-filling-solutions.qmd"
     - "workbooks/addendum-04-05-tsfm/data/worked-examples/w3_rollout.py"
     - "workbooks/addendum-04-05-tsfm/figures/source/fig_horizon_filling.py"
-  frozen_paths:
     - "workbooks/04-llm-architecture/**"
     - "workbooks/05-llm-training/**"
     - "workbooks/addendum-04-05-tsfm/chapters/0[12456]-*.qmd"
@@ -69,5 +71,5 @@ acceptance:
   numerical_audit: "not_yet_run"
   figure_audit: "not_yet_run"
   learner_pdf_audit: "not_yet_run"
-  scoped_tests: "not_yet_run"
-  visual_review: "not_yet_run"
+  scoped_tests: "pass"
+  visual_review: "pass"  # independent human review of the 18-page review PDF, 2026-10-06
