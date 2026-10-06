@@ -322,6 +322,79 @@ tests 48 passed, 14 skipped, 3 failed; full suite once: 472 passed, 14
 skipped, 3 failed, 81 subtests — the same three known stale failures
 (rc2 subtitle; two rc4 heading tests), untouched.
 
+## 7c. Follow-up: router-label overlap in Figure 17
+
+**Defect.** In the PDF accepted at SHA-256 `95912c22…b60b3`, the dispatch
+arrow for t4→E2 (and the other direct token→expert arrows) ran from the
+token row straight to the expert, passing through the gold router box and
+across the word "router".
+
+**Correction** (`figures/source/fig_moe_routing_parallelism.py`; SVG
+regenerated, not hand-edited). Routing is now explicitly two-stage with six
+anchors, one per token, spaced 24 units apart starting 20 units inside the
+router's left edge (x = 350, 374, 398, 422, 446, 470):
+- stage 1: token centre (y 75) → its anchor on the router's top edge (y 110);
+- stage 2: the same x on the router's bottom edge (y 146) → top of its
+  expert (y 212), so each token remains individually traceable
+  (t1,t2,t3 → E1 (red, overloaded); t4 → E2; t5 → E3; t6 → E4).
+Before, stage-2 arrows started at the token (y 83) and ended at the expert
+(y 212), e.g. t4: (450, 83) → (300, 212), and all six token arrows converged
+on the router's centre point. No connector now enters the router box.
+Because the dispatch arrows start lower they are steeper and would have hit
+the "device N" labels near the top of the device boxes (t6 would cross
+"device 2"), so both device labels moved to the clear strip below the
+experts, inside the dashed boundaries (baseline = boundary top + 102;
+previously + 22, and before that above the boundary). Unchanged: six tokens,
+top-1 routing, loads 3/1/1/1, expert-to-device assignment, red highlight,
+device boundaries and label text, dispatch/return note, caption, prose and
+pagination.
+
+**Tests** (`tests/test_wb04_fig_moe_routing_layout.py`, 7 tests): no
+connector within 4 units of the router-label box; no connector passes
+through the router rectangle; no connector near either device-label box;
+device labels sit below the experts inside their boundaries; routing is
+two-stage with distinct anchors and unchanged assignments; tokens, experts,
+load labels (3/1/1/1) and the red highlight present; and the checker
+rejects the old t4→E2 geometry. Run against the previous SVG, four of these
+tests fail (router-label clearance, router-box entry, two-stage structure,
+label placement); against the new SVG all pass.
+
+**PDFs.**
+
+| | Path | Pages | Size (bytes) | Words | SHA-256 |
+|---|---|---|---|---|---|
+| Superseded | `outputs/_development/04-llm-architecture/superseded-final-pre-router-label-fix/04-modern-llm-architecture-workbook.pdf` | 69 | 1,366,456 | 33,634 | `95912c223d2bc130f51c96ef9b684ae72f3798dcbdce2a0d4891d9a7d32b60b3` (verified) |
+| New canonical | `outputs/04-modern-llm-architecture-workbook.pdf` | **69** | **1,366,516** | **33,634** | `12bcc6c115e4a7279162efd06c5e13f44a808a36fd92d6e3153cb43aac95c33b` |
+
+Build: `/usr/bin/python3 scripts/build_final.py` with the `ml-workbooks` env
+active only for quarto/typst/poppler (started 2026-10-06T02:51:44Z).
+Pillow 12.3.0 was used via the explicit interpreter
+`/mnt/home/amitra/.conda/envs/ml-workbooks/bin/python` for the pixel diffs
+and contact sheets only; repository scripts and tests used `/usr/bin/python3`.
+
+**Page-level diff.** Previous and new PDFs rendered at 170 dpi and compared
+page by page with Pillow: pixel differences on **page 41 only** (bounding box
+within the figure). Extracted text differs only on page 41 (the device
+labels now appear after the experts in reading order). All other 68 pages are
+pixel- and text-identical to the previous PDF, so page 28's corrected
+wording, the Build Note at the top of page 67, the bibliography (pp. 67–69)
+and the TOC are unchanged (checked: no AGENTS.md / RC / path leakage in the
+extracted text).
+
+**Visual review.** Fresh render only (image directory cleared); labelled
+contact sheets covering all 69 pages (6 sheets, Pillow) were viewed in full,
+and page 41 was viewed at 250 dpi. On page 41: no connector touches the word
+"router" or either device label; routing semantics match the caption; no
+clipping or overlap. Residual, unchanged: the three orange E1 arrows
+overlap one another along most of their length and cross the device-1
+dashed border (inherent to routing three tokens to one expert), and the
+Figure 10 text-touching-box-edge observation from 7b is untouched.
+
+**Tests.** Registry OK; questions OK (74); `git diff --check` clean; scoped
+tests 52 passed, 14 skipped, 3 failed; full suite once: 476 passed, 14
+skipped, 3 failed — the same three known stale failures (rc2 subtitle; two
+rc4 heading tests), untouched.
+
 ## 8. Recommendation
 
 The new PDF is **ready for independent human acceptance**, with the
