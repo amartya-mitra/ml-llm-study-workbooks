@@ -78,7 +78,7 @@ publications:
   workbook-04:
     title: "Modern LLM Architecture"
     workbook_id: "04-llm-architecture"
-    status: "canonical_built"
+    status: "published"
     canonical_path: "outputs/04-modern-llm-architecture-workbook.pdf"
     page_count: 69
     sha256: "12bcc6c115e4a7279162efd06c5e13f44a808a36fd92d6e3153cb43aac95c33b"
@@ -87,7 +87,7 @@ publications:
     release_title: "Workbook 04 — Modern LLM Architecture v1.0.0"
     release_asset: "04-modern-llm-architecture-workbook.pdf"
     release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/workbook-04-v1.0.0"
-    publication_date: null
+    publication_date: "2026-10-06"
     reproduction_command: "python3 scripts/build_final.py"
     human_acceptance:
       accepted: true
@@ -96,7 +96,7 @@ publications:
   workbook-05:
     title: "LLM Pretraining and Distributed Training"
     workbook_id: "05-llm-training"
-    status: "canonical_built"
+    status: "published"
     canonical_path: "outputs/05-llm-training-workbook.pdf"
     page_count: 64
     sha256: "25a393bb6b1bb1c42c836f08b4375e9e1a451792f4397665f63b69e1c1072a0c"
@@ -105,7 +105,7 @@ publications:
     release_title: "Workbook 05 — LLM Pretraining and Distributed Training v1.0.0"
     release_asset: "05-llm-training-workbook.pdf"
     release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/workbook-05-v1.0.0"
-    publication_date: null
+    publication_date: "2026-10-06"
     reproduction_command: "python3 scripts/build_wb05_final.py"
     human_acceptance:
       accepted: true

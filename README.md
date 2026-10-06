@@ -19,8 +19,8 @@ shown as **Published** only after its release asset has been verified.
 <!-- publication-catalog:start -->
 | ID | Workbook | Scope | Status | Pages | Version | Download |
 |---|---|---|---|---|---|---|
-| `workbook-04` | 04 — Modern LLM Architecture (`workbooks/04-llm-architecture/`) | Attention variants, KV cache, MoE, hybrid and looped architectures, and how to read a model report | Release pending | 69 | `workbook-04-v1.0.0` (prepared) | not yet released |
-| `workbook-05` | 05 — LLM Pretraining and Distributed Training (`workbooks/05-llm-training/`) | Pretraining objectives and data, multi-token prediction, scaling laws, parallelism, training memory and communication, reading real runs | Release pending | 64 | `workbook-05-v1.0.0` (prepared) | not yet released |
+| `workbook-04` | 04 — Modern LLM Architecture (`workbooks/04-llm-architecture/`) | Attention variants, KV cache, MoE, hybrid and looped architectures, and how to read a model report | Published | 69 | [`workbook-04-v1.0.0`](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/workbook-04-v1.0.0) | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-04-v1.0.0/04-modern-llm-architecture-workbook.pdf) — SHA-256 `12bcc6c115e4a7279162efd06c5e13f44a808a36fd92d6e3153cb43aac95c33b` |
+| `workbook-05` | 05 — LLM Pretraining and Distributed Training (`workbooks/05-llm-training/`) | Pretraining objectives and data, multi-token prediction, scaling laws, parallelism, training memory and communication, reading real runs | Published | 64 | [`workbook-05-v1.0.0`](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/workbook-05-v1.0.0) | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-05-v1.0.0/05-llm-training-workbook.pdf) — SHA-256 `25a393bb6b1bb1c42c836f08b4375e9e1a451792f4397665f63b69e1c1072a0c` |
 | `addendum-04-05-tsfm` | Addendum 04–05 — From Language Models to Time-Series Foundation Models | Scope approved and sources registered; implementation not started | Planned | — | — | — |
 <!-- publication-catalog:end -->
 
@@ -35,8 +35,8 @@ Workbooks without a release record:
 | 07 | `workbooks/07-llm-post-training/` | LLM Post-Training and Alignment | not started (empty directory) |
 | 08 | `workbooks/08-research-careers/` | ML/LLM Research Careers | not started (empty directory) |
 
-Download links and SHA-256 checksums appear in the catalog above once a
-release is verified.
+Download links and SHA-256 checksums for each published PDF are in the
+catalog above. Verify a download with `sha256sum <file>`.
 
 ### Reproducing a canonical PDF
 
