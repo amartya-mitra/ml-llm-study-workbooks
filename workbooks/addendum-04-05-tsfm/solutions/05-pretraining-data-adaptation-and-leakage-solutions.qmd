@@ -3,7 +3,7 @@
 Solutions to Module 5's "Check your understanding" questions
 (@sec-ch5-check).
 
-**1.** Capped sizes are 2M, 2M and 1M, total 5M, so shares are 0.4, 0.4 and 0.2 (the toy rule from the worked example; it is not any model's rule).
+**1.** Proportional shares are 0.6, 0.3 and 0.1. Capping at $\epsilon=0.4$ gives $\omega_j=0.4$, 0.3 and 0.1, which sum to 0.8, so the shares are 0.5, 0.375 and 0.125. The rule's form is the paper's; $\epsilon=0.4$ is a toy value (the paper's is 0.001).
 
 **2.** A normalization-statistics leak: the scaler's mean already reflects the held-out final 20%, so the "past" input encodes information from the evaluation window.
 

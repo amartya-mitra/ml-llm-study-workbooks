@@ -59,12 +59,13 @@ learner_facing:
 claims:
   required_claim_prefix: "claim-tsfm-data-"
   forbidden_statements:
-    - "the Moirai sampling-cap value or rule presented as sourced"
+    - "the toy epsilon (0.4) or the toy sizes presented as the original Moirai paper's values"
+    - "the Moirai cap rule attributed to Moirai 2.0 or any other model"
     - "any benchmark's leakage protocol defined as fact"
     - "a TSFM scaling law or a field-wide parameter bound"
     - "how much fine-tuning helps"
     - "distributed-training strategies, ZeRO or FSDP detail"
-    - "the toy capped allocation presented as any model's rule"
+    - "the toy capped allocation presented as any model's actual pipeline"
 
 acceptance:
   source_audit: "not_yet_run"

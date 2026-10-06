@@ -95,7 +95,7 @@ entries:
   - id: "claim-tsfm-inputs-011"
     workbook: "addendum-04-05-tsfm"
     chapter: "ch1"
-    statement: "Cutting the token count by a factor k cuts attention score-matrix entries by about k squared and per-token work by about k."
+    statement: "Cutting the token count by a factor k cuts attention score-matrix entries and total attention interaction work by about k squared, and attention interaction work per token by about k; this is the attention interaction term only, not total FLOPs or wall-clock time."
     source_ids: ["src-64"]
     verification_status: "computed_by_script"
     note: "Derived value (logical count, not measured). The patching-reduces-tokens motivation is from the PatchTST paper."
@@ -233,7 +233,7 @@ entries:
   - id: "claim-tsfm-architecture-001"
     workbook: "addendum-04-05-tsfm"
     chapter: "ch3"
-    statement: "Autoregressive decoding of N tokens needs at least N passes; teacher forcing supplies true previous tokens in training; recurrent state is fixed size; MTP heads are discarded at inference by default in the LLM workbooks; depth recurrence differs from sequence recurrence."
+    statement: "Under conventional token-by-token autoregressive decoding, N new tokens require N sequential decoding steps; speculative or multi-token methods can reduce target-model verification invocations but do not remove the causal dependency across accepted output positions; teacher forcing supplies true previous tokens in training; recurrent state is fixed size; MTP heads are discarded at inference by default in the LLM workbooks; depth recurrence differs from sequence recurrence."
     source_ids: []
     verification_status: "verified_full_text"
     note: "Frozen-workbook recap (Workbook 04 Ch.1, Ch.4, Ch.8; Workbook 05 Ch.2). Encoder-only, masked-encoder and encoder-decoder families are marked as not in those workbooks."
@@ -427,10 +427,18 @@ entries:
   - id: "claim-tsfm-data-002"
     workbook: "addendum-04-05-tsfm"
     chapter: "ch5"
-    statement: "The Moirai archive LOTSA holds 27,646,462,733 observations across nine domains and samples sub-datasets subject to a cap whose value and rule are unverified."
+    statement: "The Moirai archive LOTSA holds 27,646,462,733 observations across nine domains."
     source_ids: ["src-61"]
     verification_status: "verified_full_text"
-    note: "Paper claim (counts); the cap formula text extracted garbled, so no cap value or rule is stated or attributed. Original Moirai."
+    note: "Paper claim; original Moirai."
+
+  - id: "claim-tsfm-data-014"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Instead of sampling sub-datasets in proportion to size, the original Moirai paper caps each sub-dataset's proportional weight at epsilon = 0.001 and renormalizes: omega_k = min(|D_k| / sum_i |D_i|, epsilon) and p(D_k) = omega_k / sum_i omega_i, where |D_k| is the number of observations (the sum of series lengths) in sub-dataset k."
+    source_ids: ["src-61"]
+    verification_status: "verified_full_text"
+    note: "Paper claim; original Moirai only (not Moirai 2.0 or MoE). Re-read in the PDF text of the pre-training section, 'Data Distribution' paragraph (arXiv v2, page 5), which resolves the earlier garbled extraction. Motivation stated by the authors: data imbalance across domains and frequency."
 
   - id: "claim-tsfm-data-003"
     workbook: "addendum-04-05-tsfm"
@@ -515,10 +523,10 @@ entries:
   - id: "claim-tsfm-data-013"
     workbook: "addendum-04-05-tsfm"
     chapter: "ch5"
-    statement: "Toy capped allocation: shares 0.80/0.15/0.05 uncapped versus 0.50/0.375/0.125 with a 2,000,000 cap, allocating 500M/375M/125M of a 1B budget."
-    source_ids: []
+    statement: "Toy application of the capped rule: proportional shares 0.80/0.15/0.05 become 0.667/0.25/0.083 with a toy epsilon of 0.4 after capping and renormalizing, allocating about 667M/250M/83M of a 1B budget."
+    source_ids: ["src-61"]
     verification_status: "computed_by_script"
-    note: "Illustrative toy rule invented here (w5_mixture_cap.py); no source formula is attributed and it is not any model's rule."
+    note: "Derived by w5_mixture_cap.py. The rule's form is the original Moirai paper's (claim-tsfm-data-014); the sizes, epsilon = 0.4 (the paper's is 0.001) and the budget are illustrative and are not the paper's values or any model's pipeline."
 
   # ------------------------------ Module 6 ------------------------------
   - id: "claim-tsfm-release-001"

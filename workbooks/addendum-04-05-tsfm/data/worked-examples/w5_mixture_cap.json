@@ -1,33 +1,39 @@
 {
   "labels": {
-    "sizes_cap_budget": "illustrative",
+    "sizes_epsilon_budget": "illustrative",
     "shares_allocation": "derived",
-    "rule": "illustrative (invented)"
+    "rule_form": "reported (original Moirai paper); epsilon here is illustrative"
   },
+  "paper_epsilon": 0.001,
   "sizes": {
     "dataset A": 8000000,
     "dataset B": 1500000,
     "dataset C": 500000
   },
-  "cap": 2000000,
+  "epsilon": 0.4,
   "budget": 1000000000,
-  "uncapped_shares": {
+  "proportional_shares": {
     "dataset A": 0.8,
     "dataset B": 0.15,
     "dataset C": 0.05
   },
+  "capped_weights_omega": {
+    "dataset A": 0.4,
+    "dataset B": 0.15,
+    "dataset C": 0.05
+  },
   "capped_shares": {
-    "dataset A": 0.5,
-    "dataset B": 0.375,
-    "dataset C": 0.125
+    "dataset A": 0.6666666666666666,
+    "dataset B": 0.24999999999999994,
+    "dataset C": 0.08333333333333333
   },
   "allocation": {
-    "dataset A": 500000000,
-    "dataset B": 375000000,
-    "dataset C": 125000000
+    "dataset A": 666666667,
+    "dataset B": 250000000,
+    "dataset C": 83333333
   },
-  "largest_share_uncapped": 0.8,
-  "largest_share_capped": 0.5,
+  "largest_share_proportional": 0.8,
+  "largest_share_capped": 0.6666666666666666,
   "timeline": {
     "correct": {
       "train": [
@@ -62,5 +68,5 @@
       "stats_eval_overlap": 0.19999999999999996
     }
   },
-  "note": "The allocation rule is a toy; it is not a claim about any model's data pipeline."
+  "note": "The rule's form follows the original Moirai paper; every number here is illustrative or derived."
 }

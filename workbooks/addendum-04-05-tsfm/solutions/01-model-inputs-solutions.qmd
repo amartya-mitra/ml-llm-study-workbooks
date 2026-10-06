@@ -13,4 +13,4 @@ Solutions to Module 1's "Check your understanding" questions
 
 **5.** The model works on scaled values, so its output is in scaled units and must be mapped back to the original level to be useful. Because a loss measured on scaled values depends on the scaler, two runs with different scalers do not measure the same quantity (the same logic as a tokenizer change).
 
-**6.** Token count halves and the score matrix shrinks about fourfold (score entries grow with the square of the token count), and the total per-token work falls about twofold. Nothing follows about accuracy: each token now has to encode twice as many values, and accuracy was not measured here.
+**6.** Token count halves ($k=2$). Score-matrix entries, and so total attention interaction work, shrink about fourfold ($k^2$), and attention interaction work per token about twofold ($k$). This covers the attention interaction term only, not total FLOPs or wall-clock time. Nothing follows about accuracy: each token now has to encode twice as many values, and accuracy was not measured here.

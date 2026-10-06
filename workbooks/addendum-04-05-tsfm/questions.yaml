@@ -95,7 +95,7 @@ questions:
     question_type: "calculation"
     prompt: "With n_q = 9 quantile levels, how many numbers does the 3-variable, 10-step forecast contain? With 500 sampled paths instead?"
     expected_answer: "3 x 10 x 9 = 270 numbers; with 500 sampled paths, 3 x 10 x 500 = 15000."
-    explanation: "The sample axis replaces the quantile axis; the two are alternative representations of one distribution."
+    explanation: "The sample axis replaces the quantile axis; the two are alternative representations of predictive uncertainty, with different information and reconstruction properties."
     common_wrong_answer: "Multiplying by both the quantile count and the sample count."
     source_ids: []
 
@@ -297,11 +297,11 @@ questions:
     topic: "Capped allocation"
     difficulty: "core"
     question_type: "calculation"
-    prompt: "Sizes 6M, 3M and 1M with a cap of 2M: what are the capped shares under the toy rule?"
-    expected_answer: "Effective sizes 2M, 2M, 1M; shares 0.4, 0.4 and 0.2."
-    explanation: "Share is proportional to min(size, cap); the rule is a toy, not any model's."
-    common_wrong_answer: "Ignoring the cap."
-    source_ids: []
+    prompt: "Three sub-datasets have 6M, 3M and 1M observations. Using the capped rule with a toy epsilon of 0.4, what are the renormalized sampling shares?"
+    expected_answer: "Proportional shares 0.6, 0.3, 0.1; capped weights 0.4, 0.3, 0.1 (sum 0.8); renormalized shares 0.5, 0.375 and 0.125."
+    explanation: "omega = min(proportional share, epsilon), then renormalize. The rule's form is the original Moirai paper's; epsilon = 0.4 is a toy value (the paper's is 0.001)."
+    common_wrong_answer: "Forgetting to renormalize after capping, which leaves shares summing to 0.8."
+    source_ids: ["src-61"]
 
   - id: "q-tsfm-data-002"
     workbook: "addendum-04-05-tsfm"

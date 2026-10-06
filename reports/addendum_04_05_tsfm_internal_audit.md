@@ -39,7 +39,7 @@ Severity: blocker, required, recommended, no-action. Confidence: H/M/L.
 | S5 | recommended | Module 5 recap, scope report | Scope report describes WB05 Ch.3 as "single-axis fits (one variable varied at a time)"; that wording is not in Ch.3 | grep found no such text; Ch.3 says fitted relation, not universal law, loss is not capability | **Accepted.** Recap uses the phrases Ch.3 actually contains; divergence recorded here and in the ledger note | H |
 | S6 | no-action | TimesFM-3 (M5 p.11, M6 p.13) | 330M vs 20-layer/1280/16-head discrepancy preserved, no reconciliation, no parameter estimate | text read; test asserts no 12 x 1280 arithmetic | **No action.** Meets the requirement | H |
 | S7 | no-action | All modules | Moirai-MoE absent; documentation-only releases carry "doc:"/vendor labels and "as of October 2026"; no rankings | tests and text read | **No action** | H |
-| S8 | no-action | Modules 1, 5 | Moirai sampling-cap value/rule, PatchTST configurations, Chronos-2 patch length, Moirai 2.0 first-30% passage remain unverified or not re-read | registry access_status | **No action; kept as stated limits.** Cap not stated; 512/16/8 is labeled illustrative and not attributed; first-30% is stated as the paper's own design choice and recorded in the ledger as not independently re-read | M |
+| S8 | no-action | Modules 1, 5 | Moirai sampling-cap value/rule, PatchTST configurations, Chronos-2 patch length, Moirai 2.0 first-30% passage remain unverified or not re-read | registry access_status | **Superseded for the Moirai cap by correction pass 1 below (now verified and stated).** Still kept as stated limits: 512/16/8 is labeled illustrative and not attributed; first-30% is stated as the paper's own design choice and recorded in the ledger as not independently re-read | M |
 
 ### Pass 2: technical audit
 
@@ -76,6 +76,28 @@ Severity: blocker, required, recommended, no-action. Confidence: H/M/L.
 | C4 | no-action | Questions, answers, cross-references | 34 questions, 34 keys, 34 question records; each key links to its "Check your understanding" section; answers recomputed | **No action** | H |
 | C5 | no-action | Scope | Six modules, user-specified titles, no representation-depth module, no Moirai-MoE; 17 pages against the 24-page ceiling | **No action** | H |
 | C6 | no-action | Leakage | No source ids, paths, filenames, revision history or build metadata in learner text; the shared checker's "placeholder" pattern is exempted only for the ordinary technical word | **No action** | H |
+
+## Correction pass 1 (after independent review)
+
+Status unchanged: `drafted_pending_human_review` (chapter registry,
+contracts and project configuration); the publication lifecycle value is
+`review_pending`. Neither is acceptance.
+
+| ID | Where | Finding | Disposition and exact change |
+|---|---|---|---|
+| R1 | Module 1 section 1.3 (and answer 6) | The text conflated total attention interaction work (about N^2) with per-token work (about N) | **Accepted.** Now: reducing tokens by k cuts score-matrix entries and total attention interaction work by about k^2 and per-token attention interaction work by about k, for the attention interaction term only, not total FLOPs or wall-clock time. The worked example adds "8 times fewer positions for each token to attend to" |
+| R2 | Module 5 section 5.2, worked example, question 1 and its answer, ledger, registry entry for the original Moirai paper, module contract | Said the Moirai cap value and rule could not be verified | **Accepted.** Re-read in the paper's PDF text (pre-training section, "Data Distribution" paragraph, arXiv v2 page 5): epsilon = 0.001; omega_k = min(|D_k| / sum_i |D_i|, epsilon); p(D_k) = omega_k / sum_i omega_i; |D_k| counts observations. Cited with the existing source entry; no new source was registered. The toy example was changed from an absolute-size cap to the paper's rule form with an illustrative epsilon of 0.4, so text and example agree; sizes, epsilon and budget remain labeled illustrative. Reading depth: front matter, method, data and experiment-setup text were read; appendices were not |
+| R3 | Module 3 recap | "at least N forward passes" was unqualified | **Accepted.** Now: under conventional token-by-token autoregressive decoding, N new tokens require N sequential decoding steps; speculative or multi-token methods can reduce target-model verification invocations but do not remove the causal dependency across accepted output positions. Consistent with Workbook 05 Chapter 2, where MTP heads are discarded by default and reuse for self-speculative decoding is separate |
+| R4 | Module 2 worked example, its answer and question record | "both represent the same distribution" | **Accepted.** Now: alternative representations of predictive uncertainty with different information (a finite quantile vector gives marginal values at fixed levels; samples can be summarized into any statistic and, as whole paths, carry dependence, but only approximate the distribution) |
+| R5 | Status values | `config/project.yaml` used the free-text "drafted pending human review" | **Accepted.** Aligned to `drafted_pending_human_review`, the value in the chapter-contract schema, the chapter registry and all six contracts. The publication record keeps `review_pending`, a different valid vocabulary (publication lifecycle), now explained in its note |
+
+Visual defect found while inspecting this pass: the first rendering of the
+Moirai cap equation (inline math with bare bars and sizing commands) was
+garbled on the page. It was replaced by a display equation using $N_j$ for
+the number of observations; the figure that followed was moved after the
+first adaptation paragraph, and its width was set, to avoid a large blank
+gap. The build is 18 pages; page 11 keeps a modest gap before the atomic
+Figure 5, accepted as in the earlier pass.
 
 ## Verification of corrections
 

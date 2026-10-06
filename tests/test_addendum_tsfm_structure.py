@@ -233,9 +233,25 @@ class TestSourcesAndClaimLedger(unittest.TestCase):
 
     def test_unverified_items_are_not_presented_as_verified_values(self):
         text = " ".join(chapter(n) for n in MODULES)
-        self.assertNotIn("0.001", text)  # the unverified Moirai cap value
         self.assertIsNone(re.search(r"PatchTST[^.]{0,80}(336|L ?= ?512)", text))
-        self.assertIn("could not be verified", chapter("05"))
+        self.assertIn("the ablation statements behind these were not verified", chapter("05"))
+        # the Moirai cap is now verified: stated, attributed to the original Moirai only, with its form
+        ch5 = chapter("05")
+        self.assertNotIn("could not be verified, so none", ch5)
+        self.assertIn("\\epsilon=0.001", ch5)
+        self.assertIn("\\omega_j=\\min", ch5)
+        self.assertIn("[@src-61]", ch5.split("\\epsilon=0.001")[1].split("\n")[0])
+        self.assertNotIn("0.001", " ".join(chapter(n) for n in MODULES if n != "05"))
+
+    def test_moirai_cap_ledger_entry_cites_the_existing_source_only(self):
+        entry = [e for e in self.entries if e["id"] == "claim-tsfm-data-014"][0]
+        self.assertEqual(entry["source_ids"], ["src-61"])
+        self.assertIn("0.001", entry["statement"])
+        self.assertEqual(entry["verification_status"], "verified_full_text")
+        self.assertNotIn("garbled", " ".join(e["statement"] for e in self.entries))
+        # no new source was registered for it
+        self.assertIn("src-61", self.known)
+        self.assertNotIn("src-69", self.known)
 
     def test_scoped_reading_boundaries_hold(self):
         full = " ".join(chapter(n) for n in MODULES)
@@ -290,11 +306,12 @@ class TestQuestionsAndAnswers(unittest.TestCase):
         self.assertAlmostEqual(0.9 * 4, 3.6)
         self.assertAlmostEqual(0.1 * 4, 0.4)
         self.assertAlmostEqual(0.5 * 4, 2.0)
-        capped = [min(s, 2) for s in (6, 3, 1)]
-        self.assertEqual([c / sum(capped) for c in capped], [0.4, 0.4, 0.2])
+        prop = [6 / 10, 3 / 10, 1 / 10]
+        omega = [min(p, 0.4) for p in prop]
+        self.assertEqual([round(w / sum(omega), 6) for w in omega], [0.5, 0.375, 0.125])
         a = solutions("01") + solutions("02") + solutions("03") + solutions("04") + solutions("05")
         for needle in ["$N_p=\\lfloor(20-5)/2\\rfloor+2=7+2=9$", "$3\\times10\\times9=270$", "$(5\\times8)^2=40^2=1600$",
-                       "$\\lceil96/32\\rceil=3$", "$0.9\\times4=3.6$", "$0.1\\times4=0.4$", "0.4, 0.4 and 0.2"]:
+                       "$\\lceil96/32\\rceil=3$", "$0.9\\times4=3.6$", "$0.1\\times4=0.4$", "so the shares are 0.5, 0.375 and 0.125"]:
             self.assertIn(needle, a, msg=needle)
 
 
@@ -376,6 +393,56 @@ class TestSynthesisTable(unittest.TestCase):
         self.assertLess(text.index("{#tbl-synthesis}"), text.index("| TimesFM 3.0"))
         self.assertLess(text.index("| TimesFM 3.0"), text.index("{#tbl-synthesis-docs}"))
         self.assertEqual(text.count("Not a ranking"), 2)
+
+
+class TestTechnicalQualifications(unittest.TestCase):
+    """Pins the wording corrections made after independent review."""
+
+    def test_attention_cost_distinguishes_total_work_from_per_token_work(self):
+        text = chapter("01")
+        self.assertIn("total attention interaction work by about $k^2$", text)
+        self.assertIn("attention interaction work per token by about $k$", text)
+        self.assertIn("not every component of model FLOPs or wall-clock time", text)
+        self.assertNotIn("total work done per token", text)
+        ans = solutions("01").split("**6.**")[1]
+        self.assertIn("total attention interaction work, shrink about fourfold ($k^2$)", ans)
+        self.assertIn("attention interaction work per token about twofold ($k$)", ans)
+        self.assertIn("not total FLOPs or wall-clock time", ans)
+
+    def test_forward_pass_statement_is_qualified(self):
+        recap = chapter("03").split("### Three ways to fill a horizon")[0]
+        self.assertNotIn("at least $N$ forward passes", recap)
+        self.assertIn("conventional token-by-token autoregressive decoding", recap)
+        self.assertIn("$N$ sequential decoding steps", recap)
+        self.assertIn("do not remove the causal dependency across accepted output positions", recap)
+        # consistent with Workbook 05: heads discarded by default, speculative reuse is separate
+        self.assertIn("separate, optional technique", recap)
+
+    def test_samples_and_quantiles_are_not_called_the_same_distribution(self):
+        for n in ("02",):
+            text = chapter(n) + solutions(n)
+            self.assertNotRegex(text, r"(?i)represent the same distribution|of one distribution")
+            self.assertIn("alternative representations of predictive uncertainty", text)
+        qs = read(os.path.join(ADD, "questions.yaml"))
+        self.assertNotIn("of one distribution", qs)
+
+    def test_status_vocabulary_is_valid_and_consistent(self):
+        schema = safe_load_path(os.path.join(REPO_ROOT, "shared", "chapter-contract-schema.yaml"))
+        enum = [f for s in schema["sections"] if s["name"] == "identity" for f in s["fields"] if f["name"] == "status"][0]["allowed_values"]
+        self.assertIn("drafted_pending_human_review", enum)
+        project = safe_load_path(os.path.join(REPO_ROOT, "config", "project.yaml"))
+        entry = [w for w in project["workbooks"] if w["id"] == WB_ID][0]
+        self.assertEqual(entry["status"], "drafted_pending_human_review")
+        reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
+        self.assertEqual(reg["workbooks"][WB_ID]["status"], "drafted_pending_human_review")
+        for n in MODULES:
+            contract = safe_load_path(os.path.join(ADD, "chapter-contracts", f"ch{n}.yaml"))
+            self.assertIn(contract["identity"]["status"], enum)
+            self.assertEqual(contract["identity"]["status"], "drafted_pending_human_review")
+        # the publication lifecycle uses its own valid value and is never accepted/published
+        self.assertEqual(reg["publications"][WB_ID]["status"], "review_pending")
+        report = read(os.path.join(REPO_ROOT, "reports", "addendum_04_05_tsfm_internal_audit.md"))
+        self.assertIn("`drafted_pending_human_review`", report)
 
 
 class TestProjectWideValidators(unittest.TestCase):

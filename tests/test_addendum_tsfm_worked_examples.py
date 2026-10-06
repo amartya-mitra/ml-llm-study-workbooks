@@ -222,17 +222,36 @@ class TestW5MixtureCap(unittest.TestCase):
         cls.text = chapter_text("05-")
 
     def test_shares_sum_to_one_and_budget_is_exact(self):
-        self.assertAlmostEqual(sum(self.d["uncapped_shares"].values()), 1.0)
+        self.assertAlmostEqual(sum(self.d["proportional_shares"].values()), 1.0)
         self.assertAlmostEqual(sum(self.d["capped_shares"].values()), 1.0)
         self.assertEqual(sum(self.d["allocation"].values()), self.d["budget"])
 
-    def test_cap_reduces_the_largest_share(self):
-        self.assertAlmostEqual(self.d["largest_share_uncapped"], 0.8)
-        self.assertAlmostEqual(self.d["largest_share_capped"], 0.5)
-        self.assertEqual(self.d["allocation"]["dataset A"], 500_000_000)
+    def test_rule_matches_the_papers_form_independently(self):
+        # omega_k = min(|D_k| / sum_i |D_i|, eps); p(D_k) = omega_k / sum_i omega_i
+        sizes, eps = self.d["sizes"], self.d["epsilon"]
+        total = sum(sizes.values())
+        omega = {k: min(v / total, eps) for k, v in sizes.items()}
+        norm = sum(omega.values())
+        for k in sizes:
+            self.assertAlmostEqual(self.d["capped_weights_omega"][k], omega[k])
+            self.assertAlmostEqual(self.d["capped_shares"][k], omega[k] / norm)
+        self.assertAlmostEqual(norm, 0.6)
+        self.assertEqual(self.d["paper_epsilon"], 0.001)
 
-    def test_rule_is_labeled_invented(self):
-        self.assertIn("invented", self.d["labels"]["rule"])
+    def test_cap_reduces_the_largest_share(self):
+        self.assertAlmostEqual(self.d["largest_share_proportional"], 0.8)
+        self.assertAlmostEqual(self.d["largest_share_capped"], 2 / 3)
+        self.assertEqual(self.d["allocation"]["dataset A"], 666_666_667)
+
+    def test_toy_values_are_labeled_illustrative_and_rule_form_reported(self):
+        self.assertEqual(self.d["labels"]["sizes_epsilon_budget"], "illustrative")
+        self.assertIn("reported", self.d["labels"]["rule_form"])
+        self.assertNotEqual(self.d["epsilon"], self.d["paper_epsilon"])
+
+    def test_paper_epsilon_would_equalize_a_three_dataset_toy(self):
+        # the claim made in the chapter: with epsilon = 0.001 every weight is capped
+        omega = {k: min(v / sum(self.d["sizes"].values()), 0.001) for k, v in self.d["sizes"].items()}
+        self.assertEqual(len(set(omega.values())), 1)
 
     def test_timeline_overlaps(self):
         tl = self.d["timeline"]
@@ -242,7 +261,8 @@ class TestW5MixtureCap(unittest.TestCase):
         self.assertGreater(tl["leaky"]["stats_eval_overlap"], 0.0)
 
     def test_prose_numbers_appear_in_the_chapter(self):
-        for needle in ["0.80, 0.15 and 0.05", "0.50, 0.375 and 0.125", "500M, 375M and 125M"]:
+        for needle in ["0.80, 0.15 and 0.05", "0.667$, 0.25 and $0.05/0.60\\approx0.083$", "about 667M, 250M and 83M",
+                       "\\epsilon=0.001", "\\epsilon=0.4", "sum to 0.60"]:
             self.assertIn(needle, self.text, msg=needle)
 
 

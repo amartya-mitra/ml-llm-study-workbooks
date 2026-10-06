@@ -137,7 +137,7 @@ publications:
     title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
     workbook_id: "addendum-04-05-tsfm"
     status: "review_pending"
-    note: "Drafted (status drafted_pending_human_review in the chapter registry); integrated review PDF awaiting independent human inspection. No canonical PDF, release candidate or release exists."
+    note: "Pending human acceptance. Two valid vocabularies apply: the chapter-level status is drafted_pending_human_review (the chapter-contract schema's value, used in the workbooks section above, in the contracts and in config/project.yaml); this publication-lifecycle value review_pending is its counterpart here. Integrated review PDF awaiting independent human inspection. No canonical PDF, release candidate or release exists."
 
 # --------------------------------------------------------------------
 # Override mechanism
