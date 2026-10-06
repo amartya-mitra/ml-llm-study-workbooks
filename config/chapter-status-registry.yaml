@@ -140,8 +140,21 @@ publications:
   addendum-04-05-tsfm:
     title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
     workbook_id: "addendum-04-05-tsfm"
-    status: "review_pending"
-    note: "Content is accepted_frozen (workbooks section above, contracts, config/project.yaml; accepted 2026-10-06). This publication-lifecycle record deliberately stays at the valid pre-publication value review_pending: Release Candidate 1 (outputs/_releases/addendum-04-05-tsfm/) awaits its own independent review, and no canonical PDF, tag or release exists. It is not canonical_built or published."
+    status: "published"
+    canonical_path: "outputs/addendum-04-05-tsfm.pdf"
+    page_count: 18
+    sha256: "b7096e9b9291dc4319f8f3740303b42dcf784d3ec80bb2fb63cc66f7ac242b65"
+    source_commit: "39294a2242a1f95d200e0b06c5c69f0a4cfcf9f0"
+    release_tag: "addendum-04-05-tsfm-v1.0.0"
+    release_title: "Addendum 04–05 v1.0.0 — Time-Series Foundation Models"
+    release_asset: "addendum-04-05-tsfm.pdf"
+    release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/addendum-04-05-tsfm-v1.0.0"
+    publication_date: "2026-10-06"
+    reproduction_command: "python3 scripts/build_addendum_final.py"
+    human_acceptance:
+      accepted: true
+      date: "2026-10-06"
+      note: "Release Candidate 1 (18 pages, SHA-256 a1599e49...) accepted after independent human review; the canonical PDF differs from it only in the subtitle (Final Edition). Content status is accepted_frozen."
 
 # --------------------------------------------------------------------
 # Override mechanism

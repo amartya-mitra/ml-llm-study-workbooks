@@ -62,10 +62,12 @@ class TestRc1Builder(unittest.TestCase):
 
 
 class TestRc1State(unittest.TestCase):
-    def test_publication_record_is_not_canonical_or_published(self):
+    def test_publication_record_reflects_the_verified_final_release_not_rc1(self):
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
-        self.assertEqual(reg["publications"]["addendum-04-05-tsfm"]["status"], "review_pending")
-        self.assertNotIn("release_tag", reg["publications"]["addendum-04-05-tsfm"])
+        rec = reg["publications"]["addendum-04-05-tsfm"]
+        self.assertEqual(rec["status"], "published")
+        self.assertEqual(rec["release_asset"], "addendum-04-05-tsfm.pdf")  # the canonical PDF, never an RC1 file
+        self.assertNotIn("rc1", rec["release_tag"] + rec["release_asset"])
 
     def test_no_canonical_pdf_tag_or_rc2(self):
         rel = os.path.join(REPO_ROOT, "outputs", "_releases", "addendum-04-05-tsfm")

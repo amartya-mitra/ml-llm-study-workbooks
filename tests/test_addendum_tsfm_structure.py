@@ -151,7 +151,12 @@ class TestRegistration(unittest.TestCase):
         self.assertEqual(sorted(str(k).zfill(2) for k in entry["chapters"]), sorted(MODULES))
         for ch in entry["chapters"].values():
             self.assertEqual(ch["status"], "accepted_frozen")
-        self.assertNotEqual(reg["publications"][WB_ID]["status"], "published")
+        pub = reg["publications"][WB_ID]
+        self.assertEqual(pub["status"], "published")
+        self.assertEqual(pub["release_tag"], "addendum-04-05-tsfm-v1.0.0")
+        self.assertEqual(pub["sha256"], "b7096e9b9291dc4319f8f3740303b42dcf784d3ec80bb2fb63cc66f7ac242b65")
+        self.assertEqual(pub["source_commit"], "39294a2242a1f95d200e0b06c5c69f0a4cfcf9f0")
+        self.assertEqual(pub["page_count"], 18)
         self.assertEqual(reg["publications"]["workbook-04"]["status"], "published")
         self.assertEqual(reg["publications"]["workbook-05"]["status"], "published")
 
@@ -449,8 +454,8 @@ class TestTechnicalQualifications(unittest.TestCase):
             self.assertEqual(contract["scope"]["allowed_paths"], [])
             self.assertTrue(any("chapters/" + n in p for p in contract["scope"]["frozen_paths"]))
             self.assertEqual(contract["acceptance"]["visual_review"], "pass")
-        # the publication lifecycle stays at its valid pre-publication value
-        self.assertEqual(reg["publications"][WB_ID]["status"], "review_pending")
+        # content stays accepted_frozen while the publication lifecycle is published
+        self.assertEqual(reg["publications"][WB_ID]["status"], "published")
         report = read(os.path.join(REPO_ROOT, "reports", "addendum_04_05_tsfm_internal_audit.md"))
         self.assertIn("`drafted_pending_human_review`", report)  # historical record of the draft stage
 
