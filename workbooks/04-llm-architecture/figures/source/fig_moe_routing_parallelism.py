@@ -24,6 +24,13 @@ OUTPUT_PATH = os.path.join(os.path.dirname(_THIS_DIR), "rendered", f"{FIGURE_ID}
 TITLE_SIZE = 18
 LABEL_SIZE = 16
 SMALL_SIZE = 14
+# Baseline of the "device N" labels, measured down from the top edge of
+# each dashed device boundary (experts start 30 units below that edge).
+DEVICE_LABEL_DY = 22
+# The "device 1" label is nudged right of the box centre so it sits in the
+# corridor between the t3->E1 and t4->E2 dispatch arrows (>= 20 units of
+# clearance each side); "device 2" has a clear centre and is not nudged.
+DEVICE1_LABEL_DX = 15
 
 
 def main():
@@ -64,10 +71,15 @@ def main():
     dev_w = 340
     dev1_x = W / 2 - dev_w - 20
     dev2_x = W / 2 + 20
+    # Device labels sit just inside the top edge of each dashed boundary
+    # (above the experts), not above the boundary: the dispatch arrows
+    # from t2/t3 and t4 pass through the strip above the boundary and
+    # crossed/crowded the "device 1" label there. Inside the boundary the
+    # arrows are clear of the label's horizontal extent.
     canvas.add_rect(dev1_x, dev_y, dev_w, dev_h, fill="#ffffff", stroke=purple, stroke_width=2, dash="dashed", rx=8)
-    canvas.add_text(dev1_x + dev_w / 2, dev_y - 8, "device 1", size=LABEL_SIZE, weight="bold", anchor="middle")
+    canvas.add_text(dev1_x + dev_w / 2 + DEVICE1_LABEL_DX, dev_y + DEVICE_LABEL_DY, "device 1", size=LABEL_SIZE, weight="bold", anchor="middle")
     canvas.add_rect(dev2_x, dev_y, dev_w, dev_h, fill="#ffffff", stroke=purple, stroke_width=2, dash="dashed", rx=8)
-    canvas.add_text(dev2_x + dev_w / 2, dev_y - 8, "device 2", size=LABEL_SIZE, weight="bold", anchor="middle")
+    canvas.add_text(dev2_x + dev_w / 2, dev_y + DEVICE_LABEL_DY, "device 2", size=LABEL_SIZE, weight="bold", anchor="middle")
 
     # Experts within devices: E1,E2 on device1; E3,E4 on device2.
     exp_w, exp_h = 100, 50

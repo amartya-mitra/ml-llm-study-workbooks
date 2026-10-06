@@ -226,6 +226,102 @@ same three known stale failures (rc2 subtitle test; two rc4 heading tests),
 untouched. Workbook 05 PDF checksum unchanged
 (`25a393bb…2a0c`); no tag, release or push of the remediation commits.
 
+## 7b. Follow-up: internal reference, Figure 17, Pillow
+
+**Independent-review findings.** (1) Page 28 contained the internal
+filename "AGENTS.md" in learner-facing prose. (2) Figure 17 (page 41): the
+"device 1" label sat directly on the dispatch-arrow corridor above the
+dashed boundary; arrows t2→E1 and t3→E1 crossed its bounding region.
+
+**Page 28 wording** (`chapters/03-attention-head-structure.qmd`):
+old "…logical, theoretical minimum** -- per AGENTS.md's distinction between
+logical and measured memory, it explicitly excludes allocator overhead…";
+new "…-- under this workbook's distinction between logical and measured
+memory, it explicitly excludes allocator overhead…". The rest of the
+qualification, the equation and the surrounding claims are unchanged.
+Leakage search over chapters, solutions and includes: the only genuine hit
+was this one. Classified as not leakage: `[@src-NN]` citation keys (rendered
+as numbers `[12]` etc.), a YAML comment in `index.qmd`, and "draft"
+meaning speculative-decoding draft models.
+
+**Figure 17 correction** (`figures/source/fig_moe_routing_parallelism.py`,
+SVG regenerated, not hand-edited). Arrows run from y≈83 to y≈212; the old
+labels (baseline y = 178, centred x = 220 / 600) had arrows t2 and t3
+passing through x≈175–222 at that height. New geometry: both labels moved
+inside their dashed boundaries (baseline = boundary top + 22 = y 208, above
+the expert row that starts 30 below the top edge), and "device 1" shifted
+15 units right (x 220 → 235) into the corridor between the t3→E1 and t4→E2
+arrows (≥ 20 units clearance each side; "device 2" stays centred at x 600).
+Unchanged: six tokens, routing assignment, expert labels/loads (3/1/1/1),
+red overloaded-expert highlight, device boundaries, arrows, caption.
+During the edit a duplicate device-1 rectangle appeared and was removed
+(SVG now has exactly two dashed rectangles).
+New test `tests/test_wb04_fig_moe_routing_layout.py` parses the rendered
+SVG and checks that no `<line>` arrow comes within 4 units of either
+label's estimated bounding box, that labels sit inside the boundary above
+the experts, and that the semantic content is intact; it fails on the old
+SVG and passes on the new one. `tests/test_workbook04_final_edition.py` now
+also fails on "AGENTS.md"/"CLAUDE.md" in the two includes and scans all
+chapter, solution and notation sources for internal filenames and paths;
+it fails when the old page-28 wording is restored.
+
+**Pillow.** `ml-workbooks` has no `python`/`pip` at all, so
+`python -m pip install` was impossible. With the user's approval Pillow was
+installed with `conda install -n ml-workbooks --override-channels -c
+conda-forge pillow` (the default Anaconda channels require a Terms-of-Service
+acceptance that was deliberately not made). This also added Python 3.14.7 to
+the env: Pillow 12.3.0, interpreter
+`/mnt/home/amitra/.conda/envs/ml-workbooks/bin/python`. Image/ImageDraw/
+ImageFont were exercised in memory. The repository's own scripts and tests
+were run with `/usr/bin/python3` (3.10) as before, and the build was run
+with that interpreter and the env's quarto/typst/poppler on PATH, so the
+build toolchain is unchanged. Note the env now shadows `python3` when
+activated. Dependency declaration: `pyproject.toml` has no lockfile and one
+optional group (`full`: pyyaml, jsonschema, pytest); `pillow>=10.0` was added
+there with a comment. No new manifest or package manager.
+
+**PDFs.**
+
+| | Path | Pages | Size (bytes) | Words | SHA-256 |
+|---|---|---|---|---|---|
+| Superseded | `outputs/_development/04-llm-architecture/superseded-final-pre-internal-leak-and-figure-fix/04-modern-llm-architecture-workbook.pdf` | 69 | 1,366,467 | 33,633 | `54950f21…ac04` (verified) |
+| New canonical | `outputs/04-modern-llm-architecture-workbook.pdf` | **69** | **1,366,456** | **33,634** | `95912c223d2bc130f51c96ef9b684ae72f3798dcbdce2a0d4891d9a7d32b60b3` |
+
+Build: `/usr/bin/python3 scripts/build_final.py` in the activated env,
+started 2026-10-06T02:36:13Z. Page count unchanged.
+
+**Comparison with the previous PDF.** Per-page extracted text differs only
+on page 28 (the approved sentence; +1 word). Rendering the previous PDF and
+the new one at 170 dpi and diffing each page with Pillow shows pixel
+differences on exactly two pages: page 28 (the reworded paragraph) and page
+41 (the label strip of Figure 17). Every other page is pixel-identical to the
+previously reviewed PDF, so the earlier acceptance of those pages carries
+over. TOC entries (13 matched by script) all agree with the rendered pages;
+the Build and Version Note still begins at the top of page 67 and the
+bibliography still runs pp. 67–69; no RC/draft wording or internal
+filenames appear in the extracted text.
+
+**Visual review.** Fresh renders only (image directory cleared first).
+Labelled 4×3 Pillow contact sheets covering all 69 pages were viewed
+(pages 1–69), plus 250-dpi views of page 28 and page 41. Page 41: arrows
+now clear both device labels; six tokens, loads, red highlight and caption
+intact. Page 28: new wording reads correctly, equation and exclusions
+unchanged. Contact-sheet resolution is too coarse to certify glyph-level
+details; pages that did not change are covered by the pixel-identical
+comparison above, and earlier rounds viewed pages 43–69 at full size.
+
+**Pre-existing items noticed, not changed (outside the requested scope):**
+(a) On page 41 (Figure 17) the dark t4→E2 dispatch arrow still passes
+through the "router" box and its label; this was true of the previous PDF
+and the figure's other crossings are inherent to the layout. (b) Figure 10
+(page 28): text lines in the blue K/V boxes touch the box top/bottom edges.
+Recommend the reviewer decide whether either needs a further fix.
+
+**Tests.** Registry OK; questions OK (74); `git diff --check` clean; scoped
+tests 48 passed, 14 skipped, 3 failed; full suite once: 472 passed, 14
+skipped, 3 failed, 81 subtests — the same three known stale failures
+(rc2 subtitle; two rc4 heading tests), untouched.
+
 ## 8. Recommendation
 
 The new PDF is **ready for independent human acceptance**, with the

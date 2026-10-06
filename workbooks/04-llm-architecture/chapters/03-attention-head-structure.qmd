@@ -125,7 +125,7 @@ M_{KV} = 2 \, B \, S \, L \, H_{kv} \, d_{\text{head}} \,
 $$ {#eq-kv-cache}
 
 where the factor 2 counts keys *and* values. This is a **logical,
-theoretical minimum** -- per AGENTS.md's distinction between logical
+theoretical minimum** -- under this workbook's distinction between logical
 and measured memory, it explicitly excludes allocator overhead,
 block/page metadata, fragmentation, temporary attention workspaces,
 framework buffers, duplicated or padded storage, sharding-specific
