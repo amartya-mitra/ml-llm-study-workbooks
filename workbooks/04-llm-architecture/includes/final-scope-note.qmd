@@ -1,0 +1,33 @@
+::: {.callout-important title="Scope of this edition"}
+This document contains **all eight chapters** of *Modern LLM
+Architecture: A Visual Guide to Attention, Memory, Sparsity, and Hybrid
+Models* (workbook 04 of the ML/LLM Study Workbooks series), Final
+Edition.
+
+Multi-head latent attention (MLA) is covered in Chapter 4 alongside
+sliding-window and sparse attention. Chapter 4 covers
+recurrent/state-space/linear-attention alternatives only as a brief
+taxonomy and forward reference; Chapter 6 adds the primary source that
+taxonomy was pending (Gu and Dao's selective state-space mechanism) once
+a hybrid case study needed it. Chapter 5 covers mixture-of-experts
+architecture only -- detailed distributed-training implementation,
+collective-communication algorithms, kernel optimization,
+inference-engine configuration, expert quantization, model-specific
+benchmark comparisons, post-training, and routing-research surveys are
+all deferred to later workbooks. Chapter 6 selects exactly three real,
+pinned model families (Llama 3 405B, DeepSeek-V3, Jamba) as case
+studies -- not a survey of every current model, not a benchmark ranking,
+and not a release-history timeline. Chapter 7 synthesizes systems
+consequences already implied by Chapters 2-6 (a resource ledger,
+prefill-vs-decode, an architecture-to-systems consequence map, and a
+minimal parallelism overview) and previews looped depth in one row only.
+Chapter 8 gives looped depth/recurrent depth its full treatment (this
+workbook's assigned primary home for that topic) and closes with a
+10-question synthesis framework -- it does not teach multi-token
+prediction's training mechanics or the speculative-decoding algorithm,
+both assigned to future workbooks in this series' own cross-workbook
+topic roadmap. Public reporting has associated recurrent depth with a
+model referred to as "GPT-6 Astra"; no official technical source
+confirms this, and this workbook does not treat that proprietary
+architecture as verified anywhere it is mentioned.
+:::

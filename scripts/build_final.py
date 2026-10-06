@@ -3,10 +3,11 @@
 
     1. regenerate every figure (root + workbook-local)
     2. regenerate the build/version note with final status
-    3. temporarily update index.qmd subtitle to remove RC designation
+    3. temporarily update index.qmd subtitle to remove RC designation and
+       swap the RC scope note for includes/final-scope-note.qmd
     4. render workbooks/04-llm-architecture/index.qmd via Quarto/Typst
     5. copy to outputs/04-modern-llm-architecture-workbook.pdf
-    6. restore index.qmd subtitle to RC7
+    6. restore index.qmd (RC7 subtitle and RC scope-note include)
     7. run pdfinfo / pdftotext / pdffonts / pdftoppm and print results
 
 RC1–RC7 PDFs and build scripts are preserved as historical comparison artifacts.
@@ -64,7 +65,7 @@ def main():
     r = run([
         sys.executable, "scripts/generate_build_note.py",
         "--output", "workbooks/04-llm-architecture/includes/build-version-note.qmd",
-        "--pilot-status", "Complete, reviewed content. This is the final publication of Modern LLM Architecture (Workbook 04 of the ML/LLM Study Workbooks series). All content has been reviewed, validated, and copy-edited. RC1–RC7 were release-candidate drafts; this is the canonical, non-RC final version.",
+        "--pilot-status", "Final Edition. This is the complete Modern LLM Architecture workbook (Workbook 04 of the ML/LLM Study Workbooks series), covering all eight chapters. Its content has been reviewed and validated by the project's automated and visual checks.",
         "--source-verification-note", "Primary and roadmap sources for Chapters 1-8 and the series-wide topic roadmap were last verified between 2026-09-22 and 2026-09-26.",
         "--provenance-note", "Tied-embeddings usage (Chapter 2) has no dedicated primary source; the sandwich-norm claim (Chapter 2) leans on a secondary source rather than a model's own technical report. Both are tracked sourcing gaps, not unsupported claims.",
         "--provenance-note", "All worked-example numbers in Chapters 1-8 (attention weights, parameter counts, KV-cache sizes, receptive fields, MoE parameter/routing counts, ch. 6's hypothetical-config GQA group size, ch. 7's two-model resource diagnosis, ch. 8's looped-vs-unrolled depth arithmetic) are computed by version-controlled project scripts and checked by the project's automated test suite, not hand-derived.",
@@ -82,7 +83,14 @@ def main():
     modified_content = original_content.replace(
         'Complete Content Draft (Release Candidate 7)',
         'Final Edition'
+    ).replace(
+        'includes/draft-scope-note.qmd',
+        'includes/final-scope-note.qmd'
     )
+    for required in ('Final Edition', 'includes/final-scope-note.qmd'):
+        if required not in modified_content:
+            print(f"BLOCKED: expected {required!r} not present after substitution")
+            sys.exit(1)
     write_file(INDEX_QMD, modified_content)
     print(f"Temporarily modified {os.path.relpath(INDEX_QMD, REPO_ROOT)}")
 
