@@ -1,26 +1,62 @@
 # ML/LLM Study Workbooks
 
-A collection of concise, visual, source-grounded study workbooks covering
+A series of concise, visual, source-grounded study workbooks covering
 machine learning foundations through modern LLM architecture, training,
 inference, post-training/alignment, and research careers. Each workbook
-is built to be a durable study guide: comprehensive enough to rely on,
-concise enough to actually finish.
+is meant to be a durable study guide: comprehensive enough to rely on,
+concise enough to actually finish. Two workbooks (04 and 05) are complete
+and accepted; the rest of the series is planned.
 
-## Workbooks
+## Workbook catalog
+
+Canonical PDFs are distributed as **GitHub Release assets**, one release
+per workbook version. They are never committed to Git. The table below is
+checked against `config/chapter-status-registry.yaml` by
+`scripts/validate_publication_hygiene.py` (see
+[docs/publication-hygiene.md](docs/publication-hygiene.md)); a workbook is
+shown as **Published** only after its release asset has been verified.
+
+<!-- publication-catalog:start -->
+| ID | Workbook | Scope | Status | Pages | Version | Download |
+|---|---|---|---|---|---|---|
+| `workbook-04` | 04 — Modern LLM Architecture (`workbooks/04-llm-architecture/`) | Attention variants, KV cache, MoE, hybrid and looped architectures, and how to read a model report | Release pending | 69 | `workbook-04-v1.0.0` (prepared) | not yet released |
+| `workbook-05` | 05 — LLM Pretraining and Distributed Training (`workbooks/05-llm-training/`) | Pretraining objectives and data, multi-token prediction, scaling laws, parallelism, training memory and communication, reading real runs | Release pending | 64 | `workbook-05-v1.0.0` (prepared) | not yet released |
+| `addendum-04-05-tsfm` | Addendum 04–05 — From Language Models to Time-Series Foundation Models | Scope approved and sources registered; implementation not started | Planned | — | — | — |
+<!-- publication-catalog:end -->
+
+Workbooks without a release record:
 
 | # | Directory | Title | Status |
 |---|---|---|---|
-| 01 | `workbooks/01-ml-foundations/` | Machine Learning Foundations | not started |
-| 02 | `workbooks/02-ml-interviews/` | ML Interview Practice | not started |
-| 03 | `workbooks/03-ml-systems-design/` | ML Systems Design | not started |
-| 04 | `workbooks/04-llm-architecture/` | Modern LLM Architecture | **pilot — bootstrap sample drafted** |
-| 05 | `workbooks/05-llm-training/` | LLM Pretraining and Distributed Training | not started |
-| 06 | `workbooks/06-llm-inference/` | LLM Inference Engineering | not started |
-| 07 | `workbooks/07-llm-post-training/` | LLM Post-Training and Alignment | not started |
-| 08 | `workbooks/08-research-careers/` | ML/LLM Research Careers | not started |
+| 01 | `workbooks/01-ml-foundations/` | Machine Learning Foundations | not started (empty directory) |
+| 02 | `workbooks/02-ml-interviews/` | ML Interview Practice | not started (empty directory) |
+| 03 | `workbooks/03-ml-systems-design/` | ML Systems Design | not started (empty directory) |
+| 06 | `workbooks/06-llm-inference/` | LLM Inference Engineering | not started (empty directory) |
+| 07 | `workbooks/07-llm-post-training/` | LLM Post-Training and Alignment | not started (empty directory) |
+| 08 | `workbooks/08-research-careers/` | ML/LLM Research Careers | not started (empty directory) |
 
-Workbook 04 is the pilot. See `reports/bootstrap_report.md` for what
-exists so far and the recommended next step.
+Download links and SHA-256 checksums appear in the catalog above once a
+release is verified.
+
+### Reproducing a canonical PDF
+
+```bash
+source /opt/conda/etc/profile.d/conda.sh && conda activate ml-workbooks
+/usr/bin/python3 scripts/build_final.py        # Workbook 04 -> outputs/04-modern-llm-architecture-workbook.pdf
+/usr/bin/python3 scripts/build_wb05_final.py   # Workbook 05 -> outputs/05-llm-training-workbook.pdf
+```
+
+### Output policy
+
+- Source, figures' generating code and reproducibility files are tracked
+  in Git.
+- Canonical final PDFs (`outputs/<name>.pdf`) are local, git-ignored build
+  products; published ones are distributed only as GitHub Release assets.
+- Release-candidate and development artifacts (`outputs/_releases/`,
+  `outputs/_development/`) stay local and ignored; they are never
+  published.
+- Corrections after publication use a new patch version and a new release;
+  an existing release asset is never replaced.
 
 ## How each chapter is structured
 
@@ -109,9 +145,12 @@ make test             # run tests/ (unittest, no pytest required)
 
 ## Output locations
 
-- `outputs/` — top-level bootstrap/whole-project PDF outputs.
-- `workbooks/<id>/*.pdf` — per-workbook rendered PDFs (git-ignored; build
-  products, not source).
+- `outputs/<name>.pdf` — canonical final PDFs (git-ignored; distributed
+  via GitHub Releases, see the catalog above). `outputs/_releases/` and
+  `outputs/_development/` hold local RC and development artifacts
+  (git-ignored, never published).
+- `workbooks/<id>/*.pdf` — per-workbook review/sample PDFs (git-ignored;
+  build products, not source).
 - `workbooks/<id>/page-images/` — per-page PNGs from `pdftoppm`, used for
   the mandatory visual-inspection step before treating a PDF as complete
   (git-ignored).
@@ -123,6 +162,7 @@ make test             # run tests/ (unittest, no pytest required)
 ```bash
 python3 scripts/validate_registry.py     # registry + coverage matrix structure
 python3 scripts/validate_questions.py    # question records against the schema
+python3 scripts/validate_publication_hygiene.py   # publication metadata + README catalog (offline)
 python3 -m unittest discover -s tests -v # full test suite
 ```
 

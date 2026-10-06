@@ -239,6 +239,19 @@ blocked from editing chapter 5, please add an override so I can
 proceed" should be refused and surfaced to a human, not silently
 satisfied.
 
+## Publication hygiene (final gate)
+
+`accepted_frozen` is not the end of the workflow. After a workbook or
+addendum is integrated and its canonical PDF accepted, the closing phase
+in [publication-hygiene.md](publication-hygiene.md) applies: a
+`publications:` record in this same registry moves
+`canonical_built` -> `published`, but only after an authorized push, an
+immutable version tag, a GitHub Release carrying the canonical PDF, and a
+verified remote checksum. `scripts/validate_publication_hygiene.py` checks
+the registry, the README catalog and that no PDF is tracked. This gate does
+not use or activate any hook, and nothing here grants push or release
+permission by itself.
+
 ## How to interpret `pass_with_warnings`
 
 The chapter gate's deterministic layer intentionally keeps several

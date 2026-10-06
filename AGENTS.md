@@ -54,6 +54,20 @@ and should not need to be repeated in every task prompt.
   prior version aside, e.g. with a date or hash suffix, before replacing
   `outputs/*.pdf`).
 
+## Publication-hygiene gate (mandatory final step)
+
+Completing a workbook or addendum does not end at a local PDF. The final
+gate -- defined in `docs/publication-hygiene.md` and enforced by
+`scripts/validate_publication_hygiene.py` -- requires: the source-of-truth
+registry update (`publications:` in `config/chapter-status-registry.yaml`),
+README catalog synchronization, a passing publication-hygiene validator,
+explicit user authorization before any push, tag or release, a GitHub
+Release carrying only the canonical PDF, and remote checksum verification.
+An artifact is `published` only after that remote verification; a failed
+upload leaves it at `canonical_built`. Never replace a published release
+asset (corrections use a new patch version), never commit canonical PDFs,
+and never publish RC, review, superseded or development artifacts.
+
 ## Chapter factory workflow
 
 Chapter-level drafting/review for any workbook goes through

@@ -59,6 +59,65 @@ workbooks:
     last_touched_commit_sha: "a78a15eae569390627c5fbd6d6e7e494a5e9885a"
 
 # --------------------------------------------------------------------
+# Publication records (see docs/publication-hygiene.md)
+# --------------------------------------------------------------------
+# One record per distributable artifact (a workbook or an addendum),
+# keyed by artifact id. Lifecycle:
+#   planned -> drafting -> review_pending -> accepted_frozen
+#           -> canonical_built -> published
+# "published" is set ONLY after the GitHub Release exists, carries the
+# canonical PDF as its asset, and the downloaded asset reproduced
+# `sha256` (see scripts/validate_publication_hygiene.py --remote). Until
+# then the release_* fields are PREPARED values, not claims. Canonical
+# PDFs stay untracked, ignored build products; the release asset is the
+# distribution channel.
+#
+# Read by scripts/validate_publication_hygiene.py. Not read by
+# scripts/chapter_gate.py (which only reads `workbooks:`).
+publications:
+  workbook-04:
+    title: "Modern LLM Architecture"
+    workbook_id: "04-llm-architecture"
+    status: "canonical_built"
+    canonical_path: "outputs/04-modern-llm-architecture-workbook.pdf"
+    page_count: 69
+    sha256: "12bcc6c115e4a7279162efd06c5e13f44a808a36fd92d6e3153cb43aac95c33b"
+    source_commit: "0de73f58aafb0615023d6747b79a24c2abd0d5c2"
+    release_tag: "workbook-04-v1.0.0"
+    release_title: "Workbook 04 — Modern LLM Architecture v1.0.0"
+    release_asset: "04-modern-llm-architecture-workbook.pdf"
+    release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/workbook-04-v1.0.0"
+    publication_date: null
+    reproduction_command: "python3 scripts/build_final.py"
+    human_acceptance:
+      accepted: true
+      date: "2026-10-06"
+      note: "Revised 69-page canonical PDF accepted after independent human review; Figure 17 E1 arrow convergence and Figure 10 text placement accepted as-is."
+  workbook-05:
+    title: "LLM Pretraining and Distributed Training"
+    workbook_id: "05-llm-training"
+    status: "canonical_built"
+    canonical_path: "outputs/05-llm-training-workbook.pdf"
+    page_count: 64
+    sha256: "25a393bb6b1bb1c42c836f08b4375e9e1a451792f4397665f63b69e1c1072a0c"
+    source_commit: "c79f3f682bf608cca4d6052691a949c381dfed41"
+    release_tag: "workbook-05-v1.0.0"
+    release_title: "Workbook 05 — LLM Pretraining and Distributed Training v1.0.0"
+    release_asset: "05-llm-training-workbook.pdf"
+    release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/workbook-05-v1.0.0"
+    publication_date: null
+    reproduction_command: "python3 scripts/build_wb05_final.py"
+    human_acceptance:
+      accepted: true
+      date: "2026-10-05"
+      note: "Canonical PDF accepted at its previously frozen checksum (RC1 accepted 2026-10-05; canonical build 25a393bb...)."
+  addendum-04-05-tsfm:
+    title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
+    workbook_id: "addendum-04-05-tsfm"
+    status: "planned"
+    note: "Scope approved and sources registered (reports/addendum_04_05_tsfm_scope_and_source_decision.md). No chapters, figures or PDF exist; implementation not started."
+
+# --------------------------------------------------------------------
 # Override mechanism
 # --------------------------------------------------------------------
 # An override authorizes editing a frozen chapter/workbook ONLY for the

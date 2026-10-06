@@ -56,6 +56,26 @@ that specific push.
    looks ready."
 7. **Stop for human sign-off.**
 
+## Final publication-hygiene gate (mandatory; added after Workbooks 04/05)
+
+A frozen workbook is not finished when its canonical PDF exists. The
+closing phase in `docs/publication-hygiene.md` is mandatory and must not
+be skipped by stopping at a local build:
+
+1. Update the artifact's `publications:` record in
+   `config/chapter-status-registry.yaml` (`canonical_built`, with page
+   count, SHA-256, full source commit, prepared tag/asset/URL) and the
+   README catalog.
+2. Run `python3 scripts/validate_publication_hygiene.py --check-local`.
+3. Obtain explicit user authorization for the push, the immutable tag and
+   the GitHub Release.
+4. Release carries only the canonical PDF; download it and verify the
+   SHA-256 and page count.
+5. Only then set `status: published`, publication date and README link;
+   run offline and `--remote` validation; commit and push.
+
+Never replace a published asset; corrections use a new patch version.
+
 This skill intentionally stops here. Flesh out the steps above into
 real, tested orchestration only when a task actually asks for a
 release freeze to run, and treat every step involving `push` or
