@@ -822,3 +822,206 @@ sources:
     access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF v2), not abstract-only. Confirmed the paper's own wording: 'Standard attention implementations materialize the matrices S and P to HBM, which takes O(N^2) memory' (Section 2.2) and 'FlashAttention uses tiling to prevent materialization of the large N x N attention matrix ... on (relatively) slow GPU HBM' (Figure 1 caption/Section 1)."
     license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
     notes: "Stanford/UB, 2022-05-27 (v2 2022-06-23); NeurIPS 2022. Used narrowly in workbook 05 ch. 5 to qualify, not replace, the chapter's existing activation-memory formula from src-17 -- the correct claim is that peak activation-memory scaling depends on which attention implementation is used, not that all modern implementations require quadratic storage."
+
+  # ---------------------------------------------------------------------
+  # src-56 .. src-68 -- registered 2026-10-06 during Step 2 (scope-and-
+  # source planning) of the standalone TSFM addendum "Addendum 04-05:
+  # From Language Models to Time-Series Foundation Models". See
+  # reports/addendum_04_05_tsfm_scope_and_source_decision.md.
+  #
+  # workbook_categories is deliberately EMPTY for these entries: the
+  # addendum has no id in config/project.yaml yet (that file's workbook
+  # list is pinned by tests/test_project_structure.py, and adding the
+  # addendum id is a Step 3 scaffolding action). They are tagged
+  # "addendum-04-05-tsfm" in topic_tags instead. They are NOT sources
+  # for frozen Workbooks 04 or 05.
+  #
+  # Papers (src-56..src-64) are primary_technical and carry mechanism-
+  # level claims for the specific model generation named in each entry.
+  # src-65..src-68 are official DOCUMENTATION ONLY (repository README /
+  # model card / vendor blog) and are authority_type implementation_guide:
+  # use them only for claims the documentation itself states, never for
+  # mechanism claims about a release that has no paper.
+  # ---------------------------------------------------------------------
+
+  - id: "src-56"
+    title: "Chronos: Learning the Language of Time Series"
+    url: "https://arxiv.org/abs/2403.07815"
+    authors: "Abdul Fatir Ansari, Lorenzo Stella, Caner Turkmen, Xiyuan Zhang, Pedro Mercado, Huibin Shen, Oleksandr Shchur, Syama Sundar Rangapuram, Sebastian Pineda Arango, Shubham Kapoor, Jasper Zschiegner, Danielle C. Maddix, Hao Wang, Michael W. Mahoney, Kari Torkkola, Andrew Gordon Wilson, Michael Bohlke-Schneider, Yuyang Wang"
+    resource_type: "original research paper (arXiv:2403.07815v3, 4 Nov 2024; Transactions on Machine Learning Research, 10/2024)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "time-series-foundation-model", "quantized-tokenization", "cross-entropy", "sampled-forecast"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for the ORIGINAL Chronos generation only: per-series mean scaling then uniform-bin quantization into a fixed token vocabulary (4096 tokens including PAD and EOS, bin range [-15, +15] in the paper's experiments), a standard language-model architecture (mainly T5 encoder-decoder; a GPT-2 decoder-only run is reported as a feasibility check) trained with categorical cross-entropy over bin tokens ('regression via classification'; the paper itself notes the loss is not distance-aware), probabilistic forecasts by autoregressively sampling sample paths then dequantizing and unscaling, univariate targets only with covariates and multivariate forecasting explicitly left as future work, training context 512 and prediction length 64, TSMixup augmentation plus synthetic data, and the stated limitation that the representable range is bounded by the outer bin centers. Must NOT be used for Chronos-Bolt or Chronos-2 claims."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction of arXiv v3, not abstract-only. Read directly from the paper text: Section 3 (tokenization, objective, forecasting), Section 4 (augmentation), the experiment-setup hyperparameters, the hyperparameter-analysis and limitations discussion, and the covariates/multivariate discussion. Benchmark tables were not independently re-checked."
+    license_or_reuse: "arXiv preprint / TMLR -- standard terms; text synthesis and citation only, no figure reuse without checking the paper's own license"
+    notes: "This paper deliberately ignores time and frequency features (treats the series simply as a sequence). Chronos-Bolt (a patch-based direct-quantile variant) is documented only in a repository README (src-68) and Chronos-2 has its own report (src-57) -- do not transfer claims across generations."
+
+  - id: "src-57"
+    title: "Chronos-2: From Univariate to Universal Forecasting"
+    url: "https://arxiv.org/abs/2510.15821"
+    authors: "Abdul Fatir Ansari, Oleksandr Shchur, Jaris Küken, Andreas Auer, Boran Han, Pedro Mercado, Syama Sundar Rangapuram, Huibin Shen, Lorenzo Stella, Xiyuan Zhang, Mononito Goswami, Shubham Kapoor, Danielle C. Maddix, Pablo Guerron, Tony Hu, Junming Yin, Nick Erickson, Prateek Mutalik Desai, Hao Wang, Huzefa Rangwala, George Karypis, Yuyang Wang, Michael Bohlke-Schneider"
+    resource_type: "technical report / preprint (arXiv:2510.15821v1, 17 Oct 2025; titled 'Technical Report of Chronos-2')"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "time-series-foundation-model", "patching", "group-attention", "covariates", "quantile-loss", "multivariate"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for Chronos-2 only: encoder-only transformer closely following the T5 encoder with RoPE; per-variate standardization plus an inverse-hyperbolic-sine transform; non-overlapping patches embedded by a residual network from [value, time index, mask]; a REG token between context and future patches; alternating time attention and group attention, where group IDs define univariate, multivariate, and covariate-informed tasks; a direct multi-step quantile head producing a forecast tensor of shape H x D x |Q| with 21 quantile levels (0.01, 0.05, 0.1, ..., 0.9, 0.95, 0.99); the quantile (pinball) loss computed on target dimensions only; two-stage training (context 2048, then 8192 with more output patches); a 120M-parameter base model (a 28M variant and a synthetic-data-only variant are named in the report, but where they were read is not recorded, so treat the ablation statements as unverified); and a per-model 'Leakage (%)' column in its fev-bench table, with leakage handling attributed to the fev-bench authors."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction (arXiv v1), not abstract-only. Read directly: abstract, background/related-work comparison of prior models' covariate and multivariate support, Section 3.1-3.4 (scaling and tokenization, architecture, training, inference), the benchmark-setup paragraph and the fev-bench result tables. NOT located in the main text read: the numeric patch length P, and any fine-tuning procedure (the report frames the model as zero-shot / in-context). Experiments beyond the tables cited here and the appendices were not read in full."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis and citation only, no figure reuse without checking the paper's own license"
+    notes: "The report's own benchmark claims (state-of-the-art on fev-bench, GIFT-Eval, Chronos Benchmark II) are the authors' claims and are time-sensitive (as of the October 2025 report); do not restate them as current rankings. Its related-work section is a SECONDARY description of other models (e.g. which ones support covariates); verify any such claim against that model's own source before using it."
+
+  - id: "src-58"
+    title: "A decoder-only foundation model for time-series forecasting"
+    url: "https://arxiv.org/abs/2310.10688"
+    authors: "Abhimanyu Das, Weihao Kong, Rajat Sen, Yichen Zhou"
+    resource_type: "original research paper (arXiv:2310.10688v4, 17 Apr 2024; the official TimesFM README, src-65, states it appeared at ICML 2024)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "time-series-foundation-model", "patching", "decoder-only", "point-forecast", "autoregressive"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for the ORIGINAL TimesFM generation (the roughly 200M-parameter model of this paper) only: input patches embedded by a residual MLP block plus positional encoding with a padding mask; a causal (decoder-only) transformer stack; an output residual block that maps each output token to an OUTPUT patch that may be longer than the input patch (example in the paper: input patch 32, output patch 128) so that long horizons need fewer autoregressive steps; randomized patch masking so all context lengths are seen; training with mean squared error on point forecasts; inference by autoregressive rollout of output patches; and the paper's own statement that quantile heads or distribution-family likelihood heads would be an easy extension (proposed, not trained or evaluated in this paper). The model is pretrained without dataset-specific covariates. Must NOT be used for TimesFM 2.0, 2.5 or 3.0 mechanism claims."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction (arXiv v4), not abstract-only. Read directly: problem setup, the full Model Architecture section (patching, decoder-only, longer output patches, patch masking, input/stacked-transformer/output layers, loss function, training mask sampling, inference) and the ablation paragraphs on output and input patch length. Pretraining-data composition and benchmark tables were not read in detail."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis and citation only, no figure reuse without checking the paper's own license"
+    notes: "Later TimesFM releases (2.0, 2.5, 3.0) are documented only in repository READMEs, model cards and a blog post (src-65, src-66, src-67), and those pages still link THIS paper as their citation -- that link is not evidence that this paper describes the later releases' mechanics."
+
+  - id: "src-59"
+    title: "TiRex: Zero-Shot Forecasting Across Long and Short Horizons with Enhanced In-Context Learning"
+    url: "https://arxiv.org/abs/2505.23719"
+    authors: "Andreas Auer, Patrick Podest, Daniel Klotz, Sebastian Böck, Günter Klambauer, Sepp Hochreiter"
+    resource_type: "original research paper (arXiv:2505.23719v2, 2 Nov 2025)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "time-series-foundation-model", "xlstm", "recurrent", "quantile-loss", "contiguous-patch-masking", "state-tracking"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for the original univariate TiRex only: an xLSTM backbone (sLSTM sequence mixing chosen because it supports state-tracking, each block followed by a feed-forward network, RMSNorm and residual connections) used in a decoder-only training mode; per-series z-score instance normalization; non-overlapping 32-step windows (patches) embedded by a two-layer residual block together with a missing-value mask; nine quantile outputs (0.1 to 0.9) per output-window step trained with the quantile loss at every output token; multi-patch (long-horizon) forecasting by feeding future inputs as missing values rather than feeding back point estimates, enabled by Contiguous Patch Masking (CPM) during training; training context 2048; roughly 35M parameters; and the paper's own limitation that the model is univariate."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction (arXiv v2), not abstract-only. Read directly: abstract, the TiRex architecture and CPM sections, input/output layer and loss, multi-patch inference, the CPM ablation framing, the training-setup paragraph, and the limitations paragraph. Data-augmentation details and the appendices were not read in full."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis and citation only, no figure reuse without checking the paper's own license"
+    notes: "The paper's acknowledgements mention an updated 'TiRex 1.1' release; the claims registered here are the paper's, and release-specific differences are not verified. Its descriptions of other models (e.g. 'Moirai is encoder-only') are secondary characterizations -- check src-61/src-62 directly."
+
+  - id: "src-60"
+    title: "TiRex-2: Generalizing TiRex to Multivariate Data and Streaming"
+    url: "https://arxiv.org/abs/2607.01204"
+    authors: "Patrick Podest, Marco Pichler, Elias Bürger, Levente Zólyomi, Bernhard Voggenberger, Wilhelm Berghammer, Daniel Klotz, Sebastian Böck, Günter Klambauer, Sepp Hochreiter"
+    resource_type: "preprint (arXiv:2607.01204v1, 1 Jul 2026; time-sensitive, recent preprint)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "time-series-foundation-model", "xlstm", "multivariate", "covariates", "quantile-loss", "streaming"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for TiRex-2 only (a separate generation from src-59): a recurrent xLSTM time mixer that alternates with an asymmetric grouped-attention variate mixer; targets and past-only covariates processed strictly forward in time while future-known covariates are additionally processed in reverse; per-variate standardization with an arcsinh transform and a binary-variate gate; non-overlapping patches embedded by a shared two-layer residual MLP; K quantile outputs for each of the P steps of every output patch (output tensor of shape V_tgt x K x (L-1) x P in the paper's notation); pinball loss at every observed output step; a synthetic coupling pipeline that composes multivariate pretraining samples from univariate corpora (named at abstract level only; pipeline details not read); roughly 38.4M active parameters in univariate mode plus 44.1M activated for multivariate forecasting; and constant per-patch inference cost under streaming (parameter counts and the streaming claim are the authors' statements, not checked against the experiments or appendices)."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction (arXiv v1), not abstract-only. Read directly: abstract, problem setup, architecture (block signature, input layer, time mixer, start of the variate mixer), output layer and loss, and the limitations paragraph. Experiments, the synthetic-coupling pipeline details and the appendices were NOT read in full, so benchmark claims are unverified here."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis and citation only, no figure reuse without checking the paper's own license"
+    notes: "A July 2026 preprint with no peer-review record checked; treat as time-sensitive ('as of July 2026'). Discovered via the official TiRex README's pointer to a newer generation; the README itself was not registered because this paper supersedes it for mechanism claims."
+
+  - id: "src-61"
+    title: "Unified Training of Universal Time Series Forecasting Transformers"
+    url: "https://arxiv.org/abs/2402.02592"
+    authors: "Gerald Woo, Chenghao Liu, Akshat Kumar, Caiming Xiong, Silvio Savarese, Doyen Sahoo"
+    resource_type: "original research paper (arXiv:2402.02592v2, 22 May 2024)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "time-series-foundation-model", "masked-encoder", "any-variate-attention", "mixture-distribution", "negative-log-likelihood", "pretraining-data-mixture"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for the ORIGINAL Moirai (Moirai 1.x) generation only: a non-overlapping-patch, masked-encoder transformer; a multi-patch-size input and output projection chosen by data frequency (the paper itself calls this approach somewhat heuristic); any-variate attention that flattens all variates into one sequence and uses binary attention biases plus RoPE so the model is permutation-equivariant over variate order and handles an arbitrary number of variates (targets and dynamic covariates); a mixture-distribution output (Student's t, negative binomial, log-normal, low-variance normal) trained by maximizing the mixture log-likelihood (negative log-likelihood loss); the LOTSA pretraining archive (27,646,462,733 observations across nine domains) with a per-sub-dataset sampling cap (the cap value and its renormalization rule are UNVERIFIED: the extracted formula text was garbled, so re-read the PDF before stating either); a sampled task distribution over window, lookback and horizon lengths; and instance normalization."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction (arXiv v2), not abstract-only. Read directly: problem formulation, architecture (multi-patch-size projection, any-variate attention, mixture distribution), data and task distribution, LOTSA statistics, and the limitations paragraph. Experiments and the appendices (including per-dataset details) were not read in full. The sampling-cap text extracted garbled; any cap value is unverified."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis and citation only, no figure reuse without checking the paper's own license; LOTSA and model weights have their own licenses, unchecked here"
+    notes: "Moirai 2.0 (src-62) replaces the masked-encoder, multi-patch-size and mixture-distribution choices described here; Moirai-MoE (arXiv:2410.10469) was downloaded but NOT read and is deferred. Never apply a claim from this entry to either successor."
+
+  - id: "src-62"
+    title: "Moirai 2.0: When Less Is More for Time Series Forecasting"
+    url: "https://arxiv.org/abs/2511.11698"
+    authors: "Hanshu Yan, Chenghao Liu, Taha Aksu, Juncheng Liu, Xu Liu, Quang Pham, Silvio Savarese, Doyen Sahoo, Caiming Xiong, Junnan Li"
+    resource_type: "preprint (arXiv:2511.11698v3, 3 Feb 2026; the PDF header is dated 2026-02-04)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "time-series-foundation-model", "decoder-only", "quantile-loss", "multi-token-prediction", "autoregressive-quantile-decoding"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for Moirai 2.0 only: a decoder-only transformer over a single patch size; per-series instance normalization with statistics computed from only the first 30 percent of each series to avoid future-information leakage in causal training; patch-level random masking; an output projection of shape d to n_token x n_q x p (multi-token prediction over several future patches with nine quantile levels 0.1 to 0.9); training with the quantile (pinball) loss; recursive autoregressive multi-quantile decoding at inference; a corpus of 36M series; and the paper's own limitations (univariate only: multivariate and covariate support were dropped from Moirai 1.0 for lack of benefit in its experiments; performance degrades with more parameters and at longer horizons). The paper's own summary of what changed from Moirai 1.0 (masked-encoder training, multi-patch inputs and mixture-distribution outputs replaced by decoder-only, single patch and quantile loss) is the authors' description of the change: primary for Moirai 2.0, but secondary for Moirai 1.0 details, which must be verified against src-61."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction (arXiv v3), not abstract-only. Read directly: abstract, the related-work paragraph on architecture and output families, the model architecture and training section (input projection, stacked transformer, output projection, loss function) and the limitations paragraph. Experiments, ablation numbers and appendices were NOT read in full, so efficiency and benchmark claims are unverified here."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis and citation only, no figure reuse without checking the paper's own license"
+    notes: "A recent preprint (revised Feb 2026); treat as time-sensitive. This is the one verified TSFM in this registry that uses multi-token prediction in an explicit LLM-style sense (several future patches from one output token), which is why it anchors the addendum's bridge to Workbook 05 Chapter 2 -- but it shares only the idea, not Gloeckle et al.'s (src-43) specific heads, and the paper's quantile outputs mean its 'tokens' are continuous patches, not discrete tokens."
+
+  - id: "src-63"
+    title: "Lag-Llama: Towards Foundation Models for Probabilistic Time Series Forecasting"
+    url: "https://arxiv.org/abs/2310.08278"
+    authors: "Kashif Rasul, Arjun Ashok, Andrew Robert Williams, Hena Ghonia, Rishika Bhagwatkar, Arian Khorasani, Mohammad Javad Darvishi Bayazi, George Adamopoulos, Roland Riachi, Nadhir Hassen, Marin Biloš, Sahil Garg, Anderson Schneider, Nicolas Chapados, Alexandre Drouin, Valentina Zantedeschi, Yuriy Nevmyvaka, Irina Rish"
+    resource_type: "original research paper (arXiv:2310.08278v3, 8 Feb 2024)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "time-series-foundation-model", "decoder-only", "lag-features", "parametric-distribution", "negative-log-likelihood", "sampled-forecast"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for Lag-Llama only: a LLaMA-style decoder-only transformer (RMSNorm, RoPE) over per-time-step tokens built from lagged values at a chosen set of lag indices plus date-time features and summary statistics; a shared linear projection into the model width; a distribution head outputting the parameters of a Student's t distribution (degrees of freedom, mean, scale) trained by negative log-likelihood; probabilistic forecasts by autoregressive decoding of many sampled trajectories; univariate series; and value scaling. The paper's text describes both a mean/variance scaling heuristic and a robust (median and interquartile-range) standardization that it reports working well in pretraining -- read Section 4.4 again before stating which one is used."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction (arXiv v3), not abstract-only. Read directly: the architecture section (lag-feature tokenization, decoder layers, distribution head, value scaling). The pretraining corpus, fine-tuning / few-shot behaviour and experiments were NOT read, so adaptation claims are unverified here."
+    license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis and citation only, no figure reuse without checking the paper's own license"
+    notes: "The official Lag-Llama repository README was downloaded but not read and is not registered. Included because it is the clearest verified example of a time-series token that is a per-step feature vector (lags) rather than a patch or a quantized bin, and of a parametric-distribution head trained by NLL."
+
+  - id: "src-64"
+    title: "A Time Series is Worth 64 Words: Long-term Forecasting with Transformers"
+    url: "https://arxiv.org/abs/2211.14730"
+    authors: "Yuqi Nie, Nam H. Nguyen, Phanwadee Sinthong, Jayant Kalagnanam"
+    resource_type: "original research paper (arXiv:2211.14730v2, 5 Mar 2023; ICLR 2023)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "patching", "channel-independence", "pre-foundation-model", "point-forecast"]
+    authority_type: "primary_technical"
+    expected_use: "paper-backed source for the origin of two design ideas the addendum needs by name: (1) patching -- segmenting each series into patches of length P with stride S (N = floor((L-P)/S) + 2 patches after end-padding) so the number of attention tokens falls from L to roughly L/S; and (2) channel-independence -- a multivariate series is split into univariate series that share one backbone and are processed independently. Also the paper's supervised MSE objective, instance normalization with the statistics added back to the output, and a masked-patch self-supervised variant. This is NOT a foundation model: its claims are for per-dataset supervised training and for its own self-supervised transfer experiments."
+    last_verified: "2026-10-06"
+    access_status: "verified via full-text PDF download and pdftotext extraction (arXiv v2), not abstract-only. Read directly: the model-structure text covering channel-independence, patching, the Transformer encoder, the loss function and instance normalization, and the start of the representation-learning section. Experiments were not read."
+    license_or_reuse: "arXiv preprint / ICLR 2023 -- standard terms; text synthesis and citation only, no figure reuse without checking the paper's own license"
+    notes: "Both TimesFM (src-58) and Chronos-2 (src-57) cite this paper for patching. Its title's '64 words' refers to the paper's PatchTST/64 variant (look-back L = 512, patch length P = 16, stride S = 8, giving 64 input patches); the paper's default PatchTST/42 uses L = 336 with the same P and S. These configuration values come from the paper's experiment/implementation description, which access_status records as not read: treat them as UNVERIFIED in this registry until the relevant section is re-read and recorded. The N formula and the 64-patch arithmetic are consistent with each other. Do not generalize either configuration."
+
+  - id: "src-65"
+    title: "TimesFM (google-research/timesfm) repository README"
+    url: "https://github.com/google-research/timesfm"
+    authors: "Google Research (repository maintainers; README as fetched, no individual author)"
+    resource_type: "official repository README (documentation only; not a paper; content changes over time)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "documentation-only", "timesfm-2.5", "timesfm-3.0", "release-notes"]
+    authority_type: "implementation_guide"
+    expected_use: "DOCUMENTATION-ONLY source, to be used only for what the README itself states: that TimesFM 2.5 (released September 2025) uses 200M parameters (down from 500M for 2.0), supports up to 16k context, offers continuous quantile forecasts up to a 1k horizon through an optional 30M quantile head, and drops the frequency indicator; that covariate support for 2.5 was added back through XReg (October 2025 update); that a LoRA fine-tuning example exists (April 2026 update); that TimesFM 3.0 (August 2026 update) claims native multivariate forecasting with past-only and past-and-future covariates; that 3.0 weights carry a separate non-commercial license while code and weights up to 2.5 are Apache-2.0; and the README's API example showing a 12-step forecast of shape (12,) and nine quantiles of shape (12, 9). Its benchmark-ranking statements are the vendor's own claims."
+    last_verified: "2026-10-06"
+    access_status: "fetched raw README.md from the master branch on 2026-10-06 (about 11.6 KB) and read in full through the code-examples section. This is a repository snapshot with dated update entries, not a versioned document: re-check before relying on it later. No paper for TimesFM 2.0, 2.5 or 3.0 was found: the README links only the 2023 paper (src-58), and an arXiv title search for TimesFM returned only third-party studies (excluded, see the decision report)."
+    license_or_reuse: "repository README under the repository's own terms (source code Apache-2.0 per the README); quote minimally, no copying of long passages"
+    notes: "Do not use this README as evidence for HOW TimesFM 2.5 or 3.0 work internally beyond what it states; the 3.0 mechanism text lives in the blog (src-67) and model card (src-66), which are themselves documentation."
+
+  - id: "src-66"
+    title: "TimesFM 3.0 (PyTorch) -- Hugging Face model card (google/timesfm-3.0-pytorch)"
+    url: "https://huggingface.co/google/timesfm-3.0-pytorch"
+    authors: "Google Research (model card, no individual author)"
+    resource_type: "official model card (documentation only; not a paper)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "documentation-only", "timesfm-3.0", "model-card"]
+    authority_type: "implementation_guide"
+    expected_use: "DOCUMENTATION-ONLY source for TimesFM 3.0's published configuration facts exactly as the card states them: architecture label 'Stacked Mixing Transformer with Variate Attention and CPM Iterative RevIN' (the card does not define these terms), context patch length 32, forecast-horizon patch length 64, 20 transformer layers with model dimension 1280 and 16 heads, a quantiles field (its values did not survive the plain-text fetch), a pretraining-data list (GiftEvalPretrain excluding datasets that overlap with fev-bench, Wikipedia Pageviews with a November 2023 cutoff, Google Trends top queries with an end-of-2022 cutoff, and synthetic and augmented data), and the non-commercial license."
+    last_verified: "2026-10-06"
+    access_status: "fetched the raw README.md of the model card on 2026-10-06 (about 1.4 KB) and read it in full. The card's 'see paper for details' pointers resolve to the 2023 TimesFM paper (src-58), which predates 3.0 and does not describe it."
+    license_or_reuse: "model card; the 3.0 weights are under the TimesFM Non-Commercial License v1.0 per the card -- cite facts only"
+    notes: "Possible disagreement left unresolved: the vendor blog (src-67) states 330 million parameters while the card lists 20 layers, width 1280 and 16 heads; this entry does not reconcile them. The card also reuses the name 'CPM' without defining it."
+
+  - id: "src-67"
+    title: "TimesFM-3: A zero-shot foundation model for multivariate forecasting (Google Research blog)"
+    url: "https://research.google/blog/timesfm-3-a-zero-shot-foundation-model-for-multivariate-forecasting/"
+    authors: "Ayush Jain and Rajat Sen (Google Research)"
+    resource_type: "official vendor blog / release announcement (documentation only; published 2026-08-31; not a paper)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "documentation-only", "timesfm-3.0", "release-announcement", "multivariate", "covariates"]
+    authority_type: "implementation_guide"
+    expected_use: "DOCUMENTATION-ONLY source, to be attributed as 'the vendor's own description (as of August 2026)': TimesFM-3 with 330 million parameters pretrained on more than 1 trillion time points; patches of 32 time steps with per-series normalization similar to TimesFM-2.5; target and past-covariate tokens built from a single patch, and past-and-future covariate tokens built by concatenating the current patch with future patches (a 'lookahead' strategy); a stack alternating causal temporal attention (within one series) with full variate attention (across series); non-autoregressive decoding of the whole horizon in a single forward pass using 'Contiguous Patch Masking' placeholder tokens; and nine quantiles (10th to 90th percentile) per target and horizon step in addition to point forecasts. Benchmark-ranking statements are the vendor's own claims."
+    last_verified: "2026-10-06"
+    access_status: "fetched the blog page HTML on 2026-10-06 and read the body text from the introduction through the conclusion after stripping markup. Figures and the linked GitHub and Hugging Face pages were not inspected beyond src-65 and src-66. No accompanying paper or technical report was found."
+    license_or_reuse: "vendor blog; cite and summarize only, no figure reuse"
+    notes: "Name collision to preserve: this blog's 'Contiguous Patch Masking' shares a name with TiRex's CPM (src-59), but no source read here says they are the same technique -- do not equate them. Also ambiguous by the vendor's own wording: the blog says it builds on the decoder-only architecture of predecessors and also describes non-autoregressive single-pass horizon decoding with masked horizon placeholders; classify it as a documented hybrid, not as plain decoder-only autoregression."
+
+  - id: "src-68"
+    title: "Chronos (amazon-science/chronos-forecasting) repository README"
+    url: "https://github.com/amazon-science/chronos-forecasting"
+    authors: "Amazon Science (repository maintainers; README as fetched, no individual author)"
+    resource_type: "official repository README (documentation only; not a paper; content changes over time)"
+    workbook_categories: []
+    topic_tags: ["addendum-04-05-tsfm", "documentation-only", "chronos-bolt", "chronos-2", "release-notes"]
+    authority_type: "implementation_guide"
+    expected_use: "DOCUMENTATION-ONLY source for Chronos-Bolt, which has no paper in the sources found: the README describes Chronos-Bolt as a patch-based variant that chunks the history into multi-observation patches fed to the encoder, with the decoder directly generating quantile forecasts across multiple future steps (direct multi-step forecasting), and gives the vendor's own speed, memory and accuracy comparison against same-size original Chronos models. Also supports the model-family table (parameter counts per released checkpoint) and the dated release notes for Chronos-2 (20 October 2025) and Chronos-Bolt (26 November 2024)."
+    last_verified: "2026-10-06"
+    access_status: "fetched raw README.md from the main branch on 2026-10-06 (about 11.2 KB) and read the news, introduction and model-table sections. Usage examples after the first Chronos-2 snippet were not read."
+    license_or_reuse: "repository README under the repository's own terms (Apache-2.0 per its badge); quote minimally"
+    notes: "Chronos-Bolt is the clearest documented example of a hybrid: a model whose README describes encoder and decoder components (the README wording; it does not say T5-style) that nonetheless outputs quantiles directly instead of sampling tokens -- the README does not give its loss or normalization, so the addendum may describe its output style only and must not state its training objective."
