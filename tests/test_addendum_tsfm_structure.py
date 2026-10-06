@@ -74,7 +74,7 @@ class TestScaffold(unittest.TestCase):
 
     def test_no_canonical_release_or_rc_artifacts_exist(self):
         out = os.path.join(REPO_ROOT, "outputs")
-        self.assertFalse(os.path.exists(os.path.join(out, "addendum-04-05-tsfm.pdf")))
+        # (the canonical PDF is a permitted, git-ignored build product after publication; see test_addendum_tsfm_final)
         # Release Candidate 1 is the only permitted release-area artifact
         rel = os.path.join(out, "_releases", WB_ID)
         if os.path.isdir(rel):

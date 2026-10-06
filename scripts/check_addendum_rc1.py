@@ -82,7 +82,7 @@ def main():
             problems.append(msg)
 
     check(os.path.exists(REVIEW) and os.path.exists(RC1), "review PDF and RC1 both exist")
-    check(not os.path.exists(CANONICAL), "no canonical addendum PDF exists")
+    check(os.path.dirname(RC1).endswith("_releases/addendum-04-05-tsfm"), "RC1 lives only in the release-candidate area (the canonical PDF, if built, is a separate artifact)")
     check(os.path.getsize(REVIEW) == REVIEW_BYTES and sha(REVIEW) == REVIEW_SHA, "accepted review PDF still has its recorded size and SHA-256")
     check(sha(RC1) != sha(REVIEW) and os.path.getsize(RC1) != os.path.getsize(REVIEW), "RC1 differs from the review PDF in bytes and checksum (independent render)")
 

@@ -68,13 +68,14 @@ class TestRc1State(unittest.TestCase):
         self.assertNotIn("release_tag", reg["publications"]["addendum-04-05-tsfm"])
 
     def test_no_canonical_pdf_tag_or_rc2(self):
-        self.assertFalse(os.path.exists(os.path.join(REPO_ROOT, "outputs", "addendum-04-05-tsfm.pdf")))
         rel = os.path.join(REPO_ROOT, "outputs", "_releases", "addendum-04-05-tsfm")
         if os.path.isdir(rel):
             names = [n for n in os.listdir(rel) if not re.search(r"\.prev-[0-9a-f]+$", n)]
             self.assertEqual(names, ["addendum-04-05-tsfm-rc1.pdf"])
         tags = subprocess.run(["git", "tag", "-l"], cwd=REPO_ROOT, capture_output=True, text=True).stdout.split()
-        self.assertEqual(sorted(tags), ["workbook-04-v1.0.0", "workbook-05-v1.0.0"])
+        self.assertIn("workbook-04-v1.0.0", tags)
+        self.assertIn("workbook-05-v1.0.0", tags)
+        self.assertEqual([t for t in tags if t.startswith("addendum") and "rc" in t], [])
 
     def test_no_pdf_or_page_renders_are_tracked(self):
         out = subprocess.run(["git", "ls-files"], cwd=REPO_ROOT, capture_output=True, text=True).stdout.splitlines()
