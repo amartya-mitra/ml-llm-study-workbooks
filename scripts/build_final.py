@@ -4,7 +4,8 @@
     1. regenerate every figure (root + workbook-local)
     2. regenerate the build/version note with final status
     3. temporarily update index.qmd subtitle to remove RC designation and
-       swap the RC scope note for includes/final-scope-note.qmd
+       swap the RC scope note for includes/final-scope-note.qmd, and start
+       the Build and Version Note on a fresh page (no orphaned heading)
     4. render workbooks/04-llm-architecture/index.qmd via Quarto/Typst
     5. copy to outputs/04-modern-llm-architecture-workbook.pdf
     6. restore index.qmd (RC7 subtitle and RC scope-note include)
@@ -86,8 +87,11 @@ def main():
     ).replace(
         'includes/draft-scope-note.qmd',
         'includes/final-scope-note.qmd'
+    ).replace(
+        '{{< include includes/build-version-note.qmd >}}',
+        '```{=typst}\n#pagebreak()\n```\n\n{{< include includes/build-version-note.qmd >}}'
     )
-    for required in ('Final Edition', 'includes/final-scope-note.qmd'):
+    for required in ('Final Edition', 'includes/final-scope-note.qmd', '#pagebreak()\n```\n\n{{< include includes/build-version-note.qmd >}}'):
         if required not in modified_content:
             print(f"BLOCKED: expected {required!r} not present after substitution")
             sys.exit(1)

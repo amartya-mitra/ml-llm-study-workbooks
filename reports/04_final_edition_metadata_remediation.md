@@ -153,6 +153,79 @@ Tests and validators:
 - No tag or GitHub Release was created. Commit `822ecf6` was pushed
   earlier in this task and nothing else.
 
+## 7a. Follow-up: build-note pagination correction
+
+**Independent-review finding.** In the 69-page PDF (SHA-256
+`c9298f38faac554093758b54117ed03296c3ab39e04c5ade77d2203957ee8f7c`), page 66
+ended with the "Build and Version Note" heading and only its "Generated"
+bullet; the substantive note began on page 67 (a section-heading orphan).
+
+**Exact mechanism.** In `scripts/build_final.py` only, the temporary
+`index.qmd` substitution now also replaces
+`{{< include includes/build-version-note.qmd >}}` with a raw Typst
+`#pagebreak()` block followed by that include. `index.qmd` itself is
+unchanged, so RC1–RC7 reproducibility is unaffected; the builder aborts if
+the substitution is not present. No typography, margin, font, spacing,
+chapter, bibliography or learner-facing text was changed.
+
+**Artifacts.**
+
+| | Path | Pages | Size (bytes) | Words | SHA-256 |
+|---|---|---|---|---|---|
+| Superseded 69-page PDF (byte-identical copy, ignored by Git) | `outputs/_development/04-llm-architecture/superseded-final-pre-build-note-pagination-fix/04-modern-llm-architecture-workbook.pdf` | 69 | 1,366,556 | 33,633 | `c9298f38faac554093758b54117ed03296c3ab39e04c5ade77d2203957ee8f7c` |
+| New canonical | `outputs/04-modern-llm-architecture-workbook.pdf` | **69** | **1,366,467** | **33,633** | `54950f2158803d581a90a597b24e63e65674eed58cc7c19cc5222ba45219ac04` |
+
+Build: `python3 scripts/build_final.py` (conda env `ml-workbooks`), started
+2026-10-06T02:11:18Z. The page count is unchanged because the Chapter 8
+answer key ended page 66 with ample room and the Build Note simply moved
+whole to page 67.
+
+**Placement.** Answer Key Chapter 8 ends on p. 66; Build and Version Note
+(heading plus all bullets) occupies the top of p. 67 together with the start
+of the Bibliography; Bibliography pp. 67–69 ([1]–[4] on p. 67, [5]–[22] on
+p. 68, [23]–[33] on p. 69). All 33 entries are complete and none is split
+across a page. TOC: all 14 entries checked by script against rendered pages,
+no mismatches, and the TOC entry for the Build Note now reads 67.
+
+**No learner-facing text changed.** Normalized text comparison against the
+previous 69-page PDF found only whitespace/extraction-order differences in
+one underbrace equation, a TOC page number (66 → 67), and whitespace around
+the Build Note heading; raw-order extraction shows the same 14 differing
+lines, all of those kinds. All phrases listed in the removal checklist
+("Complete content draft", "release candidate", "not the final edition",
+"review artifact", "copy-edited", RC2–RC7 history) remain absent; no source
+IDs, script names, commit identifiers or `/mnt/` paths appear. The title
+page and Build Note both say "Final Edition".
+
+**Visual inspection — what was and was not actually seen.** All 69 pages
+were freshly rendered at 170 dpi after clearing the old images, and pages
+66–67 at 250 dpi. The image viewer repeatedly returned "request limit"
+placeholders for pages 1–42 in this session, so **pages 1–42 were not
+visually inspected by the assistant in this pass**. Pages 43–69 were
+viewed, including the high-resolution Build Note transition, every
+bibliography page and the final page (Chapter 6, 7 and 8 openings; the
+answer-key transitions for Chapters 5–8; no clipping, overlap, broken
+glyphs, incomplete headings or mid-word title splits seen). For pages 1–42
+the only evidence is the text-level per-page equivalence to the earlier PDF
+(identical apart from the items above), the earlier independently reviewed
+acceptance of that layout, and the unchanged build path; a purely graphical
+regression there is unlikely but not excluded, so the final human review
+should include pages 1–42.
+
+Pre-existing observations, not changed (out of this task's scope): Chapter 3
+prose (p. 28) cites "AGENTS.md" by name in learner-facing text
+(`chapters/03-attention-head-structure.qmd` line 128) — an internal
+repository filename the earlier leakage scan did not target; the Figure 11
+arrow/label crossing noted earlier; some sparse pages at chapter ends.
+Recommend a separate decision on the AGENTS.md wording before publication.
+
+**Tests.** Registry validator OK; question validator OK (74); `git diff
+--check` clean; Workbook 04 scoped tests 41 passed / 14 skipped / 3 failed;
+full suite run once: 468 passed, 14 skipped, 3 failed, 81 subtests — the
+same three known stale failures (rc2 subtitle test; two rc4 heading tests),
+untouched. Workbook 05 PDF checksum unchanged
+(`25a393bb…2a0c`); no tag, release or push of the remediation commits.
+
 ## 8. Recommendation
 
 The new PDF is **ready for independent human acceptance**, with the
