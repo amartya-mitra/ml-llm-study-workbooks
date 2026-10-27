@@ -284,6 +284,16 @@ workbooks:
         coverage: "supporting"
       - id: "src-68"
         coverage: "supporting"
+      # Timestral (v1.1.0 revision, 2026-10-27). src-71 is primary only for
+      # inference-time behavior read in code at a pinned commit.
+      - id: "src-69"
+        coverage: "supporting"
+      - id: "src-70"
+        coverage: "supporting"
+      - id: "src-71"
+        coverage: "primary"
+      - id: "src-72"
+        coverage: "supporting"
 
 gaps_and_notes:
   - "Workbook 01 (ML Foundations) currently has only one supporting source (src-01, a cheat sheet). It needs primary technical sources (textbooks, canonical papers) before drafting — flagged for the next planning pass, not resolved in this bootstrap."

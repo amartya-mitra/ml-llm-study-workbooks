@@ -66,9 +66,17 @@ class TestCanonicalArtifact(unittest.TestCase):
         ignored = subprocess.run(["git", "check-ignore", "outputs/addendum-04-05-tsfm.pdf"], cwd=REPO_ROOT, capture_output=True, text=True)
         self.assertEqual(ignored.returncode, 0)
 
-    def test_registry_still_has_frozen_content_and_a_valid_lifecycle_value(self):
+    def test_registry_content_status_and_lifecycle_values_are_consistent(self):
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
-        self.assertEqual(reg["workbooks"]["addendum-04-05-tsfm"]["status"], "accepted_frozen")
+        status = reg["workbooks"]["addendum-04-05-tsfm"]["status"]
+        self.assertIn(status, ("accepted_frozen", "drafted_pending_human_review"))
+        if status != "accepted_frozen":
+            # an open, human-instructed reopening must explain why; the final
+            # builder then refuses to run, so the canonical PDF cannot be replaced
+            open_ = [r for r in reg.get("reopenings", []) if r["workbook"] == "addendum-04-05-tsfm"
+                     and r["state"].startswith("open")]
+            self.assertEqual(len(open_), 1)
+            self.assertEqual(open_[0]["granted_by"], "human")
         self.assertIn(reg["publications"]["addendum-04-05-tsfm"]["status"], ("review_pending", "published"))
 
     @unittest.skipUnless(all(os.path.exists(p) for p in (FINAL, RC1, REVIEW)), "local PDFs not present")

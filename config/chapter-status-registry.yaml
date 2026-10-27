@@ -54,35 +54,81 @@ workbooks:
         chapter_path: "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"
         note: "Final content chapter of Workbook 05. Drafted, internally reviewed, corrected once (source-audit time-qualifier fix), and now accepted after independent human review -- this entry records that acceptance, per the task that reported the human review as complete. commit_sha updated to the chapter file's actual last-touched commit (the correction-pass commit), superseding the earlier draft commit this field previously recorded."
   addendum-04-05-tsfm:
-    status: "accepted_frozen"
-    note: "Standalone TSFM addendum. Content accepted and frozen after independent human review of the corrected 18-page integrated review PDF. Release Candidate 1 is built separately and awaits its own independent review. No canonical PDF, tag or release. Companion to frozen Workbooks 04 and 05, which it does not modify."
+    status: "drafted_pending_human_review"
+    note: "Standalone TSFM addendum, companion to frozen Workbooks 04 and 05 (not modified). v1.0.0 content was accepted after independent human review on 2026-10-06 (fields below, kept unchanged as the v1.0.0 acceptance record) and is published (see publications.addendum-04-05-tsfm). Reopened 2026-10-27 for the v1.1.0 Timestral revision (see `reopenings`); the working tree is v1.1.0 content pending independent human PDF review. While this status is not accepted_frozen, scripts/build_addendum_final.py refuses to build, so the published canonical PDF cannot be overwritten from unreviewed content."
     acceptance_date: "2026-10-06"
     accepted_source_commit: "aea2e38673556a8701c68fdb0fecddaab1a91d02"
     accepted_review_pdf_sha256: "d2fcd1cff746cbeeb154de0143d4996c6238f6fe715748ef713d8c589c4e3319"
     accepted_review_pdf_page_count: 18
     chapters:
       01:
-        status: "accepted_frozen"
+        status: "drafted_pending_human_review"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/01-model-inputs.qmd"
       02:
-        status: "accepted_frozen"
+        status: "drafted_pending_human_review"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/02-context-channels-covariates-horizons.qmd"
       03:
-        status: "accepted_frozen"
+        status: "drafted_pending_human_review"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/03-architecture-families-and-horizon-filling.qmd"
       04:
-        status: "accepted_frozen"
+        status: "drafted_pending_human_review"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/04-outputs-and-losses.qmd"
       05:
-        status: "accepted_frozen"
+        status: "drafted_pending_human_review"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/05-pretraining-data-adaptation-and-leakage.qmd"
       06:
-        status: "accepted_frozen"
+        status: "drafted_pending_human_review"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
   04-llm-architecture:
     status: "frozen"
     note: "Whole workbook frozen -- Release Candidate 7, complete. Chapter-granular entries are not needed since no further chapter-level work on this workbook is in scope for the chapter-factory workflow."
     last_touched_commit_sha: "a78a15eae569390627c5fbd6d6e7e494a5e9885a"
+
+# --------------------------------------------------------------------
+# Reopenings of accepted content (narrowly scoped, human-instructed)
+# --------------------------------------------------------------------
+# A reopening moves accepted content back to drafted_pending_human_review
+# for one named revision, lists exactly which paths that revision may
+# change, and leaves every other accepted path frozen. It never changes a
+# published record and never implies push, tag or release permission.
+# Close it by hand (status accepted_frozen again, entry marked closed)
+# only after independent human review of the revision's PDF.
+reopenings:
+  - workbook: addendum-04-05-tsfm
+    revision: "v1.1.0"
+    opened: "2026-10-27"
+    state: "open_pending_human_review"
+    granted_by: human
+    granted_for: "Update the published TSFM addendum to cover Mistral Timestral as proposed version 1.1.0, using a clearly documented, narrowly scoped reopening (user task instruction, 2026-10-27)"
+    base_commit: "e863c419ec231e7b15c62c23219077f8685b8199"
+    preserves:
+      - "publications.addendum-04-05-tsfm (v1.0.0: tag, release asset and outputs/addendum-04-05-tsfm.pdf)"
+      - "outputs/_releases/addendum-04-05-tsfm/addendum-04-05-tsfm-rc1.pdf and outputs/_development/addendum-04-05-tsfm/integrated-review/"
+      - "workbooks/04-llm-architecture/** and workbooks/05-llm-training/**"
+    allowed_paths:
+      - "workbooks/addendum-04-05-tsfm/includes/front-matter.qmd"
+      - "workbooks/addendum-04-05-tsfm/chapters/*.qmd"
+      - "workbooks/addendum-04-05-tsfm/solutions/*.qmd"
+      - "workbooks/addendum-04-05-tsfm/chapter-contracts/*.yaml"
+      - "workbooks/addendum-04-05-tsfm/claim-ledger.yaml"
+      - "workbooks/addendum-04-05-tsfm/questions.yaml"
+      - "workbooks/addendum-04-05-tsfm/figure-plan.yaml"
+      - "workbooks/addendum-04-05-tsfm/data/synthesis-map.yaml"
+      - "workbooks/addendum-04-05-tsfm/data/worked-examples/w7_timestral.py"
+      - "workbooks/addendum-04-05-tsfm/data/worked-examples/w7_timestral.json"
+      - "workbooks/addendum-04-05-tsfm/figures/source/fig_dhf_layout.py"
+      - "workbooks/addendum-04-05-tsfm/figures/rendered/fig-dhf-layout.svg"
+      - "sources/registry.yaml (append src-69..src-72 only)"
+      - "sources/coverage-matrix.yaml (append src-69..src-72 only)"
+      - "shared/bibliography.bib (append src-69..src-72 only)"
+      - "config/chapter-status-registry.yaml, config/project.yaml, README.md catalog row"
+      - "scripts/build_addendum_review.py (adds --revision; default behavior unchanged)"
+      - "tests/test_addendum_tsfm_*.py (status expectations and Timestral checks)"
+      - "reports/addendum_04_05_tsfm_v1_1_0_timestral_revision.md"
+    unchanged_accepted_paths:
+      - "workbooks/addendum-04-05-tsfm/data/worked-examples/w1_inputs.py .. w6_release_labels.py"
+      - "workbooks/addendum-04-05-tsfm/figures/source/fig_{tokenization_styles,attention_regimes,horizon_filling,output_types,leakage_timeline}.py"
+      - "workbooks/addendum-04-05-tsfm/index.qmd"
 
 # --------------------------------------------------------------------
 # Publication records (see docs/publication-hygiene.md)
@@ -155,6 +201,20 @@ publications:
       accepted: true
       date: "2026-10-06"
       note: "Release Candidate 1 (18 pages, SHA-256 a1599e49...) accepted after independent human review; the canonical PDF differs from it only in the subtitle (Final Edition). Content status is accepted_frozen."
+  addendum-04-05-tsfm-v1.1.0:
+    # Proposed MINOR revision of the published addendum (adds
+    # Mistral Timestral). Pending independent human review of the
+    # development review PDF; NOT accepted, built canonically, tagged or
+    # released. The v1.0.0 record above stays the published artifact.
+    # release_asset / canonical_path are deliberately absent: they would
+    # duplicate v1.0.0's until a publication step decides them.
+    title: "Addendum 04-05: From Language Models to Time-Series Foundation Models (v1.1.0, Timestral revision)"
+    workbook_id: "addendum-04-05-tsfm"
+    status: "review_pending"
+    release_tag: "addendum-04-05-tsfm-v1.1.0"
+    review_pdf: "outputs/_development/addendum-04-05-tsfm/v1.1.0-review/addendum-04-05-tsfm-v1.1.0-review.pdf"
+    base_published_version: "addendum-04-05-tsfm-v1.0.0"
+    reproduction_command: "python3 scripts/build_addendum_review.py --revision v1.1.0"
 
 # --------------------------------------------------------------------
 # Override mechanism

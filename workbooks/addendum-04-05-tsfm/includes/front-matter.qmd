@@ -4,13 +4,14 @@ This addendum carries the language-model ideas from the architecture and pretrai
 
 **Three labels for every number.** *Reported* means a source states it. *Derived* means it is arithmetic done in this addendum from stated definitions. *Illustrative* means it was chosen for teaching and says nothing about any named model.
 
-**Source types.** A *paper* is an article or technical report describing that exact model generation. *Documentation* is a repository README or model card: it states configuration facts, not mechanisms. A *vendor claim* is a statement in a vendor blog post about size, mechanism or capability. Mechanism claims in this addendum rest on papers only. No paper was found for TimesFM 2.0, 2.5 or 3.0, or for Chronos-Bolt, so those releases appear only as documentation. Facts about releases are time-sensitive and are stated as of October 2026; Moirai 2.0 and TiRex-2 are 2026 preprints and may change.
+**Source types.** A *paper* is an article or technical report describing that exact model generation. *Documentation* is a repository README, model card or configuration file: it states configuration facts, not mechanisms. A *vendor claim* is a statement in a vendor blog post about size, mechanism, capability or benchmark standing. *Code-verified* means read in a public inference implementation pinned to one commit: it shows what the released inference code does, not how the model was trained. Mechanism claims in this addendum rest on papers, or, for inference-time behavior only, on pinned code. No paper was found for TimesFM 2.0, 2.5 or 3.0, for Chronos-Bolt, or for Timestral, whose technical report was announced but not released; those releases appear as documentation and vendor claims, plus code for Timestral. Facts about releases are time-sensitive and are stated as of October 2026; Moirai 2.0 and TiRex-2 are 2026 preprints and may change, and Timestral was released on 15 October 2026.
 
 | Symbol | Meaning |
 |---|---|
 | $T_\text{ctx}$, $F$ | context length and forecast horizon, in time steps |
 | $P_\text{in}$, $P_\text{out}$, $S_p$ | input and output patch length, patch stride (time steps) |
 | $N_p$ | number of patches |
+| $K$ | maximum patches decoded per forecast block (Timestral) |
 | $n_\text{tgt}$, $n_\text{cov}$ | number of target variables, number of covariates |
 | $n_q$, $\tau$ | number of quantile levels; one quantile level |
 | $n_\text{bins}$, $n_\text{samples}$ | number of bins; number of sampled paths |

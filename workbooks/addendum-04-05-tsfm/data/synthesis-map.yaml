@@ -2,7 +2,8 @@
 # chapter must match this file cell for cell (checked by the scoped
 # tests). Every row names its registry ids. Documentation-group rows
 # state only what the documentation states; each such cell begins with
-# "doc:" or reads "not covered here".
+# "doc:" or reads "not covered here". The code-group row (Timestral) prefixes
+# every cell with its evidence kind: "code:" or "doc:" ("(blog)" = vendor claim).
 schema_version: 1
 columns: ["input", "family", "horizon", "channels_covariates", "output", "loss"]
 rows:
@@ -78,3 +79,16 @@ rows:
     channels_covariates: "not covered here"
     output: "doc: quantiles"
     loss: "not covered here"
+  # Timestral (v1.1.0 revision, 2026-10-27): no paper. Each cell names its
+  # evidence kind: "code:" = inference code at commit a534bdb (src-71),
+  # "doc:" = README / model card / config (src-70, src-71 README),
+  # "(blog)" suffix = vendor blog (src-69). Never a paper mechanism.
+  - model: "Timestral"
+    group: "code"
+    source_ids: ["src-69", "src-70", "src-71"]
+    input: "code: causal patch scaling, arcsinh; 32-step patches with missing flags"
+    family: "doc: causal patch transformer, time and variate attention"
+    horizon: "code: forecast tokens, one pass per block; median fed back between blocks"
+    channels_covariates: "code: variate attention; past-only, known-future, encoded categorical"
+    output: "code: 21 non-crossing quantiles"
+    loss: "doc: pinball over 21 quantiles (blog)"

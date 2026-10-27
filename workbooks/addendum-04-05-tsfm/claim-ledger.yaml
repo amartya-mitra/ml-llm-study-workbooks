@@ -584,3 +584,177 @@ entries:
     source_ids: ["src-66", "src-67"]
     verification_status: "computed_by_script"
     note: "Derived classification (w6_release_labels.py)."
+
+  # ------------------- Timestral (v1.1.0 revision, 2026-10-27) -------------------
+  # Kinds used below: "code-verified (inference)" = read in src-71 at commit
+  # a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff; "documentation claim" = README /
+  # model card / config.json (src-70, src-71 README, src-72); "vendor claim" =
+  # Mistral blog (src-69). Timestral has no paper as of 2026-10-27. Every
+  # entry is time-sensitive (as of October 2026). No weights were downloaded.
+  - id: "claim-tsfm-inputs-015"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Timestral's inference code scales each patch with the running mean and (Bessel-corrected) standard deviation of all observed values from the context start to the end of that patch, then applies arcsinh; no context token depends on later values."
+    source_ids: ["src-71"]
+    verification_status: "verified_full_text"
+    note: "Code-verified (inference): scaler.py compute_causal_statistics / causal_patch_loc_scale, model.py TimestralModel.scale; use_asinh true in every config (src-70). Whether training scaled the same way is not verified (no training code); the only "as in training" comments concern the in-block refine frame (scaler.advancing_block_frames, forecaster._refine_block), cited in Module 3. Timestral 1.0; as of October 2026."
+
+  - id: "claim-tsfm-inputs-016"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Missing values (NaN) are excluded from Timestral's scaling statistics and enter a patch as 0 with a missing flag; patches with gaps remain attention keys once a series has started, while leading all-missing patches are padding and never keys; known-future covariate rows are scaled over the whole row and 0/1 rows are left unscaled."
+    source_ids: ["src-71"]
+    verification_status: "verified_full_text"
+    note: "Code-verified (inference): forecaster._as_context, scaler.apply_affine_asinh_masked, masks.compute_enc_key_validity (attend_missing_patches true in every config), scaler.instance_norm_stats, model._known_cov_scaling. Timestral 1.0; as of October 2026."
+
+  - id: "claim-tsfm-inputs-017"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Timestral's patches are 32 time steps, each embedded by a residual MLP from its 32 scaled values and 32 missing flags."
+    source_ids: ["src-70", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Documentation claim (model card: values with missing-value indicators; config patch_size 32), code-verified (model.PatchRepresentation: ResidualBlock over 2 x patch_size inputs). Timestral 1.0; as of October 2026."
+
+  - id: "claim-tsfm-inputs-018"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch1"
+    statement: "Under the left-padding rule a 2,000-step context gets 16 unobserved steps and 63 patches; a 1,000-step context gets 24 and 32 patches; the documented 32,768-step maximum is 1,024 patches."
+    source_ids: ["src-70", "src-71"]
+    verification_status: "computed_by_script"
+    note: "Derived value (w7_timestral.py: padding_example, padding_question, full_context); rule code-verified (forecaster.pad_to_patch, context cap); lengths illustrative except the maximum, which is restated from documentation."
+
+  - id: "claim-tsfm-context-014"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Timestral is trained at context 8192 in a first stage and 4x longer in a second (vendor), and documents a maximum context of 32,768 time steps."
+    source_ids: ["src-69", "src-70"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim (training stages, blog) plus documentation claim (model card and config context_length 32768). 4 x 8192 = 32768; the README ("capped at the trained length (32768 steps)") and the config docstring ("Trained context length") state that 32,768 is the trained length, a maintainer statement about training that stays unverified, so the chapter keeps the vendor stage figures and the documented maximum as separate entries. As of October 2026."
+
+  - id: "claim-tsfm-context-015"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Timestral's configurations repeat three time-attention layers followed by one time-and-variate layer; variate attention runs among the rows of one series with no position encoding."
+    source_ids: ["src-70", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Documentation claim (config.json block_schedule) and code-verified (layers.Attention: RoPE only when is_time; masks.build_two_stream_variate_mask: same group id). Timestral 1.0; as of October 2026."
+
+  - id: "claim-tsfm-context-016"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Timestral assigns each row a role (target, past-only, known-future); target and past-only rows are causal in time, known-future rows bidirectional over context and horizon; covariates never read targets and known-future rows read only known-future rows; the code accepts known-future covariates only if a time step is followed by another time step and a variate step."
+    source_ids: ["src-69", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim (roles, 'information flows only from covariates to targets') and code-verified inference rules (masks.build_two_stream_time_mask, masks.variate_firewall with its stated reason, config.supports_known_covariates). Whether training used identical masks is not verified. As of October 2026."
+
+  - id: "claim-tsfm-context-017"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Source disagreement: the blog says categorical covariates are taken as categorical inputs directly, while the model card, README and inference code describe target encoding (smoothed per-series category mean for a single target; raw codes for several targets) and a docstring says the model was trained on numeric covariates."
+    source_ids: ["src-69", "src-70", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Unresolved source disagreement, preserved on purpose (vendor claim versus code-verified inference behavior plus a maintainer statement about training). No reconciliation attempted. As of October 2026."
+
+  - id: "claim-tsfm-context-018"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch2"
+    statement: "Timestral's forecaster returns quantiles with axes series x variates x horizon x 21 quantile levels."
+    source_ids: ["src-71"]
+    verification_status: "verified_full_text"
+    note: "Code-verified (forecaster.Forecast: quantiles (B, V, H, Q)) and README documentation. Timestral 1.0; as of October 2026."
+
+  - id: "claim-tsfm-architecture-013"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "The Timestral blog describes Decoupled Horizon Forecasting as keeping the full history in the sequence with learned forecast tokens that read the history before them, so every observed value is both target and context, true gaps stay flagged missing, and training horizon and missing-data augmentation are tuned independently; it contrasts this with causal decoders trained with contiguous patch masking, naming Toto 2.0 and TimesFM-3."
+    source_ids: ["src-69"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim about training and about other vendors' models; not checked. The chapter does not equate either use of 'contiguous patch masking' with TiRex's CPM (src-59). The teacher-forcing reading is an original explanation. As of October 2026."
+
+  - id: "claim-tsfm-architecture-014"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "In Timestral's inference code, h <= K forecast tokens (copies of one learned vector distinguished by time positions) follow the encoded context; they read all valid context patches and earlier forecast tokens of their block; context never reads forecast tokens; each forecast token yields one 32-step patch of quantiles. The mask builder supports a multi-block layout, but inference uses one block."
+    source_ids: ["src-71"]
+    verification_status: "verified_full_text"
+    note: "Code-verified (inference): model.PatchRepresentation.forecast_tokens, masks.build_forecast_time_mask, masks.build_two_stream_time_mask / compute_block_layout, model._predict_window. With covariates the encoder spans context plus the block horizon and every patch has a forecast token, active only from the forecast origin (one active block at inference); the chapter and figure caption say so. The multi-block layout's use in training is not verified (no training code). As of October 2026."
+
+  - id: "claim-tsfm-architecture-015"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "Timestral decodes at most K = 32 patches (1,024 steps) per pass; longer horizons are decoded block by block with the median appended for targets, real values for known-future rows and unobserved blanks for past-only rows; later patches in a block are re-expressed in an advancing scale frame; by default the forecaster averages with the reflected forecast of the negated series and clips non-negative series at 0, and the README says benchmarks used these defaults."
+    source_ids: ["src-70", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Documentation claim (block_size 32; model card 1,024 steps per pass) and code-verified (forecaster._block_ar_decode, _refine_block, scaler.advancing_block_frames, forecast() defaults). The 'frame it was trained in' docstring is a maintainer statement about training, unverified. As of October 2026."
+
+  - id: "claim-tsfm-architecture-016"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch3"
+    statement: "For F = 2500, Timestral decodes 79 patches as blocks of 32, 32 and 15, producing 2,528 steps with 28 discarded and 6 block passes under symmetric averaging; for F = 1500, 47 patches in blocks of 32 and 15, 4 steps discarded, 4 block passes."
+    source_ids: ["src-71"]
+    verification_status: "computed_by_script"
+    note: "Derived values (w7_timestral.py rollout_example, rollout_question); horizons illustrative; rule code-verified."
+
+  - id: "claim-tsfm-outputs-012"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "Timestral outputs 21 quantile levels (0.01, 0.05, 0.10, ..., 0.95, 0.99) per step; its head makes them non-crossing by construction (free median, other levels as median -/+ cumulative softplus increments scaled by level gaps), and monotone un-scaling preserves the order."
+    source_ids: ["src-70", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Documentation claim (quantile_knots in config.json) and code-verified (model.monotone_quantiles, QuantileHead, scaler.denormalize_quantiles). As of October 2026."
+
+  - id: "claim-tsfm-outputs-013"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch4"
+    statement: "The Timestral blog states the training objective is a pinball loss over 21 quantiles, 'a discrete approximation of CRPS'; the released code contains no loss and the level or step weighting is not stated."
+    source_ids: ["src-69", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim (blog); the absence of a loss in the code is a code-verified negative finding at the pinned commit. CRPS is not developed in the addendum. As of October 2026."
+
+  - id: "claim-tsfm-data-015"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Timestral's blog describes mostly synthetic training data (univariate processes with trends, seasonality and varied noise, combined by a multivariate synthesizer with nonlinear dependencies), a purely synthetic first stage at context 8192 and a real-plus-synthetic second stage at 4x the context; no dataset list, mixture weight or overlap exclusion is published."
+    source_ids: ["src-69"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim; the absence of a published data inventory is a negative finding across src-69, src-70 and src-71 as of 2026-10-27. Timestral 1.0."
+
+  - id: "claim-tsfm-data-016"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch5"
+    statement: "Mistral says Timestral can be fine-tuned through its own platform; no evidence of the effect was read. The four Timestral sizes are 5M, 28M, 123M and 209M parameters."
+    source_ids: ["src-69", "src-70"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim (fine-tuning via Mistral Forge) and documentation claim (sizes on the model cards). As of October 2026."
+
+  - id: "claim-tsfm-release-008"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "Timestral has a vendor blog, four model cards with config files, a documentation page listing it as Public Preview, and public inference code, but no paper; its statements sort into vendor claims, documentation, code-verified inference behavior and an unresolved disagreement."
+    source_ids: ["src-69", "src-70", "src-71", "src-72"]
+    verification_status: "verified_full_text"
+    note: "Source-type classification; the no-paper finding is search-based as of 2026-10-27 (blog: report 'will follow'; cards: 'coming soon')."
+
+  - id: "claim-tsfm-release-009"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "Summing the code's module shapes for each Timestral configuration gives 5.21M, 27.8M, 122.6M and 209.3M parameters, i.e. 20.8, 111.3, 490.4 and 837.2 MB in fp32 (MB = 10^6 bytes), against documented fp32 files of 21, 111, 490 and 837 MB; 837 MB / 4 bytes is about 209M."
+    source_ids: ["src-70", "src-71"]
+    verification_status: "computed_by_script"
+    note: "Derived logical estimates (w7_timestral.py parameter_count), not counts of loaded weights; shapes code-verified, configs and file sizes restated from documentation."
+
+  - id: "claim-tsfm-release-010"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "Timestral's benchmark standing (first among pretrained zero-shot models on GIFT-Eval, TIME and fev-bench; e.g. GIFT-Eval MASE 0.658 for 209M) is a vendor claim not independently verified; the README states the protocol (forecaster defaults, history up to 32,768 steps, per-benchmark covariates); the blog labels the GIFT-Eval probabilistic score 'GMean WQL' while the card labels the same 0.446 'CRPS'."
+    source_ids: ["src-69", "src-70", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Vendor claim plus documentation of the protocol; leaderboard entries and evaluation conditions NOT checked. Metric-label difference preserved as an unresolved source disagreement. As of October 2026."
+
+  - id: "claim-tsfm-release-011"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "Synthesis row for Timestral: each cell names its evidence kind (code, doc or vendor) and restates the Timestral claims of Modules 1 to 5."
+    source_ids: ["src-69", "src-70", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Table row checked cell by cell against synthesis-map.yaml by the scoped tests; no paper mechanism is stated and no ranking is implied."

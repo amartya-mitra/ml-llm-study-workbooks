@@ -10,14 +10,14 @@ The LLM architecture workbook reads any model report with a fixed checklist: (1)
 
 ### A reading checklist
 
-1. **Generation and source type.** Which release exactly, and is each fact from a paper for *that* generation, documentation, or a vendor claim? Links to an earlier paper do not make it describe a later release.
+1. **Generation and source type.** Which release exactly, and is each fact from a paper for *that* generation, documentation, code at a pinned commit, or a vendor claim? Links to an earlier paper do not make it describe a later release, and inference code does not show training.
 2. **Input.** Scaler, token or patch type, patch length, and the unit of every context figure (time steps, tokens or positions).
 3. **Channels and covariates.** Univariate, independent or mixed; past-only, known-future or static.
 4. **Family and horizon filling.** Iterative, placeholder or direct; what is training-only.
 5. **Output and loss.** Point, quantiles, distribution or bins; is the loss documented?
 6. **Data and leakage.** What is in the corpus, and is overlap with your benchmark excluded?
 7. **Adaptation.** Zero-shot only, or fine-tuning, and on what evidence?
-8. **Numbers.** Reported, derived or illustrative; as of which date.
+8. **Numbers.** Reported, derived or illustrative; as of which date. For a benchmark claim: whose claim, which checkpoint and inference settings, and has anyone checked the leaderboard entry?
 9. **What is unverified.** Say so; do not fill gaps with a plausible mechanism.
 
 ### Worked example: reading the TimesFM 3.0 pages
@@ -26,9 +26,15 @@ Sort eight statements about TimesFM 3.0 by source type (as of October 2026; no p
 
 Three pairs stay unresolved, and this addendum attempts no reconciliation. The blog says 330 million parameters while the card lists 20 layers, width 1280 and 16 heads: neither page says how the two relate, and no explanation (different checkpoints, counting conventions, a variant) is supported. The blog's 32-step patches and the card's 32 and 64 are not tied together either. And the blog says it builds on decoder-only predecessors while describing one non-autoregressive pass over placeholders. Its "Contiguous Patch Masking" shares a name with TiRex's training-time device, but no source equates them [@src-59].
 
+### Worked example: reading Timestral with its code
+
+Timestral (as of October 2026) has a vendor blog, four model cards with configuration files, a product page that lists it as a "Public Preview", and public inference code, but no paper [@src-69; @src-70; @src-71; @src-72]. Sorting its statements gives three source types and one open disagreement. *Vendor claims:* DHF's training benefits, the synthetic-first two-stage training, the pinball objective, CPU latencies, and a claimed first place among pretrained zero-shot models on GIFT-Eval, TIME and fev-bench. *Documentation:* four sizes, 32-step patches, 21 quantile levels, a 32,768-step context and 1,024 steps per pass. *Code-verified (inference):* causal patch scaling, forecast tokens and their masks, the role firewall, block rollout with median feedback, and test-time symmetric averaging. *Unresolved:* the categorical-covariate disagreement of Module 2. Several documented facts are also confirmed in code, such as the 32-step patches and the covariate firewall the README describes.
+
+For Timestral, code can settle the kind of question that stayed open for TimesFM 3.0 above. Summing the module shapes in the code for each configuration gives 5.21M, 27.8M, 122.6M and 209.3M parameters, or 20.8, 111.3, 490.4 and 837.2 MB at 4 bytes each (MB taken as $10^6$ bytes), against the documented fp32 weight files of 21, 111, 490 and 837 MB [@src-70; @src-71]. These are derived logical estimates, not counts of loaded weights. Benchmark figures stay vendor claims: the model card lists, for example, a GIFT-Eval MASE of 0.658 for the 209M model [@src-70], and this addendum did not check the leaderboard entries or their evaluation conditions. The README states the conditions used: forecaster defaults, history up to 32,768 steps, and covariates where a benchmark has them [@src-71]. So the numbers measure the forecaster with its test-time averaging, not the network alone. The sources also disagree on a label: the blog calls the GIFT-Eval probabilistic score "GMean WQL", while the card calls the same 0.446 "CRPS". Until a report appears, the training masks, loss weighting, synthetic generator and real-data mixture remain unknown, as does what the weights' "Modified MIT" license changes relative to MIT.
+
 ### Synthesis of the earlier modules
 
-@tbl-synthesis and @tbl-synthesis-docs put the modules side by side. Read each row against the checklist: the first group is backed by a paper for that exact generation, the second only by documentation.
+@tbl-synthesis and @tbl-synthesis-docs put the modules side by side. Read each row against the checklist: the first group is backed by a paper for that exact generation, the second by documentation, pinned inference code or vendor statements, never a paper.
 
 | Model | Input | Family | Horizon | Channels; covariates | Output | Loss |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -45,8 +51,9 @@ Three pairs stay unresolved, and this addendum attempts no reconciliation. The b
 |:---|:---|:---|:---|:---|:---|:---|
 | TimesFM 3.0 [@src-66; @src-67] | doc: 32-step patches (blog); 32 and 64 (card) | doc: label undefined (card) | doc: one pass, placeholders (blog) | doc: variate attention; past and future (blog) | doc: point and 9 quantiles (blog) | not covered here |
 | Chronos-Bolt [@src-68] | doc: patches of the history | doc: encoder and decoder wording | doc: direct multi-step quantiles | not covered here | doc: quantiles | not covered here |
+| Timestral [@src-69; @src-70; @src-71] | code: causal patch scaling, arcsinh; 32-step patches with missing flags | doc: causal patch transformer, time and variate attention | code: forecast tokens, one pass per block; median fed back between blocks | code: variate attention; past-only, known-future, encoded categorical | code: 21 non-crossing quantiles | doc: pinball over 21 quantiles (blog) |
 
-: Synthesis, documentation-only group: no paper exists for these releases, so cells state only what the documentation says ("doc:") and never a mechanism. Not a ranking. {#tbl-synthesis-docs}
+: Synthesis, group without a paper: cells state only what documentation or a vendor page says ("doc:", with "(blog)" marking a vendor claim) or what inference code at a pinned commit shows ("code:"), never a paper mechanism. Not a ranking. {#tbl-synthesis-docs}
 
 ### Check your understanding {#sec-ch6-check}
 
@@ -54,3 +61,5 @@ Three pairs stay unresolved, and this addendum attempts no reconciliation. The b
 2. **Diagnose.** A slide says "TimesFM 2.5 predicts the horizon in one pass, as the TimesFM paper shows." Identify the generation error.
 3. **Explain.** Which two statements about TimesFM 3.0 cannot be reconciled from the pages alone, and what must you *not* do about it?
 4. **Interview practice.** You are asked whether to adopt a new TSFM. Which five checklist items do you ask about first, and why?
+5. **Classify.** Give the source type of each Timestral statement: (a) "every observed value serves as both target and context"; (b) "patches are 32 time steps"; (c) "covariate rows never read target rows"; (d) "Timestral ranks first on fev-bench".
+6. **Calculation.** The README lists 837 MB of fp32 weights for Timestral-209M. About how many parameters is that, and what kind of number is your answer?

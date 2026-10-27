@@ -2,12 +2,16 @@
 """Scoped review-build entry point for the TSFM addendum.
 
     python3 scripts/build_addendum_review.py
+    python3 scripts/build_addendum_review.py --revision v1.1.0
 
 Builds ONE integrated development/review PDF of
 workbooks/addendum-04-05-tsfm/index.qmd and its page images under
-outputs/_development/addendum-04-05-tsfm/integrated-review/. It never
-writes a canonical PDF under outputs/ and never creates a release
-candidate or release directory.
+outputs/_development/addendum-04-05-tsfm/integrated-review/ (default), or,
+with --revision vX.Y.Z, under
+outputs/_development/addendum-04-05-tsfm/vX.Y.Z-review/ as
+addendum-04-05-tsfm-vX.Y.Z-review.pdf, leaving the accepted v1.0.0
+integrated-review artifacts untouched. It never writes a canonical PDF
+under outputs/ and never creates a release candidate or release directory.
 
 Steps (strictly sequential, one process at a time):
   1. regenerate the addendum's worked-example data and figures,
@@ -65,7 +69,21 @@ def sha256(path):
     return h.hexdigest()
 
 
+def select_revision(argv):
+    """Point REVIEW_DIR/REVIEW_PDF at a revision directory when --revision is given."""
+    global REVIEW_DIR, REVIEW_PDF
+    if not argv:
+        return None, "accepted_frozen"
+    if len(argv) != 2 or argv[0] != "--revision" or not re.fullmatch(r"v\d+\.\d+\.\d+", argv[1]):
+        sys.exit("usage: build_addendum_review.py [--revision vMAJOR.MINOR.PATCH]")
+    rev = argv[1]
+    REVIEW_DIR = os.path.join(REPO_ROOT, "outputs", "_development", WB_ID, f"{rev}-review")
+    REVIEW_PDF = os.path.join(REVIEW_DIR, f"{WB_ID}-{rev}-review.pdf")
+    return rev, "drafted_pending_human_review"
+
+
 def main():
+    revision, status = select_revision(sys.argv[1:])
     env = tool_env()
     os.makedirs(REVIEW_DIR, exist_ok=True)
 
@@ -120,7 +138,8 @@ def main():
                 f"</style></head><body><div>{items}</div></body></html>")
     manifest = {
         "workbook": WB_ID,
-        "status": "accepted_frozen",
+        "status": status,
+        "revision": revision,
         "pdf": os.path.relpath(REVIEW_PDF, REPO_ROOT),
         "page_count": pages,
         "page_ceiling": PAGE_CEILING,

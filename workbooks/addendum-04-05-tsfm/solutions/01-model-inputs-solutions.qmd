@@ -14,3 +14,5 @@ Solutions to Module 1's "Check your understanding" questions
 **5.** The model works on scaled values, so its output is in scaled units and must be mapped back to the original level to be useful. Because a loss measured on scaled values depends on the scaler, two runs with different scalers do not measure the same quantity (the same logic as a tokenizer change).
 
 **6.** Token count halves ($k=2$). Score-matrix entries, and so total attention interaction work, shrink about fourfold ($k^2$), and attention interaction work per token about twofold ($k$). This covers the attention interaction term only, not total FLOPs or wall-clock time. Nothing follows about accuracy: each token now has to encode twice as many values, and accuracy was not measured here.
+
+**7.** $1000=31\times32+8$, so $32-8=24$ unobserved steps are added on the left, giving $1024/32=32$ patches. The padded steps are marked missing: they get zero weight in the running mean and standard deviation, enter the first patch as 0 with their missing flags set, and that patch still holds 8 observed values.

@@ -65,3 +65,13 @@ figures:
     semantic_invariant: "At most 8 models; every row names its registry ids; documentation-group cells carry the doc: marker or 'not covered here' and state no mechanism; the chapter table equals the data file cell for cell."
     must_be_redrawn: true
     settings_label: "reported, by source type"
+
+  - id: "fig-dhf-layout"
+    chapter: "ch3"
+    status: "drawn"
+    source_script: "figures/source/fig_dhf_layout.py"
+    numeric_source: "data/worked-examples/w7_timestral.json"
+    teaching_purpose: "Show, for one Timestral DHF block in the public inference code, that forecast tokens are extra queries after the context (no context patch reads them) and which covariate roles may read which in variate attention. Added for the v1.1.0 Timestral revision."
+    semantic_invariant: "The time-mask grid equals w7's mask (Enc->Enc causal, Enc->Dec empty, Dec->Enc full, Dec->Dec causal; 28 allowed pairs for 4 + 3); the role grid equals w7's role_visibility (covariates never read targets; known-future rows read only known-future rows)."
+    must_be_redrawn: true
+    settings_label: "schematic (rules code-verified at commit a534bdb; inference, not training)"

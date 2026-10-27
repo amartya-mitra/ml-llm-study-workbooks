@@ -14,3 +14,5 @@ Solutions to Module 2's "Check your understanding" questions
 **5.** Independent: $5\times8^2=320$ score entries. Flattened: $(5\times8)^2=40^2=1600$, five times as many (derived, logical counts per head per layer).
 
 **6.** Independent processing is simpler and cheaper and needs no variate bookkeeping, but cannot use information across series. Mixed processing can use cross-series and covariate information at higher cost. The evidence cuts both ways: Chronos-2, TiRex-2 and Moirai mix channels, while Moirai 2.0 dropped multivariate support because it saw minimal benefit in its own experiments.
+
+**7.** (a) No: covariates never read targets. (b) Yes: targets may read every row of their series. (c) No: known-future rows read only known-future rows. A known-future row sees the horizon, so if it could read a causal row it could carry information from that row's future back to the target; the rule closes that route. These are rules of the inference code; whether training used the same rules is not verified here.

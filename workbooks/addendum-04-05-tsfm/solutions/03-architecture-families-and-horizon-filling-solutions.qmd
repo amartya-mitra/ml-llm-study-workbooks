@@ -14,3 +14,5 @@ Solutions to Module 3's "Check your understanding" questions
 **5.** The next input must be one value (or one patch), but the output holds nine numbers. Some rule must reduce or choose among them; how Moirai 2.0 does this is not covered here.
 
 **6.** Iterative filling needs $\lceil F/P_\text{out}\rceil$ passes and reads its own outputs, so earlier errors can reach later steps; a direct head needs one pass and has no feedback. You could not claim that direct is therefore more accurate, or that iterative error growth is large, without evidence from experiments on the models in question.
+
+**7.** $\lceil1500/32\rceil=47$ patches, decoded as blocks of 32 and 15. They produce $47\times32=1504$ steps, so 4 are discarded. Symmetric averaging runs every block twice, so $2\times2=4$ block passes. Within a block it is a single pass over forecast tokens with no feedback, class (ii) without masking the history; across blocks the median is fed back, class (i).

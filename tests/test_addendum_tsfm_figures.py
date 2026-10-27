@@ -1,4 +1,4 @@
-"""Semantic-invariant tests for the TSFM addendum's figures (F1-F5).
+"""Semantic-invariant tests for the TSFM addendum's figures (F1-F6).
 
 Each figure script exposes build_model() (the machine-readable layout the
 drawing is made from) and draw(). These tests check the invariant each
@@ -40,7 +40,7 @@ def svg_text(figure_id):
 
 
 class TestGenericSvgHygiene(unittest.TestCase):
-    FIGS = ["fig-tokenization-styles", "fig-attention-regimes", "fig-horizon-filling", "fig-output-types", "fig-leakage-timeline"]
+    FIGS = ["fig-tokenization-styles", "fig-attention-regimes", "fig-horizon-filling", "fig-output-types", "fig-leakage-timeline", "fig-dhf-layout"]
 
     def test_well_formed_and_within_bounds_and_legible(self):
         for fid in self.FIGS:
@@ -215,12 +215,48 @@ class TestLeakageTimelineFigure(unittest.TestCase):
 
 class TestFiguresAreReproducible(unittest.TestCase):
     def test_regeneration_reproduces_the_committed_svg(self):
-        for name in ["fig_tokenization_styles", "fig_attention_regimes", "fig_horizon_filling", "fig_output_types", "fig_leakage_timeline"]:
+        for name in ["fig_tokenization_styles", "fig_attention_regimes", "fig_horizon_filling", "fig_output_types", "fig_leakage_timeline", "fig_dhf_layout"]:
             fid = name.replace("_", "-")
             before = svg_text(fid)
             r = subprocess.run([sys.executable, os.path.join(SRC, name + ".py")], capture_output=True, text=True)
             self.assertEqual(r.returncode, 0, msg=r.stderr)
             self.assertEqual(before, svg_text(fid), msg=f"{fid} changed on regeneration")
+
+
+
+
+class TestDhfLayoutFigure(unittest.TestCase):
+    """F6 (v1.1.0): one Timestral DHF block, rules from the pinned inference code."""
+
+    def test_grids_are_generated_from_the_worked_example(self):
+        w7 = example("w7_timestral.json")
+        m = load_fig("fig_dhf_layout").build_model()
+        self.assertEqual(m["mask"], w7["mask_example"]["mask"])
+        self.assertEqual((m["n_ctx"], m["n_dec"]), (w7["mask_example"]["n_ctx"], w7["mask_example"]["n_dec"]))
+        for qi, q in enumerate(m["roles"]):
+            for ki, k in enumerate(m["roles"]):
+                self.assertEqual(m["visibility"][qi][ki], w7["role_visibility"][q][k])
+
+    def test_drawn_cells_match_the_mask_and_context_never_reads_forecast(self):
+        svg = svg_text("fig-dhf-layout")
+        w7 = example("w7_timestral.json")["mask_example"]
+        n = w7["n_ctx"] + w7["n_dec"]
+        for q in range(n):
+            for k in range(n):
+                self.assertIn(f'id="cell-{q}-{k}" data-allowed="{w7["mask"][q][k]}"', svg)
+        for q in range(w7["n_ctx"]):
+            for k in range(w7["n_ctx"], n):
+                self.assertIn(f'id="cell-{q}-{k}" data-allowed="0"', svg)
+
+    def test_role_firewall_is_drawn(self):
+        svg = svg_text("fig-dhf-layout")
+        self.assertIn('id="role-1-0" data-allowed="0"', svg)  # past-only -> target
+        self.assertIn('id="role-2-0" data-allowed="0"', svg)  # known-future -> target
+        self.assertIn('id="role-2-1" data-allowed="0"', svg)  # known-future -> past-only
+        self.assertIn('id="role-0-2" data-allowed="1"', svg)  # target -> known-future
+
+    def test_figure_says_it_shows_inference_code(self):
+        self.assertIn("inference code", svg_text("fig-dhf-layout"))
 
 
 if __name__ == "__main__":

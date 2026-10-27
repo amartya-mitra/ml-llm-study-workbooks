@@ -1,0 +1,225 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="312" viewBox="0 0 620 312">
+  <title>Attention layout of one DHF block and the role firewall</title>
+  <defs></defs>
+  <rect x="0" y="0" width="620" height="312" fill="#ffffff"/>
+  <text x="310.0" y="18" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">One DHF block: who may read whom (inference code, schematic)</text>
+  <text x="197.0" y="44" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="middle">Time attention</text>
+  <text x="197.0" y="60" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">key (read)</text>
+  <text x="131.0" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">c1</text>
+  <text x="153.0" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">c2</text>
+  <text x="175.0" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">c3</text>
+  <text x="197.0" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">c4</text>
+  <text x="219.0" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">f1</text>
+  <text x="241.0" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">f2</text>
+  <text x="263.0" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">f3</text>
+  <text x="114" y="93.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">c1</text>
+  <g id="cell-0-0" data-allowed="1">
+  <rect x="120" y="78" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-0-1" data-allowed="0">
+  <rect x="142" y="78" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-0-2" data-allowed="0">
+  <rect x="164" y="78" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-0-3" data-allowed="0">
+  <rect x="186" y="78" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-0-4" data-allowed="0">
+  <rect x="208" y="78" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-0-5" data-allowed="0">
+  <rect x="230" y="78" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-0-6" data-allowed="0">
+  <rect x="252" y="78" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <text x="114" y="115.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">c2</text>
+  <g id="cell-1-0" data-allowed="1">
+  <rect x="120" y="100" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-1-1" data-allowed="1">
+  <rect x="142" y="100" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-1-2" data-allowed="0">
+  <rect x="164" y="100" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-1-3" data-allowed="0">
+  <rect x="186" y="100" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-1-4" data-allowed="0">
+  <rect x="208" y="100" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-1-5" data-allowed="0">
+  <rect x="230" y="100" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-1-6" data-allowed="0">
+  <rect x="252" y="100" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <text x="114" y="137.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">c3</text>
+  <g id="cell-2-0" data-allowed="1">
+  <rect x="120" y="122" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-2-1" data-allowed="1">
+  <rect x="142" y="122" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-2-2" data-allowed="1">
+  <rect x="164" y="122" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-2-3" data-allowed="0">
+  <rect x="186" y="122" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-2-4" data-allowed="0">
+  <rect x="208" y="122" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-2-5" data-allowed="0">
+  <rect x="230" y="122" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-2-6" data-allowed="0">
+  <rect x="252" y="122" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <text x="114" y="159.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">c4</text>
+  <g id="cell-3-0" data-allowed="1">
+  <rect x="120" y="144" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-3-1" data-allowed="1">
+  <rect x="142" y="144" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-3-2" data-allowed="1">
+  <rect x="164" y="144" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-3-3" data-allowed="1">
+  <rect x="186" y="144" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-3-4" data-allowed="0">
+  <rect x="208" y="144" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-3-5" data-allowed="0">
+  <rect x="230" y="144" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-3-6" data-allowed="0">
+  <rect x="252" y="144" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <text x="114" y="181.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">f1</text>
+  <g id="cell-4-0" data-allowed="1">
+  <rect x="120" y="166" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-4-1" data-allowed="1">
+  <rect x="142" y="166" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-4-2" data-allowed="1">
+  <rect x="164" y="166" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-4-3" data-allowed="1">
+  <rect x="186" y="166" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-4-4" data-allowed="1">
+  <rect x="208" y="166" width="20" height="20" rx="2" fill="#E69F00" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-4-5" data-allowed="0">
+  <rect x="230" y="166" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-4-6" data-allowed="0">
+  <rect x="252" y="166" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <text x="114" y="203.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">f2</text>
+  <g id="cell-5-0" data-allowed="1">
+  <rect x="120" y="188" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-5-1" data-allowed="1">
+  <rect x="142" y="188" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-5-2" data-allowed="1">
+  <rect x="164" y="188" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-5-3" data-allowed="1">
+  <rect x="186" y="188" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-5-4" data-allowed="1">
+  <rect x="208" y="188" width="20" height="20" rx="2" fill="#E69F00" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-5-5" data-allowed="1">
+  <rect x="230" y="188" width="20" height="20" rx="2" fill="#E69F00" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-5-6" data-allowed="0">
+  <rect x="252" y="188" width="20" height="20" rx="2" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <text x="114" y="225.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">f3</text>
+  <g id="cell-6-0" data-allowed="1">
+  <rect x="120" y="210" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-6-1" data-allowed="1">
+  <rect x="142" y="210" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-6-2" data-allowed="1">
+  <rect x="164" y="210" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-6-3" data-allowed="1">
+  <rect x="186" y="210" width="20" height="20" rx="2" fill="#0072B2" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-6-4" data-allowed="1">
+  <rect x="208" y="210" width="20" height="20" rx="2" fill="#E69F00" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-6-5" data-allowed="1">
+  <rect x="230" y="210" width="20" height="20" rx="2" fill="#E69F00" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <g id="cell-6-6" data-allowed="1">
+  <rect x="252" y="210" width="20" height="20" rx="2" fill="#E69F00" stroke="#bbbbbb" stroke-width="0.6"/>
+  </g>
+  <line x1="207" y1="76" x2="207" y2="232" stroke="#111111" stroke-width="1.4"/>
+  <line x1="118" y1="165" x2="274" y2="165" stroke="#111111" stroke-width="1.4"/>
+  <text x="114" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">query</text>
+  <text x="86" y="126.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#0072B2" text-anchor="end">context</text>
+  <text x="86" y="203.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#E69F00" text-anchor="end">forecast</text>
+  <text x="22" y="250" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">c = encoded context patch; f = learned forecast token</text>
+  <text x="22" y="264" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">no context row reads a forecast column (top right empty)</text>
+  <text x="22" y="278" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">forecast tokens read all context and earlier forecast tokens</text>
+  <text x="494.0" y="44" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="middle">Variate attention by role</text>
+  <text x="494.0" y="60" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">key (read)</text>
+  <text x="438.0" y="80" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">target</text>
+  <text x="494.0" y="80" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">past-only</text>
+  <text x="550.0" y="80" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">known-fut.</text>
+  <text x="404" y="80" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">query</text>
+  <text x="404" y="118.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">target</text>
+  <g id="role-0-0" data-allowed="1">
+  <rect x="410" y="86" width="53" height="53" rx="3" fill="#009E73" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="436.5" y="116.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">yes</text>
+  </g>
+  <g id="role-0-1" data-allowed="1">
+  <rect x="466" y="86" width="53" height="53" rx="3" fill="#009E73" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="492.5" y="116.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">yes</text>
+  </g>
+  <g id="role-0-2" data-allowed="1">
+  <rect x="522" y="86" width="53" height="53" rx="3" fill="#009E73" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="548.5" y="116.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">yes</text>
+  </g>
+  <text x="404" y="174.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">past-only</text>
+  <g id="role-1-0" data-allowed="0">
+  <rect x="410" y="142" width="53" height="53" rx="3" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="436.5" y="172.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">no</text>
+  </g>
+  <g id="role-1-1" data-allowed="1">
+  <rect x="466" y="142" width="53" height="53" rx="3" fill="#009E73" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="492.5" y="172.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">yes</text>
+  </g>
+  <g id="role-1-2" data-allowed="1">
+  <rect x="522" y="142" width="53" height="53" rx="3" fill="#009E73" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="548.5" y="172.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">yes</text>
+  </g>
+  <text x="404" y="230.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="end">known-fut.</text>
+  <g id="role-2-0" data-allowed="0">
+  <rect x="410" y="198" width="53" height="53" rx="3" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="436.5" y="228.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">no</text>
+  </g>
+  <g id="role-2-1" data-allowed="0">
+  <rect x="466" y="198" width="53" height="53" rx="3" fill="#f4f4f4" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="492.5" y="228.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">no</text>
+  </g>
+  <g id="role-2-2" data-allowed="1">
+  <rect x="522" y="198" width="53" height="53" rx="3" fill="#009E73" stroke="#bbbbbb" stroke-width="0.6"/>
+  <text x="548.5" y="228.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#ffffff" text-anchor="middle">yes</text>
+  </g>
+  <text x="350" y="272" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">rows of one series only;</text>
+  <text x="350" y="286" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">covariates never read targets;</text>
+  <text x="350" y="300" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">known-future rows read only known-future rows</text>
+</svg>

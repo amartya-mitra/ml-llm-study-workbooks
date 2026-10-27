@@ -410,3 +410,88 @@ questions:
     explanation: "These decide whether claims transfer to your setting."
     common_wrong_answer: "Asking only for a leaderboard rank."
     source_ids: []
+
+  # ---- Timestral questions (v1.1.0 revision, 2026-10-27) ----
+  - id: "q-tsfm-inputs-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "model-inputs"
+    topic: "Timestral padding and missing flags"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "Timestral receives a 1,000-step context with no gaps. How many padded steps are added, how many 32-step patches result, and how is the padding kept out of the scaling statistics?"
+    expected_answer: "1000 = 31 x 32 + 8, so 24 unobserved steps are added on the left, giving 1024 / 32 = 32 patches. The padded steps are marked missing: zero weight in the running statistics, entered as 0 with the missing flag set; the first patch still holds 8 observed values."
+    explanation: "The inference code left-pads to a multiple of the patch length with unobserved steps; missing positions are excluded from the causal statistics."
+    common_wrong_answer: "Padding with real-looking values that enter the mean and standard deviation, or dropping the last 8 steps instead of padding."
+    source_ids: ["src-71"]
+
+  - id: "q-tsfm-context-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "context-channels-covariates-horizons"
+    topic: "Timestral role firewall"
+    difficulty: "core"
+    question_type: "recall"
+    prompt: "In Timestral's variate attention, may (a) a past-only covariate read a target, (b) a target read a known-future covariate, (c) a known-future covariate read a past-only covariate? Why is (c) blocked?"
+    expected_answer: "(a) No. (b) Yes. (c) No: known-future rows read only known-future rows, because a row that sees the horizon could otherwise carry a causal row's future back to the target."
+    explanation: "Rules of the inference code at the pinned commit; whether training used the same rules is not verified."
+    common_wrong_answer: "Assuming all rows of a series read each other freely, or that covariates may read targets."
+    source_ids: ["src-69", "src-71"]
+
+  - id: "q-tsfm-architecture-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "architecture-families-and-horizon-filling"
+    topic: "Timestral block rollout"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "With Timestral's defaults, how many patches and blocks does F=1500 need, how many steps are discarded, and how many block passes run with symmetric averaging? Which class describes filling within a block, and which across blocks?"
+    expected_answer: "47 patches in blocks of 32 and 15; 1504 steps produced, 4 discarded; 2 x 2 = 4 block passes. Within a block, one pass over forecast tokens with no feedback (class ii, history not masked); across blocks, median feedback (class i)."
+    explanation: "Blocks hold at most K = 32 patches of 32 steps; symmetric averaging forecasts the negated series as well."
+    common_wrong_answer: "Counting one pass per step or per patch, or forgetting the doubling from symmetric averaging."
+    source_ids: ["src-70", "src-71"]
+
+  - id: "q-tsfm-outputs-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "outputs-and-losses"
+    topic: "Non-crossing quantile head"
+    difficulty: "core"
+    question_type: "explanation"
+    prompt: "How does Timestral's head keep its 21 quantiles from crossing, and which statement about its loss comes from the vendor rather than the code?"
+    expected_answer: "The median is free and each other level is the median plus or minus a cumulative sum of positive softplus increments scaled by the level gaps, so levels stay ordered, and the monotone un-scaling keeps the order. The pinball-over-21-quantiles objective approximating CRPS is a vendor claim; the released code contains no loss."
+    explanation: "Ordering is built into the parameterization rather than imposed by sorting after the fact."
+    common_wrong_answer: "Saying the quantiles are sorted after prediction, or treating the loss as code-verified."
+    source_ids: ["src-69", "src-71"]
+
+  - id: "q-tsfm-data-007"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "pretraining-data-adaptation-and-leakage"
+    topic: "Synthetic-first does not rule out leakage"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "A colleague says: 'Timestral was pretrained mostly on synthetic data, so its benchmark results cannot be affected by leakage.' What is wrong?"
+    expected_answer: "Mostly is not only: the second stage mixes in real data whose datasets and periods are not published, so benchmark and time overlap cannot be ruled out or checked from the sources; the synthetic share is itself a vendor claim."
+    explanation: "Leakage checks need the real-data inventory, which the release does not provide."
+    common_wrong_answer: "Treating a synthetic majority as proof of a clean evaluation."
+    source_ids: ["src-69"]
+
+  - id: "q-tsfm-release-005"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "reading-a-tsfm-release"
+    topic: "Four source types for one release"
+    difficulty: "core"
+    question_type: "recall"
+    prompt: "Give the source type of each Timestral statement: (a) 'every observed value serves as both target and context'; (b) 'patches are 32 time steps'; (c) 'covariate rows never read target rows'; (d) 'Timestral ranks first on fev-bench'."
+    expected_answer: "(a) Vendor claim about training. (b) Documentation, also confirmed in code. (c) Code-verified for inference at the pinned commit (and documented in the README). (d) Vendor claim, not independently checked; it measures the forecaster with its defaults."
+    explanation: "Inference code shows inference behavior only; training and benchmark statements stay vendor claims without a paper or an independent check."
+    common_wrong_answer: "Calling (a) code-verified because the inference code has forecast tokens, or treating (d) as verified."
+    source_ids: ["src-69", "src-70", "src-71"]
+
+  - id: "q-tsfm-release-006"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "reading-a-tsfm-release"
+    topic: "Parameters from a documented file size"
+    difficulty: "intro"
+    question_type: "calculation"
+    prompt: "The README lists 837 MB of fp32 weights for Timestral-209M. About how many parameters is that, and what kind of number is your answer?"
+    expected_answer: "837 x 10^6 / 4 = about 209 million (209.25M): a derived logical estimate from a documented size, not a count of loaded weights; it agrees with the 209.3M from summing the code's module shapes."
+    explanation: "fp32 stores 4 bytes per parameter; MB is taken as 10^6 bytes."
+    common_wrong_answer: "Presenting the estimate as a measured or loaded-weight count."
+    source_ids: ["src-70", "src-71"]

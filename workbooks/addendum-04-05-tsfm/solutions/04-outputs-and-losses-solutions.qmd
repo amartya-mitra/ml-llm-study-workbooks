@@ -14,3 +14,5 @@ Solutions to Module 4's "Check your understanding" questions
 **5.** Bin cross-entropy is a probability mass over bins; a Student-t likelihood is a density. For a fine bin width $w$, mass $\approx$ density $\times\,w$, so the two differ by $\log w$.
 
 **6.** Any three of: different scalers (losses are on scaled values); different output types (mass versus density versus pinball); different bin or quantile settings; different data and horizons; averaging over different levels and steps. A training loss is also not an evaluation metric.
+
+**7.** The median is a free output; every other level is the median plus or minus a cumulative sum of non-negative softplus increments scaled by the gaps between levels. So no level can move inward past its neighbor (order is non-decreasing), and the monotone un-scaling keeps the order. That the loss is a pinball loss over the 21 quantiles, approximating CRPS, is a vendor claim: the released code contains no loss, and its weighting is not stated.

@@ -1,4 +1,4 @@
-"""Regression tests for the TSFM addendum's worked examples (W1-W6).
+"""Regression tests for the TSFM addendum's worked examples (W1-W7).
 
 Each worked-example script is the numeric source of truth. These tests run
 each script, assert on its JSON output, recompute key values independently
@@ -289,6 +289,89 @@ class TestW6ReleaseLabels(unittest.TestCase):
         # No arithmetic that estimates a parameter count from layers and width.
         self.assertIsNone(re.search(r"12\s*(\\times|\*|x)\s*1280", self.text))
         self.assertIn("attempts no reconciliation", self.text)
+
+
+
+
+class TestW7Timestral(unittest.TestCase):
+    """Timestral (v1.1.0 revision). Rules are transcribed from the public
+    inference code at commit a534bdb; counts are derived, logical estimates."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.d = run_script("w7_timestral")
+        cls.text = {p: chapter_text(p) for p in ("01-", "02-", "03-", "06-")}
+
+    def test_labels_name_the_pinned_commit_and_keep_kinds_apart(self):
+        labels = self.d["labels"]
+        self.assertIn("a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff", labels["rules"])
+        self.assertEqual(labels["counts"], "derived (logical)")
+        self.assertEqual(labels["configs_and_sizes"], "reported (documentation)")
+
+    def test_padding_examples(self):
+        for key, t in (("padding_example", 2000), ("padding_question", 1000)):
+            pad = (-t) % 32
+            self.assertEqual(self.d[key]["left_pad"], pad)
+            self.assertEqual(self.d[key]["patches"], (t + pad) // 32)
+        self.assertEqual(self.d["full_context"]["patches"], 1024)
+
+    def test_mask_has_an_empty_context_to_forecast_quadrant(self):
+        m, nc, nd = self.d["mask_example"]["mask"], 4, 3
+        self.assertEqual(self.d["mask_example"]["enc_to_dec_allowed"], 0)
+        for q in range(nc + nd):
+            for k in range(nc + nd):
+                if q < nc:
+                    expected = int(k <= q)
+                else:
+                    expected = int(k < nc or k <= q)
+                self.assertEqual(m[q][k], expected, msg=(q, k))
+        self.assertEqual(self.d["mask_example"]["allowed_total"], 10 + 4 * 3 + 6)
+
+    def test_role_firewall(self):
+        v = self.d["role_visibility"]
+        self.assertFalse(v["past-only"]["target"])
+        self.assertFalse(v["known-future"]["target"])
+        self.assertFalse(v["known-future"]["past-only"])
+        self.assertTrue(v["target"]["known-future"])
+        self.assertTrue(v["target"]["past-only"])
+        self.assertTrue(v["past-only"]["known-future"])
+
+    def test_rollouts(self):
+        for key, f in (("rollout_example", 2500), ("rollout_question", 1500)):
+            r = self.d[key]
+            patches = math.ceil(f / 32)
+            self.assertEqual(r["patches"], patches)
+            self.assertEqual(sum(r["blocks"]), patches)
+            self.assertTrue(all(b <= 32 for b in r["blocks"]))
+            self.assertEqual(r["steps_discarded"], patches * 32 - f)
+            self.assertEqual(r["block_calls_with_symmetric_averaging"], 2 * math.ceil(patches / 32))
+        self.assertEqual(self.d["rollout_example"]["blocks"], [32, 32, 15])
+        self.assertEqual(self.d["rollout_question"]["blocks"], [32, 15])
+
+    def test_parameter_counts_agree_with_documented_file_sizes(self):
+        # Independent recomputation for the 209M configuration.
+        d, h, ps, q = 768, 2048, 32, 21
+        patch = (2 * ps * 4 * d + 4 * d) + (4 * d * d + d) + (2 * ps * d + d) + d
+        attn = (18 + 2 * 6) * (5 * d * d + d)
+        mlp = 24 * (3 * d * h + d)
+        head = d * 4 * d + 4 * d * ps * q + d * ps * q
+        self.assertEqual(self.d["parameters"]["209M"]["total"], patch + attn + mlp + d + head)
+        for name, p in self.d["parameters"].items():
+            self.assertLess(abs(p["fp32_mb_logical"] - p["fp32_mb_doc"]), 0.5, msg=name)
+
+    def test_prose_numbers_appear_in_the_chapters(self):
+        self.assertIn("$2016/32=63$", self.text["01-"])
+        self.assertIn("$32768/32=1024$", self.text["01-"])
+        self.assertIn("$\\lceil2500/32\\rceil=79$", self.text["03-"])
+        self.assertIn("blocks of 32, 32 and 15", self.text["03-"])
+        for needle in ["5.21M, 27.8M, 122.6M and 209.3M", "20.8, 111.3, 490.4 and 837.2 MB", "21, 111, 490 and 837 MB"]:
+            self.assertIn(needle, self.text["06-"], msg=needle)
+        p = self.d["parameters"]
+        self.assertEqual([round(p[k]["total"] / 1e6, 1) for k in ("28M", "123M", "209M")], [27.8, 122.6, 209.3])
+        self.assertEqual(round(p["5M"]["total"] / 1e6, 2), 5.21)
+
+    def test_parameter_counts_are_labeled_logical_not_loaded(self):
+        self.assertIn("derived logical estimates, not counts of loaded weights", self.text["06-"])
 
 
 if __name__ == "__main__":

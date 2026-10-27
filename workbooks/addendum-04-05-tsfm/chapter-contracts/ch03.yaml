@@ -5,15 +5,19 @@ identity:
   workbook: "addendum-04-05-tsfm"
   chapter: "03"
   title: "Architecture families and horizon filling"
-  status: "accepted_frozen"
+  status: "drafted_pending_human_review"
 
 scope:
-  # Accepted 2026-10-06 and frozen: no edits without an explicit,
-  # human-authorized override in config/chapter-status-registry.yaml.
-  allowed_paths: []
-  frozen_paths:
+  # Accepted 2026-10-06 (v1.0.0, published). Reopened 2026-10-27, narrowly,
+  # for the v1.1.0 Timestral revision on explicit human instruction (see
+  # config/chapter-status-registry.yaml `reopenings`). Only allowed_paths
+  # may change; everything in frozen_paths stays as accepted.
+  allowed_paths:
     - "workbooks/addendum-04-05-tsfm/chapters/03-architecture-families-and-horizon-filling.qmd"
     - "workbooks/addendum-04-05-tsfm/solutions/03-architecture-families-and-horizon-filling-solutions.qmd"
+    - "workbooks/addendum-04-05-tsfm/data/worked-examples/w7_timestral.py"
+    - "workbooks/addendum-04-05-tsfm/figures/source/fig_dhf_layout.py"
+  frozen_paths:
     - "workbooks/addendum-04-05-tsfm/data/worked-examples/w3_rollout.py"
     - "workbooks/addendum-04-05-tsfm/figures/source/fig_horizon_filling.py"
     - "workbooks/04-llm-architecture/**"
@@ -24,7 +28,7 @@ scope:
   push_allowed: false
 
 sources:
-  required_source_ids: ["src-56", "src-57", "src-58", "src-59", "src-61", "src-62", "src-63", "src-64", "src-67", "src-68"]
+  required_source_ids: ["src-56", "src-57", "src-58", "src-59", "src-61", "src-62", "src-63", "src-64", "src-67", "src-68", "src-69", "src-70", "src-71"]
   full_text_required: true
   evidence_locators_required: true
 
@@ -35,10 +39,10 @@ content:
     - "Worked example: counting passes"
     - "Check your understanding"
     - "Answer Key"
-  question_count: 6
-  answer_count: 6
+  question_count: 7
+  answer_count: 7
   worked_example_count_minimum: 1
-  figure_count_minimum: 1
+  figure_count_minimum: 2
 
 worked_examples:
   structured_output_required: true
@@ -59,6 +63,8 @@ learner_facing:
 claims:
   required_claim_prefix: "claim-tsfm-architecture-"
   forbidden_statements:
+    - "equating the Timestral blog's use of contiguous patch masking with TiRex's CPM"
+    - "a Timestral training mechanism presented as code-verified or paper-backed (no paper or training code exists as of 2026-10-27)"
     - "any description of how Moirai 2.0 feeds quantiles back"
     - "any mechanism for TimesFM 2.5, TimesFM 3.0 or Chronos-Bolt attributed to a paper"
     - "equating the TimesFM-3 Contiguous Patch Masking with TiRex's"
@@ -72,4 +78,4 @@ acceptance:
   figure_audit: "not_yet_run"
   learner_pdf_audit: "not_yet_run"
   scoped_tests: "pass"
-  visual_review: "pass"  # independent human review of the 18-page review PDF, 2026-10-06
+  visual_review: "not_yet_run"  # v1.1.0 (Timestral) review PDF pending independent human review; v1.0.0 content passed human review 2026-10-06

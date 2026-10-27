@@ -10,3 +10,7 @@ Solutions to Module 6's "Check your understanding" questions
 **3.** The blog's 330 million parameters and the card's 20 layers, width 1280 and 16 heads (also the 32-step versus 32-and-64 patch statements). Neither page says how they relate, so do not guess an explanation or pick one number; report the discrepancy and name what would settle it.
 
 **4.** For example: (1) exact generation and each fact's source type; (2) scaler, patch length and the unit of the context figure; (3) horizon filling and what is training-only; (4) output and whether the loss is documented; (5) pretraining data and leakage against your benchmark.
+
+**5.** (a) Vendor claim, about training; inference code cannot show it. (b) Documentation (configuration file and model card), also confirmed in code. (c) Code-verified for inference at the pinned commit; the README documents it too. (d) Vendor claim; the leaderboard entry and its evaluation conditions were not checked here, and the figure measures the forecaster with its defaults.
+
+**6.** $837\times10^6/4\approx209$ million parameters (209.25M). It is a derived logical estimate from a documented file size, not a count of loaded weights; it agrees with the 209.3M obtained by summing the code's module shapes.

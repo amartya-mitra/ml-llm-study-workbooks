@@ -1022,3 +1022,73 @@ sources:
     access_status: "fetched raw README.md from the main branch on 2026-10-06 (about 11.2 KB) and read the news, introduction and model-table sections. Usage examples after the first Chronos-2 snippet were not read."
     license_or_reuse: "repository README under the repository's own terms (Apache-2.0 per its badge); quote minimally"
     notes: "Chronos-Bolt is the clearest documented example of a hybrid: a model whose README describes encoder and decoder components (the README wording; it does not say T5-style) that nonetheless outputs quantiles directly instead of sampling tokens -- the README does not give its loss or normalization, so the addendum may describe its output style only and must not state its training objective."
+
+  # ---------------------------------------------------------------------
+  # src-69 .. src-72 -- registered 2026-10-27 for the TSFM addendum's
+  # v1.1.0 revision (Mistral Timestral). Timestral has NO paper as of
+  # 2026-10-27: the blog and every model card say a technical report
+  # "will follow" / is "coming soon", and a web search found none.
+  # Evidence kinds kept apart throughout:
+  #   src-69  vendor blog         -> vendor claims (training, benchmarks)
+  #   src-70  model cards/configs -> documentation (configuration facts)
+  #   src-71  repository @ commit -> code-verified INFERENCE behavior
+  #                                  (its README is documentation)
+  #   src-72  Mistral docs page   -> documentation (status, license)
+  # No weights were downloaded and nothing was installed or run.
+  # ---------------------------------------------------------------------
+
+  - id: "src-69"
+    title: "Timestral: Mistral's time-series foundation models (Mistral AI news post)"
+    url: "https://mistral.ai/news/timestral/"
+    authors: "Mistral AI (company post, no individual author listed)"
+    resource_type: "official vendor blog / release announcement (published 2026-10-15; not a paper)"
+    workbook_categories: ["addendum-04-05-tsfm"]
+    topic_tags: ["addendum-04-05-tsfm", "vendor-claim", "timestral", "release-announcement", "decoupled-horizon-forecasting", "synthetic-pretraining"]
+    authority_type: "implementation_guide"
+    expected_use: "VENDOR-CLAIM source only, attributed as Mistral's own description (as of October 2026): four sizes (5M, 28M, 123M, 209M) sharing one architecture and recipe; Decoupled Horizon Forecasting (DHF), described as keeping the full history in the sequence with learned forecast tokens that read the history before them, so every observed value is both target and context, true gaps stay flagged missing, and training horizon lengths and missing-data augmentation are tuned independently -- contrasted with 'causal decoders trained with contiguous patch masking, as in Toto 2.0 and TimesFM-3'; covariate roles (target, past-only, known-future; information flows only from covariates to targets); 'synthetic-first' data (univariate processes with trends, seasonality and diverse noise, combined by a multivariate synthesizer with nonlinear dependencies); two-stage training (purely synthetic at context 8192, then a real-plus-synthetic mix at 4x longer context); objective 'a pinball loss over 21 quantiles, a discrete approximation of CRPS'; categorical covariates taken 'as categorical inputs directly'; benchmark-standing and CPU-latency claims; fine-tuning via Mistral Forge."
+    last_verified: "2026-10-27"
+    access_status: "fetched the page HTML on 2026-10-27 (about 251 KB), stripped markup and read the full body text from the introduction to the specification box. Chart values were read from the chart labels in the HTML text only; the chart images were not inspected. No technical report is linked; the post says one 'will follow'."
+    license_or_reuse: "vendor blog; cite and summarize only, no figure reuse"
+    notes: "Two disagreements to preserve, not resolve: (1) the blog says categorical covariates are taken 'as categorical inputs directly', while the inference code (src-71) target-encodes them into numbers and its docstring says the model 'was trained on numeric, target-scaled covariates'; (2) the blog labels the GIFT-Eval probabilistic metric 'GMean WQL' while the model card (src-70) labels the same 0.446 value 'CRPS'. The blog's characterization of Toto 2.0 and TimesFM-3 is a vendor statement about other vendors' models and is not checked here; it does not equate TimesFM-3's CPM with TiRex's (src-59). Benchmark leadership is a vendor claim: the leaderboard entries and evaluation conditions were not independently verified."
+
+  - id: "src-70"
+    title: "Timestral model cards and config.json files (mistralai/Timestral-5M, -28M, -123M, -209M on Hugging Face)"
+    url: "https://huggingface.co/collections/mistralai/timestral"
+    authors: "Mistral AI (model cards, no individual author)"
+    resource_type: "official model cards and checkpoint configuration files (documentation only; not a paper). Revisions read: 5M bdd20cfc15a3fea0e4cb5ccef37f8d3ca7aa335f, 28M 49b26409ac87b5935539a5d8ffe7f397b720db47, 123M 5a147287addda85f6acd8da3fb8858fe9af7e8f7, 209M 9874d252ab0aae16f7f7c999f98f98d6ad7d8365"
+    workbook_categories: ["addendum-04-05-tsfm"]
+    topic_tags: ["addendum-04-05-tsfm", "documentation-only", "timestral", "model-card", "config"]
+    authority_type: "implementation_guide"
+    expected_use: "DOCUMENTATION-ONLY source for Timestral configuration facts as stated: patch_size 32, block_size 32 (up to 1,024 steps per forward pass), context_length 32768 (1,024 patches), 21 quantile_knots 0.01, 0.05, 0.10, ..., 0.95, 0.99, layer schedules (three 'time' layers then one 'time_variate' layer, repeated: 8/12/20/24 layers for 5M/28M/123M/209M), d_model 192/384/640/768, heads 3/6/10/12, MLP hidden 512/1024/1712/2048, use_asinh true, quantile_width_factor 3.0; the card's statement that each patch is embedded from its values together with missing-value indicators, that longer horizons are forecast block by block with the median appended, and that categorical covariates are target-encoded; the vendor-reported benchmark table (e.g. 209M: GIFT-Eval MASE 0.658 and CRPS 0.446; TIME MASE 0.626 and CRPS 0.522; fev-bench SQL skill 50.39 and MASE skill 39.49)."
+    last_verified: "2026-10-27"
+    access_status: "fetched the raw README.md (about 6.7 KB each) and config.json of all four model repositories on 2026-10-27 at the revisions listed in resource_type, and read them in full. No weight file (model.safetensors) was downloaded. The LICENSE file ('Modified MIT') was not read, so what the modification is remains unknown here."
+    license_or_reuse: "model cards; weights under a 'Modified MIT' license per the cards -- cite facts only"
+    notes: "Benchmark numbers on the cards are vendor-reported ('Timestral-209M achieves state-of-the-art zero-shot accuracy' is the card's own wording); they were not checked against the leaderboards. Every card says 'Tech report: coming soon!'."
+
+  - id: "src-71"
+    title: "mistralai/timestral GitHub repository (standalone inference code and README) at commit a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff"
+    url: "https://github.com/mistralai/timestral/tree/a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff"
+    authors: "Mistral AI (repository maintainers)"
+    resource_type: "official public inference implementation, pinned to commit a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff ('Timestral release', 2026-10-15; package version 1.0.0). Code-verified evidence for INFERENCE behavior only; the README is documentation. No training code is included."
+    workbook_categories: ["addendum-04-05-tsfm"]
+    topic_tags: ["addendum-04-05-tsfm", "code-verified-inference", "timestral", "decoupled-horizon-forecasting", "covariates", "quantile-head"]
+    authority_type: "primary_technical"
+    expected_use: "Primary evidence for what the released INFERENCE code does at the pinned commit (files read in full: config.py, scaler.py, masks.py, model.py, layers.py, forecaster.py, covariate_encoding.py, loading.py): causal per-patch scaling (running mean and Bessel-corrected std of observed values up to each patch's end, float64, floor 1e-6) followed by asinh; known-future covariate rows scaled with whole-row statistics and 0/1 rows left unscaled; NaN -> observation mask, value 0 after scaling, excluded from statistics; patch embedding = residual MLP over [32 values, 32 missing flags]; leading all-missing patches never valid keys, later missing patches remain keys; left padding to a multiple of 32 and a context cap at the most recent 32768 steps; [Enc ; Dec] layout with learned forecast-query tokens (one shared vector, positions via partial RoPE); Enc->Dec never, Dec->Enc valid context before the block, Dec->Dec causal within a block; known-future rows bidirectional in time; variate-attention firewall (covariates never read targets; known-future rows read only known-future rows); layer kinds time / time_variate, sigmoid-gated attention, SwiGLU MLP, RMSNorm; monotone quantile head (median free, other levels median -/+ cumsum of width_factor * level gap * softplus); output tensor (B, V, H, Q); block-by-block rollout of at most 32 patches with median feedback for targets, real future for known-future rows and unobserved blanks for past-only rows; the 'advancing refine frame' re-denormalization of later patches in a block; categorical target encoding (smooth 1) for univariate targets and raw codes otherwise; default test-time symmetric averaging and non-negative clipping; README statements of the benchmark protocol (forecaster defaults, full history up to 32768 steps, per-benchmark covariate use)."
+    last_verified: "2026-10-27"
+    access_status: "git clone (GIT_LFS_SKIP_SMUDGE=1) of https://github.com/mistralai/timestral on 2026-10-27; HEAD = refs/heads/main = a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff. All eight source modules (1,712 lines) and the README read in full; tests/test_forecaster.py skimmed for test names only. The package was not installed, no weights were fetched and no inference was run."
+    license_or_reuse: "code under Apache-2.0 (LICENSE at the pinned commit); weights are separate (src-70). Cite and paraphrase; no code reproduced beyond identifiers."
+    notes: "Code shows inference only. Docstrings that describe training ('accumulated exactly as in training', 'the advancing refine frame it was trained in', 'Timestral was trained on numeric, target-scaled covariates') are maintainer statements about training, not verified behavior. The mask builder's general multi-block layout (every patch from a start index onward gets a forecast token, grouped into blocks of K that read only encoded history before the block) is consistent with the blog's description of DHF training, but at inference only one block is ever active. The repository's main branch may move; cite the commit."
+
+  - id: "src-72"
+    title: "Timestral 1.0 209M -- Mistral AI documentation (models page)"
+    url: "https://docs.mistral.ai/models/timestral-1-0"
+    authors: "Mistral AI (documentation page, no individual author)"
+    resource_type: "official product documentation page (documentation only; not a paper)"
+    workbook_categories: ["addendum-04-05-tsfm"]
+    topic_tags: ["addendum-04-05-tsfm", "documentation-only", "timestral", "product-docs"]
+    authority_type: "implementation_guide"
+    expected_use: "DOCUMENTATION-ONLY source for the release status: 'Timestral 1.0 209M', version v1.0, status 'Public Preview', 209M parameters, up to 32K time steps of context, past-only and known-future covariates, quantile outputs, Modified MIT license."
+    last_verified: "2026-10-27"
+    access_status: "fetched and read on 2026-10-27 through a page-summarizing fetch (not raw HTML); the facts above were stated on the page. It gives no release date, horizon limit, training data or architecture detail and links no paper."
+    license_or_reuse: "documentation page; cite facts only"
+    notes: "Restates the vendor's first-place claim without scores; not used as benchmark evidence."

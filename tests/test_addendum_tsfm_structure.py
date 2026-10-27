@@ -24,7 +24,7 @@ MODULES = {
     "05": "05-pretraining-data-adaptation-and-leakage",
     "06": "06-reading-a-tsfm-release",
 }
-QUESTION_COUNTS = {"01": 6, "02": 6, "03": 6, "04": 6, "05": 6, "06": 4}
+QUESTION_COUNTS = {"01": 7, "02": 7, "03": 7, "04": 7, "05": 7, "06": 6}
 CITE_RE = re.compile(r"@src-\d+")
 
 
@@ -143,14 +143,29 @@ class TestRegistration(unittest.TestCase):
         self.assertIn(WB_ID, [w["id"] for w in project["workbooks"]])
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
         entry = reg["workbooks"][WB_ID]
-        self.assertEqual(entry["status"], "accepted_frozen")
+        # v1.1.0 (Timestral) reopening: content is drafted pending human review,
+        # while the v1.0.0 acceptance record below stays exactly as accepted.
+        self.assertEqual(entry["status"], "drafted_pending_human_review")
         self.assertEqual(entry["acceptance_date"], "2026-10-06")
         self.assertEqual(entry["accepted_source_commit"], "aea2e38673556a8701c68fdb0fecddaab1a91d02")
         self.assertEqual(entry["accepted_review_pdf_sha256"], "d2fcd1cff746cbeeb154de0143d4996c6238f6fe715748ef713d8c589c4e3319")
         self.assertEqual(entry["accepted_review_pdf_page_count"], 18)
         self.assertEqual(sorted(str(k).zfill(2) for k in entry["chapters"]), sorted(MODULES))
         for ch in entry["chapters"].values():
-            self.assertEqual(ch["status"], "accepted_frozen")
+            self.assertEqual(ch["status"], "drafted_pending_human_review")
+        reopen = [r for r in reg["reopenings"] if r["workbook"] == WB_ID and r["revision"] == "v1.1.0"]
+        self.assertEqual(len(reopen), 1)
+        self.assertEqual(reopen[0]["granted_by"], "human")
+        self.assertEqual(reopen[0]["state"], "open_pending_human_review")
+        self.assertEqual(reopen[0]["base_commit"], "e863c419ec231e7b15c62c23219077f8685b8199")
+        self.assertTrue(reopen[0]["allowed_paths"])
+        self.assertFalse(any("04-llm-architecture" in p or "05-llm-training" in p for p in reopen[0]["allowed_paths"]))
+        rev = reg["publications"][WB_ID + "-v1.1.0"]
+        self.assertEqual(rev["status"], "review_pending")
+        self.assertEqual(rev["release_tag"], "addendum-04-05-tsfm-v1.1.0")
+        self.assertNotIn("release_asset", rev)
+        self.assertNotIn("publication_date", rev)
+        self.assertEqual(rev["review_pdf"], "outputs/_development/addendum-04-05-tsfm/v1.1.0-review/addendum-04-05-tsfm-v1.1.0-review.pdf")
         pub = reg["publications"][WB_ID]
         self.assertEqual(pub["status"], "published")
         self.assertEqual(pub["release_tag"], "addendum-04-05-tsfm-v1.0.0")
@@ -173,6 +188,22 @@ class TestRegistration(unittest.TestCase):
         for i in range(56, 65):
             self.assertEqual(by_id[f"src-{i}"]["authority_type"], "primary_technical")
         self.assertNotIn("2410.10469", " ".join(s["url"] for s in registry["sources"]))
+        # Timestral sources (v1.1.0): verified 2026-10-27; vendor blog, model
+        # cards and docs page are documentation-type; the code is pinned.
+        for i in range(69, 73):
+            s = by_id[f"src-{i}"]
+            self.assertEqual(s["workbook_categories"], [WB_ID])
+            self.assertEqual(s["last_verified"], "2026-10-27")
+            self.assertIn("timestral", s["topic_tags"])
+        for i in (69, 70, 72):
+            self.assertEqual(by_id[f"src-{i}"]["authority_type"], "implementation_guide")
+        self.assertIn("vendor-claim", by_id["src-69"]["topic_tags"])
+        self.assertIn("documentation-only", by_id["src-70"]["topic_tags"])
+        code = by_id["src-71"]
+        self.assertIn("a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff", code["url"])
+        self.assertIn("code-verified-inference", code["topic_tags"])
+        self.assertIn("No training code", code["resource_type"])
+        self.assertNotIn("src-73", by_id)
 
     def test_bibliography_keys_cover_every_citation_in_the_addendum(self):
         bib = read(os.path.join(REPO_ROOT, "shared", "bibliography.bib"))
@@ -236,11 +267,15 @@ class TestSourcesAndClaimLedger(unittest.TestCase):
             self.assertEqual(cited - set(contract["sources"]["required_source_ids"]), set(), msg=n)
 
     def test_documentation_sources_never_back_a_paper_claim(self):
-        doc = {"src-65", "src-66", "src-67", "src-68"}
+        doc = {"src-65", "src-66", "src-67", "src-68", "src-69", "src-70", "src-72"}
         for e in self.entries:
             if set(e["source_ids"] or []) & doc:
                 self.assertRegex(e["note"], r"(?i)documentation|vendor|search-based|restates|source-type|restated|name collision|source disagreement|table|classification|unresolved",
                                  msg=e["id"] + ": documentation-sourced claim must say so")
+            # src-71 (code + README) supports inference behavior or documented facts only: say which.
+            if "src-71" in (e["source_ids"] or []):
+                self.assertRegex(e["note"], r"(?i)code-verified|derived|table row|source-type|documentation",
+                                 msg=e["id"] + ": code-sourced claim must name its evidence kind")
 
     def test_unverified_items_are_not_presented_as_verified_values(self):
         text = " ".join(chapter(n) for n in MODULES)
@@ -260,9 +295,11 @@ class TestSourcesAndClaimLedger(unittest.TestCase):
         self.assertIn("0.001", entry["statement"])
         self.assertEqual(entry["verification_status"], "verified_full_text")
         self.assertNotIn("garbled", " ".join(e["statement"] for e in self.entries))
-        # no new source was registered for it
+        # no new source was registered for it (src-69..src-72 are Timestral sources, added for v1.1.0)
         self.assertIn("src-61", self.known)
-        self.assertNotIn("src-69", self.known)
+        reg = safe_load_path(os.path.join(REPO_ROOT, "sources", "registry.yaml"))
+        later = [s for s in reg["sources"] if int(s["id"].split("-")[1]) >= 69]
+        self.assertTrue(all("timestral" in s["topic_tags"] for s in later))
 
     def test_scoped_reading_boundaries_hold(self):
         full = " ".join(chapter(n) for n in MODULES)
@@ -277,7 +314,7 @@ class TestQuestionsAndAnswers(unittest.TestCase):
 
     def test_counts_agree_between_chapter_answers_records_and_contract(self):
         qs = safe_load_path(os.path.join(ADD, "questions.yaml"))["questions"]
-        self.assertEqual(len(qs), 34)
+        self.assertEqual(len(qs), 41)
         for n, slug in MODULES.items():
             expected = QUESTION_COUNTS[n]
             check = chapter(n).split("### Check your understanding")[1]
@@ -324,6 +361,14 @@ class TestQuestionsAndAnswers(unittest.TestCase):
         for needle in ["$N_p=\\lfloor(20-5)/2\\rfloor+2=7+2=9$", "$3\\times10\\times9=270$", "$(5\\times8)^2=40^2=1600$",
                        "$\\lceil96/32\\rceil=3$", "$0.9\\times4=3.6$", "$0.1\\times4=0.4$", "so the shares are 0.5, 0.375 and 0.125"]:
             self.assertIn(needle, a, msg=needle)
+        # Timestral answers (v1.1.0): padding, block rollout, size from a file
+        self.assertEqual((1000 + (-1000) % 32) // 32, 32)
+        self.assertEqual((-(-1500 // 32)), 47)
+        self.assertEqual(47 * 32 - 1500, 4)
+        self.assertAlmostEqual(837e6 / 4 / 1e6, 209.25)
+        for needle in ["$32-8=24$", "$1024/32=32$", "$\\lceil1500/32\\rceil=47$", "$47\\times32=1504$", "$2\\times2=4$"]:
+            self.assertIn(needle, a, msg=needle)
+        self.assertIn("$837\\times10^6/4\\approx209$", solutions("06"))
 
 
 class TestLearnerFacingText(unittest.TestCase):
@@ -378,7 +423,7 @@ class TestSynthesisTable(unittest.TestCase):
         data = safe_load_path(os.path.join(ADD, "data", "synthesis-map.yaml"))
         rows = [r for r in self._chapter_rows() if r[1] != ""]
         self.assertEqual(len(rows), len(data["rows"]))
-        self.assertLessEqual(len(rows), 8)
+        self.assertLessEqual(len(rows), 9)
         for cells, rec in zip(rows, data["rows"]):
             name = re.sub(r"\s*\[.*\]$", "", cells[0])
             self.assertEqual(name, rec["model"])
@@ -395,6 +440,9 @@ class TestSynthesisTable(unittest.TestCase):
             for c in data["columns"]:
                 if is_doc:
                     self.assertTrue(rec[c].startswith("doc:") or rec[c] == "not covered here", msg=f"{rec['model']}/{c}")
+                if rec["group"] == "code":  # no paper: every cell names its evidence kind
+                    self.assertTrue(rec[c].startswith(("code:", "doc:", "vendor:")), msg=f"{rec['model']}/{c}")
+        self.assertEqual([r["model"] for r in data["rows"] if r["group"] == "code"], ["Timestral"])
 
     def test_documentation_group_is_separated_and_unranked(self):
         text = chapter("06")
@@ -403,6 +451,8 @@ class TestSynthesisTable(unittest.TestCase):
         self.assertLess(text.index("| Lag-Llama"), text.index("{#tbl-synthesis}"))
         self.assertLess(text.index("{#tbl-synthesis}"), text.index("| TimesFM 3.0"))
         self.assertLess(text.index("| TimesFM 3.0"), text.index("{#tbl-synthesis-docs}"))
+        self.assertLess(text.index("{#tbl-synthesis}"), text.index("| Timestral"))
+        self.assertLess(text.index("| Timestral"), text.index("{#tbl-synthesis-docs}"))
         self.assertEqual(text.count("Not a ranking"), 2)
 
 
@@ -443,19 +493,28 @@ class TestTechnicalQualifications(unittest.TestCase):
         self.assertIn("accepted_frozen", enum)
         project = safe_load_path(os.path.join(REPO_ROOT, "config", "project.yaml"))
         entry = [w for w in project["workbooks"] if w["id"] == WB_ID][0]
-        self.assertEqual(entry["status"], "accepted_frozen")
+        self.assertEqual(entry["status"], "drafted_pending_human_review")
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
-        self.assertEqual(reg["workbooks"][WB_ID]["status"], "accepted_frozen")
+        self.assertEqual(reg["workbooks"][WB_ID]["status"], "drafted_pending_human_review")
         for n in MODULES:
             contract = safe_load_path(os.path.join(ADD, "chapter-contracts", f"ch{n}.yaml"))
             self.assertIn(contract["identity"]["status"], enum)
-            self.assertEqual(contract["identity"]["status"], "accepted_frozen")
-            # frozen convention: nothing is allowed to change, and the contract says so
-            self.assertEqual(contract["scope"]["allowed_paths"], [])
-            self.assertTrue(any("chapters/" + n in p for p in contract["scope"]["frozen_paths"]))
-            self.assertEqual(contract["acceptance"]["visual_review"], "pass")
-        # content stays accepted_frozen while the publication lifecycle is published
+            self.assertEqual(contract["identity"]["status"], "drafted_pending_human_review")
+            # narrow reopening: only this module's chapter and answer key (plus, for
+            # Module 3, the new Timestral example and figure) may change
+            allowed = contract["scope"]["allowed_paths"]
+            self.assertIn(f"workbooks/{WB_ID}/chapters/{MODULES[n]}.qmd", allowed)
+            self.assertIn(f"workbooks/{WB_ID}/solutions/{MODULES[n]}-solutions.qmd", allowed)
+            self.assertLessEqual(len(allowed), 4 if n == "03" else 2)
+            self.assertFalse(set(allowed) & set(contract["scope"]["frozen_paths"]))
+            self.assertIn("workbooks/04-llm-architecture/**", contract["scope"]["frozen_paths"])
+            self.assertIn("workbooks/05-llm-training/**", contract["scope"]["frozen_paths"])
+            self.assertEqual(contract["acceptance"]["visual_review"], "not_yet_run")
+            self.assertFalse(contract["scope"]["push_allowed"])
+            self.assertFalse(contract["scope"]["canonical_output_allowed"])
+        # v1.0.0 stays published while v1.1.0 is review_pending
         self.assertEqual(reg["publications"][WB_ID]["status"], "published")
+        self.assertEqual(reg["publications"][WB_ID + "-v1.1.0"]["status"], "review_pending")
         report = read(os.path.join(REPO_ROOT, "reports", "addendum_04_05_tsfm_internal_audit.md"))
         self.assertIn("`drafted_pending_human_review`", report)  # historical record of the draft stage
 

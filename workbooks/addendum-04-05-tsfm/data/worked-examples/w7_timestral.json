@@ -1,0 +1,221 @@
+{
+  "labels": {
+    "configs_and_sizes": "reported (documentation)",
+    "rules": "code-verified at a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff",
+    "counts": "derived (logical)",
+    "settings": "illustrative"
+  },
+  "patch": 32,
+  "block": 32,
+  "context_max": 32768,
+  "n_quantiles": 21,
+  "quantile_levels": [
+    0.01,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95,
+    0.99
+  ],
+  "padding_example": {
+    "steps": 2000,
+    "left_pad": 16,
+    "patches": 63
+  },
+  "padding_question": {
+    "steps": 1000,
+    "left_pad": 24,
+    "patches": 32
+  },
+  "full_context": {
+    "steps": 32768,
+    "left_pad": 0,
+    "patches": 1024
+  },
+  "mask_example": {
+    "n_ctx": 4,
+    "n_dec": 3,
+    "mask": [
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    ],
+    "enc_to_dec_allowed": 0,
+    "allowed_total": 28
+  },
+  "role_visibility": {
+    "target": {
+      "target": true,
+      "past-only": true,
+      "known-future": true
+    },
+    "past-only": {
+      "target": false,
+      "past-only": true,
+      "known-future": true
+    },
+    "known-future": {
+      "target": false,
+      "past-only": false,
+      "known-future": true
+    }
+  },
+  "rollout_example": {
+    "horizon": 2500,
+    "patches": 79,
+    "blocks": [
+      32,
+      32,
+      15
+    ],
+    "steps_produced": 2528,
+    "steps_discarded": 28,
+    "block_calls_with_symmetric_averaging": 6,
+    "max_steps_per_block": 1024
+  },
+  "rollout_question": {
+    "horizon": 1500,
+    "patches": 47,
+    "blocks": [
+      32,
+      15
+    ],
+    "steps_produced": 1504,
+    "steps_discarded": 4,
+    "block_calls_with_symmetric_averaging": 4,
+    "max_steps_per_block": 1024
+  },
+  "parameters": {
+    "5M": {
+      "parts": {
+        "patch_embedding": 210240,
+        "attention": 1845120,
+        "mlp": 2360832,
+        "final_norm": 192,
+        "quantile_head": 792576
+      },
+      "total": 5208960,
+      "layers": 8,
+      "attention_sublayers": 10,
+      "fp32_mb_logical": 20.8,
+      "fp32_mb_doc": 21
+    },
+    "28M": {
+      "parts": {
+        "patch_embedding": 715392,
+        "attention": 11064960,
+        "mlp": 14160384,
+        "final_norm": 384,
+        "quantile_head": 1880064
+      },
+      "total": 27821184,
+      "layers": 12,
+      "attention_sublayers": 15,
+      "fp32_mb_logical": 111.3,
+      "fp32_mb_doc": 111
+    },
+    "123M": {
+      "parts": {
+        "patch_embedding": 1847680,
+        "attention": 51216000,
+        "mlp": 65753600,
+        "final_norm": 640,
+        "quantile_head": 3788800
+      },
+      "total": 122606720,
+      "layers": 20,
+      "attention_sublayers": 25,
+      "fp32_mb_logical": 490.4,
+      "fp32_mb_doc": 490
+    },
+    "209M": {
+      "parts": {
+        "patch_embedding": 2610432,
+        "attention": 88496640,
+        "mlp": 113264640,
+        "final_norm": 768,
+        "quantile_head": 4939776
+      },
+      "total": 209312256,
+      "layers": 24,
+      "attention_sublayers": 30,
+      "fp32_mb_logical": 837.2,
+      "fp32_mb_doc": 837
+    }
+  }
+}
