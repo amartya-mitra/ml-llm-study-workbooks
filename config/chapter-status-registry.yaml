@@ -204,7 +204,11 @@ publications:
     title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
     workbook_id: "addendum-04-05-tsfm"
     version: "1.1.0"
-    status: "accepted_frozen"
+    status: "canonical_built"
+    page_count: 23
+    bytes: 508386
+    sha256: "68467ffb62bbf7734bb97e4387d5956349811d6d211b5d12501c5166b87d6ea2"
+    source_commit: "00f3bb63185114f0c2231703cd2ea93394f77ac2"
     canonical_path: "outputs/addendum-04-05-tsfm.pdf"
     release_tag: "addendum-04-05-tsfm-v1.1.0"
     release_title: "Addendum 04–05 v1.1.0 — Time-Series Foundation Models"
