@@ -1,6 +1,6 @@
 ---
 title: "LLM Inference Engineering"
-subtitle: "Development scaffold: drafting has not yet begun"
+subtitle: "Development draft: Chapter 1 drafted; Chapters 2–7 scaffolded"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -9,13 +9,13 @@ number-sections: true
 are set once, project-wide, in the repo-root _quarto.yml -- do not repeat
 them here.
 
-Status: scaffold only (see config/chapter-status-registry.yaml and
-reports/06_llm_inference_scope_and_source_decision.md). Every chapter is
-`scaffold_only`; no PDF rendered from this file is a release candidate or
+Status: development draft (see config/chapter-status-registry.yaml and
+reports/06_llm_inference_scope_and_source_decision.md). Chapter 1 is
+`drafted_pending_human_review`; Chapters 2-7 are `scaffold_only`. No PDF rendered from this file is a release candidate or
 a canonical edition. Development builds go to
 outputs/_development/06-llm-inference/ via scripts/workbook_qa.py; the
 canonical outputs/06-llm-inference-workbook.pdf is created only by the
-publication workflow. The subtitle above changes when content exists. -->
+publication workflow. Update the subtitle as chapters are drafted. -->
 
 {{< include chapters/01-inference-workload.qmd >}}
 

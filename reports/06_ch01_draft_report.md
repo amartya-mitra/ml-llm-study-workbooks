@@ -107,3 +107,25 @@ No blockers were found. Every required finding was fixed.
 - No number in the chapter is measured. Hardware is illustrative and is not a registered specification.
 - The vLLM request-function locator covers the OpenAI-completions client only.
 - The audits were not rerun after the correction pass. The main agent verified each fix directly (tests, rebuilt PDF, page-by-page inspection).
+
+## Correction pass 1 (2026-10-28, after commit 2119ff7)
+
+Scope was narrow and requested by the reviewer. No numerical results changed.
+
+- **Integrated subtitle.** Changed "Development scaffold: drafting has not yet begun" to "Development draft: Chapter 1 drafted; Chapters 2–7 scaffolded". The index status comment was updated to match. The scaffold test now checks the new subtitle and rejects "complete" and "release-ready".
+- **Equation 1 scope.** Equation 1 now splits weights into backbone weights $P_\text{bb}$, applied at all $N_\text{tok}$ processed positions, and output-head weights $P_\text{out}$, applied at $N_\text{logit}$ logit-producing positions. The text beside the equation states two cases:
+  - At decode, $N_\text{logit} = N_\text{tok}$.
+  - On the generation-prefill path, only the last position needs logits. Training, and requests for prompt log-probabilities, need more positions.
+
+  The intensity bound is reached only when $N_\text{logit} = N_\text{tok}$. The crossover (334 tokens) and the prefill intensity (about 1,900) are labelled idealized weight-only estimates. The prefill paragraph now cites Equation 1 with $N_\text{logit} = 1$, and a new test checks that this reproduces the prefill FLOPs in the JSON.
+- **Question layout.** Each "Check your understanding" item is now a one-item list in a non-breakable Typst block, so every prompt stays with its answer line. Question text is unchanged.
+  - Two show-rule approaches were tried first and rejected: one reset the numbering, and the other hit Typst's maximum show-rule depth.
+  - In the standalone review, the worked-example blocks were reordered (Table 1, Figure 2, prefill paragraph, decode discussion, Figure 3) to remove a mostly blank page introduced by the longer Equation 1 text.
+  - Questions 1–5 are on one page in both artifacts: page 10 of the standalone review and page 12 of the integrated build.
+- **Validation.**
+  - Scoped Workbook 06 tests: 50 passed.
+  - All four validators passed, and `git diff --check` is clean.
+  - Chapter gate: `pass_with_warnings`. The only warning is the same `text_leakage` bibliography hash/DOI warning as before.
+  - Integrated development build: status `pass`, 28 pages.
+  - The review-package builder runs the full suite as its own Step 6. It ran under system Python 3.10: 696 tests, the 3 known WB04 baseline failures, 0 errors, and frozen files unchanged. The full suite was not run separately.
+- **Audits.** Not rerun. The changes are presentational, plus a clarification of a formula whose results are unchanged.

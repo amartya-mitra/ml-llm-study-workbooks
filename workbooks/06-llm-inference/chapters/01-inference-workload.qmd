@@ -42,15 +42,17 @@ A request crosses a boundary between a client and a server. On the client side i
 
 #### Work in one step: linear layers
 
-Let a step process $N_\text{tok}$ new tokens in total across its sequences: $N_\text{tok} = B\,T_q$, with $B$ sequences each adding $T_q$ tokens ($T_q = 1$ at decode; the prompt length at prefill). Let $P_\text{lin}$ be the number of weights in the matrices multiplied in every step — attention projections, feed-forward matrices and the output (unembedding) matrix — and $b_w$ the bytes per weight. The input embedding is a row lookup, so it is stored but adds neither matmul work nor a full read per step. One multiply-add counts as 2 FLOPs, so a decoder-only model needs about $2N$ matmul FLOPs per token for $N$ parameters [@src-78]:
+Let a step process $N_\text{tok}$ new tokens in total across its sequences: $N_\text{tok} = B\,T_q$, with $B$ sequences each adding $T_q$ tokens ($T_q = 1$ at decode; the prompt length at prefill). Split the weights multiplied in a step into the backbone, $P_\text{bb}$ (attention projections and feed-forward matrices, applied to every processed token), and the output head, $P_\text{out}$ (the unembedding matrix, applied only at positions whose logits are needed), with $P_\text{lin} = P_\text{bb} + P_\text{out}$ and $b_w$ bytes per weight. Let $N_\text{logit} \le N_\text{tok}$ be the number of positions that produce logits. The input embedding is a row lookup, so it is stored but adds neither matmul work nor a full read per step. One multiply-add counts as 2 FLOPs, so a decoder-only model needs about $2N$ matmul FLOPs per token for $N$ parameters [@src-78]:
 
 $$
-F_\text{lin} = 2\,P_\text{lin}\,N_\text{tok}, \qquad
+F_\text{lin} = 2\,P_\text{bb}\,N_\text{tok} + 2\,P_\text{out}\,N_\text{logit}, \qquad
 \text{Bytes}_\text{lin} \ge P_\text{lin}\,b_w, \qquad
 I_\text{lin} = \frac{F_\text{lin}}{\text{Bytes}_\text{lin}} \le \frac{2\,N_\text{tok}}{b_w}.
 $$ {#eq-linear-work}
 
-The byte count is a *logical* minimum: every weight read once per step and reused for all $N_\text{tok}$ tokens; activation traffic (by our estimate, about $2N_\text{tok}$ bytes per row and column of each matrix) is ignored, which is reasonable only while $N_\text{tok}$ is much smaller than the model width. Actual traffic is at least this and usually more. With 2-byte weights the intensity is simply $N_\text{tok}$ FLOPs per byte: the more tokens share one read of the weights, the more work each byte supports.
+At decode every new token needs logits, so $N_\text{logit} = N_\text{tok} = B$ and $F_\text{lin} = 2\,P_\text{lin}\,N_\text{tok}$. At prefill on the generation path used in this chapter, only the last prompt position of each sequence needs logits ($N_\text{logit} = B$), so the output head contributes far less than $2\,P_\text{out}\,N_\text{tok}$. Training, and inference requests that ask for prompt log-probabilities, apply the output head at more positions (up to all $N_\text{tok}$). The bound on $I_\text{lin}$ is reached only when $N_\text{logit} = N_\text{tok}$.
+
+The byte count is a *logical* minimum: every weight read once per step and reused for all $N_\text{tok}$ tokens; activation traffic (by our estimate, about $2N_\text{tok}$ bytes per row and column of each matrix) is ignored, which is reasonable only while $N_\text{tok}$ is much smaller than the model width. Actual traffic is at least this and usually more. With 2-byte weights and $N_\text{logit} = N_\text{tok}$ the idealized intensity is simply $N_\text{tok}$ FLOPs per byte: the more tokens share one read of the weights, the more work each byte supports.
 
 #### Work in one step: attention
 
@@ -115,9 +117,7 @@ A looped (depth-recurrent) model applies the same block several times per token 
 
 **Illustrative inputs.** A dense decoder resembling an 8B-class model — $L = 32$ layers, $d_\text{model} = 4096$, $H_q = 32$, $H_{kv} = 8$, $d_\text{head} = 128$, a three-matrix gated feed-forward block of width 14,336, a 128,000-token vocabulary — with 2-byte weights and cache entries; and an illustrative accelerator with $C_\text{peak} = 10^{15}$ FLOP/s, $\mathit{BW} = 3\times10^{12}$ bytes/s and 80 GB of memory. These are round teaching values, not a specification of any model or device. Every result below is derived (computed by a script and checked by tests) and idealized.
 
-**Model terms.** $P_\text{lin}$ = 7,503,609,856 weights are multiplied every step, so one step reads at least 15.01 GB of weights; 16.06 GB is stored once the input embedding is included. The cache costs $2\cdot32\cdot8\cdot128\cdot2$ = 131,072 bytes = 128 KiB per token: 64 MiB per sequence at $S = 512$ and 512 MiB at $S = 4096$. The ridge point is $I^* = 10^{15}/(3\times10^{12}) \approx 333$ FLOP per byte, so linear layers become compute-bound from 334 tokens per step. Decode attention has intensity 4 with 8 KV heads (1 with 32); see @fig-roofline-prefill-decode.
-
-![Idealized roofline for the illustrative accelerator. Decode linear layers move right as more tokens share each weight read (the label gives the batch $B$); decode attention stays at a fixed intensity set by the KV-head grouping; prefill lies far to the right. Points are bounds computed from logical bytes, not measurements.](figures/rendered/fig-roofline-prefill-decode.svg){#fig-roofline-prefill-decode}
+**Model terms.** $P_\text{lin}$ = 7,503,609,856 weights ($P_\text{out}$ = 524,288,000 of them in the output head) are multiplied every step, so one step reads at least 15.01 GB of weights; 16.06 GB is stored once the input embedding is included. The cache costs $2\cdot32\cdot8\cdot128\cdot2$ = 131,072 bytes = 128 KiB per token: 64 MiB per sequence at $S = 512$ and 512 MiB at $S = 4096$. The ridge point is $I^* = 10^{15}/(3\times10^{12}) \approx 333$ FLOP per byte, so, in this idealized weight-only estimate, decode linear layers become compute-bound from 334 tokens per step. Decode attention has intensity 4 with 8 KV heads (1 with 32); see @fig-roofline-prefill-decode.
 
 | Context $S$ | Batch $B$ | Linear bound | $\hat t_\text{step}$ (ms) | Tokens/s | Fits 80 GB? |
 |---|---|---|---|---|---|
@@ -131,11 +131,13 @@ A looped (depth-recurrent) model applies the same block several times per token 
 
 : Idealized decode steps for the illustrative model and accelerator, using the per-operation estimate of @eq-step-time (derived). Attention is bandwidth-bound in every row. "Fits" compares logical resident bytes (stored weights plus caches) with the 80 GB capacity; allocator overhead and workspaces would lower the real limit. {#tbl-decode-steps}
 
+![Idealized roofline for the illustrative accelerator. Decode linear layers move right as more tokens share each weight read (the label gives the batch $B$); decode attention stays at a fixed intensity set by the KV-head grouping; prefill lies far to the right. Points are bounds computed from logical bytes, not measurements.](figures/rendered/fig-roofline-prefill-decode.svg){#fig-roofline-prefill-decode}
+
+**Prefill** of one 2048-token prompt: on the generation path only the last position needs logits, so @eq-linear-work with $N_\text{tok} = 2048$ and $N_\text{logit} = 1$ gives about 28.6 TFLOP for the linear layers, at an idealized weight-only intensity of about 1,900. Activation traffic is no longer negligible at this length and lowers that figure, but not to anywhere near the ridge. Causal attention, counting only unmasked query–key pairs as a block-skipping kernel would (a dense masked kernel does about twice the work), adds about 1.10 TFLOP at a logical intensity of about 820, counting the query, key and value reads and the output write. Both are far right of the ridge, so the idealized prefill bound is about 29.7 ms, compute-bound. That is a server-side lower bound on the prefill part of TTFT for a request running alone; queueing, tokenization and transfer come on top.
+
 At $B = 1$, $S = 4096$ the step reads 15.01 GB of weights plus 0.54 GB of cache and does about 17 GFLOP, so the bound is $15.54\times10^9/(3\times10^{12}) = 5.18$ ms: bandwidth-bound by a factor of about 300. At $S = 512$ the linear layers cross to compute-bound between the tabulated $B = 256$ and $B = 512$ (at 334); at $B = 512$, where the global lower bound (@eq-step-bound) is 16.46 ms and the back-to-back estimate 19.14 ms — the two diverge only once both compute and memory traffic matter. At $S = 4096$ the cache fills the illustrative 80 GB at about $B = 119$ sequences, long before the linear layers could cross; the $B = 256$ row is an extrapolation that could not run there (@fig-latency-throughput-frontier). Throughput grows about 20-fold from $B = 1$ to $B = 64$ at $S = 4096$, while each sequence's token gap grows from 5.18 to 16.46 ms.
 
 ![Idealized decode step time against throughput as the batch grows, for two context lengths. Hollow points need more memory than the illustrative device holds. Values are per-operation estimates (@eq-step-time), computed as in @tbl-decode-steps, which lists a subset of these batch sizes.](figures/rendered/fig-latency-throughput-frontier.svg){#fig-latency-throughput-frontier}
-
-**Prefill** of one 2048-token prompt: at inference only the last position needs logits (training computes them at every position), so the linear layers do about 28.6 TFLOP — @eq-linear-work with the unembedding applied once — at a weight-only intensity of about 1,900. Activation traffic is no longer negligible at this length and lowers that figure, but not to anywhere near the ridge. Causal attention, counting only unmasked query–key pairs as a block-skipping kernel would (a dense masked kernel does about twice the work), adds about 1.10 TFLOP at a logical intensity of about 820, counting the query, key and value reads and the output write. Both are far right of the ridge, so the idealized prefill bound is about 29.7 ms, compute-bound. That is a server-side lower bound on the prefill part of TTFT for a request running alone; queueing, tokenization and transfer come on top.
 
 
 **Metrics from the event log** (@fig-request-timeline; client-side, vLLM-style boundaries; window from the first send at 0 s to the end of the last stream at 1.04 s, matching how vLLM v0.32.0 measures its benchmark duration):
@@ -167,16 +169,64 @@ In request r2 the third chunk carries two tokens: the mean chunk gap is 46.7 ms,
 
 Full solutions are in [Answer Key: Chapter 1](#sec-solutions-ch1).
 
+
+<!-- Keep each question with its answer line on one page: each question is
+its own one-item list (numbered from its own start) in a non-breakable block. -->
+
+```{=typst}
+#block(breakable: false)[
+```
+
 1. **Calculation.** For the worked example's illustrative model and accelerator, a decode step runs $B = 8$ sequences at $S = 4096$. Using logical bytes and @eq-step-time, compute the bytes read, the per-operation step-time estimate, and the batch's tokens per second. Which bound applies? \
    ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
 2. **Compare.** For this model with 2-byte values, at how many tokens per step do the linear layers become compute-bound on the illustrative accelerator? Can any batch size make decode attention compute-bound here — with 8 KV heads, or with 32? Explain from @eq-attention-work. \
    ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
 3. **Calculation.** A client sends a request at 0 s and receives chunks at 0.30 s (1 token), 0.36 s (2 tokens) and 0.40 s (1 token). Compute TTFT, the chunk gaps, E2E and TPOT. Then say what TPOT is for a second request whose only chunk carries one token, and why a tool must state its convention. \
    ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
 4. **Quick check.** A next-token distribution has probabilities 0.50, 0.20, 0.15, 0.10 and 0.05. Give the renormalized distribution under top-p with $p = 0.8$, and under top-k with $k = 2$. \
    ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
 5. **Design exercise.** For the illustrative model at $S = 4096$, what is the largest decode batch whose per-operation step estimate is at most 10 ms, and what throughput does it give? Name two things this estimate cannot tell you about meeting a 10 ms token-gap target in a real deployment. \
    ________________________________________________
+
+```{=typst}
+]
+```
 
 ### Applied exercise
 
@@ -189,7 +239,7 @@ Rerun the worked example for a multi-head-attention variant of the model ($H_{kv
 ### Chapter recap
 
 - A request's metrics are defined by timestamps on either side of a client–server boundary; queueing, tokenization, network and stream framing are included or excluded depending on where those timestamps are taken.
-- Linear-layer intensity grows with tokens per step ($2N_\text{tok}/b_w$ under logical bytes), so batching moves decode linear layers toward compute-bound; decode attention's intensity, $2H_q/(H_{kv}\,b_{kv})$, does not grow with batch because each sequence's cache is its own (@eq-linear-work, @eq-attention-work).
+- Linear-layer intensity grows with tokens per step (at most $2N_\text{tok}/b_w$ under logical bytes, reached when every token produces logits), so batching moves decode linear layers toward compute-bound; decode attention's intensity, $2H_q/(H_{kv}\,b_{kv})$, does not grow with batch because each sequence's cache is its own (@eq-linear-work, @eq-attention-work).
 - The roofline gives idealized bounds, $\min(C_\text{peak}, \mathit{BW}\times I)$ per operation and @eq-step-time per step; they are not runtimes, and adding an operation's compute time to its memory time double-counts.
 - Batch size trades token gaps for throughput; memory capacity can stop the trade first, especially at long context.
 - TTFT, token gaps, ITL, TPOT, E2E, throughput and goodput each need a start event, an end event, a token type, an aggregation and a window; TPOT is undefined for a one-token request, and conventions for it change goodput.

@@ -74,12 +74,13 @@ class TestStructure(unittest.TestCase):
         includes = re.findall(r"\{\{< include ([a-z]+/[a-z0-9-]+\.qmd) >\}\}", read(os.path.join(WB, "index.qmd")))
         self.assertEqual(includes, [f"chapters/{s}.qmd" for s in SLUGS] + [f"solutions/{s}-solutions.qmd" for s in SLUGS])
 
-    def test_index_is_labelled_a_development_scaffold(self):
+    def test_index_is_labelled_a_development_draft(self):
         index = read(os.path.join(WB, "index.qmd"))
         self.assertIn('title: "LLM Inference Engineering"', index)
-        self.assertIn("Development scaffold", index)
         front = index.split("---")[1]  # YAML title block only (the source comment may say what it is not)
-        self.assertNotRegex(front, r"(?i)release candidate|final edition")
+        self.assertIn('subtitle: "Development draft: Chapter 1 drafted; Chapters 2–7 scaffolded"', front)
+        self.assertNotIn("drafting has not yet begun", front)
+        self.assertNotRegex(front, r"(?i)release candidate|final edition|complete|release-ready")
 
     def test_stable_anchors(self):
         for n in range(1, 8):

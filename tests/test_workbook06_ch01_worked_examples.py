@@ -213,6 +213,17 @@ class TestQuestionsAndProse(Base):
                   "B = 27", "9.83", "10.01", "2,746", "29", "16.99", "7.87", "2,034", "334", "1.92", "2.88"):
             self.assertTrue(s in sol, msg=s)
 
+    def test_equation_1_scope_matches_prefill_convention(self):
+        ch = read("chapters", "01-inference-workload.qmd")
+        eq = ch[ch.index("$$", ch.index("Work in one step: linear layers")):ch.index("{#eq-linear-work}")]
+        self.assertIn("P_\\text{bb}\\,N_\\text{tok}", eq)
+        self.assertIn("P_\\text{out}\\,N_\\text{logit}", eq)
+        self.assertIn("prompt log-probabilities", ch)
+        P, U = self.d["params"]["linear_total"], self.d["params"]["unembedding"]
+        self.assertIn(f"{U:,}", ch)
+        # Equation 1 with N_tok = 2048, N_logit = 1 reproduces the prefill JSON
+        self.assertEqual(2 * (P - U) * 2048 + 2 * U * 1, self.d["prefill"]["linear_flops"])
+
     def test_decode_table_matches_json(self):
         ch = read("chapters", "01-inference-workload.qmd")
         rows = re.findall(r"^\| ([\d,]+) \| (\d+) \| (\w+) \| ([\d.]+) \| ([\d,]+) \|", ch, re.MULTILINE)
