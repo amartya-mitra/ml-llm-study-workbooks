@@ -154,9 +154,9 @@ sources:
     workbook_categories: ["04-llm-architecture", "05-llm-training", "06-llm-inference"]
     topic_tags: ["scaling-laws", "tpu", "gpu", "distributed-training", "rooflines", "inference-math", "kv-cache"]
     authority_type: "primary_technical"
-    expected_use: "workbook 04: core narrative source for KV-cache math, attention FLOPs, and roofline/hardware-aware cost analysis (ch. 3, ch. 7); NOT the primary source for architecture-taxonomy topics like RoPE/RMSNorm/SwiGLU/MoE routing, which have their own primary papers"
-    last_verified: "2026-09-22"
-    access_status: "fetched this session (raw curl HTTP 200; title/date/copyright confirmed directly in HTML)"
+    expected_use: "workbook 04: core narrative source for KV-cache math, attention FLOPs, and roofline/hardware-aware cost analysis (ch. 3, ch. 7); NOT the primary source for architecture-taxonomy topics like RoPE/RMSNorm/SwiGLU/MoE routing, which have their own primary papers Workbook 06 (2026-10-28): analytical (theoretical, TPU-centred) companion for ch. 1-5: critical batch size B_crit = C/W_hbm x (bits per param / bits per activation), attention intensity ST/(S+T), memory-bandwidth step-time bounds, inference memory, interleaved vs disaggregated serving, continuous batching and prefix caching ('Inference' chapter). Its numbers are estimates, never measurements."
+    last_verified: "2026-10-28"
+    access_status: "fetched this session (raw curl HTTP 200; title/date/copyright confirmed directly in HTML) 2026-10-28 (Workbook 06 planning): the 'Inference' chapter (https://jax-ml.github.io/scaling-book/inference/, about 10,700 words) was fetched and read at targeted depth: latency vs throughput objectives, TTFT, linear-layer critical batch size B_crit = C/W_hbm scaled by bits per param/bits per activation, attention intensity ST/(S+T) (about 1 at decode), memory-bandwidth lower bounds on step time, inference memory (weights plus KV), prefill/generation sharding, interleaved vs disaggregated serving, continuous batching and prefix caching. Its numbers are theoretical (TPU v5e-centred) estimates, not measurements."
     license_or_reuse: "no explicit open-license/CC statement found; footer shows a templated Jekyll/al-folio '© Copyright 2026' — treat as standard copyright, summarize/cite, do not reproduce figures"
     notes: "Published 2025-02-04 per on-page metadata. Covers KV cache math, attention FLOPs, roofline analysis, parallelism strategies, and a Llama-3 cost-estimation case study. Role for workbook 04 specifically: core narrative source for cache/systems math; also a systems companion for the parallelism content (more central to workbook 05)."
 
@@ -168,7 +168,7 @@ sources:
     workbook_categories: ["04-llm-architecture", "06-llm-inference"]
     topic_tags: ["inference-serving", "latency", "throughput", "batching", "kv-cache"]
     authority_type: "implementation_guide"
-    expected_use: "workbook 04: systems companion for ch. 7 (architecture-to-systems consequences) and the KV-cache/serving-mechanics portions of ch. 3; not a primary source for architecture-taxonomy claims"
+    expected_use: "workbook 04: systems companion for ch. 7 (architecture-to-systems consequences) and the KV-cache/serving-mechanics portions of ch. 3; not a primary source for architecture-taxonomy claims Workbook 06 (2026-10-28): orientation and terminology cross-checking only (vendor-authored; verified at title/table-of-contents level); not cited for any mechanism or number."
     last_verified: "2026-09-22"
     access_status: "fetched this session (raw curl HTTP 200; title/author/copyright confirmed directly in HTML)"
     license_or_reuse: "Copyright 2026 Baseten (footer) — standard copyright, no open-reuse license found; note vendor angle when citing performance claims"
@@ -182,7 +182,7 @@ sources:
     workbook_categories: ["04-llm-architecture", "05-llm-training", "06-llm-inference"]
     topic_tags: ["accelerators", "compilers", "gpu-programming", "inference", "kv-cache"]
     authority_type: "implementation_guide"
-    expected_use: "workbook 04: systems companion for ch. 7 (KV-cache mechanics, batching, GPU kernel/memory-hierarchy effects); not a primary source for architecture-taxonomy claims"
+    expected_use: "workbook 04: systems companion for ch. 7 (KV-cache mechanics, batching, GPU kernel/memory-hierarchy effects); not a primary source for architecture-taxonomy claims Workbook 06 (2026-10-28): orientation and terminology cross-checking only (vendor-authored; verified at title/table-of-contents level); not cited for any mechanism or number."
     last_verified: "2026-09-22"
     access_status: "fetched this session (raw curl HTTP 200; title and table of contents confirmed directly in HTML)"
     license_or_reuse: "no copyright or license statement found anywhere in the fetched HTML; page invites GitHub contributions (github.com/modular/llm-inference-handbook), implying open-contribution, but no explicit license text was found"
@@ -483,12 +483,12 @@ sources:
     url: "https://arxiv.org/abs/2412.19437"
     authors: "DeepSeek-AI"
     resource_type: "official technical report (arXiv:2412.19437)"
-    workbook_categories: ["04-llm-architecture"]
+    workbook_categories: ["04-llm-architecture", "06-llm-inference"]
     topic_tags: ["mixture-of-experts", "multi-head-latent-attention", "case-study", "load-balancing"]
     authority_type: "primary_technical"
-    expected_use: "primary source for ch. 6: the workbook's representative MoE AND MLA case-study model in one — 671B total / 37B activated parameters, combining MLA (src-27's mechanism) with DeepSeekMoE and an auxiliary-loss-free load-balancing strategy plus multi-token prediction"
-    last_verified: "2026-09-23"
-    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF (Section 4.2 'Hyper-Parameters'): 61 Transformer layers, 7168 hidden dimension, MLA with n_h=128 attention heads/128 per-head dimension, KV compression dimension d_c=512, query compression dimension d_c'=1536, decoupled RoPE per-head dimension 64; MoE layers (all but the first 3, which stay dense) each with 1 shared expert + 256 routed experts (8 activated per token, intermediate dim 2048, capped at 4 nodes per token); RoPE, RMSNorm, 128K vocabulary, and 128K context (via YaRN extension) all confirmed directly against the paper's own text, not a search snippet"
+    expected_use: "primary source for ch. 6: the workbook's representative MoE AND MLA case-study model in one — 671B total / 37B activated parameters, combining MLA (src-27's mechanism) with DeepSeekMoE and an auxiliary-loss-free load-balancing strategy plus multi-token prediction Workbook 06 (2026-10-28): vendor-reported deployment and MTP facts only -- Sec. 2.2 'MTP in Inference' (modules can be discarded or repurposed for speculative decoding); Sec. 5.4.3 (second-token acceptance rate 85-90%, '1.8 times TPS', with hardware, batch size, sampling settings and baseline NOT stated -- treat as vendor-reported and under-specified); Sec. 3.4 deployment with separate prefilling (4 nodes / 32 GPUs, attention TP4+SP+DP8, MoE EP32, redundant experts) and decoding units (40 nodes / 320 GPUs, EP320; 'the bottleneck is memory access rather than computation'). FP8 content concerns training and is out of scope for 06."
+    last_verified: "2026-10-28"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF (Section 4.2 'Hyper-Parameters'): 61 Transformer layers, 7168 hidden dimension, MLA with n_h=128 attention heads/128 per-head dimension, KV compression dimension d_c=512, query compression dimension d_c'=1536, decoupled RoPE per-head dimension 64; MoE layers (all but the first 3, which stay dense) each with 1 shared expert + 256 routed experts (8 activated per token, intermediate dim 2048, capped at 4 nodes per token); RoPE, RMSNorm, 128K vocabulary, and 128K context (via YaRN extension) all confirmed directly against the paper's own text, not a search snippet Workbook 06 (2026-10-28): Sec. 2.2 (MTP inference paragraph), 3.4, 5.4.3 and 6 read via pdftotext of v2."
     license_or_reuse: "arXiv preprint; DeepSeek-V3 model weights are released under their own model license (verify terms before any reuse beyond citation) — cite/restate the paper, do not copy figures"
     notes: "Submitted 2024-12-27, revised 2025-02-18. Using one model to exemplify both MoE (ch. 5) and MLA (ch. 3) simultaneously is a deliberate scope choice: it keeps ch. 6's 'small, defensible set' of case-study models smaller without skipping either mechanism — see reports/04_source_audit.md. Mixtral of Experts (src-34) is registered as a simpler alternative/supporting MoE example if a less complex case study is wanted for a table row or exercise instead of a main case study."
 
@@ -623,12 +623,12 @@ sources:
     url: "https://arxiv.org/abs/2404.19737"
     authors: "Fabian Gloeckle, Badr Youbi Idrissi, Baptiste Rozière, David Lopez-Paz, Gabriel Synnaeve"
     resource_type: "original research paper (arXiv:2404.19737; ICML 2024)"
-    workbook_categories: ["04-llm-architecture", "05-llm-training"]
+    workbook_categories: ["04-llm-architecture", "05-llm-training", "06-llm-inference"]
     topic_tags: ["multi-token-prediction", "auxiliary-loss", "training-objective", "roadmap"]
     authority_type: "primary_technical"
-    expected_use: "roadmap primary source for multi-token prediction's foundational design: n INDEPENDENT output heads on a shared trunk, each predicting a different future offset, used as an auxiliary training-time loss with only the next-token head kept at inference; primary training treatment planned for workbook 05, architecture-bridge mention planned for workbook 04 ch. 8 (neither drafted this session)"
-    last_verified: "2026-09-25"
-    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming 'n independent output heads implemented in terms of transformer layers... and a shared trunk' (Section 2) directly from the paper's own text, not a search snippet or summary"
+    expected_use: "roadmap primary source for multi-token prediction's foundational design: n INDEPENDENT output heads on a shared trunk, each predicting a different future offset, used as an auxiliary training-time loss with only the next-token head kept at inference; primary training treatment planned for workbook 05, architecture-bridge mention planned for workbook 04 ch. 8 (neither drafted this session) Workbook 06 (2026-10-28): Sec. 3.2 and Appendix A for greedy self-speculative decoding with the MTP heads: paper-reported 3.0x on code (about 2.5 of 3 suggestions accepted) and 2.7x on text, measured at batch size 42 with speedup described as roughly constant across batch sizes; hardware not stated; greedy only (exact for greedy decoding)."
+    last_verified: "2026-10-28"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming 'n independent output heads implemented in terms of transformer layers... and a shared trunk' (Section 2) directly from the paper's own text, not a search snippet or summary Workbook 06 (2026-10-28): Sec. 3.2, 3.3 and Appendix A re-read via pdftotext of v1."
     license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
     notes: "Submitted 2024-04-30 (ICML 2024). This INDEPENDENT-heads design is a materially different MTP implementation from DeepSeek-V3's (src-33) sequential/causal-chain design (each MTP module conditions on the previous module's output, depth D=1 in DeepSeek-V3's own notation) -- the two are NOT the same MTP architecture and must not be treated as synonyms when drafting workbook 05/04 ch. 8. MTP is a training-time objective/module design; it is not itself speculative decoding (that distinction is required reading before drafting either topic)."
 
@@ -641,8 +641,8 @@ sources:
     topic_tags: ["speculative-decoding", "draft-model", "lossless-sampling", "roadmap"]
     authority_type: "primary_technical"
     expected_use: "roadmap primary (co-foundational) source for speculative decoding: proposes speculative execution with an approximation ('draft') model plus a modified sampling scheme that samples from the large ('target') model 'without changing the distribution'; primary treatment planned for workbook 06 (not drafted this session). Workbook 04 ch. 7 adds only a short cross-reference, per that chapter's own scope fence -- the algorithm itself is not taught there"
-    last_verified: "2026-09-25"
-    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming 'using speculative execution and a novel sampling method, we can make exact decoding from the large models faster... without changing the distribution' directly from the paper's own abstract text, not a search snippet or summary"
+    last_verified: "2026-10-28"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming 'using speculative execution and a novel sampling method, we can make exact decoding from the large models faster... without changing the distribution' directly from the paper's own abstract text, not a search snippet or summary 2026-10-28 (Workbook 06 planning): Sections 1-6 and Appendix A.1-A.5 re-read in full via pdftotext of v2 (18 May 2023): p = target, q = draft (Sec. 2.1); acceptance min(1, p(x)/q(x)) with residual resampling norm(max(0, p - q)) (Sec. 2.3, Alg. 1); beta and alpha = E(beta) (Def. 3.1, Cor. 3.6); expected tokens (1 - alpha^(gamma+1))/(1 - alpha) under an i.i.d. beta assumption (Eq. 1); walltime factor (1 - alpha^(gamma+1))/((1 - alpha)(gamma c + 1)) assuming gamma+1 parallel target evaluations at no extra walltime (Thm. 3.8); operations increase (Thm. 3.11); paper-reported 2.3-3.4x on T5-XXL, batch 1, one TPU-v4. Sec. 2.2 states that argmax, top-k, nucleus and temperature sampling can all be cast into 'standard sampling from an adjusted probability distribution' (pdftotext line ~147 of v2), so p and q are understood as the adjusted distributions."
     license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
     notes: "Submitted 2022-11-30, revised 2023-05-18 (ICML 2023). Co-foundational with Chen et al. (src-45), published within about two months of each other in early 2023 -- both independently derived a proposal/verification/acceptance scheme with a lossless-distribution guarantee; workbook 06 should credit both, not treat one as derivative of the other."
 
@@ -655,10 +655,10 @@ sources:
     topic_tags: ["speculative-decoding", "draft-model", "rejection-sampling", "acceptance-rate", "roadmap"]
     authority_type: "primary_technical"
     expected_use: "roadmap primary (co-foundational) source for speculative decoding: introduces the 'modified rejection sampling scheme which preserves the distribution of the target model' and the acceptance-rate framing ('the expected acceptance rate of draft tokens is sufficient to offset the overhead'); primary treatment planned for workbook 06 (not drafted this session). Workbook 04 ch. 7 adds only a short cross-reference, per that chapter's own scope fence"
-    last_verified: "2026-09-25"
-    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming the rejection-sampling and acceptance-rate quotes directly from the paper's own text (Section on the algorithm), not a search snippet or summary"
+    last_verified: "2026-10-28"
+    access_status: "verified via full-text fetch and pdftotext extraction of the arXiv PDF, confirming the rejection-sampling and acceptance-rate quotes directly from the paper's own text (Section on the algorithm), not a search snippet or summary 2026-10-28 (Workbook 06 planning): whole paper re-read via pdftotext of v1 (2 Feb 2023), including the supplementary proof: target q, draft p (Alg. 2; letters swapped relative to src-44); acceptance min(1, q/p), resampling from (q - p)+; Theorem 1 holds 'within hardware numerics'; sampling transforms applied before rejection; outputs not identical to plain decoding; paper-reported 1.92-2.46x for Chinchilla 70B with a 4B draft on 16 TPU v4 at batch 1, K = 4; claim limited to small batch sizes."
     license_or_reuse: "arXiv preprint — standard arXiv license; cite/restate, do not copy figures"
-    notes: "Submitted 2023-02-02 (DeepMind). Benchmarked on Chinchilla (70B) with a reported 2-2.5x decoding speedup in a distributed setup -- a vendor/lab-reported number, to be cross-checked against independent measurements before workbook 06 states it as a general expectation rather than this paper's own reported result."
+    notes: "Submitted 2023-02-02 (DeepMind). Benchmarked on Chinchilla (70B) with a reported 1.92-2.46x (Table 1; the earlier '2-2.5x' summary is superseded) decoding speedup in a distributed setup -- a vendor/lab-reported number, to be cross-checked against independent measurements before workbook 06 states it as a general expectation rather than this paper's own reported result."
 
   - id: "src-46"
     title: "OpenAI's Astra, Looped Transformers, and the Reasoning-Obfuscation Debate (blog)"
@@ -776,10 +776,10 @@ sources:
     url: "https://arxiv.org/abs/1909.08053"
     authors: "Mohammad Shoeybi, Mostofa Patwary, Raul Puri, Patrick LeGresley, Jared Casper, Bryan Catanzaro"
     resource_type: "original research paper (arXiv:1909.08053)"
-    workbook_categories: ["05-llm-training"]
+    workbook_categories: ["05-llm-training", "06-llm-inference"]
     topic_tags: ["tensor-parallelism", "model-parallelism", "distributed-training"]
     authority_type: "primary_technical"
-    expected_use: "primary source for workbook 05 ch. 4: the original intra-layer (tensor) parallelism scheme for transformer MLP and self-attention blocks -- column-parallel first GEMM / QKV projections, row-parallel second GEMM / output projection, and the conjugate 'f'/'g' identity-vs-all-reduce operators this exact split requires. Also the paper's own real-world DP x MP world-size example (8-way model parallelism x 64-way data parallelism = 512 GPUs, 8.3B parameters)."
+    expected_use: "primary source for workbook 05 ch. 4: the original intra-layer (tensor) parallelism scheme for transformer MLP and self-attention blocks -- column-parallel first GEMM / QKV projections, row-parallel second GEMM / output projection, and the conjugate 'f'/'g' identity-vs-all-reduce operators this exact split requires. Also the paper's own real-world DP x MP world-size example (8-way model parallelism x 64-way data parallelism = 512 GPUs, 8.3B parameters). Workbook 06 (2026-10-28): reused (not re-read on 2026-10-28) for the tensor-parallel structure of the MLP and attention blocks (column- then row-parallel GEMMs, an all-reduce after each block in the forward pass, Sec. 3) as the basis of an inference-time per-token TP communication estimate; that the same structure applies to decode is the workbook's derivation, not the paper's claim."
     last_verified: "2026-09-27"
     access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF), not abstract-only. Confirmed Section 3's own wording: the MLP block's first GEMM is 'split in a column parallel fashion,' its second GEMM 'takes the output of the GeLU layer directly without requiring any... synchronization,' and 'this approach for both the MLP and self attention layer allows us to perform all GEMMs in a simple transformer layer using only two all-reduces in the forward path and two in the backward path.'"
     license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
@@ -814,12 +814,12 @@ sources:
     url: "https://arxiv.org/abs/2205.14135"
     authors: "Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri Rudra, Christopher Ré"
     resource_type: "original research paper (arXiv:2205.14135)"
-    workbook_categories: ["05-llm-training"]
+    workbook_categories: ["05-llm-training", "06-llm-inference"]
     topic_tags: ["attention", "memory-efficient-attention", "gpu-kernels", "activation-memory", "io-awareness"]
     authority_type: "primary_technical"
-    expected_use: "primary source for workbook 05 ch. 5's qualification of the activation-memory formula (Equation 3): standard attention implementations materialize the full N-by-N score/probability matrices to GPU HBM, an O(N^2)-in-sequence-length memory cost, while FlashAttention's tiling avoids ever materializing that full matrix -- used to support the chapter's claim that peak activation scaling depends on attention implementation, not only on the formula [@src-17] states for its own declared accounting convention."
-    last_verified: "2026-10-03"
-    access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF v2), not abstract-only. Confirmed the paper's own wording: 'Standard attention implementations materialize the matrices S and P to HBM, which takes O(N^2) memory' (Section 2.2) and 'FlashAttention uses tiling to prevent materialization of the large N x N attention matrix ... on (relatively) slow GPU HBM' (Figure 1 caption/Section 1)."
+    expected_use: "primary source for workbook 05 ch. 5's qualification of the activation-memory formula (Equation 3): standard attention implementations materialize the full N-by-N score/probability matrices to GPU HBM, an O(N^2)-in-sequence-length memory cost, while FlashAttention's tiling avoids ever materializing that full matrix -- used to support the chapter's claim that peak activation scaling depends on attention implementation, not only on the formula [@src-17] states for its own declared accounting convention. Workbook 06 (2026-10-28): exact attention via online-softmax tiling with running statistics (Sec. 3.1, Alg. 1); recomputation is a backward-pass (training) device; IO-optimality and portability limits (Sec. 5); the only inference-specific content is forward-only results on T4 (App. E.5). The paper has no decode / query-length-1 analysis -- do not attribute decode claims to it."
+    last_verified: "2026-10-28"
+    access_status: "verified via full-text PDF extraction (pdftotext against the downloaded arXiv PDF v2), not abstract-only. Confirmed the paper's own wording: 'Standard attention implementations materialize the matrices S and P to HBM, which takes O(N^2) memory' (Section 2.2) and 'FlashAttention uses tiling to prevent materialization of the large N x N attention matrix ... on (relatively) slow GPU HBM' (Figure 1 caption/Section 1). Workbook 06 (2026-10-28): Sec. 1, 3.1 with Algorithm 1, 5 and Appendix E.5 re-read via pdftotext of v2."
     license_or_reuse: "arXiv preprint -- standard arXiv terms; text synthesis/citation only, no figure reuse without checking the paper's own license"
     notes: "Stanford/UB, 2022-05-27 (v2 2022-06-23); NeurIPS 2022. Used narrowly in workbook 05 ch. 5 to qualify, not replace, the chapter's existing activation-memory formula from src-17 -- the correct claim is that peak activation-memory scaling depends on which attention implementation is used, not that all modern implementations require quadratic storage."
 
@@ -1092,3 +1092,337 @@ sources:
     access_status: "fetched and read on 2026-10-27 through a page-summarizing fetch (not raw HTML); the facts above were stated on the page. It gives no release date, horizon limit, training data or architecture detail and links no paper."
     license_or_reuse: "documentation page; cite facts only"
     notes: "Restates the vendor's first-place claim without scores; not used as benchmark evidence."
+
+  # ---------------------------------------------------------------------
+  # src-73 .. src-95 -- registered 2026-10-28 during scope-and-source
+  # planning for Workbook 06 (LLM Inference Engineering). See
+  # reports/06_llm_inference_scope_and_source_decision.md.
+  # Every entry was read from the document's own text (pdftotext of the
+  # arXiv/USENIX PDF, raw docs, or code at a pinned tag); access_status
+  # records the reading depth honestly (targeted vs full). Reported speed
+  # or quality numbers are paper-reported under the stated conditions and
+  # were not reproduced. No model weights were downloaded and no
+  # inference or benchmark was run.
+  # ---------------------------------------------------------------------
+
+  - id: "src-73"
+    title: "Efficient Memory Management for Large Language Model Serving with PagedAttention"
+    url: "https://arxiv.org/abs/2309.06180"
+    authors: "Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody Hao Yu, Joseph E. Gonzalez, Hao Zhang, Ion Stoica"
+    resource_type: "original research paper (arXiv:2309.06180v1, 12 Sep 2023; SOSP 2023 per arXiv comment)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "kv-cache", "paged-attention", "memory-fragmentation", "copy-on-write", "preemption"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 2: the three kinds of KV-cache waste (reserved slots, internal and external fragmentation; Sec. 3, Fig. 3), block tables mapping logical to physical blocks with on-demand allocation (Sec. 4.2-4.3), reference-counted sharing and block-level copy-on-write for parallel sampling, beam search and shared prefixes (Sec. 4.4), FCFS all-or-nothing preemption with swapping vs recomputation (Sec. 4.5, 7.3), and the block-size trade-off (Sec. 7.2; default 16). Paper-reported numbers (20.4-38.2% vs about 96.3% of KV memory holding token states; 2-4x throughput at the same latency) are tied to OPT models on A100 with ShareGPT/Alpaca traces against emulated Orca baselines."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of the arXiv PDF: Sec. 1, 3, 4.1-4.6, 6.2-6.3, 7.2-7.3 and Fig. 1-3 captions. Not read cover to cover."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "Implementation drift to preserve: the 2023 paper offers swapping or recomputation, while vLLM v0.32.0 (src-82) preempts by recomputation only. Fig. 1's memory split is an illustrative layout. Baselines in Fig. 2 are emulated Orca variants, not the Orca system."
+
+  - id: "src-74"
+    title: "Orca: A Distributed Serving System for Transformer-Based Generative Models"
+    url: "https://www.usenix.org/system/files/osdi22-yu.pdf"
+    authors: "Gyeong-In Yu, Joo Seong Jeong, Geon-Woo Kim, Soojeong Kim, Byung-Gon Chun"
+    resource_type: "original research paper (16th USENIX OSDI, 2022, pp. 521-538; official USENIX PDF)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "iteration-level-scheduling", "continuous-batching", "selective-batching"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 3: iteration-level scheduling (finished requests leave and new requests join between iterations; Sec. 3, S1) and selective batching (non-attention ops batched on a flattened token tensor, attention split per request; Sec. 3, S2, Fig. 5), with the paper's reason that attention has no parameters to amortize. Also its up-front max_tokens KV reservation (Sec. 4.2), which src-73 later criticizes. Reported 36.9x throughput is for GPT-3 175B on 8xA100-40GB with a synthesized trace."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of the USENIX PDF: abstract, Sec. 1, 3, 4.2, part of 6."
+    license_or_reuse: "USENIX open-access paper -- cite and summarize; redraw any figure"
+    notes: "The term 'continuous batching' is later usage; Orca's own terms are iteration-level scheduling and selective batching. Keep the paper's terms when attributing."
+
+  - id: "src-75"
+    title: "Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve"
+    url: "https://arxiv.org/abs/2403.02310"
+    authors: "Amey Agrawal, Nitin Kedia, Ashish Panwar, Jayashree Mohan, Nipun Kwatra, Bhargav S. Gulavani, Alexey Tumanov, Ramachandran Ramjee"
+    resource_type: "original research paper (arXiv:2403.02310v3, 17 Jun 2024; OSDI 2024 per the USENIX OSDI'24 programme)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "chunked-prefill", "stall-free-batching", "ttft", "tbt", "slo"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 3: generation stalls (prefills scheduled between decodes; Fig. 7), stall-free batching that packs running decodes first and then partial prefills under a token budget derived from a TBT SLO (Sec. 4.2, Alg. 3), and the cost of chunked prefill (earlier chunks' KV re-read; Sec. 4.3). Its metric definitions: TTFT from request arrival (includes queueing) and TBT as the per-token gap evaluated at P99 (Sec. 2); capacity as max QPS within SLOs."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of the arXiv PDF: abstract, Sec. 1, 2 (metrics), 3.2, 4.1-4.3, 5 (SLO setup)."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "Source disagreement to preserve: Sarathi argues chunked-prefill overhead stays small because attention prefill remains compute-bound, while DistServe (src-76) argues chunking does not remove interference and re-reads KV O(N^2) across chunks. Reported capacity gains (e.g. 2.6x Mistral-7B on 1xA100) are vs vLLM of that time."
+
+  - id: "src-76"
+    title: "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving"
+    url: "https://arxiv.org/abs/2401.09670"
+    authors: "Yinmin Zhong, Shengyu Liu, Junda Chen, Jianbo Hu, Yibo Zhu, Xuanzhe Liu, Xin Jin, Hao Zhang"
+    resource_type: "original research paper (arXiv:2401.09670v3, 6 Jun 2024; OSDI 2024 per the USENIX OSDI'24 programme)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "disaggregation", "goodput", "slo-attainment", "tpot", "kv-transfer"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 3 and ch. 7: prefill-decode interference and parallelism coupling under colocation (Sec. 2.2, Fig. 2), disaggregated prefill and decode instances with KV transfer (Sec. 3; its 512-token OPT-66B example of about 1.13 GB KV is a logical estimate), and its definitions: TTFT as prefill duration with queueing noted separately, TPOT as the per-request average excluding the first token (total latency = TTFT + TPOT x decode tokens), SLO attainment, and per-GPU goodput as the max request rate meeting an attainment target (Sec. 1, 4)."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of the arXiv PDF: abstract, Sec. 1, 2.2-2.3, 3 (communication), 4 (SLO attainment), evaluation setup."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "Critiques chunked prefill (Sec. 2.3); see src-75 for the opposing view. Reported 7.4x more requests or 12.6x tighter SLO at >90% attainment are for OPT-13B/66B/175B on 8xA100-80GB nodes."
+
+  - id: "src-77"
+    title: "SGLang: Efficient Execution of Structured Language Model Programs"
+    url: "https://arxiv.org/abs/2312.07104"
+    authors: "Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, Chuyue Sun, Jeff Huang, Cody Hao Yu, Shiyi Cao, Christos Kozyrakis, Ion Stoica, Joseph E. Gonzalez, Clark Barrett, Ying Sheng"
+    resource_type: "original research paper (arXiv:2312.07104v2, 6 Jun 2024; NeurIPS 2024 per proceedings listing)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "prefix-caching", "radix-attention", "lru-eviction", "cache-aware-scheduling"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 2: RadixAttention's radix tree mapping token sequences to KV tensors (paged, page size one token), LRU eviction of unreferenced leaves, a shared pool for cache and running requests, cache-aware longest-shared-prefix-first scheduling, and Theorem 3.1 (DFS order optimal offline under a cache-size condition) with the paper's starvation caveat (Sec. 3, Fig. 3). Structured-program features (the frontend language, constrained decoding) are out of scope for Workbook 06."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of the arXiv PDF: abstract, Sec. 1, 3, Fig. 3. Full author list taken from the arXiv abstract page; only the first names were checked against the PDF."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "Reported up to 6.4x throughput is workload-dependent (A10G/A100, several program-style workloads). Contrast with vLLM's hash-of-full-blocks prefix caching (src-82)."
+
+  - id: "src-78"
+    title: "Efficiently Scaling Transformer Inference"
+    url: "https://arxiv.org/abs/2211.05102"
+    authors: "Reiner Pope, Sholto Douglas, Aakanksha Chowdhery, Jacob Devlin, James Bradbury, Anselm Levskaya, Jonathan Heek, Kefan Xiao, Shivani Agrawal, Jeff Dean"
+    resource_type: "original research paper (arXiv:2211.05102v1, 9 Nov 2022; MLSys 2023 per proceedings listing)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "latency-throughput", "mfu", "inference-parallelism", "multiquery-attention", "memory-bandwidth"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 1 and ch. 4: latency vs cost (throughput) framing with prefill and decode reported separately, MFU defined against peak FLOPs with no memory or communication overhead, decode as memory-bandwidth-bound (weights dominate at small batch, KV at long context and large batch; Sec. 2-2.1), and inference partitioning layouts (1D/2D weight-stationary, weight-gathered; prefill and decode may use different layouts; Sec. 3.2), plus the caveat that multiquery attention's cache saving is lost if the single K/V head is replicated under head sharding (Sec. 3.3, Fig. 4)."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of the arXiv PDF: abstract, Sec. 2-2.2, 3.2 (layout headings and definitions), 3.3, Fig. 1 and 4."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "All results are on TPU v4 (PaLM 540B, 64 chips): 29 ms/token int8 generation and 76% prefill MFU are paper-reported and hardware-specific. Its 3 TB KV example is a logical estimate."
+
+  - id: "src-79"
+    title: "Roofline: An Insightful Visual Performance Model for Multicore Architectures"
+    url: "https://www2.eecs.berkeley.edu/Pubs/TechRpts/2008/EECS-2008-134.pdf"
+    authors: "Samuel Williams, Andrew Waterman, David Patterson"
+    resource_type: "original paper (Communications of the ACM 52(4):65-76, April 2009, DOI 10.1145/1498765.1498785, per Crossref metadata); text read from the UC Berkeley technical report UCB/EECS-2008-134 (17 Oct 2008), titled '...for Floating-Point Programs and Multicore Architectures'"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "roofline", "operational-intensity", "ridge-point"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 1: operational intensity (operations per byte of DRAM traffic, after cache filtering), attainable performance = min(peak compute, peak bandwidth x operational intensity), and the ridge point as the minimum intensity for peak performance (tech report Sec. 3-4)."
+    last_verified: "2026-10-28"
+    access_status: "targeted read of the free Berkeley technical report, Sec. 2-4. The CACM PDF returned HTTP 403 and was not read; CACM bibliographic details come from Crossref metadata only."
+    license_or_reuse: "technical report -- cite and summarize; draw an original roofline"
+    notes: "Wording identity between the tech report and the CACM article is unverified; cite the tech report for quoted wording. Terminology to preserve: Roofline's operational intensity (DRAM traffic) is narrower than the loose 'arithmetic intensity' used in LLM texts (e.g. src-10)."
+
+  - id: "src-80"
+    title: "MLPerf Inference Benchmark"
+    url: "https://arxiv.org/abs/1911.02549"
+    authors: "Vijay Janapa Reddi et al. (MLPerf Inference working group; first author as listed on arXiv)"
+    resource_type: "original research paper (arXiv:1911.02549v2, 9 May 2020; ISCA 2020 per arXiv comment)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "benchmarking", "load-scenarios", "tail-latency"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 7: the four load scenarios and their metrics (single-stream 90th-percentile latency; multistream streams at a fixed interval; server with Poisson arrivals and a latency bound; offline throughput) and run rules on query counts and minimum duration (Sec. III-C, III-D, Table III). The 2020 paper has no LLM task; use src-81 for current LLM TTFT/TPOT constraints."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of the arXiv PDF: Sec. III-C, III-D, Table III."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "Scenario details have changed since 2020 (see src-81: Server/Interactive, 600 s, 99% tail). Treat the paper as the design rationale, not the current rules."
+
+  - id: "src-81"
+    title: "MLPerf Inference rules (mlcommons/inference_policies, inference_rules.adoc) at commit d3eba2f"
+    url: "https://github.com/mlcommons/inference_policies/blob/d3eba2f/inference_rules.adoc"
+    authors: "MLCommons Inference working group (repository maintainers)"
+    resource_type: "official benchmark rules document (documentation; master at commit d3eba2f, 20 Aug 2026; the file carries no round or version number)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "benchmarking", "ttft", "tpot", "slo", "documentation"]
+    authority_type: "implementation_guide"
+    expected_use: "DOCUMENTATION source for Workbook 06 ch. 7: current scenario table (Server/Interactive, 600 s minimum, 99% tail) and the LLM footnote defining TTFT ('latency of the first token') and TPOT ('the average interval between all the tokens generated'), with per-model TTFT/TPOT limits (e.g. Llama2-70B 2000/200 ms conversational and 450/40 ms interactive; inference_rules.adoc lines 266-271 at d3eba2f)."
+    last_verified: "2026-10-28"
+    access_status: "raw file read at commit d3eba2f (cloned 2026-10-28); scenario table, LLM rows and footnote read."
+    license_or_reuse: "repository document under its own license -- cite facts only"
+    notes: "Time-sensitive; rules change by round. The percentile applied to TTFT/TPOT specifically was not confirmed. Per-model limits are rules, not measurements."
+
+  - id: "src-82"
+    title: "vLLM documentation and source code at release tag v0.32.0 (commit 5df63a7203cdb9328d824a27b682e77c7b9928be)"
+    url: "https://github.com/vllm-project/vllm/tree/5df63a7203cdb9328d824a27b682e77c7b9928be"
+    authors: "vLLM project maintainers"
+    resource_type: "official open-source serving engine: documentation and implementation pinned to tag v0.32.0 (published 2026-10-18, latest stable on 2026-10-28; lightweight tag). Documentation and code-verified behaviour of this version only."
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "code-verified-inference", "serving-engine", "prefix-caching", "chunked-prefill", "benchmark-metrics", "speculative-decoding"]
+    authority_type: "implementation_guide"
+    expected_use: "Representative-implementation source for Workbook 06 (not an algorithm source): benchmark metric computation in `vllm bench serve` (client-side TTFT from send to first streamed chunk, ITL as gaps between chunks, E2E, TPOT = (latency - TTFT)/(output_tokens - 1) at vllm/benchmarks/serve.py:625-628; throughput as requests/s, output and total tokens/s; goodput as requests meeting all SLOs; docs/benchmarking/cli.md notes 'Metric terminology is not standardized' and ITL > TPOT under speculative decoding); prefix caching by hashing full blocks with parent hash, LRU free queue (docs/design/prefix_caching.md, vllm/v1/core/kv_cache_utils.py); scheduler budgets max_num_batched_tokens / max_num_seqs with chunked prefill on by default and hardware-dependent defaults (vllm/config/scheduler.py, vllm/engine/arg_utils.py); recompute-only preemption (vllm/v1/core/sched/scheduler.py); KV budget derived at startup from gpu_memory_utilization (default 0.92) minus profiled non-KV memory (vllm/v1/worker/gpu_worker.py, vllm/utils/mem_utils.py); block size default 16; speculative decoding methods and the docs' 'theoretically lossless up to the precision limits of hardware numerics' caveat (docs/features/speculative_decoding/README.md)."
+    last_verified: "2026-10-28"
+    access_status: "shallow clone at tag v0.32.0 (tag resolves to 5df63a72... on 2026-10-28) read with file:line locators for the files named in expected_use; nothing installed or run."
+    license_or_reuse: "Apache-2.0 code and docs -- cite and paraphrase; no code reproduced beyond identifiers"
+    notes: "Behaviour is version-specific and fast-changing; always state 'vLLM v0.32.0'. KV memory figures here are measured by profiling at startup, not logical estimates. The rejection_sample_method options 'synthetic' and 'block' were not verified. Do not let this one engine stand for 'serving engines in general'. Further locators at v0.32.0: docs/features/speculative_decoding/README.md:197 ('theoretically lossless up to the precision limits of hardware numerics') and :220 ('Changes in batch size may cause variations in logprobs and output probabilities'); docs/benchmarking/cli.md:127 ('Metric terminology is not standardized'), with ITL exceeding TPOT stated for speculative decoding; docs/design/prefix_caching.md:5-25 and :87 (block hash includes extra keys such as LoRA, multimodal inputs and the per-request cache_salt)."
+
+  - id: "src-83"
+    title: "FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning"
+    url: "https://arxiv.org/abs/2307.08691"
+    authors: "Tri Dao"
+    resource_type: "original research paper (arXiv:2307.08691v1, 17 Jul 2023; venue not printed on arXiv and not verified)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "attention-kernel", "work-partitioning", "exact-attention"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 4: fewer non-matmul FLOPs (rescale once, store logsumexp; Sec. 3.1), parallelism over the sequence dimension in addition to batch x heads (forward parallelizes over query row blocks; Sec. 3.2), warp partitioning that splits Q instead of K/V (Sec. 3.3), and implicit KV-head indexing for MQA/GQA. Exact attention ('no approximation')."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: Sec. 1, 3.1-3.3, 4.1 setup, Table 1, Sec. 5."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "The paper contains no decode analysis. That its query-block parallelism does not help when query length is 1 is an inference by the reader, motivating Flash-Decoding (src-85); label it so. Reported 73% of peak forward FLOPs/s is on A100 80GB with training-like shapes."
+
+  - id: "src-84"
+    title: "FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision"
+    url: "https://arxiv.org/abs/2407.08608"
+    authors: "Jay Shah, Ganesh Bikshandi, Ying Zhang, Vijay Thakkar, Pradeep Ramani, Tri Dao"
+    resource_type: "original research paper (arXiv:2407.08608v2, 12 Jul 2024; venue not printed on arXiv and not verified)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "attention-kernel", "hardware-specific", "fp8", "warp-specialization"]
+    authority_type: "primary_technical"
+    expected_use: "Supporting source for Workbook 06 ch. 4-5: a kernel whose gains depend on one hardware generation (Hopper TMA, asynchronous WGMMA, warp specialization, ping-pong scheduling; Sec. 2.2, 3.1-3.2) and FP8 attention with block quantization and incoherent processing (Sec. 3.3). FP16 path exact up to floating-point order; FP8 path changes numerics (Table 3 RMSE on synthetic outlier inputs)."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: abstract, Sec. 1, 2.2, 3.1-3.3, 4.3, Table 3, Sec. 5."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "Hardware dependence: results are on H100 SXM5; portability to other architectures is asserted in a footnote, not demonstrated. FP8 is ahead of cuDNN only at head dim 64 (footnote 2). LLM inference optimization is listed as future work; benchmarks use training-like shapes."
+
+  - id: "src-85"
+    title: "Flash-Decoding for long-context inference (Stanford CRFM blog; mirrored on the PyTorch blog)"
+    url: "https://crfm.stanford.edu/2023/10/12/flashdecoding.html"
+    authors: "Tri Dao, Daniel Haziza, Francisco Massa, Grigory Sizov"
+    resource_type: "technical blog post by the method's authors (12 Oct 2023 per URL; PyTorch mirror dated 13 Oct 2023); not peer-reviewed"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "attention-kernel", "split-kv", "decode", "long-context"]
+    authority_type: "implementation_guide"
+    expected_use: "Authors' description, used for Workbook 06 ch. 4: during decode the query length is typically 1, so parallelizing over batch and query leaves most SMs idle at small batch; Flash-Decoding splits K/V into chunks along the sequence, computes each split in parallel with a log-sum-exp per split, then reduces with rescaling (exact attention). Conditions: long context, small batch."
+    last_verified: "2026-10-28"
+    access_status: "full post read on the CRFM page; PyTorch mirror grepped for byline and date."
+    license_or_reuse: "blog post -- cite and summarize; redraw any figure"
+    notes: "Blog-reported numbers (up to 8x end-to-end decoding on CodeLlama-34B; up to 50x attention micro-benchmark on A100) are not peer-reviewed; end-to-end hardware is not stated. Library versions (FlashAttention >= 2.2, xFormers >= 0.0.22) are as of Oct 2023."
+
+  - id: "src-86"
+    title: "LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale"
+    url: "https://arxiv.org/abs/2208.07339"
+    authors: "Tim Dettmers, Mike Lewis, Younes Belkada, Luke Zettlemoyer"
+    resource_type: "original research paper (arXiv:2208.07339v2, 10 Nov 2022; NeurIPS 2022 per arXiv comment)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "quantization", "w8a8", "outlier-features", "mixed-precision-decomposition"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 5: vector-wise absmax quantization (per row of X, per column of W; Sec. 3.1, Eq. 7), mixed-precision decomposition of outlier feature dimensions above alpha = 6.0 into FP16 (Sec. 3.2, Eq. 8), and emergent outliers from about 6.7B parameters (Sec. 1). Weight-activation (W8A8 with an FP16 escape), approximate. Speed is not a headline result: Appendix D shows slowdowns for small models and end-to-end BLOOM-176B slightly slower than bf16."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: abstract, Sec. 1, 3.1-3.2, 6, Appendix D."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "Source tension: GPTQ (src-88) states LLM.int8() has the same runtime as FP16; LLM.int8()'s own Appendix D is more nuanced. Report both, attributed."
+
+  - id: "src-87"
+    title: "SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models"
+    url: "https://arxiv.org/abs/2211.10438"
+    authors: "Guangxuan Xiao, Ji Lin, Mickael Seznec, Hao Wu, Julien Demouth, Song Han"
+    resource_type: "original research paper (arXiv:2211.10438v7, 29 Mar 2024; ICML 2023 per arXiv comment)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "quantization", "w8a8", "activation-outliers", "smoothing"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 5: the mathematically equivalent smoothing transform Y = (X diag(s)^-1)(diag(s) W) folded offline into the previous layer (Eq. 3) and s_j = max|X_j|^alpha / max|W_j|^(1-alpha) (Eq. 4; alpha = 0.5 for OPT/BLOOM), enabling W8A8 INT8 for linear layers and attention BMMs; calibration on 512 Pile sentences (Sec. 5.1). Transform exact; quantization approximate."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: abstract, Sec. 1, 3, 4, 5.1, 5.3."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "Version caveat: v7 added newer models; cite v7. Reported speedups (e.g. up to 1.56x on OPT-13B/30B with FasterTransformer, ~2x memory) are on A100 80GB."
+
+  - id: "src-88"
+    title: "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers"
+    url: "https://arxiv.org/abs/2210.17323"
+    authors: "Elias Frantar, Saleh Ashkboos, Torsten Hoefler, Dan Alistarh"
+    resource_type: "original research paper (arXiv:2210.17323v2, 22 Mar 2023; ICLR 2023 per arXiv comment)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "quantization", "weight-only", "second-order", "calibration"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 5: layer-wise reconstruction objective (Eq. 1), OBQ-style weight updates with H = 2XX^T (Eq. 2), and the three scaling changes (fixed column order, lazy batch updates, Cholesky with 1% dampening; Sec. 3); weight-only (no activation quantization), dequantize-on-the-fly kernels; calibration on 128 random 2048-token C4 segments; group-size overhead (g128 adds about 0.15 bits; Sec. 4). Speedups come from less memory movement, not fewer computations (Sec. 5)."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: abstract, Sec. 1, 3, 4 (setup, runtime, Tables 5-6), 5."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "Reported 3.24x (A100) / 4.53x (A6000) per-token speedups are for OPT-175B 3-bit at batch 1 while also reducing GPU count; label paper-reported and condition-bound."
+
+  - id: "src-89"
+    title: "AWQ: Activation-aware Weight Quantization for On-Device LLM Compression and Acceleration"
+    url: "https://arxiv.org/abs/2306.00978"
+    authors: "Ji Lin, Jiaming Tang, Haotian Tang, Shang Yang, Wei-Ming Chen, Wei-Chen Wang, Guangxuan Xiao, Xingyu Dang, Chuang Gan, Song Han"
+    resource_type: "original research paper (arXiv:2306.00978v6, 25 Apr 2026; MLSys 2024 per arXiv comment); the v6 PDF title adds 'On-Device'"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "quantization", "weight-only", "salient-channels", "activation-aware"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 5: salient weight input channels selected by activation magnitude (Sec. 3.1, Table 1), protected not by keeping FP16 (which the paper calls hardware-inefficient) but by per-channel scaling s = s_X^alpha found by grid search, with no backpropagation or reconstruction (Sec. 3.2, Eqs. 1-5); weight-only W4A16 / INT3 with group size 128. Approximate."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of v6: abstract, Sec. 1, 3.1-3.2, Tables 1-2, Fig. 8 caption."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "AWQ's claim that GPTQ may overfit the calibration set and needs 10x more data is AWQ's view of GPTQ, not GPTQ's; attribute it. Pin v6."
+
+  - id: "src-90"
+    title: "KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache"
+    url: "https://arxiv.org/abs/2402.02750"
+    authors: "Zirui Liu, Jiayi Yuan, Hongye Jin, Shaochen Zhong, Zhaozhuo Xu, Vladimir Braverman, Beidi Chen, Xia Hu"
+    resource_type: "original research paper (arXiv:2402.02750v2, 25 Jul 2024; ICML 2024 per arXiv comment)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "quantization", "kv-cache-quantization", "per-channel-keys"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 5: observations that at 2 bits keys should be quantized per channel and values per token (Sec. 3.1-3.2), grouped quantization with the most recent R tokens kept in full precision (G = 32, R = 128; Sec. 3.3), and the quality evidence that the full-precision residual matters (Table 3: Llama-2-7B GSM8K). Approximate; tuning-free."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: abstract, Sec. 1-3, Table 3, efficiency paragraph, related work."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "Disagreement with src-91 (KVQuant) on grouping vs offline per-channel calibration; both agree on per-channel K, per-token V. Reported 2.35-3.47x throughput on one A100 80GB."
+
+  - id: "src-91"
+    title: "KVQuant: Towards 10 Million Context Length LLM Inference with KV Cache Quantization"
+    url: "https://arxiv.org/abs/2401.18079"
+    authors: "Coleman Hooper, Sehoon Kim, Hiva Mohammadzadeh, Michael W. Mahoney, Yakun Sophia Shao, Kurt Keutzer, Amir Gholami"
+    resource_type: "original research paper (arXiv:2401.18079v6, 28 May 2025; NeurIPS 2024 per arXiv comment)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "quantization", "kv-cache-quantization", "pre-rope", "non-uniform-quantization"]
+    authority_type: "primary_technical"
+    expected_use: "Supporting source for Workbook 06 ch. 5: per-channel key / per-token value quantization with offline-calibrated scales (Sec. 3.1), quantizing keys before RoPE (Sec. 3.2), non-uniform per-layer datatypes, dense-and-sparse outliers, and an FP16 first token (Sec. 3.3-3.5). Approximate."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: abstract, Sec. 1, 3.1-3.5, 4.1 setup, 4.4 kernel paragraph."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "Reported 1.2-1.7x is kernel-level matrix-vector latency at batch 1 on an A6000, not end-to-end; perplexity deltas are Wikitext-2 with 1% outliers."
+
+  - id: "src-92"
+    title: "FP8 Formats for Deep Learning"
+    url: "https://arxiv.org/abs/2209.05433"
+    authors: "Paulius Micikevicius, Dusan Stosic, Neil Burgess, Marius Cornea, Pradeep Dubey, Richard Grisenthwaite, Sangwon Ha, Alexander Heinecke, Patrick Judd, John Kamalu, Naveen Mellempudi, Stuart Oberman, Mohammad Shoeybi, Michael Siu, Hao Wu"
+    resource_type: "original paper (arXiv:2209.05433v2, 29 Sep 2022; venue not printed on arXiv and not verified)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "number-formats", "fp8", "e4m3", "e5m2", "scaling"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 5: E4M3 (bias 7, max normal 448, no infinities) vs E5M2 (bias 15, max normal 57,344, IEEE-style specials) (Table 1, Sec. 3.1); E4M3 for weights and activations, E5M2 for gradients; per-tensor software scaling with saturation (Sec. 2, 3.2); simulated-FP8 post-training quantization results (Table 5)."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: abstract, Sec. 2-3, Table 1, Sec. 4 intro, 4.2, Table 5."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "Its 'int8 PTQ loses accuracy' comparison uses plain per-channel/per-tensor int8 without outlier handling; do not set it against src-86/src-87 without that condition. Experiments simulate FP8 (cast and compute in FP16/bf16)."
+
+  - id: "src-93"
+    title: "Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads"
+    url: "https://arxiv.org/abs/2401.10774"
+    authors: "Tianle Cai, Yuhong Li, Zhengyang Geng, Hongwu Peng, Jason D. Lee, Deming Chen, Tri Dao"
+    resource_type: "original research paper (arXiv:2401.10774v3, 14 Jun 2024)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "speculative-decoding", "decoding-heads", "tree-attention", "typical-acceptance"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 6 as the contrast case: extra decoding heads on the last hidden state (Sec. 2.1.1), tree attention over candidate continuations (Sec. 2.1.2), Medusa-1 (frozen backbone; lossless with greedy or rejection sampling) vs Medusa-2 (backbone fine-tuned jointly), and typical acceptance (Sec. 2.3.1), which does not insist on matching the original distribution and so changes outputs."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: Sec. 1-3, Appendices A.2 and B; roofline appendix skimmed."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "That Medusa-2 reproduces the fine-tuned rather than the original model is the reader's inference from the method; label it. Reported 2.2-2.8x speedups are at batch size 1 on Vicuna/Zephyr."
+
+  - id: "src-94"
+    title: "EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty"
+    url: "https://arxiv.org/abs/2401.15077"
+    authors: "Yuhui Li, Fangyun Wei, Chao Zhang, Hongyang Zhang"
+    resource_type: "original research paper (arXiv:2401.15077v3, 4 Mar 2025)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "speculative-decoding", "feature-level-drafting", "lossless", "batch-size-effects"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 6: feature-level autoregressive drafting with a one-step-advanced token input (Sec. 3), tree verification with recursive speculative sampling (Sec. 3.3), lossless for greedy and non-greedy settings with the target frozen, and the observation that the speedup ratio diminishes as batch size grows (Sec. 4.4)."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: Sec. 1-3, 4.1, 4.4; rest skimmed. EAGLE-2 (arXiv:2406.16858) and EAGLE-3 (arXiv:2503.01840) were read at abstract/introduction depth only and are NOT registered."
+    license_or_reuse: "arXiv preprint -- cite and summarize; redraw any figure"
+    notes: "Terminology mismatch to preserve: EAGLE-1 says 'second-to-top-layer' features while EAGLE-3 describes EAGLE's input as 'top-layer features'. Reported speedups are mostly batch 1."
+
+  - id: "src-95"
+    title: "Draft & Verify: Lossless Large Language Model Acceleration via Self-Speculative Decoding"
+    url: "https://arxiv.org/abs/2309.08168"
+    authors: "Jun Zhang, Jue Wang, Huan Li, Lidan Shou, Ke Chen, Gang Chen, Sharad Mehrotra"
+    resource_type: "original research paper (arXiv:2309.08168v2, 20 May 2024)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "speculative-decoding", "self-speculative", "layer-skipping"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 6 (self-speculative drafting): the same model drafts by skipping selected intermediate layers chosen offline (Bayesian optimization), with confidence-based adaptive draft length; greedy verification gives output identical to the unaltered model and the sampling variant uses the min(1, p_full/p_skip) rule with residual resampling (Sec. 3, Appendix K). No extra training or memory."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext: abstract, Sec. 1, 3, 4.1-4.2, limitations, Appendices B and K."
+    license_or_reuse: "arXiv preprint -- cite and summarize"
+    notes: "Reported up to 1.99x is on LLaMA-2 13B/70B with A100s; batched decoding is listed as future work. LayerSkip (arXiv:2404.16710) was read as a second self-speculative example but is not registered; its speedups compare against differently trained checkpoints."

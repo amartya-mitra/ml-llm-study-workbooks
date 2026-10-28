@@ -208,7 +208,8 @@ class TestRegistration(unittest.TestCase):
         self.assertIn("a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff", code["url"])
         self.assertIn("code-verified-inference", code["topic_tags"])
         self.assertIn("No training code", code["resource_type"])
-        self.assertNotIn("src-73", by_id)
+        # sources registered after the Timestral set (src-73+, Workbook 06) are not addendum sources
+        self.assertFalse([s["id"] for s in registry["sources"] if int(s["id"].split("-")[1]) >= 73 and WB_ID in s["workbook_categories"]])
 
     def test_bibliography_keys_cover_every_citation_in_the_addendum(self):
         bib = read(os.path.join(REPO_ROOT, "shared", "bibliography.bib"))
@@ -303,7 +304,7 @@ class TestSourcesAndClaimLedger(unittest.TestCase):
         # no new source was registered for it (src-69..src-72 are Timestral sources, added for v1.1.0)
         self.assertIn("src-61", self.known)
         reg = safe_load_path(os.path.join(REPO_ROOT, "sources", "registry.yaml"))
-        later = [s for s in reg["sources"] if int(s["id"].split("-")[1]) >= 69]
+        later = [s for s in reg["sources"] if 69 <= int(s["id"].split("-")[1]) <= 72]
         self.assertTrue(all("timestral" in s["topic_tags"] for s in later))
 
     def test_scoped_reading_boundaries_hold(self):
