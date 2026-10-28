@@ -84,10 +84,10 @@ questions:
     topic: "Block rounding and the next-token block"
     difficulty: "intro"
     question_type: "calculation"
-    prompt: "With 16-token blocks, how many blocks and empty slots do sequences of 48, 49 and 63 retained tokens need? A sequence holds 48 tokens and no block is free: can it generate its next token?"
-    expected_answer: "48: 3 blocks, 0 empty; 49: 4 blocks, 15 empty; 63: 4 blocks, 1 empty. No: the next token writes its own K/V and needs a fourth block, so memory must first be freed (a request finishing, an idle cached block reclaimed, or a preemption)."
+    prompt: "With 16-token blocks, how many blocks and empty slots do sequences of 48, 49 and 63 retained tokens need? A sequence has KV entries for exactly 48 processed tokens. Its next token has been selected, but no block is free. Can it process that token and append its KV entries?"
+    expected_answer: "48: 3 blocks, 0 empty; 49: 4 blocks, 15 empty; 63: 4 blocks, 1 empty. Not yet: processing token 48 produced the logits that selected token 49, but selecting it stores nothing; processing token 49 appends its K/V and produces logits for token 50, which needs a fourth block, so that forward pass waits until a block is freed (a request finishing, an idle cached block reclaimed, or a preemption)."
     explanation: "Internal fragmentation is at most block size minus one per sequence, and one token past a boundary costs a whole block."
-    common_wrong_answer: "Assuming a full block still has room for one more token."
+    common_wrong_answer: "Treating a selected token as already cached, or assuming a full block has room for one more token."
     source_ids: ["src-73"]
 
   - id: "q-06-kv-cache-memory-003"

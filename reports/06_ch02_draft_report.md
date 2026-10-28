@@ -98,3 +98,24 @@ The existing workflow and factory tests (82) pass.
 - The toy pool and radix tree illustrate mechanisms; they are not engine state.
 - In vLLM v0.32.0, KV-offloading connectors and hybrid-model paths were not examined.
 - The audits were not rerun after the correction pass. The main agent verified each fix through tests, the rebuilt PDF, page-by-page inspection and a fresh gate run.
+
+## Correction pass 1 (Question 2 wording)
+
+This was a narrow correction after review. No numbers changed.
+
+**Question 2.** The question now asks whether a sequence with KV entries for 48 processed tokens can process an already-selected next token and append its KV entries. It previously asked whether the sequence could "generate its next token". The answer, the question record and the common trap now keep selection apart from processing and storage:
+- processing token 48 produced the logits from which token 49 was selected;
+- selecting token 49 stores nothing;
+- processing token 49 writes its K/V and produces the logits for token 50, and that needs a fourth block, so the forward pass waits.
+
+**Related wording.** Two passages were reworded to make the same distinction:
+- the preemption sentence ("the keys and values of the tokens every running sequence must process next");
+- the lifecycle lead-in ("R1 processes 3 more tokens, whose keys and values fill P2 and take P4").
+
+The retained-length definition is unchanged.
+
+**Validation.**
+- **Test:** a new scoped check covers the prompt, the answer's selection-versus-storage phrases, the block arithmetic and the question-registry record.
+- **Review build:** scoped, 81 tests, 0 failures, 13 pages.
+- **Page comparison against the previous build:** pages 1–5 and 10 are byte-identical. Pages 6–9 and 11–13 changed, and all of them were inspected.
+- **Audits and gate:** not rerun.

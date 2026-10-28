@@ -32,15 +32,15 @@ Full solutions to this chapter's "Check your understanding" questions (@sec-ch2-
 #block(sticky: true, width: 100%)[
 ```
 
-**2. Calculation. With 16-token blocks, how many blocks and empty slots do sequences of 48, 49 and 63 retained tokens need? A sequence holds 48 tokens and no block is free: can it generate its next token?**
+**2. Calculation. With 16-token blocks, how many blocks and empty slots do sequences of 48, 49 and 63 retained tokens need? A sequence has KV entries for exactly 48 processed tokens. Its next token has been selected, but no block is free. Can it process that token and append its KV entries?**
 
 ```{=typst}
 ]
 ```
 
-*Answer.* 48 tokens: 3 blocks, 0 empty slots. 49 tokens: 4 blocks, 15 empty slots. 63 tokens: 4 blocks, 1 empty slot. A sequence holding exactly 48 tokens has filled its third block, and the next token writes its own keys and values in the step that processes it, so that step needs a fourth block. With none free, the sequence cannot proceed until memory is freed — by another request finishing, by reclaiming an idle cached block, or by preempting a request.
+*Answer.* 48 tokens: 3 blocks, 0 empty slots. 49 tokens: 4 blocks, 15 empty slots. 63 tokens: 4 blocks, 1 empty slot. No, not yet. Processing token 48 wrote its KV entries into the third block, now full, and produced the logits from which token 49 was selected. Selecting token 49 stores nothing; processing it writes its keys and values and produces the logits for token 50, and that needs a fourth block. Until a block is freed — by another request finishing, by reclaiming an idle cached block, or by preempting a request — that forward pass must wait.
 
-*Common trap:* Thinking a 48-token sequence has room for one more token. Its blocks are exactly full; the 49th token needs a whole new block.
+*Common trap:* Treating a selected token as already cached. Token 49 occupies a slot only once it is processed, and with three full blocks that slot is in a new block.
 
 ```{=typst}
 #block(sticky: true, width: 100%)[

@@ -256,6 +256,28 @@ class TestProse(Base):
         for n, prompt in re.findall(r"^(\d)\. \*\*[^*]+\.\*\* (.+?) \\$", ch, re.M):
             self.assertIn(prompt.replace("$", ""), sol.replace("$", ""), msg=f"Q{n}")
 
+    def test_question2_separates_selection_from_cache_write(self):
+        ch = read("chapters", "02-kv-cache-memory.qmd")
+        sol = read("solutions", "02-kv-cache-memory-solutions.qmd")
+        prompt = ("A sequence has KV entries for exactly 48 processed tokens. Its next token has been "
+                  "selected, but no block is free. Can it process that token and append its KV entries?")
+        self.assertIn(prompt, ch)
+        self.assertIn(prompt, sol)
+        self.assertNotIn("can it generate its next token", ch + sol)
+        ans = sol[sol.index("**2. Calculation."):sol.index("**3. Debugging.")]
+        for phrase in ("logits from which token 49 was selected", "Selecting token 49 stores nothing",
+                       "logits for token 50", "fourth block", "must wait"):
+            self.assertIn(phrase, ans, msg=phrase)
+        # the block arithmetic behind the answer: 48 processed tokens fill 3 blocks; the 49th needs a 4th
+        self.assertEqual(self.mod.ceil_div(48, 16), 3)
+        self.assertEqual(self.mod.ceil_div(49, 16), 4)
+        sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
+        from _yaml_lite import safe_load_path
+        rec = [q for q in safe_load_path(os.path.join(WB, "questions.yaml"))["questions"]
+               if q["id"] == "q-06-kv-cache-memory-002"][0]
+        self.assertTrue(rec["prompt"].endswith(prompt))
+        self.assertIn("selecting it stores nothing", rec["expected_answer"])
+
     def test_layout_guards_present(self):
         ch = read("chapters", "02-kv-cache-memory.qmd")
         sol = read("solutions", "02-kv-cache-memory-solutions.qmd")
