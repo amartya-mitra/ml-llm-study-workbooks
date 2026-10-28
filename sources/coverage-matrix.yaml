@@ -239,6 +239,8 @@ workbooks:
         coverage: "discovery"
       - id: "src-12"
         coverage: "discovery"
+      - id: "src-25"
+        coverage: "supporting"
       - id: "src-33"
         coverage: "supporting"
       - id: "src-43"

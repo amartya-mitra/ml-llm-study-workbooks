@@ -2,8 +2,8 @@
 # Schema: shared/question-schema.yaml. Validate with:
 #   python3 scripts/validate_questions.py
 #
-# Chapter 1 records added when Chapter 1 was drafted (2026-10-28);
-# Chapters 2-7 add their 5 records each when drafted.
+# Chapter 1 and 2 records added when those chapters were drafted (2026-10-28);
+# Chapters 3-7 add their 5 records each when drafted.
 
 questions:
   - id: "q-06-inference-workload-001"
@@ -65,3 +65,63 @@ questions:
     explanation: "The linear part is a fixed 5.00 ms bandwidth-bound read; each sequence adds about 0.179 ms of cache reads. The estimate is an idealized bound, not a deployed gap distribution."
     common_wrong_answer: "Treating the idealized estimate as the deployed token gap, or a percentile target as a mean."
     source_ids: ["src-79", "src-78"]
+
+  - id: "q-06-kv-cache-memory-001"
+    workbook: "06-llm-inference"
+    chapter: "kv-cache-memory"
+    topic: "Concurrency from a cache budget"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "Using the worked example's budget, how many 2,048-token sequences fit? How many fit if the runtime headroom is 8 GiB instead of 4 GiB?"
+    expected_answer: "128 blocks per sequence; 25,391 blocks hold 198 sequences. With 8 GiB of headroom the budget is about 48.95 GB, or 23,343 blocks, so 182 sequences."
+    explanation: "Usable memory is ceil(u x device) minus weights minus runtime headroom; capacity is then counted in whole 16-token blocks."
+    common_wrong_answer: "Dividing the device, or device minus weights, by logical bytes per sequence."
+    source_ids: ["src-82"]
+
+  - id: "q-06-kv-cache-memory-002"
+    workbook: "06-llm-inference"
+    chapter: "kv-cache-memory"
+    topic: "Block rounding and the next-token block"
+    difficulty: "intro"
+    question_type: "calculation"
+    prompt: "With 16-token blocks, how many blocks and empty slots do sequences of 48, 49 and 63 retained tokens need? A sequence holds 48 tokens and no block is free: can it generate its next token?"
+    expected_answer: "48: 3 blocks, 0 empty; 49: 4 blocks, 15 empty; 63: 4 blocks, 1 empty. No: the next token writes its own K/V and needs a fourth block, so memory must first be freed (a request finishing, an idle cached block reclaimed, or a preemption)."
+    explanation: "Internal fragmentation is at most block size minus one per sequence, and one token past a boundary costs a whole block."
+    common_wrong_answer: "Assuming a full block still has room for one more token."
+    source_ids: ["src-73"]
+
+  - id: "q-06-kv-cache-memory-003"
+    workbook: "06-llm-inference"
+    chapter: "kv-cache-memory"
+    topic: "Premature release of a shared block"
+    difficulty: "core"
+    question_type: "debugging"
+    prompt: "An allocator puts every block of a finished request on the free queue at once, ignoring reference counts. Using the lifecycle trace, what goes wrong when R1 finishes, and what is the correct rule?"
+    expected_answer: "P0 and P1 are still referenced by R2; freeing them puts them in the queue behind R1's private blocks, so a request needing six or more blocks while R2 runs would overwrite R2's prefix. They are queued again when R2 finishes, leaving stale entries after R3 reuses them; R4 (five blocks) stops short, but a six-block request would overwrite R3's prefix. Decrement reference counts and free a block only at zero; only R1's private P2 and P4 are freed."
+    explanation: "A shared physical block belongs to every block table that references it; the reference count is what makes sharing safe."
+    common_wrong_answer: "Treating 'request finished' as 'its blocks are free'."
+    source_ids: ["src-73", "src-82"]
+
+  - id: "q-06-kv-cache-memory-004"
+    workbook: "06-llm-inference"
+    chapter: "kv-cache-memory"
+    topic: "Conditions for prefix reuse"
+    difficulty: "core"
+    question_type: "misconception_diagnosis"
+    prompt: "True or false: if a new request's prompt has the same text as a cached one, vLLM v0.32.0 will reuse the cached keys and values, and the output will be bitwise identical."
+    expected_answer: "False. Reuse needs identical token IDs through each reused full block and matching extra keys (LoRA ID, multimodal input hashes, cache salt); the blocks must still be cached, and lookup is skipped for prompt-logprob requests. Reuse is mathematically equivalent but not bitwise identical, since the cached K/V came from a different batch and chunk shape."
+    explanation: "vLLM hashes token IDs plus extra keys, not text, and only for full blocks by default."
+    common_wrong_answer: "Equating same text with same cache key, or 'won't change outputs' with bitwise identity."
+    source_ids: ["src-82"]
+
+  - id: "q-06-kv-cache-memory-005"
+    workbook: "06-llm-inference"
+    chapter: "kv-cache-memory"
+    topic: "Reclaiming, preempting and truncating"
+    difficulty: "stretch"
+    question_type: "compare_and_contrast"
+    prompt: "Reclaiming an idle cached prefix, preempting a running request by recomputation, and imposing a 4,096-token window on a full-attention model all free cache memory. Which lose information the model needs, and which change its outputs?"
+    expected_answer: "Reclaiming loses only future reuse. Preemption by recomputation rebuilds the full history, so it is exact apart from floating-point effects and costs time. Imposing a window on a full-attention model discards history it expects, changing outputs: lossy truncation. A sliding window is exact only for a model trained with it."
+    explanation: "Cache management that keeps every attended position is exact; dropping attended positions is not."
+    common_wrong_answer: "Treating all three as equivalent because they free the same bytes."
+    source_ids: ["src-73", "src-82", "src-25"]

@@ -12,7 +12,7 @@ identity:
   workbook: "06-llm-inference"
   chapter: "02"
   title: "KV-Cache Memory: Capacity, Paging, Prefix Reuse, and Eviction"
-  status: "scaffold_only"
+  status: "drafted_pending_human_review"
 
 scope:
   allowed_paths:
@@ -21,9 +21,18 @@ scope:
     - "workbooks/06-llm-inference/questions.yaml"
     - "workbooks/06-llm-inference/claim-ledger.yaml"
     - "workbooks/06-llm-inference/figure-plan.yaml"
+    - "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.py"
+    - "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.json"
+    - "workbooks/06-llm-inference/figures/source/fig_block_table.py"
+    - "workbooks/06-llm-inference/figures/source/fig_prefix_tree.py"
+    - "workbooks/06-llm-inference/figures/rendered/fig-block-table.svg"
+    - "workbooks/06-llm-inference/figures/rendered/fig-prefix-tree.svg"
   frozen_paths:
     - "workbooks/06-llm-inference/chapters/0[134567]-*.qmd"
     - "workbooks/06-llm-inference/solutions/0[134567]-*-solutions.qmd"
+    - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.py"
+    - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.json"
+    - "workbooks/06-llm-inference/figures/source/_common.py"
     - "workbooks/04-llm-architecture/**"
     - "workbooks/05-llm-training/**"
     - "workbooks/addendum-04-05-tsfm/**"
@@ -35,10 +44,12 @@ sources:
   # Planned chapter-level mapping only (approved scope), not claim-level
   # evidence: each mechanism claim still needs its passage read and a
   # claim-ledger entry when drafted.
-  required_source_ids: ["src-73", "src-77", "src-82", "src-10"]
+  required_source_ids: ["src-73", "src-77", "src-82", "src-10", "src-25"]
   full_text_required: true
   evidence_locators_required: true
-  # src-82 behaviour is vLLM v0.32.0 only. Rolling-buffer eviction would need src-25 re-read first (web-search-verified only).
+  # src-82 behaviour is vLLM v0.32.0 only. src-25 (Mistral 7B) Sec. 2 was re-read
+  # from the arXiv PDF while drafting (2026-10-28) before any rolling-buffer claim.
+  # Chapter 1's worked example and _common.py are imported read-only (frozen).
 
 content:
   required_sections:

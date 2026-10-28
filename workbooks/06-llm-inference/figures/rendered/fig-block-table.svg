@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="392" viewBox="0 0 620 392">
+  <title>Block tables mapping logical KV blocks to physical blocks</title>
+  <defs><marker id="arrow-111111" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker></defs>
+  <rect x="0" y="0" width="620" height="392" fill="#ffffff"/>
+  <text x="310.0" y="18" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">Two block tables over one physical block pool (toy block size 4)</text>
+  <text x="320" y="152" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">physical blocks (pool of 8)</text>
+  <rect id="phys-0" x="30.0" y="160.0" width="66" height="76" rx="4" fill="#0072B2" fill-opacity="0.3" stroke="#0072B2" stroke-width="1.3" data-ref="2" data-filled="4" data-state="shared"/>
+  <text x="35" y="175" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">P0  ref 2</text>
+  <text x="35" y="191" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">&lt;s&gt; You</text>
+  <text x="35" y="204" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">are a</text>
+  <rect x="35.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="49.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="63.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="77.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect id="phys-1" x="102.0" y="160.0" width="66" height="76" rx="4" fill="#0072B2" fill-opacity="0.3" stroke="#0072B2" stroke-width="1.3" data-ref="2" data-filled="4" data-state="shared"/>
+  <text x="107" y="175" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">P1  ref 2</text>
+  <text x="107" y="191" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">helpful</text>
+  <text x="107" y="204" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">bot : Q</text>
+  <rect x="107.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="121.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="135.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="149.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect id="phys-2" x="174.0" y="160.0" width="66" height="76" rx="4" fill="#E69F00" fill-opacity="0.22" stroke="#E69F00" stroke-width="1.3" data-ref="1" data-filled="2" data-state="private"/>
+  <text x="179" y="175" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">P2  ref 1</text>
+  <text x="179" y="191" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">cat ?</text>
+  <rect x="179.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="193.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="207.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="221.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect id="phys-3" x="246.0" y="160.0" width="66" height="76" rx="4" fill="#E69F00" fill-opacity="0.22" stroke="#E69F00" stroke-width="1.3" data-ref="1" data-filled="3" data-state="private"/>
+  <text x="251" y="175" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">P3  ref 1</text>
+  <text x="251" y="191" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">dog food ?</text>
+  <rect x="251.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="265.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="279.0" y="223" width="12.0" height="8" fill="#111111" fill-opacity="0.55" stroke="#444444" stroke-width="0.8"/>
+  <rect x="293.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect id="phys-4" x="318.0" y="160.0" width="66" height="76" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#444444" stroke-width="1.3" stroke-dasharray="4 3" data-ref="0" data-filled="0" data-state="free"/>
+  <text x="323" y="175" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">P4  free</text>
+  <rect x="323.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="337.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="351.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="365.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect id="phys-5" x="390.0" y="160.0" width="66" height="76" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#444444" stroke-width="1.3" stroke-dasharray="4 3" data-ref="0" data-filled="0" data-state="free"/>
+  <text x="395" y="175" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">P5  free</text>
+  <rect x="395.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="409.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="423.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="437.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect id="phys-6" x="462.0" y="160.0" width="66" height="76" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#444444" stroke-width="1.3" stroke-dasharray="4 3" data-ref="0" data-filled="0" data-state="free"/>
+  <text x="467" y="175" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">P6  free</text>
+  <rect x="467.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="481.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="495.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="509.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect id="phys-7" x="534.0" y="160.0" width="66" height="76" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#444444" stroke-width="1.3" stroke-dasharray="4 3" data-ref="0" data-filled="0" data-state="free"/>
+  <text x="539" y="175" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">P7  free</text>
+  <rect x="539.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="553.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="567.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <rect x="581.0" y="223" width="12.0" height="8" fill="#ffffff" fill-opacity="1" stroke="#444444" stroke-width="0.8"/>
+  <text x="26" y="50" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">R1 block table (10 tokens)</text>
+  <rect id="log-R1-0" x="36.0" y="58.0" width="54" height="34" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#111111" stroke-width="1.3" data-physical="0"/>
+  <text x="63.0" y="73" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">logical 0</text>
+  <text x="63.0" y="86" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">to P0</text>
+  <line x1="63.0" y1="92" x2="63.0" y2="158" stroke="#111111" stroke-width="1.4" marker-end="url(#arrow-111111)"/>
+  <rect id="log-R1-1" x="108.0" y="58.0" width="54" height="34" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#111111" stroke-width="1.3" data-physical="1"/>
+  <text x="135.0" y="73" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">logical 1</text>
+  <text x="135.0" y="86" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">to P1</text>
+  <line x1="135.0" y1="92" x2="135.0" y2="158" stroke="#111111" stroke-width="1.4" marker-end="url(#arrow-111111)"/>
+  <rect id="log-R1-2" x="180.0" y="58.0" width="54" height="34" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#111111" stroke-width="1.3" data-physical="2"/>
+  <text x="207.0" y="73" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">logical 2</text>
+  <text x="207.0" y="86" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">to P2</text>
+  <line x1="207.0" y1="92" x2="207.0" y2="158" stroke="#111111" stroke-width="1.4" marker-end="url(#arrow-111111)"/>
+  <text x="26" y="336" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">R2 block table (11 tokens)</text>
+  <rect id="log-R2-0" x="36.0" y="284.0" width="54" height="34" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#111111" stroke-width="1.3" data-physical="0"/>
+  <text x="63.0" y="299" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">logical 0</text>
+  <text x="63.0" y="312" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">to P0</text>
+  <line x1="63.0" y1="284" x2="63.0" y2="238" stroke="#111111" stroke-width="1.4" marker-end="url(#arrow-111111)"/>
+  <rect id="log-R2-1" x="108.0" y="284.0" width="54" height="34" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#111111" stroke-width="1.3" data-physical="1"/>
+  <text x="135.0" y="299" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">logical 1</text>
+  <text x="135.0" y="312" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">to P1</text>
+  <line x1="135.0" y1="284" x2="135.0" y2="238" stroke="#111111" stroke-width="1.4" marker-end="url(#arrow-111111)"/>
+  <rect id="log-R2-2" x="252.0" y="284.0" width="54" height="34" rx="4" fill="#ffffff" fill-opacity="1.0" stroke="#111111" stroke-width="1.3" data-physical="3"/>
+  <text x="279.0" y="299" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">logical 2</text>
+  <text x="279.0" y="312" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">to P3</text>
+  <line x1="279.0" y1="284" x2="279.0" y2="238" stroke="#111111" stroke-width="1.4" marker-end="url(#arrow-111111)"/>
+  <text x="26" y="362" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">unique physical blocks 4 · logical references 6 · allocated slots 16</text>
+  <text x="26" y="378" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">stored tokens 13 · live tokens across both requests 21  (filled bar cells = written slots)</text>
+</svg>

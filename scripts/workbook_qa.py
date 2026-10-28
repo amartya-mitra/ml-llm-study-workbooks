@@ -392,7 +392,10 @@ def get_commit_sha():
     return r.stdout.strip() if r.returncode == 0 else None
 
 
-def run_chapter_scoped_qa(workbook_id, chapter, review_pdf, dev_dir):
+FULL_SUITE_PATTERN = "test*.py"  # unittest's own default: every test module
+
+
+def run_chapter_scoped_qa(workbook_id, chapter, review_pdf, dev_dir, test_pattern=None):
     """Chapter-scoped review-package QA (item 9 of
     docs/chapter-review-checklist.md). Validates one chapter's review
     package -- its source files, claim ledger, questions/solutions,
@@ -500,15 +503,25 @@ def run_chapter_scoped_qa(workbook_id, chapter, review_pdf, dev_dir):
         "ok": scoped_result.wasSuccessful(),
     }
 
-    full_ok, full_details = run_tests()
+    # Default: the full suite. An explicit test_pattern runs only the matching
+    # modules and is labelled "scoped" so it is never mistaken for a full run;
+    # a pattern that discovers no tests fails rather than passing vacuously.
+    pattern = test_pattern or FULL_SUITE_PATTERN
+    mode = "full" if pattern == FULL_SUITE_PATTERN else "scoped"
+    full_ok, full_details = run_tests(pattern)
     new_failures = crc.new_failures_beyond_baseline(full_details["failure_names"])
     summary["checks"]["full_suite"] = {
+        "mode": mode,
+        "pattern": pattern,
         "tests_run": full_details["tests_run"],
         "failures": full_details["failures"],
+        "errors": full_details["errors"],
         "known_preexisting_workbook04_baseline_failures": crc.KNOWN_BASELINE_FAILURES,
         "new_failures_beyond_baseline": new_failures,
-        "ok": len(new_failures) == 0,
+        "ok": len(new_failures) == 0 and full_details["errors"] == 0 and full_details["tests_run"] > 0,
     }
+    if full_details["tests_run"] == 0:
+        summary["checks"]["full_suite"]["note"] = f"pattern {pattern!r} discovered no tests"
 
     hard_fail_keys = ["structure", "sources_and_claim_ledger", "questions_and_solutions", "scoped_tests", "full_suite"]
     warn_keys = ["worked_examples", "figure_invariants", "cross_references", "text_leakage"]
@@ -533,6 +546,9 @@ def main():
                          help="two-digit chapter number (e.g. 04) -- switches to chapter-scoped review-package QA")
     parser.add_argument("--review-pdf", default=None,
                          help="path to an already-built standalone chapter review PDF (used with --chapter)")
+    parser.add_argument("--test-pattern", default=None,
+                         help="with --chapter: unittest discovery pattern replacing the full suite "
+                              "(default: the full suite, test*.py); results are labelled scoped")
     args = parser.parse_args()
 
     workbook_id = args.workbook
@@ -541,7 +557,8 @@ def main():
         commit_sha = get_commit_sha()
         short_sha = (commit_sha or "unknown")[:12]
         dev_dir = os.path.join(REPO_ROOT, "outputs", "_development", workbook_id, "qa-runs", f"{short_sha}-ch{args.chapter}")
-        summary = run_chapter_scoped_qa(workbook_id, args.chapter, args.review_pdf, dev_dir)
+        summary = run_chapter_scoped_qa(workbook_id, args.chapter, args.review_pdf, dev_dir,
+                                        test_pattern=args.test_pattern)
         sys.exit(0 if summary["status"] in ("pass", "pass_with_warnings") else 1)
 
     cfg = WORKBOOK_REGISTRY[workbook_id]

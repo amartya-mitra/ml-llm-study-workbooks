@@ -160,7 +160,8 @@ def classify_findings(findings):
     return {"ok": ok, "has_warning": has_warning, "counts": counts}
 
 
-def build_gate_report(workbook, chapter, review_pdf, audit_json_paths, qa_dev_dir, run_scoped_qa=None):
+def build_gate_report(workbook, chapter, review_pdf, audit_json_paths, qa_dev_dir, run_scoped_qa=None,
+                      test_pattern=None):
     """Pure(ish) report-building logic, factored out of main() so tests
     can call it directly -- in-process, no subprocess -- and inject a
     fast fake for `run_scoped_qa` instead of paying the real full-suite
@@ -171,8 +172,10 @@ def build_gate_report(workbook, chapter, review_pdf, audit_json_paths, qa_dev_di
     "numerical_audit", "figure_audit", "learner_pdf_audit" -> path or
     None. Returns the full report dict; does not print or write
     anything itself (main() does both, exactly once per real run)."""
-    run_scoped_qa = run_scoped_qa or wq.run_chapter_scoped_qa
-    qa_summary = run_scoped_qa(workbook, chapter, review_pdf, qa_dev_dir)
+    if run_scoped_qa is None:
+        qa_summary = wq.run_chapter_scoped_qa(workbook, chapter, review_pdf, qa_dev_dir, test_pattern=test_pattern)
+    else:
+        qa_summary = run_scoped_qa(workbook, chapter, review_pdf, qa_dev_dir)
 
     skipped_checks = []
     for key in REQUIRED_TO_HAVE_RUN:
@@ -236,6 +239,10 @@ def build_gate_report(workbook, chapter, review_pdf, audit_json_paths, qa_dev_di
         **audits,
         "known_baseline_failures": crc.KNOWN_BASELINE_FAILURES,
         "new_failures_beyond_baseline": qa_summary["checks"].get("full_suite", {}).get("new_failures_beyond_baseline"),
+        "test_selection": {
+            "mode": qa_summary["checks"].get("full_suite", {}).get("mode", "full"),
+            "pattern": qa_summary["checks"].get("full_suite", {}).get("pattern", "test*.py"),
+        },
         "skipped_checks": skipped_checks,
         "status": status,
         "note": (
@@ -258,6 +265,8 @@ def print_human_summary(report):
         print(f"  Skipped checks   : {', '.join(s['check'] for s in report['skipped_checks'])}")
     print(f"  Known baseline   : {len(report['known_baseline_failures'])} pre-existing Workbook 04 failures (reported separately, never suppressed)")
     print(f"  New failures     : {report['new_failures_beyond_baseline']}")
+    sel = report.get("test_selection", {})
+    print(f"  Test selection   : {sel.get('mode', 'full')} (pattern {sel.get('pattern', 'test*.py')})")
     print(f"  GATE STATUS      : {report['status']}")
 
 
@@ -274,6 +283,9 @@ def main():
                          help="write the report under outputs/_development/<workbook>/chapter-gate/audit-only/ "
                               "instead of chapter-gate/ -- use for read-only validation dry runs that must not "
                               "be mistaken for a real acceptance-gate run")
+    parser.add_argument("--test-pattern", default=None,
+                         help="unittest discovery pattern replacing the full suite (default: the full suite); "
+                              "the report labels the run scoped, and a pattern matching no tests fails")
     args = parser.parse_args()
 
     workbook, chapter = args.workbook, args.chapter
@@ -289,7 +301,8 @@ def main():
         "figure_audit": args.figure_audit_json,
         "learner_pdf_audit": args.learner_pdf_audit_json,
     }
-    report = build_gate_report(workbook, chapter, args.review_pdf, audit_json_paths, qa_dev_dir)
+    report = build_gate_report(workbook, chapter, args.review_pdf, audit_json_paths, qa_dev_dir,
+                               test_pattern=args.test_pattern)
 
     os.makedirs(dev_dir, exist_ok=True)
     report_path = os.path.join(dev_dir, f"ch{chapter}-gate-report.json")

@@ -1,6 +1,6 @@
 ---
 title: "LLM Inference Engineering"
-subtitle: "Development draft: Chapter 1 drafted; Chapters 2–7 scaffolded"
+subtitle: "Development draft: Chapters 1–2 drafted; Chapters 3–7 scaffolded"
 author: "ML/LLM Study Workbooks"
 toc: true
 number-sections: true
@@ -11,7 +11,8 @@ them here.
 
 Status: development draft (see config/chapter-status-registry.yaml and
 reports/06_llm_inference_scope_and_source_decision.md). Chapter 1 is
-`drafted_pending_human_review`; Chapters 2-7 are `scaffold_only`. No PDF rendered from this file is a release candidate or
+`accepted_frozen`; Chapter 2 is `drafted_pending_human_review`; Chapters 3-7
+are `scaffold_only`. No PDF rendered from this file is a release candidate or
 a canonical edition. Development builds go to
 outputs/_development/06-llm-inference/ via scripts/workbook_qa.py; the
 canonical outputs/06-llm-inference-workbook.pdf is created only by the

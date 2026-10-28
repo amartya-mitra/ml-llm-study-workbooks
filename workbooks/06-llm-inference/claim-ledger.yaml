@@ -1,6 +1,6 @@
 # Workbook 06's claim ledger. Schema: shared/claim-ledger-schema.yaml.
 #
-# `entries` holds Chapter 1's claims (drafted 2026-10-28). Do not add an
+# `entries` holds Chapter 1's and Chapter 2's claims (drafted 2026-10-28). Do not add an
 # entry until the sentence or number it supports exists and its passage
 # has been read.
 #
@@ -146,6 +146,158 @@ entries:
     verification_status: "computed_by_script"
     note: "Synthetic event log, not a measurement; same script and tests as claim-06-inference-workload-016."
 
+  - id: "claim-06-kv-cache-memory-001"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "vLLM v0.32.0 requests ceil(total memory x gpu_memory_utilization), default 0.92, and sets the KV-cache budget to that minus profiled non-KV memory measured in a startup run with dummy inputs and minus an estimate for captured CUDA graphs."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "vllm/config/cache.py:102; vllm/v1/worker/utils.py:724-726; vllm/v1/worker/gpu_worker.py:634-646, 676-694, 740-744 at commit 5df63a72 (main-path non_kv_cache_memory computation not inspected line by line). The chapter's own runtime headroom is illustrative, not profiled."
+
+  - id: "claim-06-kv-cache-memory-002"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "Contiguous pre-allocation by maximum length wastes memory through reserved slots for future tokens, internal fragmentation and external fragmentation; reserved slots are eventually used but unavailable meanwhile, while internal and external fragmentation are pure waste."
+    source_ids: ["src-73"]
+    verification_status: "verified_full_text"
+    note: "Sec. 3, Fig. 3 (raw-text lines ~495-515)."
+
+  - id: "claim-06-kv-cache-memory-003"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "Kwon et al. report that existing systems kept only 20.4-38.2% of KV memory holding token states in their experiments, against about 96.3% for vLLM."
+    source_ids: ["src-73"]
+    verification_status: "verified_full_text"
+    note: "Sec. 1 and Fig. 2; paper-reported, tied to its OPT models, traces and emulated baselines. The chapter's own 30.9% / 99.4% come from a chosen workload and are not compared with these as validation."
+
+  - id: "claim-06-kv-cache-memory-004"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "PagedAttention block tables map logical to physical blocks and record filled positions; new physical blocks are allocated only when previous ones are full, limiting a request's waste to one block."
+    source_ids: ["src-73"]
+    verification_status: "verified_full_text"
+    note: "Sec. 4.2-4.3."
+
+  - id: "claim-06-kv-cache-memory-005"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "Larger blocks let the kernel process more positions in parallel but increase internal fragmentation and reduce sharing; vLLM's default block size is 16, in the paper and in v0.32.0."
+    source_ids: ["src-73", "src-82"]
+    verification_status: "verified_full_text"
+    note: "src-73 Sec. 4.3 and 7.2; src-82 vllm/config/cache.py:72."
+
+  - id: "claim-06-kv-cache-memory-006"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "PagedAttention keeps a reference count per physical block and applies block-level copy-on-write when a sequence must write a block whose count exceeds 1; the last writer with count 1 writes in place."
+    source_ids: ["src-73"]
+    verification_status: "verified_full_text"
+    note: "Sec. 4.4 (parallel sampling, Fig. 8). The chapter's copy-on-write simulation mirrors this example."
+
+  - id: "claim-06-kv-cache-memory-007"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "The original PagedAttention system shared prefixes by reserving physical blocks for provider-defined prefixes and mapping a new request's logical blocks to them, with the last block marked copy-on-write."
+    source_ids: ["src-73"]
+    verification_status: "verified_full_text"
+    note: "Sec. 4.4, shared-prefix paragraph."
+
+  - id: "claim-06-kv-cache-memory-008"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "vLLM v0.32.0 hashes each full block from its parent hash, its token IDs and extra hashes (LoRA IDs, multimodal input hashes, cache salt); only full blocks are cached; a per-request cache_salt restricts reuse to requests with the same salt."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "docs/design/prefix_caching.md:5-25, :87-100 at commit 5df63a72."
+
+  - id: "claim-06-kv-cache-memory-009"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "vLLM v0.32.0 caps a prefix hit at prompt length minus one so the last prompt token is recomputed for its logits, and skips the lookup for requests needing prompt log-probabilities."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "vllm/v1/core/kv_cache_manager.py:280-296."
+
+  - id: "claim-06-kv-cache-memory-010"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "In vLLM v0.32.0 the prefix-hash unit defaults to the block size for a single-group model; an optional finer prefix_match_unit lets hits end inside a block, and the shared tail block is then copied to a private block before writing."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "vllm/config/cache.py:90-98; vllm/v1/core/kv_cache_utils.py:860-882; vllm/v1/core/single_type_kv_cache_manager.py:163-172, 380-395. Hybrid-model and connector paths not examined."
+
+  - id: "claim-06-kv-cache-memory-011"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "RadixAttention maps token sequences to KV in a radix tree with token-run edges, a page size of one token, per-node reference counts (evictable at zero), LRU eviction of leaves first, and one memory pool shared by cached tokens and running requests."
+    source_ids: ["src-77"]
+    verification_status: "verified_full_text"
+    note: "Sec. 3, RadixAttention paragraphs (raw-text lines ~276-300)."
+
+  - id: "claim-06-kv-cache-memory-012"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "vLLM v0.32.0 frees a finished request's blocks only at reference count zero, adds them to the free-queue tail in reverse order, keeps their hashes until reallocated, and evicts cached content when a cached block is popped from the queue head."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "docs/design/prefix_caching.md:105-160, :198."
+
+  - id: "claim-06-kv-cache-memory-013"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "vLLM's prefix-caching design document says prefix caching won't change model outputs, while its speculative-decoding documentation says vLLM does not guarantee stable log-probabilities across runs and that batch-size changes can vary them."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "docs/design/prefix_caching.md:3; docs/features/speculative_decoding/README.md:212-214 and :220. The chapter's 'mathematically, not bitwise, identical' is derived from these and the workbook's correctness contract."
+
+  - id: "claim-06-kv-cache-memory-014"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "PagedAttention preempts all or none of a sequence's blocks and recovers by swapping to CPU memory (swap space bounded by the GPU cache pool) or by recomputing the prompt plus generated tokens in one prefill; swapping suffers from small transfers at small block sizes and the two are comparable for blocks of 16-64 tokens in the authors' setup."
+    source_ids: ["src-73"]
+    verification_status: "verified_full_text"
+    note: "Sec. 4.5 and 7.3; reported results are setup-specific."
+
+  - id: "claim-06-kv-cache-memory-015"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "The vLLM v0.32.0 scheduler preempts by recomputation only: it frees the request's blocks, sets its computed-token count to zero and returns it to the waiting queue."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "vllm/v1/core/sched/scheduler.py:1571-1593; no swap mode in the scheduler. Optional KV-offloading connectors (vllm/config/cache.py:65) were not examined and are excluded in the chapter text. That still-cached freed blocks can be hit on resume is derived from :960-967 and the free-queue design."
+
+  - id: "claim-06-kv-cache-memory-016"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "Mistral 7B uses sliding-window attention with W = 4096 and a rolling buffer storing position i at slot i mod W, overwriting older entries; the authors report an 8x cache reduction at 32k tokens without impacting model quality."
+    source_ids: ["src-25"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2 (arXiv v1). Reported and model-specific. The paper's text says Fig. 2 shows W = 3; its caption says W = 4."
+
+  - id: "claim-06-kv-cache-memory-017"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "vLLM v0.32.0 frees a sliding-window layer's blocks once wholly outside the window; full-attention layers free nothing before the request finishes."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "vllm/v1/core/single_type_kv_cache_manager.py:672-705, :1135."
+
+  - id: "claim-06-kv-cache-memory-018"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "Sharing KV caches across layers reduces cache size but the shared caches may need to be read from HBM multiple times, so it does not necessarily improve step time."
+    source_ids: ["src-10"]
+    verification_status: "verified_full_text"
+    note: "'Inference' chapter, line 149 of the local text extraction. The chapter applies the storage-vs-traffic point to prefix sharing as a derived analogy."
+
+  - id: "claim-06-kv-cache-memory-019"
+    workbook: "06-llm-inference"
+    chapter: "ch2"
+    statement: "Capacity plan, rounding table, reservation-versus-paging shares, external-fragmentation toy, lifecycle and copy-on-write traces, radix-versus-hash reuse, prefix sharing at scale, looped and sliding-window variants, and every question and exercise number in Chapter 2."
+    source_ids: []
+    verification_status: "computed_by_script"
+    note: "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.py -> .json (imports Chapter 1's model read-only); checked by tests/test_workbook06_ch02_*.py. Illustrative inputs, derived outputs."
+
 planned_chapter_sources:
   - chapter: "ch1"
     source_ids: ["src-78", "src-79", "src-10", "src-75", "src-76", "src-81", "src-82", "src-44", "src-96"]
@@ -153,9 +305,9 @@ planned_chapter_sources:
     note: "src-96 added while drafting (sampling definitions). src-10 is analytical (TPU-centred estimates); src-44 is used only for its Sec. 2.2 framing of sampling as an adjusted distribution; src-81/src-82 are version-pinned documentation."
 
   - chapter: "ch2"
-    source_ids: ["src-73", "src-77", "src-82", "src-10"]
+    source_ids: ["src-73", "src-77", "src-82", "src-10", "src-25"]
     candidate_source_ids: []
-    note: "src-82 behaviour is vLLM v0.32.0 only. Rolling-buffer eviction would need src-25 re-read first (web-search-verified only)."
+    note: "src-25 (Mistral 7B) re-read in full for Sec. 2 while drafting (2026-10-28). src-82 behaviour is vLLM v0.32.0 only. Rolling-buffer eviction would need src-25 re-read first (web-search-verified only)."
 
   - chapter: "ch3"
     source_ids: ["src-74", "src-75", "src-76", "src-73", "src-82", "src-10"]

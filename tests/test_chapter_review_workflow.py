@@ -38,6 +38,23 @@ class TestDiscoveryAgainstRealAcceptedChapters(unittest.TestCase):
             src = f.read()
         self.assertIn('parser.add_argument("--test-pattern", default=FULL_SUITE_PATTERN', src)
 
+    def test_gate_and_qa_default_to_the_full_suite(self):
+        # --test-pattern exists on the gate and QA chapter mode; omitting it keeps the full suite
+        import inspect
+        import workbook_qa
+        import chapter_gate
+        self.assertEqual(workbook_qa.FULL_SUITE_PATTERN, "test*.py")
+        sig = inspect.signature(workbook_qa.run_chapter_scoped_qa)
+        self.assertIsNone(sig.parameters["test_pattern"].default)
+        self.assertIsNone(inspect.signature(chapter_gate.build_gate_report).parameters["test_pattern"].default)
+
+    def test_scoped_pattern_with_no_tests_fails(self):
+        import workbook_qa
+        ok, details = workbook_qa.run_tests("test_no_such_module_*.py")
+        self.assertEqual(details["tests_run"], 0)
+        with open(workbook_qa.__file__, encoding="utf-8") as f:
+            self.assertIn('full_details["tests_run"] > 0', f.read())
+
     def test_discover_chapter_files_raises_on_unknown_chapter(self):
         with self.assertRaises(FileNotFoundError):
             crc.discover_chapter_files("05-llm-training", "99")

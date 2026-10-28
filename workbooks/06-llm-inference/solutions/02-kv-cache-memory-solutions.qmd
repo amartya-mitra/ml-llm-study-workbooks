@@ -1,5 +1,87 @@
 ## Answer Key: Chapter 2 {#sec-solutions-ch2 .unnumbered}
 
-Answers to Chapter 2's "Check your understanding" questions (@sec-ch2-check).
+<!-- Layout: the intro and each repeated prompt are full-width sticky blocks,
+so each stays on the same page as the start of what follows it (the heading
+is sticky by default). Answers themselves still break normally. -->
 
-*Pending: no questions have been written for this chapter yet, so there are no answers.*
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+Full solutions to this chapter's "Check your understanding" questions (@sec-ch2-check). Every number is derived from the chapter's illustrative inputs; none is a measurement.
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**1. Calculation. Using the worked example's budget, how many 2,048-token sequences fit? How many fit if the runtime headroom is 8 GiB instead of 4 GiB?**
+
+```{=typst}
+]
+```
+
+*Answer.* A 2,048-token sequence needs 2,048 ÷ 16 = 128 blocks (256 MiB). With 25,391 blocks, 25,391 ÷ 128 rounds down to 198 sequences. With 8 GiB of headroom the budget is 73.6 GB − 16.06 GB − 8.59 GB = 48.95 GB, which holds 23,343 blocks and so 182 sequences: 4 GiB more headroom costs 16 sequences at this length.
+
+*Common trap:* Dividing the whole device, or device minus weights, by the logical bytes per sequence. The usable fraction and the runtime headroom come off first, and capacity is counted in whole blocks.
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**2. Calculation. With 16-token blocks, how many blocks and empty slots do sequences of 48, 49 and 63 retained tokens need? A sequence holds 48 tokens and no block is free: can it generate its next token?**
+
+```{=typst}
+]
+```
+
+*Answer.* 48 tokens: 3 blocks, 0 empty slots. 49 tokens: 4 blocks, 15 empty slots. 63 tokens: 4 blocks, 1 empty slot. A sequence holding exactly 48 tokens has filled its third block, and the next token writes its own keys and values in the step that processes it, so that step needs a fourth block. With none free, the sequence cannot proceed until memory is freed — by another request finishing, by reclaiming an idle cached block, or by preempting a request.
+
+*Common trap:* Thinking a 48-token sequence has room for one more token. Its blocks are exactly full; the 49th token needs a whole new block.
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**3. Debugging. An allocator puts every block of a finished request on the free queue at once, ignoring reference counts. Using the lifecycle trace, what goes wrong when R1 finishes, and what is the correct rule?**
+
+```{=typst}
+]
+```
+
+*Answer.* When R1 finishes, P0 and P1 still hold the shared prefix that R2 is using (reference count 2, falling to 1). The faulty allocator would put them on the free queue anyway, behind the private P2 and P4 (queue 5 6 7 4 2 1 0), so any request needing six or more new blocks while R2 runs would be handed blocks R2 is still reading. In this trace no request arrives before R2 finishes, but the fault persists: when R2 finishes, P0 and P1 are queued a second time, and after R3 reuses them the queue still holds stale entries for both (6 7 4 2 3 1 0). R4 needs only five blocks and stops at P3, but any request needing six or more would be handed P1 while R3 is reading it. The correct rule is to decrement each block's reference count when a request releases it, and to put the block on the free queue only when its count reaches zero. In the trace, only P2 and P4 (the private blocks of R1) are freed when R1 finishes.
+
+*Common trap:* Treating "the request finished" as "its blocks are free". A shared block belongs to every request that references it.
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**4. Misconception check. True or false: if a new request's prompt has the same text as a cached one, vLLM v0.32.0 will reuse the cached keys and values, and the output will be bitwise identical.**
+
+```{=typst}
+]
+```
+
+*Answer.* False on both counts. Reuse requires identical token IDs from the first token through each reused block, not identical text — a different tokenizer, template or whitespace changes them — and every extra key must match: the same LoRA adapter, the same multimodal inputs and the same cache salt. Only full blocks are reused (by default), the blocks must not yet have been evicted, and the lookup is skipped entirely for requests asking for prompt log-probabilities. When reuse does happen, the computation is mathematically the same, but the reused keys and values may have been computed in a different batch and chunk shape, so results can differ in the last bits.
+
+*Common trap:* Equating "same text" with "same cache key", or "won't change outputs" with "bitwise identical".
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**5. Compare. Reclaiming an idle cached prefix, preempting a running request by recomputation, and imposing a 4,096-token window on a full-attention model all free cache memory. Which lose information the model needs, and which change its outputs?**
+
+```{=typst}
+]
+```
+
+*Answer.* Reclaiming an idle cached prefix loses nothing a running request needs: no request references the block, so the only cost is that a future request may have to recompute that prefix. Preemption by recomputation removes a running request's cache but rebuilds the full history before the request continues, so the computation is exact — mathematically equivalent, though not necessarily bitwise identical; the cost is time. Imposing a window on a model trained with full attention discards history the model expects to attend to, so it changes the model's outputs: lossy history truncation, not cache management. A sliding window is exact only for a model trained with it, such as Mistral 7B.
+
+*Common trap:* Treating every way of freeing cache as equivalent because each frees the same bytes.
+
+**Applied exercise (prefix reuse at scale).** Each request holds 1,024 + 1,024 = 2,048 tokens = 128 blocks, so 32 requests without sharing need 4,096 blocks (8 GiB). With sharing, the prompt's 1,024 ÷ 16 = 64 full blocks are stored once and each request adds 64 blocks of its own: 64 + 32 × 64 = 2,112 blocks (4.125 GiB). Under the 25,391-block budget, that is 25,391 ÷ 128 rounded down = 198 requests without sharing and (25,391 − 64) ÷ 64 rounded down = 395 with it. Each decode step still reads 32 × 2,048 tokens × 128 KiB = 8 GiB, because in the cost model of Chapter 1 every request's attention reads its whole retained history. Sharing changes where the history is stored, not what each request attends to. For the reads to fall, the attention kernel itself would have to read each shared block once for all the requests using it — a kernel design question, which this chapter does not assume.

@@ -1,0 +1,766 @@
+{
+  "labels": {
+    "inputs": "illustrative",
+    "outputs": "derived (analytical or simulated), not measured"
+  },
+  "capacity": {
+    "device_bytes": 80000000000.0,
+    "gpu_memory_utilization": 0.92,
+    "requested_bytes": 73600000000,
+    "weights_stored_bytes": 16055795712,
+    "runtime_headroom_bytes": 4294967296,
+    "kv_budget_bytes": 53249236992,
+    "kv_budget_gb": 53.249236992,
+    "kv_budget_gib": 49.59221649169922,
+    "kv_bytes_per_token": 131072,
+    "block_tokens": 16,
+    "block_bytes": 2097152,
+    "num_blocks": 25391,
+    "unusable_tail_bytes": 450560,
+    "blocks_per_full_sequence": 256,
+    "max_full_length_sequences": 99,
+    "remaining_blocks": 47,
+    "exact_fit_extra_tokens": 752,
+    "one_over_extra_tokens": 753,
+    "one_over_blocks_needed": 48,
+    "logical_only_full_seqs": 99
+  },
+  "rounding": [
+    {
+      "tokens": 1,
+      "blocks": 1,
+      "slots": 16,
+      "empty_slots": 15
+    },
+    {
+      "tokens": 15,
+      "blocks": 1,
+      "slots": 16,
+      "empty_slots": 1
+    },
+    {
+      "tokens": 16,
+      "blocks": 1,
+      "slots": 16,
+      "empty_slots": 0
+    },
+    {
+      "tokens": 17,
+      "blocks": 2,
+      "slots": 32,
+      "empty_slots": 15
+    },
+    {
+      "tokens": 33,
+      "blocks": 3,
+      "slots": 48,
+      "empty_slots": 15
+    },
+    {
+      "tokens": 4096,
+      "blocks": 256,
+      "slots": 4096,
+      "empty_slots": 0
+    },
+    {
+      "tokens": 4097,
+      "blocks": 257,
+      "slots": 4112,
+      "empty_slots": 15
+    }
+  ],
+  "reservation_vs_paged": {
+    "requests": [
+      {
+        "current": 312,
+        "final": 400,
+        "used": 312,
+        "reserved_future": 88,
+        "internal_fragmentation": 3696,
+        "paged_slots": 320,
+        "paged_empty_slots": 8
+      },
+      {
+        "current": 1800,
+        "final": 2300,
+        "used": 1800,
+        "reserved_future": 500,
+        "internal_fragmentation": 1796,
+        "paged_slots": 1808,
+        "paged_empty_slots": 8
+      },
+      {
+        "current": 4000,
+        "final": 4096,
+        "used": 4000,
+        "reserved_future": 96,
+        "internal_fragmentation": 0,
+        "paged_slots": 4000,
+        "paged_empty_slots": 0
+      },
+      {
+        "current": 97,
+        "final": 120,
+        "used": 97,
+        "reserved_future": 23,
+        "internal_fragmentation": 3976,
+        "paged_slots": 112,
+        "paged_empty_slots": 15
+      },
+      {
+        "current": 640,
+        "final": 900,
+        "used": 640,
+        "reserved_future": 260,
+        "internal_fragmentation": 3196,
+        "paged_slots": 640,
+        "paged_empty_slots": 0
+      },
+      {
+        "current": 2049,
+        "final": 2049,
+        "used": 2049,
+        "reserved_future": 0,
+        "internal_fragmentation": 2047,
+        "paged_slots": 2064,
+        "paged_empty_slots": 15
+      },
+      {
+        "current": 16,
+        "final": 64,
+        "used": 16,
+        "reserved_future": 48,
+        "internal_fragmentation": 4032,
+        "paged_slots": 16,
+        "paged_empty_slots": 0
+      },
+      {
+        "current": 1203,
+        "final": 1500,
+        "used": 1203,
+        "reserved_future": 297,
+        "internal_fragmentation": 2596,
+        "paged_slots": 1216,
+        "paged_empty_slots": 13
+      }
+    ],
+    "reserved_slots_total": 32768,
+    "used_slots": 10117,
+    "reserved_for_future_slots": 1312,
+    "internal_fragmentation_slots": 21339,
+    "reservation_used_fraction": 0.308746337890625,
+    "paged_allocated_slots": 10176,
+    "paged_empty_slots": 59,
+    "paged_used_fraction": 0.9942020440251572,
+    "reserved_bytes": 4294967296,
+    "paged_bytes": 1333788672,
+    "used_bytes": 1326055424
+  },
+  "external_fragmentation": {
+    "unit_bytes": 268435456,
+    "arena": [
+      "a",
+      "a",
+      "a",
+      null,
+      null,
+      "c",
+      "c",
+      "c",
+      "c",
+      null,
+      null,
+      "e",
+      "e",
+      "e",
+      null,
+      null
+    ],
+    "free_units": 6,
+    "free_runs": [
+      2,
+      2,
+      2
+    ],
+    "largest_free_run": 2,
+    "request_units": 3,
+    "fits_contiguous": false,
+    "fits_paged": true
+  },
+  "lifecycle": {
+    "block_tokens": 4,
+    "pool_blocks": 8,
+    "hits": {
+      "R1": 0,
+      "R2": 8,
+      "R3": 8
+    },
+    "snapshots": [
+      {
+        "label": "R1 and R2 running, sharing two prefix blocks",
+        "tables": {
+          "R1": [
+            0,
+            1,
+            2
+          ],
+          "R2": [
+            0,
+            1,
+            3
+          ]
+        },
+        "lengths": {
+          "R1": 10,
+          "R2": 11
+        },
+        "ref": {
+          "0": 2,
+          "1": 2,
+          "2": 1,
+          "3": 1
+        },
+        "cached_blocks": [
+          0,
+          1
+        ],
+        "free_queue": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "unique_physical_blocks": 4,
+        "logical_references": 6,
+        "allocated_slots": 16,
+        "live_tokens": 21,
+        "unique_stored_tokens": 13,
+        "block_tokens": {
+          "0": [
+            "<s>",
+            "You",
+            "are",
+            "a"
+          ],
+          "1": [
+            "helpful",
+            "bot",
+            ":",
+            "Q"
+          ],
+          "2": [
+            "cat",
+            "?"
+          ],
+          "3": [
+            "dog",
+            "food",
+            "?"
+          ]
+        }
+      },
+      {
+        "label": "R1 finished; shared blocks still held by R2",
+        "tables": {
+          "R2": [
+            0,
+            1,
+            3
+          ]
+        },
+        "lengths": {
+          "R2": 11
+        },
+        "ref": {
+          "0": 1,
+          "1": 1,
+          "2": 0,
+          "3": 1
+        },
+        "cached_blocks": [
+          0,
+          1,
+          2
+        ],
+        "free_queue": [
+          5,
+          6,
+          7,
+          4,
+          2
+        ],
+        "unique_physical_blocks": 3,
+        "logical_references": 3,
+        "allocated_slots": 12,
+        "live_tokens": 11,
+        "unique_stored_tokens": 11,
+        "block_tokens": {
+          "0": [
+            "<s>",
+            "You",
+            "are",
+            "a"
+          ],
+          "1": [
+            "helpful",
+            "bot",
+            ":",
+            "Q"
+          ],
+          "3": [
+            "dog",
+            "food",
+            "?"
+          ]
+        }
+      },
+      {
+        "label": "both finished; cached blocks idle in the free queue",
+        "tables": {},
+        "lengths": {},
+        "ref": {
+          "0": 0,
+          "1": 0,
+          "2": 0
+        },
+        "cached_blocks": [
+          0,
+          1,
+          2
+        ],
+        "free_queue": [
+          5,
+          6,
+          7,
+          4,
+          2,
+          3,
+          1,
+          0
+        ],
+        "unique_physical_blocks": 0,
+        "logical_references": 0,
+        "allocated_slots": 0,
+        "live_tokens": 0,
+        "unique_stored_tokens": 0,
+        "block_tokens": {}
+      },
+      {
+        "label": "R3 reuses the idle cached prefix",
+        "tables": {
+          "R3": [
+            0,
+            1,
+            5
+          ]
+        },
+        "lengths": {
+          "R3": 10
+        },
+        "ref": {
+          "0": 1,
+          "1": 1,
+          "2": 0,
+          "5": 1
+        },
+        "cached_blocks": [
+          0,
+          1,
+          2
+        ],
+        "free_queue": [
+          6,
+          7,
+          4,
+          2,
+          3
+        ],
+        "unique_physical_blocks": 3,
+        "logical_references": 3,
+        "allocated_slots": 12,
+        "live_tokens": 10,
+        "unique_stored_tokens": 10,
+        "block_tokens": {
+          "0": [
+            "<s>",
+            "You",
+            "are",
+            "a"
+          ],
+          "1": [
+            "helpful",
+            "bot",
+            ":",
+            "Q"
+          ],
+          "5": [
+            "cat",
+            "?"
+          ]
+        }
+      },
+      {
+        "label": "R4 needs five new blocks; taking cached P2 evicts it",
+        "tables": {
+          "R3": [
+            0,
+            1,
+            5
+          ],
+          "R4": [
+            6,
+            7,
+            4,
+            2,
+            3
+          ]
+        },
+        "lengths": {
+          "R3": 10,
+          "R4": 19
+        },
+        "ref": {
+          "0": 1,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1
+        },
+        "cached_blocks": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          7
+        ],
+        "free_queue": [],
+        "unique_physical_blocks": 8,
+        "logical_references": 8,
+        "allocated_slots": 32,
+        "live_tokens": 29,
+        "unique_stored_tokens": 29,
+        "block_tokens": {
+          "0": [
+            "<s>",
+            "You",
+            "are",
+            "a"
+          ],
+          "1": [
+            "helpful",
+            "bot",
+            ":",
+            "Q"
+          ],
+          "2": [
+            "x12",
+            "x13",
+            "x14",
+            "x15"
+          ],
+          "3": [
+            "x16",
+            "x17",
+            "x18"
+          ],
+          "4": [
+            "x8",
+            "x9",
+            "x10",
+            "x11"
+          ],
+          "5": [
+            "cat",
+            "?"
+          ],
+          "6": [
+            "x0",
+            "x1",
+            "x2",
+            "x3"
+          ],
+          "7": [
+            "x4",
+            "x5",
+            "x6",
+            "x7"
+          ]
+        }
+      }
+    ],
+    "events": [
+      [
+        "arrive",
+        "R1",
+        0
+      ],
+      [
+        "arrive",
+        "R2",
+        8
+      ],
+      [
+        "finish",
+        "R1"
+      ],
+      [
+        "finish",
+        "R2"
+      ],
+      [
+        "arrive",
+        "R3",
+        8
+      ],
+      [
+        "arrive",
+        "R4",
+        0
+      ],
+      [
+        "evict",
+        2,
+        "a5e37ad793e0"
+      ]
+    ]
+  },
+  "copy_on_write": {
+    "block_tokens": 4,
+    "prompt_tokens": 6,
+    "steps": [
+      {
+        "step": "fork",
+        "tables": {
+          "A1": [
+            0,
+            1
+          ],
+          "A2": [
+            0,
+            1
+          ]
+        },
+        "ref": {
+          "0": 2,
+          "1": 2
+        }
+      },
+      {
+        "step": "A1 writes",
+        "action": "copy block 1 to 2",
+        "tables": {
+          "A1": [
+            0,
+            2
+          ],
+          "A2": [
+            0,
+            1
+          ]
+        },
+        "ref": {
+          "0": 2,
+          "1": 1,
+          "2": 1
+        }
+      },
+      {
+        "step": "A2 writes",
+        "action": "write in place to block 1",
+        "tables": {
+          "A1": [
+            0,
+            2
+          ],
+          "A2": [
+            0,
+            1
+          ]
+        },
+        "ref": {
+          "0": 2,
+          "1": 1,
+          "2": 1
+        }
+      }
+    ],
+    "copies": 1
+  },
+  "radix": {
+    "nodes": [
+      {
+        "id": 0,
+        "parent": null,
+        "tokens": [
+          "<s>",
+          "You",
+          "are",
+          "a",
+          "helpful",
+          "bot"
+        ],
+        "ref": 2,
+        "last_access": 3,
+        "leaf": false,
+        "depth": 0
+      },
+      {
+        "id": 1,
+        "parent": 0,
+        "tokens": [
+          "Summarize",
+          "this"
+        ],
+        "ref": 1,
+        "last_access": 3,
+        "leaf": true,
+        "depth": 1
+      },
+      {
+        "id": 2,
+        "parent": 0,
+        "tokens": [
+          "Translate"
+        ],
+        "ref": 1,
+        "last_access": 2,
+        "leaf": false,
+        "depth": 1
+      },
+      {
+        "id": 3,
+        "parent": 2,
+        "tokens": [
+          "cat"
+        ],
+        "ref": 0,
+        "last_access": 1,
+        "leaf": true,
+        "depth": 2
+      },
+      {
+        "id": 4,
+        "parent": 2,
+        "tokens": [
+          "dog"
+        ],
+        "ref": 1,
+        "last_access": 2,
+        "leaf": true,
+        "depth": 2
+      }
+    ],
+    "evict_order": [
+      3
+    ],
+    "radix_matched_tokens": {
+      "A": 0,
+      "B": 7,
+      "C": 6
+    },
+    "hash_reusable_tokens": {
+      "A": 0,
+      "B": 4,
+      "C": 4
+    },
+    "toy_block_tokens": 4,
+    "requests": [
+      {
+        "name": "A",
+        "tokens": [
+          "<s>",
+          "You",
+          "are",
+          "a",
+          "helpful",
+          "bot",
+          "Translate",
+          "cat"
+        ],
+        "state": "finished"
+      },
+      {
+        "name": "B",
+        "tokens": [
+          "<s>",
+          "You",
+          "are",
+          "a",
+          "helpful",
+          "bot",
+          "Translate",
+          "dog"
+        ],
+        "state": "running"
+      },
+      {
+        "name": "C",
+        "tokens": [
+          "<s>",
+          "You",
+          "are",
+          "a",
+          "helpful",
+          "bot",
+          "Summarize",
+          "this"
+        ],
+        "state": "running"
+      }
+    ]
+  },
+  "sharing_at_scale": {
+    "requests": 32,
+    "shared_prefix_tokens": 1024,
+    "unique_tokens_per_request": 1024,
+    "blocks_without_sharing": 4096,
+    "blocks_with_sharing": 2112,
+    "bytes_without_sharing": 8589934592,
+    "bytes_with_sharing": 4429185024,
+    "logical_references_with_sharing": 4096,
+    "decode_read_bytes_per_step": 8589934592,
+    "max_requests_without_sharing": 198,
+    "max_requests_with_sharing": 395,
+    "prefill_tokens_skipped_per_hit": 1024
+  },
+  "architecture_variants": {
+    "looped_passes": 2,
+    "looped_kv_bytes_per_token_if_per_pass_cache": 262144,
+    "sliding_window": 4096,
+    "long_context": 32768,
+    "full_attention_bytes_at_long_context": 4294967296,
+    "sliding_window_bytes_at_long_context": 536870912,
+    "sliding_window_reduction": 8.0
+  },
+  "questions": {
+    "q1_concurrency_2048": {
+      "blocks_per_sequence": 128,
+      "max_sequences": 198,
+      "logical_bytes_per_sequence": 268435456,
+      "headroom_8gib_budget_bytes": 48954269696,
+      "headroom_8gib_blocks": 23343,
+      "headroom_8gib_max_sequences": 182
+    },
+    "q2_rounding": [
+      {
+        "tokens": 48,
+        "blocks": 3,
+        "empty_slots": 0
+      },
+      {
+        "tokens": 49,
+        "blocks": 4,
+        "empty_slots": 15
+      },
+      {
+        "tokens": 63,
+        "blocks": 4,
+        "empty_slots": 1
+      }
+    ]
+  }
+}

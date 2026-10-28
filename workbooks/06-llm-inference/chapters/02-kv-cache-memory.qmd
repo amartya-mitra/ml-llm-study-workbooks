@@ -1,66 +1,237 @@
 ## KV-Cache Memory: Capacity, Paging, Prefix Reuse, and Eviction {#sec-ch2}
 
-::: {.callout-note title="Scaffold status"}
-Scaffold only: drafting has not yet begun. This page records the approved plan for the chapter; it contains no teaching content, questions, answers, figures, worked examples or citations yet.
-:::
-
-**Purpose.** Turn the logical KV-cache size into a capacity plan, and explain how serving engines allocate, share, reuse and reclaim cache memory.
-
-**Prerequisites and planned recap.** Workbook 04 Chapter 3 (KV-cache size), Chapter 4 (sliding windows, latent KV) and Chapter 8 (looped depth); Workbook 05 Chapter 5 (kinds of memory measurement); Chapter 1 of this workbook.
-
-**Scope boundaries.** KV-cache quantization is Chapter 5; preemption policy and cross-machine KV transfer are Chapter 3. Rolling-buffer eviction mechanics need a re-verified source before any mechanism claim.
+*How Much Cache Fits, How Engines Hand It Out, Share It and Take It Back*
 
 ### Learning objectives
 
-Planned outcomes (approved scope). By the end of this chapter you should be able to:
+By the end of this chapter you should be able to:
 
-- Estimate maximum concurrency from a memory budget, separating logical estimates from profiled and observed memory.
-- Explain reservation waste and internal and external fragmentation.
-- Trace block tables, reference counting and copy-on-write.
-- Compare full-block hashing with radix-tree prefix reuse, including the conditions under which a cached prefix may be reused.
-- Explain the memory mechanics of preemption by swapping or recomputation, and how engine versions differ.
-- State how looped depth can affect cache size.
+- Turn a device's memory into a KV-cache budget and a maximum concurrency, keeping logical bytes, block-rounded allocation and stated headroom apart.
+- Name the three kinds of waste in contiguous reservation — reserved slots for future tokens, internal fragmentation and external fragmentation — and say which paging removes.
+- Trace a block table, reference counts and copy-on-write through requests that arrive, share a prefix and finish, and say when a block may be released.
+- Compare full-block hashing with radix-tree prefix reuse, and list the conditions under which a cached prefix may be reused.
+- Explain the memory mechanics of preemption by swapping or recomputation, and how the original PagedAttention system differs from vLLM v0.32.0.
+- Separate exact cache management from lossy history truncation, an architectural sliding window from an imposed one, and stored cache capacity from cache traffic per step.
 
 ### Why this matters
 
-*Pending: drafting has not yet begun.*
+::: {.callout-note title="Recap from Workbooks 04 and 05 and Chapter 1"}
+**Logical KV size.** Workbook 04 gives $M_{KV} = 2\,B\,S\,L\,H_{kv}\,d_\text{head}\,\text{bytes\_per\_elem}$ for $B$ sequences of $S$ retained positions, $L$ layers and $H_{kv}$ key/value heads of dimension $d_\text{head}$, with bytes_per_elem bytes per cached number (written $b_{kv}$ below) — a *logical minimum* that excludes allocator overhead, block metadata, fragmentation, workspaces, padding and prefix sharing (Workbook 04, Chapter 3). This chapter fills in that exclusion list. Grouped- and multi-query attention shrink $H_{kv}$, and latent attention caches a compressed vector instead (Workbook 04, Chapters 3–4). **Kinds of memory number.** Workbook 05 (Chapter 5) separates logical tensor bytes, analytical estimates, a framework's allocated and reserved counters and sampled device readings; a number is one of these, never several. **Windows and loops.** A sliding window bounds which past positions a layer attends to (Workbook 04, Chapter 4); a looped model applies the same block several times per token, and shared weights do not imply a shared cache (Workbook 04, Chapter 8). **Chapter 1.** The illustrative model needs 128 KiB of cache per token, 512 MiB per 4,096-token sequence, and every decode step reads each sequence's whole cache. Throughout, GB means $10^9$ bytes and GiB, MiB and KiB are powers of 2 ($2^{30}$, $2^{20}$, $2^{10}$).
+:::
+
+Chapter 1 found that about 119 sequences of 4,096 tokens fit beside the illustrative model's weights in 80 GB. That figure assumed every remaining byte held cache and that the cache was laid out perfectly. Real engines hold back memory for activations and workspaces, allocate in fixed units, share some cache between requests and must take memory back when it runs out. This chapter turns the logical estimate into a capacity plan and explains the mechanisms behind each step. All inputs are illustrative, and every result is derived — computed from stated rules, never measured.
 
 ### Mental model or analogy
 
-*Pending: drafting has not yet begun.*
+::: {.callout-note title="Analogy"}
+Think of the cache as a binder of fixed-size pages. Each conversation gets a contents list (its block table) naming which pages hold its history, in order; the pages themselves can sit anywhere in the binder. When two conversations start with the same opening, both contents lists can point at the same pages, and a sticker on each page counts how many lists point at it. A page may be recycled only when its count reaches zero, and a shared page must be photocopied before anyone writes on it.
+
+**Where this breaks down:** a real page holds keys and values for every layer and head, is reused at hardware speed, and "the same opening" means identical token IDs under the same model and extra keys, not similar text.
+:::
 
 ### Visual overview
 
-*Pending: drafting has not yet begun.*
+![Two requests' block tables over one pool of eight physical blocks (toy block size of 4 word "tokens"). Both requests start with the same eight tokens, so their first two logical blocks map to the same physical blocks, each with a reference count of 2; each request's last block is private and partly filled. The counts at the bottom keep physical blocks, block-table entries, allocated slots and live tokens apart. A schematic of the mechanism, not any engine's internal state.](figures/rendered/fig-block-table.svg){#fig-block-table}
 
 ### Technical core
 
-*Pending: drafting has not yet begun.*
+#### From a device to a cache budget
+
+Let $M_\text{dev}$ be device memory, $u$ the fraction an engine may use, $M_W$ the resident weights and $M_\text{rt}$ the runtime memory that is neither weights nor cache — activations at peak, workspaces, buffers for captured execution graphs. The bytes left for cache, and the blocks they hold, are
+
+$$
+M_\text{budget} = \lceil u\,M_\text{dev} \rceil - M_W - M_\text{rt}, \qquad
+N_\text{blocks} = \left\lfloor \frac{M_\text{budget}}{b \cdot m_\text{tok}} \right\rfloor ,
+$$ {#eq-kv-budget}
+
+in bytes, where $b$ is the block size in tokens and $m_\text{tok} = 2\,L\,H_{kv}\,d_\text{head}\,b_{kv}$ is the cache per token ($M_\text{budget}$ is a capacity, not the $M_{KV}$ of Workbook 04, which is what the cached sequences need). vLLM v0.32.0 follows this shape: it requests $\lceil u \times \text{total memory}\rceil$ with $u$ defaulting to 0.92, then subtracts *profiled* non-cache memory — weights plus the peak measured during a startup run with dummy inputs — and an estimate for captured execution graphs to get its cache budget [@src-82]. The engine's $M_\text{rt}$ is therefore measured on the actual hardware; in this chapter it is a stated, illustrative number.
+
+A sequence with retained length $S$ — every prompt and output token whose keys and values have been written, including the token processed in the current step — needs $\lceil S/b \rceil$ blocks. The empty slots in its last block, $b\lceil S/b\rceil - S$, are allocated but hold no token — at most $b - 1$ per sequence. Concurrency is the number of sequences whose blocks fit in $N_\text{blocks}$, not $M_\text{budget}$ divided by logical bytes per sequence; the two are guaranteed to agree only when lengths are multiples of $b$.
+
+#### Three kinds of waste, and what paging removes
+
+Systems that reserve one contiguous region per request, sized for the request's maximum possible length, waste memory three ways [@src-73]:
+
+- **Reserved slots for future tokens** — space set aside for tokens not yet generated. It is eventually used, but it is unavailable to other requests for the whole request duration.
+- **Internal fragmentation** — allocated slots that will never hold a token: here, space reserved for a maximum length the request never reaches. A paged sequence's unfilled last block is the same kind of waste, but bounded by one block.
+- **External fragmentation** — free gaps between reservations, left by the allocator, too small for the next request even when their total is large.
+
+Kwon et al. report that such systems kept only 20.4–38.2% of their cache memory holding token states in their experiments, against about 96.3% for vLLM [@src-73]; these are measurements on their models, traces and baselines, not general constants.
+
+**Paging** stores each sequence's cache in fixed-size blocks that need not be contiguous. A per-request **block table** maps logical blocks, in order, to physical blocks and records how many positions each has filled; blocks are allocated only when the previous one is full, so a request's waste is limited to one partly filled block [@src-73]. This removes reservation for future tokens and external fragmentation, and bounds internal fragmentation by the block size. It does *not* reduce the logical bytes a retained history needs: a 4,096-token sequence still needs 512 MiB of cache under paging, exactly as without it. Paging changes where the bytes live and how much is wasted around them. The block size is a trade-off: larger blocks let attention kernels process more positions per block but increase internal fragmentation and reduce sharing; the paper's default is 16 tokens [@src-73], as is the default in vLLM v0.32.0 [@src-82].
+
+::: {.callout-warning title="Common misconception"}
+*"Paging compresses the KV cache."* It does not. Paging changes allocation, not content: the bytes per retained token are unchanged, and a sequence's logical cache is the same size paged or contiguous. What paging saves is the reserved and fragmented space *around* the cache. Making each token's cache smaller is a different mechanism — fewer KV heads (Workbook 04) or quantization (Chapter 5).
+:::
+
+#### Sharing blocks: reference counts and copy-on-write
+
+Because a block table holds pointers rather than memory, two sequences can point at the same physical block. PagedAttention keeps a **reference count** per physical block — the number of logical blocks mapped to it — and releases a block only when its count reaches zero [@src-73]. In parallel sampling, the samples of one request share the prompt's blocks. When a sample is about to write into a block whose count is above 1 — typically the partly filled last prompt block — the engine first copies it to a new block and decrements the shared count; the last writer, now holding a count of 1, writes in place. This is **copy-on-write** at block granularity, borrowed from operating-system page sharing [@src-73]. Full blocks that no sequence will write again need no copy.
+
+Keep the counts apart. *Unique physical blocks* are the memory actually occupied; *logical references* are the block-table entries pointing at them; *allocated slots* are physical blocks times block size; *stored tokens* are the slots actually written; *live tokens* add up each request's retained length, counting a shared token once per request. In @fig-block-table, two requests with 21 live tokens between them occupy 4 physical blocks — 6 references, 16 slots and 13 stored tokens, because 8 tokens are stored once and read by both.
+
+#### Prefix reuse: hashing full blocks, or a radix tree
+
+Requests often begin with the same system prompt or few-shot examples. Keeping those blocks after a request ends lets a later request skip recomputing them. The original PagedAttention system did this for prefixes the provider reserved in advance, mapping a new request's logical blocks to the cached ones with the last block marked copy-on-write [@src-73]. Two automatic designs differ in granularity:
+
+- **Hashing full blocks (vLLM v0.32.0).** Each full block gets a hash of its parent block's hash, its own token IDs, and *extra hashes* for anything else that makes it unique — LoRA adapter IDs, hashes of multimodal inputs, and an optional per-request `cache_salt` that limits reuse to requests carrying the same salt [@src-82]. Only full blocks are cached, and the chained parent hash makes a block reusable only after an identical prefix. A new request takes the longest run of cached blocks from its start, capped one token short of the prompt so the last prompt token is recomputed for its logits [@src-82]. For a single-group model like ours, hits land on block boundaries; an optional finer `prefix_match_unit` lets hits end inside a block, and the engine then copies the shared tail block to a private one before writing to it [@src-82].
+- **A radix tree (SGLang's RadixAttention).** A radix tree maps token sequences to their cache, with edges labelled by runs of tokens; the cache is paged with a page size of one token, so reuse is not limited to block boundaries [@src-77]. Each node counts the running requests using it and is evictable only at zero; cached tokens and running requests share one memory pool [@src-77].
+
+This is a mechanism comparison, not a framework ranking: block hashing trades some missed reuse at block edges for simpler allocation, and the radix tree trades a tree to maintain for token-level matching (@fig-prefix-tree).
+
+**When is a cached prefix valid for this request?** In vLLM v0.32.0, only when the token IDs match from the first token through the reused block and every extra key matches: the same adapter, the same multimodal inputs and the same cache salt [@src-82]. Matching *text* is not enough — a different tokenizer, chat template or system-prompt whitespace changes the token IDs. A cache also belongs to one engine and so to one model and configuration. The block must still be cached, not yet evicted, and the engine skips the lookup entirely for requests that ask for prompt log-probabilities [@src-82]. vLLM's documentation says prefix caching "won't change model outputs" [@src-82]; the computation is mathematically the same, but the reused keys and values may have been computed in a different batch and chunk shape, and the engine's documentation says it does not guarantee stable log-probabilities across runs and that batch-size changes can vary them [@src-82]. "Same output" therefore means mathematically equivalent, not bitwise identical.
+
+![Three requests sharing a six-token prefix. Top: a radix tree stores the prefix once and splits where the requests diverge; reference counts count running requests, and only the finished request's unreferenced leaf is evictable. Bottom: under full-block hashing with a toy block size of 4, requests B and C can reuse only the one whole matching block. Toy word "tokens"; schematic.](figures/rendered/fig-prefix-tree.svg){#fig-prefix-tree}
+
+#### Taking memory back: eviction and preemption
+
+Two very different things can free cache memory.
+
+**Reclaiming an idle cached block** loses no running request's history. In vLLM v0.32.0 a finished request's blocks join a free queue only when their reference count reaches zero, and a cached block keeps its hash while it waits; the engine allocates from the head of that queue, and taking a cached block from it evicts the cached content [@src-82]. Blocks of a finished request join the queue tail in reverse order, because a request's last blocks hash longer prefixes and are least likely to be reused [@src-82]. RadixAttention evicts the least recently used unreferenced leaf first, keeping shared ancestors until they become leaves themselves [@src-77].
+
+**Preempting a running request** removes history it still needs. When the free blocks cannot hold the next tokens of every running sequence, PagedAttention evicts *all* of a sequence's blocks or none, and recovers them in one of two ways [@src-73]. **Swapping** copies the blocks to CPU memory and copies them back later; the CPU swap space never needs to exceed the GPU cache pool. **Recomputation** frees the blocks and rebuilds them by prefilling the prompt together with the tokens already generated, in one pass. The authors report that swapping suffers from many small transfers at small block sizes, that recomputation overhead does not depend on block size, and that the two perform comparably for blocks of 16 to 64 tokens in their setup [@src-73]. The scheduler in vLLM v0.32.0 preempts only by recomputation (its optional KV-offloading connectors are not covered here): preemption frees the request's blocks, resets its computed-token count to zero and returns it to the waiting queue [@src-82]. Any of those freed blocks that were cached and are still in the free queue when the request resumes can be hit again, so some of the recomputation may be avoided. *Which* request to preempt, and when, is scheduling policy (Chapter 3).
+
+::: {.callout-warning title="Common misconception"}
+*"Evicting cache is evicting cache."* Reclaiming an idle prefix, preempting a request and truncating history are three different operations. Reclaiming loses only future reuse. Preemption with swapping or recomputation is exact — the request resumes with its full history rebuilt, mathematically equivalent though not necessarily bitwise identical — and costs time. Dropping old tokens from a full-attention model's cache to save memory is lossy: the model no longer attends to them, and its outputs change.
+:::
+
+#### Architecture changes the cache, too
+
+**Sliding windows.** In Mistral 7B every layer attends only to the previous $W = 4096$ positions, while stacked layers still carry information further. Because no layer attends beyond $W$, a **rolling buffer** of $W$ entries (introduced in Workbook 04, Chapter 4) suffices: the keys and values for position $i$ go to slot $i \bmod W$, overwriting older ones, so the cache stops growing [@src-25]. The authors report an 8× cache reduction at 32k tokens "without impacting the model quality" [@src-25]. (The paper's text describes its rolling-buffer figure with $W = 3$ while the figure caption says $W = 4$; the mechanism is the same.) A paged engine can get the same bound by freeing blocks: vLLM v0.32.0 releases a sliding-window layer's blocks once they fall wholly outside the window, while full-attention layers free nothing until the request finishes [@src-82]. Both are exact *for a model trained with the window*. Imposing a window on a model trained with full attention is a different act — it discards history the model expects, so it is lossy history truncation, not cache management.
+
+**Looped depth.** If a looped model gives each pass its own cache entries, cache per token grows with the number of block applications, not with the number of distinct blocks — two passes of our illustrative model would need 256 KiB per token. Whether a design shares cache entries across passes is a property of that design, not something weight sharing implies (Workbook 04, Chapter 8).
+
+**Storage is not traffic.** Sharing reduces the bytes *stored*, not necessarily the bytes *read*. In the cost model of Chapter 1, each sequence's decode attention reads its own whole retained history every step, whether its prefix blocks are shared or private; an attention kernel written to exploit the sharing could do better, but this chapter does not assume one. The scaling-book analysis makes the same point for caches shared across layers: they shrink the cache but "may need to be read from HBM multiple times, so it does not necessarily improve the step time" [@src-10].
 
 ### Worked example
 
-*Pending: drafting has not yet begun.*
+**Illustrative inputs.** The model and device of Chapter 1: 128 KiB (131,072 bytes) of cache per token, 16.06 GB of stored weights, 80 GB of device memory. We take $u = 0.92$ (the default in vLLM v0.32.0, used here as an input), an illustrative runtime headroom of 4 GiB for activations and workspaces, and blocks of 16 tokens (2 MiB each). Every result below is derived from these inputs.
+
+**Budget and concurrency** (@eq-kv-budget). The engine may use $\lceil 0.92 \times 80\,\mathrm{GB} \rceil = 73.6$ GB; subtracting 16.06 GB of weights and 4.29 GB (4 GiB) of headroom leaves 53.25 GB = 49.59 GiB for cache, or 25,391 blocks (450,560 bytes left over, less than one block). A full 4,096-token sequence needs 256 blocks, so 99 such sequences fit — not the 119 of Chapter 1, which used all 80 GB and assumed no headroom. After those 99, 47 blocks remain: one more sequence fits *exactly* if it holds at most 752 tokens; at 753 tokens it needs a 48th block and does not fit.
+
+| Retained tokens | 1 | 15 | 16 | 17 | 33 | 4,096 | 4,097 |
+|---|---|---|---|---|---|---|---|
+| Blocks | 1 | 1 | 1 | 2 | 3 | 256 | 257 |
+| Empty slots | 15 | 1 | 0 | 15 | 15 | 0 | 15 |
+
+: Block rounding with 16-token blocks (derived). One token past a block boundary costs a whole new block. {#tbl-rounding}
+
+**Reservation versus paging.** Take eight running requests with current lengths from 16 to 4,000 tokens and final lengths from 64 to 4,096, in a system that reserves 4,096 slots per request (4 GiB in total). Of the 32,768 reserved slots, 10,117 hold tokens (30.9%), 1,312 are reserved for tokens still to come, and 21,339 are internal fragmentation that will never be used. Paging the same requests allocates 10,176 slots, of which 59 are empty: 99.4% in use. In a toy contiguous arena of sixteen 256 MiB units, three finished requests leave 1.5 GiB free in three 512 MiB gaps, so a request needing 768 MiB of contiguous space is refused; with paging, any three free blocks serve it. These shares come from the chosen workload, not from the paper's measurements.
+
+**A lifecycle trace** (toy block size of 4 word "tokens", an eight-block pool; @fig-block-table shows the first row). R1 has 10 tokens and R2 has 11, of which 8 are a prefix hit; before finishing, R1 generates 3 more tokens, which fill P2 and take P4 (its table becomes 0 1 2 4). R3 repeats the prompt of R1 and hits 8 cached tokens, and R4 brings 19 new tokens. Requests are processed one after another, with no extra keys, one cache group and one block per hash — a mechanism illustration, not the exact state of vLLM.
+
+| Event | Tables | Counts | Free queue |
+|---|---|---|---|
+| R1, R2 arrive | R1: 0 1 2; R2: 0 1 3 | P0 2, P1 2, P2 1, P3 1 | 4 5 6 7 |
+| R1 grows, finishes | R2: 0 1 3 | P0 1, P1 1, P3 1 | 5 6 7 4 2 |
+| R2 finishes | none | all 0 | 5 6 7 4 2 3 1 0 |
+| R3 arrives | R3: 0 1 5 | P0 1, P1 1, P5 1 | 6 7 4 2 3 |
+| R4 arrives | R3: 0 1 5; R4: 6 7 4 2 3 | all 1 | empty |
+
+: Toy lifecycle, simulated with the rules of vLLM-style prefix caching (derived). P0–P2 stay cached while idle in the free queue; P2 is evicted when R4 takes it. {#tbl-lifecycle}
+
+When R1 finishes, its private blocks go to the free queue, but P0 and P1 stay allocated because R2 still holds them; releasing them at that point would place them behind P2 in the queue, so any request needing six or more new blocks while R2 runs would be handed blocks R2 is still reading. When both requests have finished, P0–P2 sit in the free queue *with their contents still cached*, so R3 reuses the prefix without recomputing it. R4 then needs five blocks; taking P2 evicts its cached content, and a later request repeating the full sequence of R1 could no longer reuse it. For copy-on-write, the simulation forks two samples over a six-token prompt (one full block and one half-full block, each with count 2): the first sample to write copies the half-full block to a new one, and the second then writes in place.
+
+**Prefix reuse at scale.** Thirty-two requests share a 1,024-token system prompt and each adds 1,024 tokens of its own. Without sharing they occupy 4,096 blocks (8 GiB); sharing the prompt's 64 full blocks cuts this to 2,112 blocks (4.125 GiB), and the same budget then holds 395 such requests instead of 198. Each hit also skips prefilling the 1,024 shared tokens. Yet each decode step still reads 8 GiB of cache: every request attends to its full 2,048-token history.
 
 ### Compare and contrast
 
-*Pending: drafting has not yet begun.*
+| | Contiguous | Paged, hashed | Radix tree |
+|---|---|---|---|
+| Waste | all three kinds | < 1 block each | none at edges |
+| Reuse unit | none | full blocks | any prefix |
+| Freed when | request ends | count is zero | LRU free leaf |
+| Bytes per token | unchanged | unchanged | unchanged |
+
+: Allocation and reuse designs as their sources describe them: contiguous baselines (no reuse) and the paged designs of vLLM v0.32.0 and SGLang. The original PagedAttention system shared provider-set prefixes through its paged blocks. No design changes the bytes a retained token needs. {#tbl-alloc-compare}
 
 ### Check your understanding {#sec-ch2-check}
 
-*Pending: drafting has not yet begun.*
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+Full solutions are in [Answer Key: Chapter 2](#sec-solutions-ch2).
+
+```{=typst}
+]
+```
+
+<!-- Keep each question with its answer line on one page: each question is
+its own one-item list (numbered from its own start) in a non-breakable block. -->
+
+```{=typst}
+#block(breakable: false)[
+```
+
+1. **Calculation.** Using the worked example's budget, how many 2,048-token sequences fit? How many fit if the runtime headroom is 8 GiB instead of 4 GiB? \
+   ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
+2. **Calculation.** With 16-token blocks, how many blocks and empty slots do sequences of 48, 49 and 63 retained tokens need? A sequence holds 48 tokens and no block is free: can it generate its next token? \
+   ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
+3. **Debugging.** An allocator puts every block of a finished request on the free queue at once, ignoring reference counts. Using the lifecycle trace, what goes wrong when R1 finishes, and what is the correct rule? \
+   ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
+4. **Misconception check.** True or false: if a new request's prompt has the same text as a cached one, vLLM v0.32.0 will reuse the cached keys and values, and the output will be bitwise identical. \
+   ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
+5. **Compare.** Reclaiming an idle cached prefix, preempting a running request by recomputation, and imposing a 4,096-token window on a full-attention model all free cache memory. Which lose information the model needs, and which change its outputs? \
+   ________________________________________________
+
+```{=typst}
+]
+```
 
 ### Applied exercise
 
-*Pending: drafting has not yet begun.*
+For the prefix-reuse-at-scale example, verify the block counts with and without sharing, the maximum number of such requests under the worked example's budget, and the cache bytes read per decode step. Then explain why sharing roughly halves the stored cache but leaves per-step reads unchanged in this chapter's cost model, and what would have to change for the reads to fall too.
 
 ### Interview lens
 
-*Pending: drafting has not yet begun.*
+*"The GPU has 80 GB and the model takes 16 GB, so we have 64 GB for cache — why does the engine report much less, and why are requests still preempted?"* A strong answer starts from @eq-kv-budget: the engine uses only a fraction of device memory, and it subtracts not just weights but profiled activation and workspace memory, so the cache budget is smaller than the naive difference. It then counts blocks, not bytes — each sequence rounds up to whole blocks — and notes that concurrency at long context is set by the cache. Preemption happens when running sequences need new blocks and none are free; vLLM v0.32.0 recomputes preempted requests, so a high preemption rate costs prefill time. Finally, a strong answer asks whether prefix sharing could raise concurrency, and says what reuse requires: identical tokens and extra keys, not similar text.
 
 ### Chapter recap
 
-*Pending: drafting has not yet begun.*
+- Cache budget = usable device memory − weights − runtime memory (@eq-kv-budget); capacity is counted in whole blocks, with at most one partly filled block per sequence.
+- Contiguous reservation wastes reserved slots, internal fragmentation and external fragmentation; paging removes the first and last and bounds the second, without reducing the logical bytes a retained history needs.
+- Block tables map logical blocks to physical ones; reference counts allow sharing, a block is released only at count zero, and copy-on-write copies a shared block before it is written.
+- vLLM v0.32.0 reuses cached full blocks keyed by chained hashes of token IDs and extra keys; RadixAttention reuses any shared token prefix through a radix tree. Matching text alone does not make a prefix reusable, and reuse is mathematically but not bitwise identical.
+- Reclaiming idle cache loses only reuse; preemption by swapping or recomputation is exact but costs time (vLLM v0.32.0 recomputes); truncating a full-attention model's history is lossy.
+- Architectural sliding windows bound the cache exactly; imposed windows do not. Looped models may need cache per pass. Sharing reduces storage, not necessarily traffic.
 
 ### Sources and further reading
 
-*Pending: drafting has not yet begun.*
+Primary sources: [@src-73] (Kwon et al., PagedAttention — Sections 3, 4.2–4.5 and 7.2–7.3: the three kinds of waste, block tables, reference counts and copy-on-write, shared prefixes, all-or-nothing preemption with swapping or recomputation, and the block-size trade-off; targeted full-text read of the arXiv PDF); [@src-77] (Zheng et al., SGLang — Section 3: RadixAttention's radix tree, one-token pages, reference counts and LRU leaf eviction; targeted read); [@src-25] (Jiang et al., Mistral 7B — Section 2: sliding-window attention, the rolling buffer cache and its reported cache reduction; targeted read of the arXiv PDF). Documentation and code: [@src-82] (vLLM v0.32.0 at a pinned commit — the prefix-caching design document, the KV cache manager, scheduler preemption and the cache-budget calculation). Analytical companion: [@src-10] (the "Inference" chapter — storage versus step time for shared caches).

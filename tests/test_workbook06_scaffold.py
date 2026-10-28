@@ -38,9 +38,11 @@ REQUIRED_HEADINGS = [
     "Applied exercise", "Interview lens", "Chapter recap", "Sources and further reading",
 ]
 CANONICAL = os.path.join(REPO_ROOT, "outputs", "06-llm-inference-workbook.pdf")
-DRAFTED = {1: "accepted_frozen"}  # chapter -> status; every other chapter is scaffold_only
+DRAFTED = {1: "accepted_frozen", 2: "drafted_pending_human_review"}  # every other chapter is scaffold_only
 SCAFFOLD = [n for n in range(1, 8) if n not in DRAFTED]
 CH1_FIGURES = {"fig-roofline-prefill-decode", "fig-request-timeline", "fig-latency-throughput-frontier"}
+CH2_FIGURES = {"fig-block-table", "fig-prefix-tree"}
+DRAWN_FIGURES = CH1_FIGURES | CH2_FIGURES
 
 
 def read(path):
@@ -78,7 +80,7 @@ class TestStructure(unittest.TestCase):
         index = read(os.path.join(WB, "index.qmd"))
         self.assertIn('title: "LLM Inference Engineering"', index)
         front = index.split("---")[1]  # YAML title block only (the source comment may say what it is not)
-        self.assertIn('subtitle: "Development draft: Chapter 1 drafted; Chapters 2–7 scaffolded"', front)
+        self.assertIn('subtitle: "Development draft: Chapters 1–2 drafted; Chapters 3–7 scaffolded"', front)
         self.assertNotIn("drafting has not yet begun", front)
         self.assertNotRegex(front, r"(?i)release candidate|final edition|complete|release-ready")
 
@@ -159,14 +161,14 @@ class TestRecords(unittest.TestCase):
     def test_figure_plan_and_page_budget(self):
         figs = safe_load_path(os.path.join(WB, "figure-plan.yaml"))["figures"]
         self.assertTrue(figs)
-        self.assertEqual({f["id"] for f in figs if f["status"] == "drawn"}, CH1_FIGURES)
-        self.assertEqual({f["status"] for f in figs if f["id"] not in CH1_FIGURES}, {"planned"})
+        self.assertEqual({f["id"] for f in figs if f["status"] == "drawn"}, DRAWN_FIGURES)
+        self.assertEqual({f["status"] for f in figs if f["id"] not in DRAWN_FIGURES}, {"planned"})
         self.assertTrue(all(f["must_be_redrawn"] is True for f in figs))
         self.assertEqual({f["chapter"] for f in figs}, {f"ch{n}" for n in range(1, 8)})
         rendered = sorted(os.listdir(os.path.join(WB, "figures", "rendered")))
-        self.assertEqual(rendered, sorted([".gitkeep"] + [f + ".svg" for f in CH1_FIGURES]))
+        self.assertEqual(rendered, sorted([".gitkeep"] + [f + ".svg" for f in DRAWN_FIGURES]))
         scripts = sorted(f for f in os.listdir(os.path.join(WB, "figures", "source")) if f.endswith(".py"))
-        self.assertEqual(scripts, sorted(["_common.py"] + [f.replace("-", "_") + ".py" for f in CH1_FIGURES]))
+        self.assertEqual(scripts, sorted(["_common.py"] + [f.replace("-", "_") + ".py" for f in DRAWN_FIGURES]))
         budget = safe_load_path(os.path.join(WB, "page-budget.yaml"))
         self.assertEqual((budget["target_pages"], budget["hard_ceiling_pages"]), (72, 78))
 
