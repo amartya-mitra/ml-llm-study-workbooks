@@ -7,8 +7,10 @@ config/chapter-status-registry.yaml. See docs/publication-hygiene.md.
 Modes
 -----
 default (offline, side-effect free)
-    Checks registry metadata, README consistency and that no canonical
-    PDF is tracked by Git. Needs no network and no local PDFs, so a fresh
+    Checks registry metadata, README consistency (learner catalog and
+    in-progress block), the edition/checksum verification document
+    (docs/editions-and-verification.md) and that no canonical PDF is
+    tracked by Git. Needs no network and no local PDFs, so a fresh
     clone passes.
 --check-local
     Additionally verifies page count and SHA-256 of each canonical PDF that
@@ -40,14 +42,6 @@ from _yaml_lite import safe_load_path  # noqa: E402
 DEFAULT_REPO_SLUG = "amartya-mitra/ml-llm-study-workbooks"
 LIFECYCLE = ["planned", "drafting", "review_pending", "accepted_frozen",
              "canonical_built", "published"]
-STATUS_LABEL = {  # exact README status text for each lifecycle state
-    "planned": "Planned",
-    "drafting": "Drafting",
-    "review_pending": "Review pending",
-    "accepted_frozen": "Accepted (frozen)",
-    "canonical_built": "Release pending",
-    "published": "Published",
-}
 PREPARED_FIELDS = ["title", "canonical_path", "page_count", "sha256", "source_commit",
                    "release_tag", "release_asset", "release_url", "reproduction_command"]
 PUBLISHED_EXTRA = ["publication_date", "human_acceptance"]
@@ -170,56 +164,149 @@ def validate_registry(pubs, raw_text="", slug=DEFAULT_REPO_SLUG):
     return errors
 
 
-def parse_readme_catalog(text):
-    if README_START not in text or README_END not in text:
+IN_PROGRESS_START, IN_PROGRESS_END = "<!-- in-progress:start -->", "<!-- in-progress:end -->"
+VERIFICATION_DOC = os.path.join("docs", "editions-and-verification.md")
+IN_PROGRESS_STATES = ("drafting", "review_pending", "accepted_frozen", "canonical_built")
+DOWNLOAD_RE = re.compile(r"https://github\.com/[^\s)>\]]+/releases/download/[^\s)>\]]+")
+
+
+def _block(text, start, end):
+    if start not in text or end not in text:
         return None
-    block = text.split(README_START, 1)[1].split(README_END, 1)[0]
-    rows = {}
-    for line in block.splitlines():
-        m = re.search(r"`((?:workbook|addendum)[A-Za-z0-9._-]*)`", line)
-        if line.strip().startswith("|") and m:
-            rows[m.group(1)] = line
-    return rows
+    return text.split(start, 1)[1].split(end, 1)[0]
 
 
-def validate_readme(text, pubs, slug=DEFAULT_REPO_SLUG):
+def editions(pubs):
+    """Every published edition: the current one per record plus published previous_releases."""
+    out = []
+    for aid, rec in (pubs or {}).items():
+        if not isinstance(rec, dict) or rec.get("status") != "published":
+            continue
+        out.append({"id": aid, "current": True, **{k: rec.get(k) for k in (
+            "title", "version", "release_tag", "release_asset", "sha256", "page_count", "bytes", "release_url")}})
+        for prev in rec.get("previous_releases") or []:
+            if prev.get("status") == "published":
+                out.append({"id": aid, "current": False, "title": rec.get("title"),
+                            **{k: prev.get(k) for k in ("version", "release_tag", "release_asset", "sha256",
+                                                         "page_count", "bytes", "release_url")}})
+    return out
+
+
+def parse_readme_catalog(text):
+    """Learner catalog body rows (header and separator removed) between the catalog markers."""
+    block = _block(text, README_START, README_END)
+    if block is None:
+        return None
+    rows = [l for l in block.splitlines() if l.strip().startswith("|")]
+    return [r for r in rows[2:] if not re.fullmatch(r"\|[\s:|-]*", r.strip())]
+
+
+def chapter_progress(workbooks, workbook_id):
+    """(accepted_frozen chapters, total chapters) for a workbook in the status registry, or None."""
+    wb = (workbooks or {}).get(workbook_id)
+    chapters = wb.get("chapters") if isinstance(wb, dict) else None
+    if not isinstance(chapters, dict) or not chapters:
+        return None
+    done = sum(1 for c in chapters.values() if isinstance(c, dict) and c.get("status") == "accepted_frozen")
+    return done, len(chapters)
+
+
+def validate_readme(text, pubs, slug=DEFAULT_REPO_SLUG, workbooks=None, browser=None):
+    """README integrity for the learner-facing layout.
+
+    The catalog table lists published guides only, each with its exact
+    current-edition release-asset link labelled "Download PDF" and no
+    repository ids, tags or checksums; unpublished work appears only in the
+    in-progress block, labelled "In progress", with chapter progress taken
+    from the status registry; no README link points to an unpublished,
+    previous, RC or development artifact; and browser-reading links appear
+    only after the site is recorded as verified.
+    """
     errors = []
     rows = parse_readme_catalog(text)
     if rows is None:
         return [f"README lacks the {README_START} ... {README_END} catalog block"]
+    catalog = _block(text, README_START, README_END)
+    current = {asset_url(slug, r.get("release_tag", ""), r.get("release_asset", "")): aid
+               for aid, r in pubs.items() if isinstance(r, dict) and r.get("status") == "published"}
+    seen = {}
+    for row in rows:
+        urls = [u for u in DOWNLOAD_RE.findall(row) if u in current]
+        if not urls:
+            errors.append("README catalog row has no current published download link "
+                          f"(unpublished work belongs in the in-progress section): {row.strip()[:100]}")
+        for url in urls:
+            seen.setdefault(current[url], []).append(row)
+            if not re.search(r"\[Download PDF[^\]]*\]\(" + re.escape(url) + r"\)", row):
+                errors.append(f"[{current[url]}] catalog link must be labelled 'Download PDF': {url}")
+    for url, aid in current.items():
+        n = len(seen.get(aid, []))
+        if n == 0:
+            errors.append(f"[{aid}] missing from README catalog (needs the direct release-asset link {url})")
+        elif n > 1:
+            errors.append(f"[{aid}] appears in {n} README catalog rows")
+    shown = DOWNLOAD_RE.sub("", catalog)
+    if re.search(r"\b[0-9a-f]{64}\b", shown) or re.search(r"`(?:workbook|addendum)[A-Za-z0-9._-]*`", shown):
+        errors.append("README catalog must not show checksums or repository ids (they belong in the verification document)")
     for aid, rec in pubs.items():
-        status = rec.get("status")
-        row = rows.get(aid)
-        if row is None:
-            errors.append(f"[{aid}] missing from README catalog")
+        tag = rec.get("release_tag") if isinstance(rec, dict) else None
+        if tag and re.search(r"(?<![\w/-])" + re.escape(tag) + r"(?![\w-])", shown):
+            errors.append(f"[{aid}] README catalog shows release tag {tag} outside its download link")
+    for url in DOWNLOAD_RE.findall(text):
+        if url not in current:
+            errors.append(f"README contains a release-download link not backed by a current published record: {url}")
+    progress = _block(text, IN_PROGRESS_START, IN_PROGRESS_END)
+    for aid, rec in pubs.items():
+        if not isinstance(rec, dict) or rec.get("status") not in IN_PROGRESS_STATES:
             continue
-        label = STATUS_LABEL.get(status)
-        cells = [c.strip().strip("*") for c in row.strip().strip("|").split("|")]
-        if label is None or label not in cells:
-            errors.append(f"[{aid}] README status must read {label!r} (registry status {status!r}); row: {row.strip()[:120]}")
-        direct = asset_url(slug, rec.get("release_tag", ""), rec.get("release_asset", ""))
-        if status == "published":
-            if direct not in row:
-                errors.append(f"[{aid}] README row lacks the direct release-asset link {direct}")
-            if str(rec.get("page_count")) not in row:
-                errors.append(f"[{aid}] README row lacks page count {rec.get('page_count')}")
-            if str(rec.get("release_tag")) not in row:
-                errors.append(f"[{aid}] README row lacks release tag {rec.get('release_tag')}")
-        else:
-            if "releases/download/" in row:
-                errors.append(f"[{aid}] README links a release asset but registry status is {status!r}")
-    for aid in rows:
-        if aid not in pubs:
-            errors.append(f"README catalog row [{aid}] has no registry record")
-    published_urls = {asset_url(slug, r.get("release_tag", ""), r.get("release_asset", ""))
-                      for r in pubs.values() if r.get("status") == "published"}
-    for url in re.findall(r"https://github\.com/[^\s)>\]]+/releases/download/[^\s)>\]]+", text):
-        if url not in published_urls:
-            errors.append(f"README contains a release-download link not backed by a published record: {url}")
+        title = str(rec.get("title") or "")
+        if title and title in catalog:
+            errors.append(f"[{aid}] unpublished guide {title!r} appears in the published catalog")
+        if progress is None:
+            errors.append(f"README lacks the {IN_PROGRESS_START} ... {IN_PROGRESS_END} block for unpublished work")
+            continue
+        lines = [l for l in progress.splitlines() if title and title in l]
+        if not lines:
+            errors.append(f"[{aid}] {title!r} missing from the README in-progress block")
+            continue
+        line = " ".join(lines)
+        if "In progress" not in line or "Published" in line:
+            errors.append(f"[{aid}] in-progress entry must read 'In progress', not published: {line[:100]}")
+        prog = chapter_progress(workbooks, rec.get("workbook_id"))
+        if prog is not None and f"{prog[0]} of {prog[1]} chapters" not in line:
+            errors.append(f"[{aid}] in-progress entry must state '{prog[0]} of {prog[1]} chapters' "
+                          f"(from the status registry); got: {line[:120]}")
+    if progress is not None and "releases/download/" in progress:
+        errors.append("README in-progress block links a release asset")
     # Prose may *name* these directories (output policy); links to them are rejected.
     if re.search(r"\]\([^)]*outputs/_(?:releases|development)/", text) or \
             re.search(r"https?://\S*(?:rc\d+|_releases|_development)\S*\.pdf", text):
         errors.append("README links RC/development artifacts")
+    verified = isinstance(browser, dict) and browser.get("verified") is True and browser.get("base_url")
+    for url in re.findall(r"\]\((https?://[^)\s]*github\.io[^)\s]*)\)", text):
+        if not verified:
+            errors.append(f"README shows a browser-reading link before browser reading is verified: {url}")
+        elif not url.startswith(str(browser["base_url"])):
+            errors.append(f"README browser-reading link {url} is outside the verified site {browser['base_url']}")
+    return errors
+
+
+def validate_verification_doc(text, pubs, slug=DEFAULT_REPO_SLUG):
+    """Every published edition (current and previous) keeps its release tag,
+    SHA-256, page count and release page in the verification document."""
+    if text is None:
+        return [f"{VERIFICATION_DOC} is missing"]
+    errors = []
+    for ed in editions(pubs):
+        tag, sha = ed.get("release_tag"), ed.get("sha256")
+        line = next((l for l in text.splitlines() if tag and sha and tag in l and sha in l), None)
+        if line is None:
+            errors.append(f"[{ed['id']}] {VERIFICATION_DOC} lacks a row with release tag {tag} and its SHA-256")
+            continue
+        if f"| {ed.get('page_count')} |" not in line:
+            errors.append(f"[{ed['id']}] {VERIFICATION_DOC} row for {tag} lacks page count {ed.get('page_count')}")
+        if release_page_url(slug, tag) not in text:
+            errors.append(f"[{ed['id']}] {VERIFICATION_DOC} lacks the release page {release_page_url(slug, tag)}")
     return errors
 
 
@@ -322,13 +409,21 @@ def main(argv=None):
     reg_path = os.path.join(args.root, "config", "chapter-status-registry.yaml")
     with open(reg_path, encoding="utf-8") as f:
         raw = f.read()
-    pubs = (safe_load_path(reg_path) or {}).get("publications")
+    registry = safe_load_path(reg_path) or {}
+    pubs = registry.get("publications")
     with open(os.path.join(args.root, "README.md"), encoding="utf-8") as f:
         readme = f.read()
+    vpath = os.path.join(args.root, VERIFICATION_DOC)
+    vdoc = None
+    if os.path.isfile(vpath):
+        with open(vpath, encoding="utf-8") as f:
+            vdoc = f.read()
 
     offline = validate_registry(pubs, raw, args.repo_slug)
     if isinstance(pubs, dict):
-        offline += validate_readme(readme, pubs, args.repo_slug)
+        offline += validate_readme(readme, pubs, args.repo_slug, registry.get("workbooks"),
+                                   registry.get("browser_reading"))
+        offline += validate_verification_doc(vdoc, pubs, args.repo_slug)
     tracked = git_tracked_files(args.root)
     if tracked is not None:
         offline += [f"canonical/RC PDF is tracked by Git (must stay untracked): {p}" for p in tracked_canonical_pdfs(tracked)]

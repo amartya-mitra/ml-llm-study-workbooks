@@ -180,10 +180,18 @@ class TestRecords(unittest.TestCase):
         self.assertEqual(pub["development_dir"], "outputs/_development/06-llm-inference/")
         self.assertEqual(pub["release_candidate_dir"], "outputs/_releases/06-llm-inference/")
         self.assertNotIn("publication_date", pub)
-        row = [l for l in read(os.path.join(REPO_ROOT, "README.md")).splitlines() if l.startswith("| `workbook-06` |")]
-        self.assertEqual(len(row), 1)
-        self.assertIn("| Drafting |", row[0])
-        self.assertNotIn("releases/download", row[0])
+        readme = read(os.path.join(REPO_ROOT, "README.md"))
+        catalog = readme.split("<!-- publication-catalog:start -->")[1].split("<!-- publication-catalog:end -->")[0]
+        progress = readme.split("<!-- in-progress:start -->")[1].split("<!-- in-progress:end -->")[0]
+        self.assertNotIn(pub["title"], catalog)
+        self.assertIn(pub["title"], progress)
+        self.assertIn("In progress", progress)
+        chapters = self.reg["workbooks"][WB_ID]["chapters"]
+        accepted = sum(1 for c in chapters.values() if c["status"] == "accepted_frozen")
+        self.assertEqual((accepted, len(chapters)), (len(DRAFTED), 7))
+        self.assertIn(f"{accepted} of {len(chapters)} chapters", progress)
+        self.assertNotIn("releases/download", progress)
+        self.assertNotIn(pub["release_asset"], readme)
         project = safe_load_path(os.path.join(REPO_ROOT, "config", "project.yaml"))
         self.assertEqual([w for w in project["workbooks"] if w["id"] == WB_ID][0]["status"], "scaffold_only")
 

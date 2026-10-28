@@ -7,8 +7,24 @@ published binary can always be traced to a source commit and verified.
 Source of truth: the `publications:` section of
 `config/chapter-status-registry.yaml`. Checked by
 `scripts/validate_publication_hygiene.py` (tests:
-`tests/test_publication_hygiene.py`). The README catalog between the
-`publication-catalog` markers must agree with the registry.
+`tests/test_publication_hygiene.py`). Two reader-facing documents must
+agree with the registry:
+
+- **README.** The learner catalog between the `publication-catalog`
+  markers lists published guides only. Each row has its current
+  edition's direct release-asset link, labelled "Download PDF", and no
+  repository ids, tags or checksums. Unpublished work (`drafting` through
+  `canonical_built`) appears only between the `in-progress` markers, by
+  title, reading "In progress" and stating its accepted-chapter count
+  ("N of M chapters") from the `workbooks:` registry. No README link may
+  point to an unpublished, previous, RC or development artifact.
+  Browser-reading (`github.io`) links are allowed only once
+  `browser_reading.verified` is true (see
+  [browser-reading.md](browser-reading.md)).
+- **[editions-and-verification.md](editions-and-verification.md).**
+  Every published edition, current and previous, has a row with its
+  release tag, page count and SHA-256, plus a link to its release page.
+  Checksums live here, not in the README.
 
 ## Lifecycle
 
@@ -20,7 +36,8 @@ planned -> drafting -> review_pending -> accepted_frozen -> canonical_built -> p
   meaning, unchanged). Public distribution is not implied.
 - `canonical_built` — the canonical PDF exists, is human-accepted, and its
   page count, SHA-256 and source commit are recorded. Release fields hold
-  **prepared** values, not claims. README status reads "Release pending".
+  **prepared** values, not claims. The README still lists it under
+  "In progress and planned".
 - `published` — only when **all** hold:
   1. human acceptance is recorded (`human_acceptance.accepted: true` + date);
   2. the canonical PDF's page count and SHA-256 are recorded;
@@ -29,7 +46,9 @@ planned -> drafting -> review_pending -> accepted_frozen -> canonical_built -> p
   5. a GitHub Release exists for the tag (not draft, not prerelease);
   6. the canonical PDF is its one attached asset;
   7. the downloaded remote asset reproduces the recorded SHA-256;
-  8. the README links the direct release-asset URL;
+  8. the README catalog links the direct release-asset URL, and the
+     editions document records its tag, page count, SHA-256 and release
+     page;
   9. the registry records the release URL and publication date.
 
 A work is never `published` merely because its PDF exists locally, nor
@@ -52,7 +71,7 @@ unique across the registry.
 3. Independent PDF visual acceptance of every page.
 4. Page count and SHA-256 capture.
 5. Publication metadata update in the registry (`canonical_built`).
-6. README catalog update (status "Release pending").
+6. README in-progress entry stays (no download link yet).
 7. Run `python3 scripts/validate_publication_hygiene.py --check-local`.
 8. Local documentation commit.
 9. Push of the source/publication commit (explicit user authorization).
@@ -64,8 +83,13 @@ unique across the registry.
     SHA-256 of a freshly downloaded copy
     (`validate_publication_hygiene.py --remote` after step 13's metadata is
     set, plus a manual download check before it).
-13. Set `status: published`, `publication_date`, README status and direct
-    link; re-run offline and `--remote` validation.
+13. Set `status: published` and `publication_date`. Move the guide from
+    the README in-progress block to the catalog, with its "Download PDF"
+    link. Add its row and release page to
+    `docs/editions-and-verification.md`; for a new edition, move the old
+    one to `previous_releases` and keep its row. Re-run offline and
+    `--remote` validation; the browser-reading site picks up the new
+    edition on its next build.
 14. Final publication commit and push. Only now is the artifact published.
 
 Compressed form: human acceptance → canonical build → complete visual

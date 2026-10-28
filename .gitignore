@@ -45,6 +45,12 @@ outputs/_development/
 # above) and .gitkeep stay directly under outputs/.
 outputs/_releases/
 
+# Browser-reading site build (scripts/build_site.py): downloaded release
+# PDFs and generated HTML. Deployed by .github/workflows/pages.yml, never
+# committed.
+_site/
+.site-build-*/
+
 # Editor / OS noise
 .DS_Store
 *.swp

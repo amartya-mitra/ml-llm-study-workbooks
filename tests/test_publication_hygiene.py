@@ -37,17 +37,33 @@ def record(n="04", status="published", **over):
     return rec
 
 
-def readme_for(pubs, overrides=None):
-    rows = []
+def readme_for(pubs, overrides=None, progress=None):
+    """A README in the learner layout: published guides in the catalog,
+    unpublished ones in the in-progress block (``progress`` maps id -> text)."""
+    rows, items = [], []
     for aid, rec in pubs.items():
-        st = rec["status"]
-        label = v.STATUS_LABEL[st]
-        link = (v.asset_url(SLUG, rec["release_tag"], rec["release_asset"])
-                if st == "published" else "not yet released")
-        row = f"| `{aid}` | {aid} | scope | {label} | {rec['page_count']} | `{rec['release_tag']}` | {link} |"
-        rows.append((overrides or {}).get(aid, row))
-    return f"intro\n{v.README_START}\n| ID | W | S | Status | P | V | D |\n|---|---|---|---|---|---|---|\n" \
-           + "\n".join(rows) + f"\n{v.README_END}\n"
+        if rec["status"] == "published":
+            url = v.asset_url(SLUG, rec["release_tag"], rec["release_asset"])
+            row = f"| **{rec['title']}** | what you learn | [Download PDF]({url}) ({rec['page_count']} pages) |"
+            rows.append((overrides or {}).get(aid, row))
+        elif rec["status"] in v.IN_PROGRESS_STATES:
+            items.append(f"- **{rec['title']}**: " + (progress or {}).get(aid, "In progress."))
+    return (f"intro\n{v.README_START}\n| Study guide | What you will learn | Read |\n|---|---|---|\n"
+            + "\n".join(rows) + f"\n{v.README_END}\n\n{v.IN_PROGRESS_START}\n"
+            + "\n".join(items) + f"\n{v.IN_PROGRESS_END}\n")
+
+
+def verification_for(pubs):
+    lines = ["| Guide | Edition | Tag | Pages | Bytes | SHA-256 | Released |", "|---|---|---|---|---|---|---|"]
+    for ed in v.editions(pubs):
+        lines.append(f"| {ed['title']} | x | `{ed['release_tag']}` | {ed['page_count']} | 1 | `{ed['sha256']}` | d |")
+    lines += [v.release_page_url(SLUG, ed["release_tag"]) for ed in v.editions(pubs)]
+    return "\n".join(lines) + "\n"
+
+
+WORKBOOKS = {"06-fixture": {"chapters": {"01": {"status": "accepted_frozen"},
+                                         "02": {"status": "accepted_frozen"},
+                                         "03": {"status": "scaffold_only"}}}}
 
 
 class RegistryValidationTests(unittest.TestCase):
@@ -102,8 +118,9 @@ class RegistryValidationTests(unittest.TestCase):
         self.assertEqual(v.validate_registry({"a": rec}, slug=SLUG), [])  # no release metadata needed yet
         # ...but it must never be shown as Published, and must not carry a publication date
         pubs = {"workbook-04": rec | {"release_tag": "workbook-04-v1.0.0", "page_count": 1}}
-        text = readme_for(pubs).replace("Accepted (frozen)", "Published")
-        self.assertTrue(v.validate_readme(text, pubs, SLUG))
+        self.assertEqual(v.validate_readme(readme_for(pubs), pubs, SLUG), [])
+        text = readme_for(pubs).replace("In progress.", "Published.")
+        self.assertTrue(any("not published" in e for e in v.validate_readme(text, pubs, SLUG)))
         self.assertTrue(v.validate_registry({"a": rec | {"publication_date": "2026-10-06"}}, slug=SLUG))
 
     def test_canonical_built_requires_prepared_values_but_not_publication(self):
@@ -117,23 +134,83 @@ class ReadmeConsistencyTests(unittest.TestCase):
     def setUp(self):
         self.pubs = {"workbook-04": record("04"), "workbook-05": record("05")}
 
-    def test_stale_status_fails(self):
-        text = readme_for(self.pubs).replace("Published", "Release pending", 1)
-        self.assertTrue(any("status must read" in e for e in v.validate_readme(text, self.pubs, SLUG)))
+    def test_learner_layout_passes(self):
+        self.assertEqual(v.validate_readme(readme_for(self.pubs), self.pubs, SLUG), [])
 
     def test_stale_or_wrong_link_fails(self):
         url = v.asset_url(SLUG, "workbook-04-v1.0.0", "04-fixture-workbook.pdf")
         text = readme_for(self.pubs).replace(url, url.replace("v1.0.0", "v0.9.0"))
         errs = v.validate_readme(text, self.pubs, SLUG)
         self.assertTrue(any("direct release-asset link" in e for e in errs))
-        self.assertTrue(any("not backed by a published record" in e for e in errs))
+        self.assertTrue(any("not backed by a current published record" in e for e in errs))
+
+    def test_previous_edition_link_is_not_a_current_download(self):
+        rec = record("04", previous_releases=[{"status": "published", "version": "0.9.0",
+                                               "release_tag": "workbook-04-v0.9.0",
+                                               "release_asset": "04-fixture-workbook.pdf"}])
+        pubs = {"workbook-04": rec}
+        old = v.asset_url(SLUG, "workbook-04-v0.9.0", "04-fixture-workbook.pdf")
+        text = readme_for(pubs) + f"\nOld: [Download PDF]({old})\n"
+        self.assertTrue(any("not backed by a current published record" in e for e in v.validate_readme(text, pubs, SLUG)))
+
+    def test_download_link_must_be_labelled(self):
+        url = v.asset_url(SLUG, "workbook-04-v1.0.0", "04-fixture-workbook.pdf")
+        text = readme_for(self.pubs).replace(f"[Download PDF]({url})", f"[here]({url})")
+        self.assertTrue(any("labelled 'Download PDF'" in e for e in v.validate_readme(text, self.pubs, SLUG)))
+
+    def test_catalog_hides_ids_tags_and_checksums(self):
+        for extra in (f"`{PDF_SHA}`", PDF_SHA, "`workbook-04`", "workbook-04-v1.0.0"):
+            row = f"| **Workbook 04** {extra} | x | [Download PDF]({v.asset_url(SLUG, 'workbook-04-v1.0.0', '04-fixture-workbook.pdf')}) |"
+            errs = v.validate_readme(readme_for(self.pubs, {"workbook-04": row}), self.pubs, SLUG)
+            self.assertTrue(errs, msg=extra)
+
+    def test_duplicate_catalog_row_fails(self):
+        url = v.asset_url(SLUG, "workbook-04-v1.0.0", "04-fixture-workbook.pdf")
+        row = f"| **Workbook 04** | x | [Download PDF]({url}) |\n| **Again** | x | [Download PDF]({url}) |"
+        errs = v.validate_readme(readme_for(self.pubs, {"workbook-04": row}), self.pubs, SLUG)
+        self.assertTrue(any("appears in 2" in e for e in errs))
 
     def test_link_before_publication_fails(self):
         pubs = {"workbook-04": record("04", status="canonical_built")}
-        row = "| `workbook-04` | x | s | Release pending | 12 | `workbook-04-v1.0.0` | " \
-              + v.asset_url(SLUG, "workbook-04-v1.0.0", "04-fixture-workbook.pdf") + " |"
-        errs = v.validate_readme(readme_for(pubs, {"workbook-04": row}), pubs, SLUG)
-        self.assertTrue(errs)
+        url = v.asset_url(SLUG, "workbook-04-v1.0.0", "04-fixture-workbook.pdf")
+        # in the catalog...
+        text = readme_for(pubs).replace("|---|---|---|\n", f"|---|---|---|\n| **Workbook 04** | x | [Download PDF]({url}) |\n")
+        self.assertTrue(v.validate_readme(text, pubs, SLUG))
+        # ...or in the in-progress block
+        text = readme_for(pubs, progress={"workbook-04": f"In progress. [Download PDF]({url})"})
+        errs = v.validate_readme(text, pubs, SLUG)
+        self.assertTrue(any("in-progress block links a release asset" in e for e in errs))
+
+    def test_unpublished_guide_must_not_appear_in_catalog(self):
+        pubs = {"workbook-04": record("04"), "workbook-06": record("06", status="drafting")}
+        row = f"| **Workbook 06** | soon | not yet |"
+        text = readme_for(pubs).replace(f"{v.README_END}", f"{row}\n{v.README_END}")
+        errs = v.validate_readme(text, pubs, SLUG)
+        self.assertTrue(any("appears in the published catalog" in e for e in errs))
+        self.assertTrue(any("no current published download link" in e for e in errs))
+
+    def test_in_progress_entry_states_registry_chapter_progress(self):
+        pubs = {"workbook-04": record("04"),
+                "workbook-06": record("06", status="drafting", workbook_id="06-fixture")}
+        good = readme_for(pubs, progress={"workbook-06": "In progress, 2 of 3 chapters accepted."})
+        self.assertEqual(v.validate_readme(good, pubs, SLUG, WORKBOOKS), [])
+        stale = readme_for(pubs, progress={"workbook-06": "In progress, 1 of 3 chapters accepted."})
+        self.assertTrue(any("2 of 3 chapters" in e for e in v.validate_readme(stale, pubs, SLUG, WORKBOOKS)))
+        missing = readme_for({"workbook-04": pubs["workbook-04"]})
+        self.assertTrue(any("missing from the README in-progress block" in e
+                            for e in v.validate_readme(missing, pubs, SLUG, WORKBOOKS)))
+        self.assertEqual(v.chapter_progress(WORKBOOKS, "06-fixture"), (2, 3))
+        self.assertIsNone(v.chapter_progress(WORKBOOKS, "absent"))
+
+    def test_browser_links_only_after_verification(self):
+        text = readme_for(self.pubs) + "\n[Read online](https://amartya-mitra.github.io/ml-llm-study-workbooks/)\n"
+        self.assertTrue(any("before browser reading is verified" in e for e in v.validate_readme(text, self.pubs, SLUG)))
+        prepared = {"verified": False, "base_url": "https://amartya-mitra.github.io/ml-llm-study-workbooks/"}
+        self.assertTrue(v.validate_readme(text, self.pubs, SLUG, None, prepared))
+        verified = dict(prepared, verified=True)
+        self.assertEqual(v.validate_readme(text, self.pubs, SLUG, None, verified), [])
+        other = readme_for(self.pubs) + "\n[Read online](https://someone.github.io/x/)\n"
+        self.assertTrue(any("outside the verified site" in e for e in v.validate_readme(other, self.pubs, SLUG, None, verified)))
 
     def test_missing_row_or_catalog_fails(self):
         self.assertTrue(v.validate_readme("no catalog here", self.pubs, SLUG))
@@ -146,6 +223,29 @@ class ReadmeConsistencyTests(unittest.TestCase):
         # naming the directories in policy prose is allowed
         prose = readme_for(self.pubs) + "\nRC artifacts stay in outputs/_releases/ and are never published.\n"
         self.assertEqual(v.validate_readme(prose, self.pubs, SLUG), [])
+
+
+class VerificationDocTests(unittest.TestCase):
+    def setUp(self):
+        prev = {"status": "published", "version": "0.9.0", "page_count": 10, "sha256": "b" * 64,
+                "release_tag": "workbook-04-v0.9.0", "release_asset": "04-fixture-workbook.pdf"}
+        self.pubs = {"workbook-04": record("04", previous_releases=[prev]),
+                     "workbook-05": record("05", status="drafting")}
+
+    def test_every_published_edition_listed(self):
+        self.assertEqual([e["release_tag"] for e in v.editions(self.pubs)],
+                         ["workbook-04-v1.0.0", "workbook-04-v0.9.0"])
+        self.assertEqual(v.validate_verification_doc(verification_for(self.pubs), self.pubs, SLUG), [])
+
+    def test_missing_doc_edition_checksum_or_page_count_fails(self):
+        doc = verification_for(self.pubs)
+        self.assertTrue(v.validate_verification_doc(None, self.pubs, SLUG))
+        dropped = "\n".join(l for l in doc.splitlines() if "v0.9.0`" not in l)
+        self.assertTrue(any("workbook-04-v0.9.0" in e for e in v.validate_verification_doc(dropped, self.pubs, SLUG)))
+        self.assertTrue(v.validate_verification_doc(doc.replace(PDF_SHA, "c" * 64), self.pubs, SLUG))
+        self.assertTrue(any("page count" in e for e in v.validate_verification_doc(doc.replace("| 12 |", "| 13 |"), self.pubs, SLUG)))
+        no_page = doc.replace(v.release_page_url(SLUG, "workbook-04-v1.0.0") + "\n", "")
+        self.assertTrue(any("release page" in e for e in v.validate_verification_doc(no_page, self.pubs, SLUG)))
 
 
 class TrackedPdfTests(unittest.TestCase):
@@ -224,6 +324,17 @@ class RemoteParsingTests(unittest.TestCase):
 class RealRepositoryTests(unittest.TestCase):
     def test_repository_registry_and_readme_validate_offline(self):
         self.assertEqual(v.main(["--root", REPO_ROOT]), 0)
+
+    def test_repository_readme_shows_registry_progress_and_no_unverified_site_links(self):
+        from _yaml_lite import safe_load_path
+        reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
+        with open(os.path.join(REPO_ROOT, "README.md"), encoding="utf-8") as f:
+            readme = f.read()
+        done, total = v.chapter_progress(reg["workbooks"], reg["publications"]["workbook-06"]["workbook_id"])
+        block = v._block(readme, v.IN_PROGRESS_START, v.IN_PROGRESS_END)
+        self.assertIn(f"{done} of {total} chapters", block)
+        if not reg.get("browser_reading", {}).get("verified"):
+            self.assertNotIn("github.io", readme)
 
     def test_no_canonical_pdf_is_tracked_in_this_repository(self):
         tracked = v.git_tracked_files(REPO_ROOT)

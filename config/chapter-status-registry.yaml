@@ -313,6 +313,17 @@ publications:
     development_dir: "outputs/_development/06-llm-inference/"
     release_candidate_dir: "outputs/_releases/06-llm-inference/"
 
+# Browser-reading site (docs/browser-reading.md). `verified` stays false
+# until the deployed site has been opened and checked; only then may the
+# README show "Read online" links under base_url (enforced by
+# scripts/validate_publication_hygiene.py).
+browser_reading:
+  status: "prepared"
+  verified: false
+  base_url: "https://amartya-mitra.github.io/ml-llm-study-workbooks/"
+  workflow: ".github/workflows/pages.yml"
+  builder: "scripts/build_site.py"
+
 # --------------------------------------------------------------------
 # Override mechanism
 # --------------------------------------------------------------------

@@ -1,0 +1,59 @@
+# Browser-reading site (GitHub Pages). See docs/browser-reading.md.
+#
+# Builds a small static site from the publication registry: the exact,
+# already-published release assets are downloaded and checked against
+# their recorded SHA-256 before inclusion (scripts/build_site.py). No PDF
+# is rebuilt, and nothing is written back to the repository or to any
+# release. Requires Settings -> Pages -> Source: "GitHub Actions".
+name: Browser reading site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "config/chapter-status-registry.yaml"
+      - "README.md"
+      - "scripts/build_site.py"
+      - "scripts/validate_publication_hygiene.py"
+      - "scripts/_yaml_lite.py"
+      - "docs/editions-and-verification.md"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# No default token permissions; each job requests only what it needs.
+permissions: {}
+
+# One deployment at a time; let an in-progress deployment finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Check publication records
+        run: python3 scripts/validate_publication_hygiene.py
+      - name: Build site from verified release assets
+        run: python3 scripts/build_site.py --out _site
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

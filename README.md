@@ -1,193 +1,115 @@
 # ML/LLM Study Workbooks
 
-A series of concise, visual, source-grounded study workbooks covering
-machine learning foundations through modern LLM architecture, training,
-inference, post-training/alignment, and research careers. Each workbook
-is meant to be a durable study guide: comprehensive enough to rely on,
-concise enough to actually finish. Two workbooks (04 and 05) are complete
-and accepted; the rest of the series is planned.
+Study guides on how modern large language models are built and trained,
+and how those ideas carry over to time-series forecasting. Each guide
+explains one area through original diagrams, worked numerical examples,
+and questions with full answers, so you can check your understanding as
+you go.
 
-## Workbook catalog
+The guides are written for learners and for practitioners who want a
+careful, source-backed reference. They are not an introduction to
+machine learning: you will get the most from them if you are comfortable
+with matrix multiplication, basic probability, and the idea of training a
+neural network by gradient descent.
 
-Canonical PDFs are distributed as **GitHub Release assets**, one release
-per workbook version. They are never committed to Git. The table below is
-checked against `config/chapter-status-registry.yaml` by
-`scripts/validate_publication_hygiene.py` (see
-[docs/publication-hygiene.md](docs/publication-hygiene.md)); a workbook is
-shown as **Published** only after its release asset has been verified.
+## Choose a study guide
 
 <!-- publication-catalog:start -->
-| ID | Workbook | Scope | Status | Pages | Version | Download |
-|---|---|---|---|---|---|---|
-| `workbook-04` | 04 — Modern LLM Architecture (`workbooks/04-llm-architecture/`) | Attention variants, KV cache, MoE, hybrid and looped architectures, and how to read a model report | Published | 69 | [`workbook-04-v1.0.0`](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/workbook-04-v1.0.0) | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-04-v1.0.0/04-modern-llm-architecture-workbook.pdf) — SHA-256 `12bcc6c115e4a7279162efd06c5e13f44a808a36fd92d6e3153cb43aac95c33b` |
-| `workbook-05` | 05 — LLM Pretraining and Distributed Training (`workbooks/05-llm-training/`) | Pretraining objectives and data, multi-token prediction, scaling laws, parallelism, training memory and communication, reading real runs | Published | 64 | [`workbook-05-v1.0.0`](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/workbook-05-v1.0.0) | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-05-v1.0.0/05-llm-training-workbook.pdf) — SHA-256 `25a393bb6b1bb1c42c836f08b4375e9e1a451792f4397665f63b69e1c1072a0c` |
-| `addendum-04-05-tsfm` | Addendum 04–05 — From Language Models to Time-Series Foundation Models | Six modules on tokens/patches, channels and covariates, architecture families, outputs and losses, pretraining data and leakage, reading a release; v1.1.0 adds Mistral Timestral (Decoupled Horizon Forecasting, covariate roles, pinned inference-code evidence) | Published | 23 | [`addendum-04-05-tsfm-v1.1.0`](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/addendum-04-05-tsfm-v1.1.0) | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/addendum-04-05-tsfm-v1.1.0/addendum-04-05-tsfm.pdf) — SHA-256 `68467ffb62bbf7734bb97e4387d5956349811d6d211b5d12501c5166b87d6ea2` |
-| `workbook-06` | 06 — LLM Inference Engineering (`workbooks/06-llm-inference/`) | Prefill/decode and the roofline, KV-cache memory, serving and scheduling, attention kernels and inference parallelism, quantization, speculative decoding, reading and benchmarking a deployment | Drafting | — | Not yet released (scaffold only; no chapter drafted) | — |
+| Study guide | What you will learn | Read |
+|---|---|---|
+| **Modern LLM Architecture** | How a decoder-only transformer turns tokens into a next-token prediction; attention variants and the KV cache; ways to reduce attention cost; mixture-of-experts; hybrid and looped designs; how to read a model report | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-04-v1.0.0/04-modern-llm-architecture-workbook.pdf) (69 pages) |
+| **LLM Pretraining and Distributed Training** | Pretraining objectives and data; multi-token prediction; optimization and scaling laws; data, tensor and pipeline parallelism; training memory and communication; how to read a real training run | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-05-v1.0.0/05-llm-training-workbook.pdf) (64 pages) |
+| **From Language Models to Time-Series Foundation Models** (addendum) | Which LLM ideas carry over to forecasting models and which do not: patches instead of tokens, channels and covariates, architecture families, probabilistic outputs and losses, pretraining data and leakage, and how to read a model release | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/addendum-04-05-tsfm-v1.1.0/addendum-04-05-tsfm.pdf) (23 pages) |
 <!-- publication-catalog:end -->
 
-Previous edition: Addendum 04–05 v1.0.0 (18 pages, SHA-256 `b7096e9b9291dc4319f8f3740303b42dcf784d3ec80bb2fb63cc66f7ac242b65`), unchanged at its release page [`addendum-04-05-tsfm-v1.0.0`](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/addendum-04-05-tsfm-v1.0.0).
+Each link downloads the current edition. Earlier editions, and checksums
+for confirming that a download is intact, are listed in
+[Editions and verification](docs/editions-and-verification.md).
 
-Workbooks without a release record:
+## Where to start
 
-| # | Directory | Title | Status |
-|---|---|---|---|
-| 01 | `workbooks/01-ml-foundations/` | Machine Learning Foundations | not started (empty directory) |
-| 02 | `workbooks/02-ml-interviews/` | ML Interview Practice | not started (empty directory) |
-| 03 | `workbooks/03-ml-systems-design/` | ML Systems Design | not started (empty directory) |
-| 07 | `workbooks/07-llm-post-training/` | LLM Post-Training and Alignment | not started (empty directory) |
-| 08 | `workbooks/08-research-careers/` | ML/LLM Research Careers | not started (empty directory) |
+If you are new to the topic, read in this order:
 
-Download links and SHA-256 checksums for each published PDF are in the
-catalog above. Verify a download with `sha256sum <file>`.
+1. **Modern LLM Architecture**: what the model computes.
+2. **LLM Pretraining and Distributed Training**: how it is trained at
+   scale.
+3. **From Language Models to Time-Series Foundation Models**: how the
+   same ideas apply to forecasting.
 
-### Reproducing a canonical PDF
+You do not have to read a guide from cover to cover. Chapters in the two
+main guides begin with their learning objectives, so you can go straight
+to the topic you need. The time-series addendum opens most modules with
+a quick recap of the LLM ideas they rely on, so it can be read on its
+own.
 
-```bash
-source /opt/conda/etc/profile.d/conda.sh && conda activate ml-workbooks
-/usr/bin/python3 scripts/build_final.py        # Workbook 04 -> outputs/04-modern-llm-architecture-workbook.pdf
-/usr/bin/python3 scripts/build_wb05_final.py   # Workbook 05 -> outputs/05-llm-training-workbook.pdf
-```
+## How to study
 
-### Output policy
+Most chapters follow the same pattern:
 
-- Source, figures' generating code and reproducibility files are tracked
-  in Git.
-- Canonical final PDFs (`outputs/<name>.pdf`) are local, git-ignored build
-  products; published ones are distributed only as GitHub Release assets.
-- Release-candidate and development artifacts (`outputs/_releases/`,
-  `outputs/_development/`) stay local and ignored; they are never
-  published.
-- Corrections after publication use a new patch version and a new release;
-  an existing release asset is never replaced.
+1. **Read** the explanation and the diagram that goes with it.
+2. **Follow the worked example**, which puts numbers through the idea
+   step by step.
+3. **Attempt the questions** before looking at any answers.
+4. **Check your answers** in the chapter's answer key, which shows the
+   full working and, for many questions, a common mistake to avoid.
 
-## How each chapter is structured
+Pay attention to what kind of number you are looking at. Most worked
+examples use **illustrative** values, chosen to make the arithmetic
+clear, or **derived** values, calculated from stated assumptions. These
+show how a mechanism behaves, not how fast or how large a particular
+system is. Numbers that a paper or report actually measured are
+attributed to that source. When a chapter estimates memory or compute
+from a formula, it says so and does not present the estimate as a
+measurement. The time-series addendum labels every number as reported,
+derived or illustrative.
 
-Every chapter follows `shared/chapter-template.qmd`:
+## In progress and planned
 
-learning objectives -> why this matters -> mental model/analogy -> visual
-overview -> technical core -> worked example -> compare and contrast ->
-check your understanding -> common misconception -> applied exercise ->
-interview lens -> chapter recap -> sources and further reading.
+<!-- in-progress:start -->
+- **LLM Inference Engineering**: In progress, 3 of 7 chapters accepted
+  so far. Covers prefill and decode, KV-cache memory, serving and
+  scheduling, efficient attention kernels and inference parallelism,
+  quantization, speculative decoding, and how to benchmark a deployment.
+  It will be listed above once the complete guide is released.
+<!-- in-progress:end -->
 
-Comprehension questions are stored as structured records (not just prose)
-in `workbooks/<id>/questions.yaml`, validated against
-`shared/question-schema.yaml`.
+Further guides are planned on machine learning foundations, ML interview
+practice, ML systems design, LLM post-training and alignment, and
+research careers in ML and LLMs.
 
-## Source policy
+## Sources and corrections
 
-- All sources are tracked in `sources/registry.yaml`, one entry per
-  source, with an explicit `authority_type` (primary technical,
-  implementation guide, visual reference, interview question bank,
-  secondary summary, source-discovery index, or experiential account).
-- `sources/coverage-matrix.yaml` records which sources back which
-  workbook, and at what strength (primary / supporting / discovery).
-- The full durable sourcing rules live in `AGENTS.md` — read it before
-  drafting content. In short: synthesize and cite, never copy long
-  passages or reuse a figure without a clear license, keep primary
-  sources separate from commentary, and record when a source was last
-  actually verified (don't backdate `last_verified`).
+The guides rest mainly on primary sources: the research papers that
+introduced each method, official documentation, and, for a few
+implementation details, source code pinned to a specific version.
+Secondary summaries are used only as supporting material. Each chapter
+ends with its sources. Where sources disagree, the guide says so
+instead of picking a side quietly. Facts that change quickly, such as
+which models exist or what a library does by default, are dated in the
+text.
 
-## Copyright and attribution policy
+If you find an error, a broken link, or an explanation that does not make
+sense, please [open an issue](https://github.com/amartya-mitra/ml-llm-study-workbooks/issues).
+Mention the guide, its page number, and what you expected to see.
+Corrections to a released guide are published as a new edition, and
+earlier editions remain available.
 
-- Prose is written by this project, synthesizing multiple sources; it is
-  not copied from any single source.
-- Figures are original, generated from `figures/source/*.py`, and use
-  only the shared palette in `config/visual-style.yaml`. Source figures
-  from third parties are used only for inspiration/scoping, never
-  reproduced, unless a source's license clearly permits reuse (tracked
-  per-entry in `sources/registry.yaml`'s `license_or_reuse` field).
-- Every substantive factual claim should be traceable to a
-  `sources/registry.yaml` id, either via a `.bib` citation in the `.qmd`
-  or a `source_ids` entry in a `questions.yaml` record.
+<details>
+<summary>Build or contribute</summary>
 
-## Development setup
+The guides are written in Quarto and typeset with Typst. The figures are
+generated from Python scripts kept in this repository.
 
-Base tooling: `python3` (3.10), `git`, and a user-local `node`/`npm`
-(via `nvm`). No system-wide `pip`/`uv` for the base Python (see
-`reports/bootstrap_environment.md`), so everything under `scripts/` and
-`figures/source/` is written against the Python 3.10 standard library
-only — no PyYAML/jsonschema required for validation or figure builds.
+- [Building and contributing](docs/building-and-contributing.md): setup,
+  build and validation commands, repository layout, source and figure
+  policy.
+- [Editions and verification](docs/editions-and-verification.md): every
+  released edition with its page count, size and SHA-256 checksum.
+- [Publication process](docs/publication-hygiene.md): how a guide goes
+  from accepted draft to released PDF.
+- [Browser reading site](docs/browser-reading.md): how the static reading
+  site is built and deployed.
+- [AGENTS.md](AGENTS.md): the durable rules for sourcing, accuracy and
+  validation that apply to all contributions.
 
-The Quarto/Typst/Pandoc/poppler-utils rendering toolchain lives in a
-dedicated, user-local conda environment (not on `PATH` by default):
-
-```bash
-source /opt/conda/etc/profile.d/conda.sh
-conda activate ml-workbooks
-```
-
-This environment was created with
-`conda create -n ml-workbooks -c conda-forge --override-channels quarto typst pandoc poppler`
-using the read-only shared conda install at `/opt/conda` (new envs land
-under `$HOME/.conda/envs`, so nothing system-wide was touched — see
-`reports/bootstrap_report.md`). Activate it before running `make
-workbooks` or `make render-sample`; it is not needed for `make validate`
-or `make figures`, which are pure-Python.
-
-- `scripts/_yaml_lite.py` is a small dependency-free loader for the
-  restricted YAML subset used by every `.yaml` file in this repo (no
-  PyYAML required).
-- `figures/source/_svg_helpers.py` builds SVG figures directly (no
-  plotting/diagramming library required).
-
-If a full toolchain becomes available later, the optional dependency
-group in `pyproject.toml` (`pip install -e ".[full]"`) upgrades to
-PyYAML/jsonschema/pytest, but nothing in the repo requires it today.
-
-## Build commands
-
-```bash
-make validate        # validate sources/registry.yaml, coverage-matrix.yaml, questions.yaml
-make figures          # regenerate figures/rendered/*.svg from figures/source/*.py
-make workbooks        # render every workbooks/**/*.qmd via Quarto (requires quarto on PATH)
-make render-sample    # render + pdfinfo/pdftotext/pdftoppm-inspect the Stage-7 bootstrap sample
-make check-links      # network check of every URL in sources/registry.yaml
-make test             # run tests/ (unittest, no pytest required)
-```
-
-## Output locations
-
-- `outputs/<name>.pdf` — canonical final PDFs (git-ignored; distributed
-  via GitHub Releases, see the catalog above). `outputs/_releases/` and
-  `outputs/_development/` hold local RC and development artifacts
-  (git-ignored, never published).
-- `workbooks/<id>/*.pdf` — per-workbook review/sample PDFs (git-ignored;
-  build products, not source).
-- `workbooks/<id>/page-images/` — per-page PNGs from `pdftoppm`, used for
-  the mandatory visual-inspection step before treating a PDF as complete
-  (git-ignored).
-- `figures/rendered/*.svg` — committed, since these are the actual
-  original-figure deliverables, not disposable build output.
-
-## Validation commands
-
-```bash
-python3 scripts/validate_registry.py     # registry + coverage matrix structure
-python3 scripts/validate_questions.py    # question records against the schema
-python3 scripts/validate_publication_hygiene.py   # publication metadata + README catalog (offline)
-python3 -m unittest discover -s tests -v # full test suite
-```
-
-## Visual conventions
-
-Defined once in `config/visual-style.yaml` and used by every figure
-script:
-
-- **blue** = stored information/state, **orange** = computation,
-  **green** = trainable component, **purple** = device-to-device
-  communication, **red** = bottleneck/failure/high cost, **gray** =
-  frozen/inactive component.
-- **solid** arrows = inference/ordinary data flow, **dashed** =
-  training-only flow, **dotted** = optional/conditional flow.
-- Vector-first (SVG), colorblind-safe, grayscale-legible, no 3D effects,
-  no unexplained icons. Captions state what to notice, not just what is
-  drawn.
-
-## GPU and SLURM policy
-
-Authoring, rendering, and validation in this project are CPU-only.
-Compute inventory was recorded in `reports/bootstrap_environment.md` for
-completeness (this host has 6 nodes / 48 H100 GPUs across several SLURM
-partitions that all resolve to the same nodes), but no job is submitted
-by this project unless a specific task genuinely benefits from GPU/SLURM
-resources — which none of the current workbook-authoring work does.
+</details>
