@@ -31,6 +31,13 @@ class TestDiscoveryAgainstRealAcceptedChapters(unittest.TestCase):
             self.assertTrue(os.path.exists(chapter_path))
             self.assertTrue(os.path.exists(solutions_path))
 
+    def test_step6_defaults_to_the_full_suite(self):
+        # --test-pattern exists for layout-only passes; omitting it keeps the full suite
+        self.assertEqual(bcr.FULL_SUITE_PATTERN, "test*.py")
+        with open(bcr.__file__, encoding="utf-8") as f:
+            src = f.read()
+        self.assertIn('parser.add_argument("--test-pattern", default=FULL_SUITE_PATTERN', src)
+
     def test_discover_chapter_files_raises_on_unknown_chapter(self):
         with self.assertRaises(FileNotFoundError):
             crc.discover_chapter_files("05-llm-training", "99")

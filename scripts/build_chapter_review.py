@@ -120,6 +120,9 @@ def render_template(book_title, chapter_num, chapter_title, chapter_rel, solutio
     return filled
 
 
+FULL_SUITE_PATTERN = "test*.py"  # unittest's own default: every test module
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--workbook", required=True)
@@ -127,6 +130,9 @@ def main():
     parser.add_argument("--pagebreak-before-bibliography", action="store_true",
                          help="force the Bibliography onto its own fresh page (apply only after visually "
                               "confirming a mid-list split on a first, unforced build)")
+    parser.add_argument("--test-pattern", default=FULL_SUITE_PATTERN,
+                        help="unittest discovery pattern for Step 6 (default: %(default)s, the full suite); "
+                             "pass e.g. 'test_workbook06_*.py' for a scoped run during layout-only passes")
     args = parser.parse_args()
 
     missing = [t for t in REQUIRED_TOOLS if shutil.which(t) is None]
@@ -233,11 +239,12 @@ def main():
     sparse_flags = density["sparse_page_flags"]
     print(json.dumps({"bibliography_diagnostic": bib_diag, "sparse_page_flags": sparse_flags}, indent=2))
 
-    print("\n--- Step 6: registry/question validators + full suite ---")
+    test_mode = "full" if args.test_pattern == FULL_SUITE_PATTERN else "scoped"
+    print(f"\n--- Step 6: registry/question validators + {test_mode} tests (pattern {args.test_pattern}) ---")
     registry_result = run([sys.executable, "scripts/validate_registry.py"], capture_output=True, text=True)
     questions_result = run([sys.executable, "scripts/validate_questions.py"], capture_output=True, text=True)
     loader = unittest.TestLoader()
-    suite = loader.discover(os.path.join(REPO_ROOT, "tests"))
+    suite = loader.discover(os.path.join(REPO_ROOT, "tests"), pattern=args.test_pattern)
     stream = __import__("io").StringIO()
     runner = unittest.TextTestRunner(stream=stream, verbosity=1)
     full_suite_result = runner.run(suite)
@@ -258,7 +265,9 @@ def main():
         "sparse_page_flags": sparse_flags,
         "registry_validation": {"returncode": registry_result.returncode, "stdout": registry_result.stdout.strip()},
         "question_validation": {"returncode": questions_result.returncode, "stdout": questions_result.stdout.strip()},
+        "test_selection": {"mode": test_mode, "pattern": args.test_pattern},
         "full_test_suite": {
+            "mode": test_mode,
             "tests_run": full_suite_result.testsRun,
             "failures": len(full_suite_result.failures),
             "errors": len(full_suite_result.errors),

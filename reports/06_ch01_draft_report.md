@@ -129,3 +129,20 @@ Scope was narrow and requested by the reviewer. No numerical results changed.
   - Integrated development build: status `pass`, 28 pages.
   - The review-package builder runs the full suite as its own Step 6. It ran under system Python 3.10: 696 tests, the 3 known WB04 baseline failures, 0 errors, and frozen files unchanged. The full suite was not run separately.
 - **Audits.** Not rerun. The changes are presentational, plus a clarification of a formula whose results are unchanged.
+
+## Correction pass 2 — pagination only (2026-10-28, after commit 3202b3f)
+
+No prose, equations, numbers, figures, questions or answers changed.
+
+- **Answer Key opening and solution prompts.** The introductory sentence and each of the five repeated question prompts in the answer key are wrapped in a `sticky` Typst block (`#block(sticky: true, width: 100%)`). A sticky block stays on the same page as the start of whatever follows it, and the heading is already sticky. The result:
+  - heading, introduction, prompt 1 and the opening of answer 1 now stay together;
+  - every prompt stays with the first lines of its answer.
+
+  The answers themselves are not wrapped and still break across pages normally. `width: 100%` is required: without it the block shrinks to fit its content, and justified lines stop short of the margin (measured with `pdftotext -bbox`, then fixed).
+- **Review builder.** `scripts/build_chapter_review.py` gains `--test-pattern`. The default is `test*.py`, so the full suite still runs unless the option is given. The manifest now records `test_selection.mode` as `full` or `scoped`. A small test checks that the default is unchanged.
+- **Validation for this pass.**
+  - Standalone review built with `--test-pattern 'test_workbook06_*.py'`: scoped mode, 50 tests, 0 failures.
+  - Integrated development build: `pass`, 28 pages. It used its registry `test_pattern` `test_workbook06_*.py` (50 tests).
+  - Scoped tests: 77 passed (Workbook 06 plus the review-workflow tests).
+  - All four validators passed, and `git diff --check` is clean.
+  - The chapter gate was **not** rerun, because its QA step (`workbook_qa.py:503`) always runs the full suite. Its last result, `pass_with_warnings` at commit 3202b3f, covers the same content.
