@@ -91,11 +91,22 @@ workbooks:
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
   06-llm-inference:
     status: "scaffold_only"
-    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. Chapter 1 drafted 2026-10-28 (pending human review); Chapters 2-7 scaffold only. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
+    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. Chapter 1 accepted and frozen 2026-10-28; Chapter 2 in drafting; Chapters 3-7 scaffold only. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
     chapters:
       01:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
+        commit_sha: "7e12422af73dfb93414f08236122bd484dde0e90"
         chapter_path: "workbooks/06-llm-inference/chapters/01-inference-workload.qmd"
+        acceptance:
+          accepted: true
+          date: "2026-10-28"
+          accepted_by: human
+          accepted_source_commit: "7e12422af73dfb93414f08236122bd484dde0e90"
+          accepted_review_pdf: "outputs/_development/06-llm-inference/chapter-01-review/06-llm-inference-ch01-review.pdf"
+          accepted_review_pdf_sha256: "675e64ee23a4ac5060605212137aedec054e0cbf365a51cb4c8079c580f5e8de"
+          accepted_review_pdf_bytes: 346478
+          accepted_review_pdf_page_count: 14
+        note: "Drafted, internally audited, corrected twice (Equation 1 scope/subtitle/question layout at 3202b3f; Answer Key pagination at 7e12422), then accepted after independent human review of the review PDF above. commit_sha is the last commit touching Chapter 1 files (the solutions file); the chapter prose was last touched at 3202b3f."
       02:
         status: "scaffold_only"
         chapter_path: "workbooks/06-llm-inference/chapters/02-kv-cache-memory.qmd"

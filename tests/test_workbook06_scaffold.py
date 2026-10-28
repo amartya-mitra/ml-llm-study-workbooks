@@ -38,7 +38,7 @@ REQUIRED_HEADINGS = [
     "Applied exercise", "Interview lens", "Chapter recap", "Sources and further reading",
 ]
 CANONICAL = os.path.join(REPO_ROOT, "outputs", "06-llm-inference-workbook.pdf")
-DRAFTED = {1: "drafted_pending_human_review"}  # chapter -> status; every other chapter is scaffold_only
+DRAFTED = {1: "accepted_frozen"}  # chapter -> status; every other chapter is scaffold_only
 SCAFFOLD = [n for n in range(1, 8) if n not in DRAFTED]
 CH1_FIGURES = {"fig-roofline-prefill-decode", "fig-request-timeline", "fig-latency-throughput-frontier"}
 

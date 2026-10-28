@@ -3,6 +3,10 @@
 # shared/chapter-contract-schema.yaml. Created at scaffolding
 # (2026-10-28) from reports/06_llm_inference_scope_and_source_decision.md.
 #
+# ACCEPTED 2026-10-28 after independent human review of the 14-page review
+# PDF (sha256 675e64ee23a4ac50...; see the status registry for the full
+# acceptance record). Status-record update only: no Chapter 1 content changed.
+#
 # identity.status must exactly match config/chapter-status-registry.yaml's
 # entry for workbooks."06-llm-inference".chapters."01". The drafting skill
 # (.claude/skills/draft-workbook-chapter/) extends allowed_paths with the
@@ -12,15 +16,19 @@ identity:
   workbook: "06-llm-inference"
   chapter: "01"
   title: "The Inference Workload: Prefill, Decode, the Roofline, and the Latency-Throughput Trade-off"
-  status: "drafted_pending_human_review"
+  status: "accepted_frozen"
 
 scope:
-  allowed_paths:
+  # Accepted and frozen (2026-10-28): no further edits are in scope without an
+  # explicit human-authorized override in config/chapter-status-registry.yaml.
+  # Chapter 1's question, claim-ledger and figure-plan records live in shared
+  # workbook files; later chapters may append their own records but must not
+  # alter Chapter 1's. Later chapters may import _common.py and the worked
+  # example read-only.
+  allowed_paths: []
+  frozen_paths:
     - "workbooks/06-llm-inference/chapters/01-inference-workload.qmd"
     - "workbooks/06-llm-inference/solutions/01-inference-workload-solutions.qmd"
-    - "workbooks/06-llm-inference/questions.yaml"
-    - "workbooks/06-llm-inference/claim-ledger.yaml"
-    - "workbooks/06-llm-inference/figure-plan.yaml"
     - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.py"
     - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.json"
     - "workbooks/06-llm-inference/figures/source/_common.py"
@@ -30,9 +38,6 @@ scope:
     - "workbooks/06-llm-inference/figures/rendered/fig-roofline-prefill-decode.svg"
     - "workbooks/06-llm-inference/figures/rendered/fig-request-timeline.svg"
     - "workbooks/06-llm-inference/figures/rendered/fig-latency-throughput-frontier.svg"
-  frozen_paths:
-    - "workbooks/06-llm-inference/chapters/0[234567]-*.qmd"
-    - "workbooks/06-llm-inference/solutions/0[234567]-*-solutions.qmd"
     - "workbooks/04-llm-architecture/**"
     - "workbooks/05-llm-training/**"
     - "workbooks/addendum-04-05-tsfm/**"
