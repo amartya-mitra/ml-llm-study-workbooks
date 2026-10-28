@@ -65,9 +65,13 @@ class TestRc1State(unittest.TestCase):
     def test_publication_record_reflects_the_verified_final_release_not_rc1(self):
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
         rec = reg["publications"]["addendum-04-05-tsfm"]
-        self.assertEqual(rec["status"], "published")
+        # current edition (v1.1.0) moves through the lifecycle; v1.0.0 stays published in history
+        self.assertIn(rec["status"], ("accepted_frozen", "canonical_built", "published"))
         self.assertEqual(rec["release_asset"], "addendum-04-05-tsfm.pdf")  # the canonical PDF, never an RC1 file
         self.assertNotIn("rc1", rec["release_tag"] + rec["release_asset"])
+        prev = rec["previous_releases"][0]
+        self.assertEqual((prev["version"], prev["status"], prev["release_tag"]), ("1.0.0", "published", "addendum-04-05-tsfm-v1.0.0"))
+        self.assertEqual(prev["sha256"], "b7096e9b9291dc4319f8f3740303b42dcf784d3ec80bb2fb63cc66f7ac242b65")
 
     def test_no_canonical_pdf_tag_or_rc2(self):
         rel = os.path.join(REPO_ROOT, "outputs", "_releases", "addendum-04-05-tsfm")

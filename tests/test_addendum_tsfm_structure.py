@@ -143,35 +143,40 @@ class TestRegistration(unittest.TestCase):
         self.assertIn(WB_ID, [w["id"] for w in project["workbooks"]])
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
         entry = reg["workbooks"][WB_ID]
-        # v1.1.0 (Timestral) reopening: content is drafted pending human review,
-        # while the v1.0.0 acceptance record below stays exactly as accepted.
-        self.assertEqual(entry["status"], "drafted_pending_human_review")
+        # v1.1.0 (Timestral) accepted 2026-10-28 and frozen again; the v1.0.0
+        # acceptance record below stays exactly as accepted.
+        self.assertEqual(entry["status"], "accepted_frozen")
         self.assertEqual(entry["acceptance_date"], "2026-10-06")
         self.assertEqual(entry["accepted_source_commit"], "aea2e38673556a8701c68fdb0fecddaab1a91d02")
         self.assertEqual(entry["accepted_review_pdf_sha256"], "d2fcd1cff746cbeeb154de0143d4996c6238f6fe715748ef713d8c589c4e3319")
         self.assertEqual(entry["accepted_review_pdf_page_count"], 18)
+        acc = entry["v1_1_0_acceptance"]
+        self.assertIs(acc["accepted"], True)
+        self.assertEqual(acc["accepted_by"], "human")
+        self.assertEqual(acc["accepted_source_commit"], "774cf8a20c8a2f82420a0dc905408d4c63441777")
+        self.assertEqual(acc["accepted_review_pdf_sha256"], "e3268c0d80f78c68e39334c9a8dd20305eb3049971d1d8285e08bba67e28887d")
+        self.assertEqual((acc["accepted_review_pdf_bytes"], acc["accepted_review_pdf_page_count"]), (508460, 23))
         self.assertEqual(sorted(str(k).zfill(2) for k in entry["chapters"]), sorted(MODULES))
         for ch in entry["chapters"].values():
-            self.assertEqual(ch["status"], "drafted_pending_human_review")
+            self.assertEqual(ch["status"], "accepted_frozen")
         reopen = [r for r in reg["reopenings"] if r["workbook"] == WB_ID and r["revision"] == "v1.1.0"]
         self.assertEqual(len(reopen), 1)
         self.assertEqual(reopen[0]["granted_by"], "human")
-        self.assertEqual(reopen[0]["state"], "open_pending_human_review")
+        self.assertEqual(reopen[0]["state"], "closed_accepted")
         self.assertEqual(reopen[0]["base_commit"], "e863c419ec231e7b15c62c23219077f8685b8199")
-        self.assertTrue(reopen[0]["allowed_paths"])
         self.assertFalse(any("04-llm-architecture" in p or "05-llm-training" in p for p in reopen[0]["allowed_paths"]))
-        rev = reg["publications"][WB_ID + "-v1.1.0"]
-        self.assertEqual(rev["status"], "review_pending")
-        self.assertEqual(rev["release_tag"], "addendum-04-05-tsfm-v1.1.0")
-        self.assertNotIn("release_asset", rev)
-        self.assertNotIn("publication_date", rev)
-        self.assertEqual(rev["review_pdf"], "outputs/_development/addendum-04-05-tsfm/v1.1.0-review/addendum-04-05-tsfm-v1.1.0-review.pdf")
+        self.assertNotIn(WB_ID + "-v1.1.0", reg["publications"])  # merged into the single artifact record
         pub = reg["publications"][WB_ID]
-        self.assertEqual(pub["status"], "published")
-        self.assertEqual(pub["release_tag"], "addendum-04-05-tsfm-v1.0.0")
-        self.assertEqual(pub["sha256"], "b7096e9b9291dc4319f8f3740303b42dcf784d3ec80bb2fb63cc66f7ac242b65")
-        self.assertEqual(pub["source_commit"], "39294a2242a1f95d200e0b06c5c69f0a4cfcf9f0")
-        self.assertEqual(pub["page_count"], 18)
+        self.assertEqual(pub["version"], "1.1.0")
+        self.assertIn(pub["status"], ("accepted_frozen", "canonical_built", "published"))
+        self.assertEqual(pub["release_tag"], "addendum-04-05-tsfm-v1.1.0")
+        self.assertEqual(pub["release_asset"], "addendum-04-05-tsfm.pdf")
+        prev = pub["previous_releases"][0]
+        self.assertEqual(prev["status"], "published")
+        self.assertEqual(prev["release_tag"], "addendum-04-05-tsfm-v1.0.0")
+        self.assertEqual(prev["sha256"], "b7096e9b9291dc4319f8f3740303b42dcf784d3ec80bb2fb63cc66f7ac242b65")
+        self.assertEqual(prev["source_commit"], "39294a2242a1f95d200e0b06c5c69f0a4cfcf9f0")
+        self.assertEqual((prev["page_count"], prev["bytes"], prev["publication_date"]), (18, 425777, "2026-10-06"))
         self.assertEqual(reg["publications"]["workbook-04"]["status"], "published")
         self.assertEqual(reg["publications"]["workbook-05"]["status"], "published")
 
@@ -507,28 +512,27 @@ class TestTechnicalQualifications(unittest.TestCase):
         self.assertIn("accepted_frozen", enum)
         project = safe_load_path(os.path.join(REPO_ROOT, "config", "project.yaml"))
         entry = [w for w in project["workbooks"] if w["id"] == WB_ID][0]
-        self.assertEqual(entry["status"], "drafted_pending_human_review")
+        self.assertEqual(entry["status"], "accepted_frozen")
         reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
-        self.assertEqual(reg["workbooks"][WB_ID]["status"], "drafted_pending_human_review")
+        self.assertEqual(reg["workbooks"][WB_ID]["status"], "accepted_frozen")
         for n in MODULES:
             contract = safe_load_path(os.path.join(ADD, "chapter-contracts", f"ch{n}.yaml"))
             self.assertIn(contract["identity"]["status"], enum)
-            self.assertEqual(contract["identity"]["status"], "drafted_pending_human_review")
-            # narrow reopening: only this module's chapter and answer key (plus, for
-            # Module 3, the new Timestral example and figure) may change
-            allowed = contract["scope"]["allowed_paths"]
-            self.assertIn(f"workbooks/{WB_ID}/chapters/{MODULES[n]}.qmd", allowed)
-            self.assertIn(f"workbooks/{WB_ID}/solutions/{MODULES[n]}-solutions.qmd", allowed)
-            self.assertLessEqual(len(allowed), 4 if n == "03" else 2)
-            self.assertFalse(set(allowed) & set(contract["scope"]["frozen_paths"]))
-            self.assertIn("workbooks/04-llm-architecture/**", contract["scope"]["frozen_paths"])
-            self.assertIn("workbooks/05-llm-training/**", contract["scope"]["frozen_paths"])
-            self.assertEqual(contract["acceptance"]["visual_review"], "not_yet_run")
+            self.assertEqual(contract["identity"]["status"], "accepted_frozen")
+            # frozen again after v1.1.0 acceptance: nothing is allowed to change
+            self.assertEqual(contract["scope"]["allowed_paths"], [])
+            frozen = contract["scope"]["frozen_paths"]
+            self.assertIn(f"workbooks/{WB_ID}/chapters/{MODULES[n]}.qmd", frozen)
+            self.assertIn(f"workbooks/{WB_ID}/solutions/{MODULES[n]}-solutions.qmd", frozen)
+            self.assertIn("workbooks/04-llm-architecture/**", frozen)
+            self.assertIn("workbooks/05-llm-training/**", frozen)
+            self.assertEqual(contract["acceptance"]["visual_review"], "pass")
             self.assertFalse(contract["scope"]["push_allowed"])
             self.assertFalse(contract["scope"]["canonical_output_allowed"])
-        # v1.0.0 stays published while v1.1.0 is review_pending
-        self.assertEqual(reg["publications"][WB_ID]["status"], "published")
-        self.assertEqual(reg["publications"][WB_ID + "-v1.1.0"]["status"], "review_pending")
+        # the current edition is v1.1.0; v1.0.0 stays published in previous_releases
+        pub = reg["publications"][WB_ID]
+        self.assertIn(pub["status"], ("accepted_frozen", "canonical_built", "published"))
+        self.assertEqual(pub["previous_releases"][0]["status"], "published")
         report = read(os.path.join(REPO_ROOT, "reports", "addendum_04_05_tsfm_internal_audit.md"))
         self.assertIn("`drafted_pending_human_review`", report)  # historical record of the draft stage
 

@@ -44,4 +44,4 @@ workbooks:
     number: null
     kind: "addendum"
     title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
-    status: "drafted_pending_human_review"  # v1.0.0 accepted and published; v1.1.0 (Timestral) reopened 2026-10-27, pending human review
+    status: "accepted_frozen"  # v1.1.0 (Timestral) accepted 2026-10-28; v1.0.0 accepted 2026-10-06

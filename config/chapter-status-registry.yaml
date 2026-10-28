@@ -54,30 +54,40 @@ workbooks:
         chapter_path: "workbooks/05-llm-training/chapters/06-reading-real-pretraining-runs.qmd"
         note: "Final content chapter of Workbook 05. Drafted, internally reviewed, corrected once (source-audit time-qualifier fix), and now accepted after independent human review -- this entry records that acceptance, per the task that reported the human review as complete. commit_sha updated to the chapter file's actual last-touched commit (the correction-pass commit), superseding the earlier draft commit this field previously recorded."
   addendum-04-05-tsfm:
-    status: "drafted_pending_human_review"
-    note: "Standalone TSFM addendum, companion to frozen Workbooks 04 and 05 (not modified). v1.0.0 content was accepted after independent human review on 2026-10-06 (fields below, kept unchanged as the v1.0.0 acceptance record) and is published (see publications.addendum-04-05-tsfm). Reopened 2026-10-27 for the v1.1.0 Timestral revision (see `reopenings`); the working tree is v1.1.0 content pending independent human PDF review. While this status is not accepted_frozen, scripts/build_addendum_final.py refuses to build, so the published canonical PDF cannot be overwritten from unreviewed content."
+    status: "accepted_frozen"
+    note: "Standalone TSFM addendum, companion to frozen Workbooks 04 and 05 (not modified). v1.0.0 content was accepted after independent human review on 2026-10-06 (acceptance_date / accepted_* fields below, kept unchanged as the v1.0.0 acceptance record). The v1.1.0 Timestral revision (reopened 2026-10-27, see `reopenings`) was accepted after independent human review of its 23-page review PDF on 2026-10-28 (v1_1_0_acceptance) and is frozen again."
     acceptance_date: "2026-10-06"
     accepted_source_commit: "aea2e38673556a8701c68fdb0fecddaab1a91d02"
     accepted_review_pdf_sha256: "d2fcd1cff746cbeeb154de0143d4996c6238f6fe715748ef713d8c589c4e3319"
     accepted_review_pdf_page_count: 18
+    v1_1_0_acceptance:
+      accepted: true
+      date: "2026-10-28"
+      accepted_by: human
+      accepted_source_commit: "774cf8a20c8a2f82420a0dc905408d4c63441777"
+      accepted_review_pdf: "outputs/_development/addendum-04-05-tsfm/v1.1.0-review/addendum-04-05-tsfm-v1.1.0-review.pdf"
+      accepted_review_pdf_sha256: "e3268c0d80f78c68e39334c9a8dd20305eb3049971d1d8285e08bba67e28887d"
+      accepted_review_pdf_bytes: 508460
+      accepted_review_pdf_page_count: 23
+      note: "User instruction of 2026-10-28 accepted this exact review artifact and authorized canonical build and publication as v1.1.0."
     chapters:
       01:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/01-model-inputs.qmd"
       02:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/02-context-channels-covariates-horizons.qmd"
       03:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/03-architecture-families-and-horizon-filling.qmd"
       04:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/04-outputs-and-losses.qmd"
       05:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/05-pretraining-data-adaptation-and-leakage.qmd"
       06:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
   04-llm-architecture:
     status: "frozen"
@@ -97,7 +107,9 @@ reopenings:
   - workbook: addendum-04-05-tsfm
     revision: "v1.1.0"
     opened: "2026-10-27"
-    state: "open_pending_human_review"
+    state: "closed_accepted"
+    closed: "2026-10-28"
+    closed_note: "Closed on independent human acceptance of the v1.1.0 review PDF (SHA-256 e3268c0d80f78c68e39334c9a8dd20305eb3049971d1d8285e08bba67e28887d, 23 pages) at source commit 774cf8a20c8a2f82420a0dc905408d4c63441777. Content is accepted_frozen again; later changes need a new reopening."
     granted_by: human
     granted_for: "Update the published TSFM addendum to cover Mistral Timestral as proposed version 1.1.0, using a clearly documented, narrowly scoped reopening (user task instruction, 2026-10-27)"
     base_commit: "e863c419ec231e7b15c62c23219077f8685b8199"
@@ -184,37 +196,40 @@ publications:
       date: "2026-10-05"
       note: "Canonical PDF accepted at its previously frozen checksum (RC1 accepted 2026-10-05; canonical build 25a393bb...)."
   addendum-04-05-tsfm:
+    # One record per artifact: the fields below describe the CURRENT
+    # edition (v1.1.0). Earlier published editions are kept, unchanged,
+    # under previous_releases (their tags, releases and assets stay
+    # immutable on GitHub). Asset names and tags stay unique: every
+    # edition reuses the canonical filename under its own version tag.
     title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
     workbook_id: "addendum-04-05-tsfm"
-    status: "published"
+    version: "1.1.0"
+    status: "accepted_frozen"
     canonical_path: "outputs/addendum-04-05-tsfm.pdf"
-    page_count: 18
-    sha256: "b7096e9b9291dc4319f8f3740303b42dcf784d3ec80bb2fb63cc66f7ac242b65"
-    source_commit: "39294a2242a1f95d200e0b06c5c69f0a4cfcf9f0"
-    release_tag: "addendum-04-05-tsfm-v1.0.0"
-    release_title: "Addendum 04–05 v1.0.0 — Time-Series Foundation Models"
+    release_tag: "addendum-04-05-tsfm-v1.1.0"
+    release_title: "Addendum 04–05 v1.1.0 — Time-Series Foundation Models"
     release_asset: "addendum-04-05-tsfm.pdf"
-    release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/addendum-04-05-tsfm-v1.0.0"
-    publication_date: "2026-10-06"
+    release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/addendum-04-05-tsfm-v1.1.0"
     reproduction_command: "python3 scripts/build_addendum_final.py"
     human_acceptance:
       accepted: true
-      date: "2026-10-06"
-      note: "Release Candidate 1 (18 pages, SHA-256 a1599e49...) accepted after independent human review; the canonical PDF differs from it only in the subtitle (Final Edition). Content status is accepted_frozen."
-  addendum-04-05-tsfm-v1.1.0:
-    # Proposed MINOR revision of the published addendum (adds
-    # Mistral Timestral). Pending independent human review of the
-    # development review PDF; NOT accepted, built canonically, tagged or
-    # released. The v1.0.0 record above stays the published artifact.
-    # release_asset / canonical_path are deliberately absent: they would
-    # duplicate v1.0.0's until a publication step decides them.
-    title: "Addendum 04-05: From Language Models to Time-Series Foundation Models (v1.1.0, Timestral revision)"
-    workbook_id: "addendum-04-05-tsfm"
-    status: "review_pending"
-    release_tag: "addendum-04-05-tsfm-v1.1.0"
-    review_pdf: "outputs/_development/addendum-04-05-tsfm/v1.1.0-review/addendum-04-05-tsfm-v1.1.0-review.pdf"
-    base_published_version: "addendum-04-05-tsfm-v1.0.0"
-    reproduction_command: "python3 scripts/build_addendum_review.py --revision v1.1.0"
+      date: "2026-10-28"
+      note: "v1.1.0 review PDF (23 pages, 508,460 bytes, SHA-256 e3268c0d80f78c68e39334c9a8dd20305eb3049971d1d8285e08bba67e28887d) accepted after independent human review; the canonical PDF may differ from it only in the edition subtitle."
+    previous_releases:
+      - version: "1.0.0"
+        status: "published"
+        page_count: 18
+        bytes: 425777
+        sha256: "b7096e9b9291dc4319f8f3740303b42dcf784d3ec80bb2fb63cc66f7ac242b65"
+        source_commit: "39294a2242a1f95d200e0b06c5c69f0a4cfcf9f0"
+        release_tag: "addendum-04-05-tsfm-v1.0.0"
+        release_title: "Addendum 04–05 v1.0.0 — Time-Series Foundation Models"
+        release_asset: "addendum-04-05-tsfm.pdf"
+        release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/addendum-04-05-tsfm-v1.0.0"
+        publication_date: "2026-10-06"
+        human_acceptance_date: "2026-10-06"
+        human_acceptance_note: "Release Candidate 1 (18 pages, SHA-256 a1599e49...) accepted after independent human review; the canonical PDF differs from it only in the subtitle (Final Edition)."
+        local_archive: "outputs/_development/addendum-04-05-tsfm/v1.0.0-canonical-archive/addendum-04-05-tsfm-v1.0.0.pdf"
 
 # --------------------------------------------------------------------
 # Override mechanism

@@ -19,7 +19,7 @@ CHECKER = os.path.join(REPO_ROOT, "scripts", "check_addendum_final.py")
 INDEX = os.path.join(REPO_ROOT, "workbooks", "addendum-04-05-tsfm", "index.qmd")
 FINAL = os.path.join(REPO_ROOT, "outputs", "addendum-04-05-tsfm.pdf")
 RC1 = os.path.join(REPO_ROOT, "outputs", "_releases", "addendum-04-05-tsfm", "addendum-04-05-tsfm-rc1.pdf")
-REVIEW = os.path.join(REPO_ROOT, "outputs", "_development", "addendum-04-05-tsfm", "integrated-review", "addendum-04-05-tsfm-review.pdf")
+REVIEW = os.path.join(REPO_ROOT, "outputs", "_development", "addendum-04-05-tsfm", "v1.1.0-review", "addendum-04-05-tsfm-v1.1.0-review.pdf")
 
 
 def read(p):
@@ -43,7 +43,8 @@ class TestFinalBuilder(unittest.TestCase):
 
     def test_substitution_is_staged_checked_and_cleaned_up(self):
         src = read(BUILDER)
-        self.assertIn('FINAL_SUBTITLE = "Final Edition"', src)
+        self.assertIn('EDITION_VERSION = "1.1.0"', src)
+        self.assertIn('FINAL_SUBTITLE = f"Final Edition, version {EDITION_VERSION}"', src)
         self.assertIn("expected subtitle substitution did not happen", src)
         self.assertIn("finally:", src)
         for name in ("final-build.qmd", "final-build.pdf"):
@@ -77,10 +78,13 @@ class TestCanonicalArtifact(unittest.TestCase):
                      and r["state"].startswith("open")]
             self.assertEqual(len(open_), 1)
             self.assertEqual(open_[0]["granted_by"], "human")
-        self.assertIn(reg["publications"]["addendum-04-05-tsfm"]["status"], ("review_pending", "published"))
+        self.assertIn(reg["publications"]["addendum-04-05-tsfm"]["status"], ("accepted_frozen", "canonical_built", "published"))
+        if status == "accepted_frozen":
+            closed = [r for r in reg.get("reopenings", []) if r["workbook"] == "addendum-04-05-tsfm" and r["revision"] == "v1.1.0"]
+            self.assertEqual(closed[0]["state"], "closed_accepted")
 
     @unittest.skipUnless(all(os.path.exists(p) for p in (FINAL, RC1, REVIEW)), "local PDFs not present")
-    def test_final_matches_rc1_apart_from_the_subtitle(self):
+    def test_final_matches_the_accepted_review_apart_from_the_edition_subtitle(self):
         r = subprocess.run([sys.executable, CHECKER], capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, msg=r.stdout[-2500:])
         self.assertIn("RESULT: clean", r.stdout)

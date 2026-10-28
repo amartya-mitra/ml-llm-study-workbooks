@@ -4,9 +4,12 @@
     python3 scripts/build_addendum_final.py
 
 Renders workbooks/addendum-04-05-tsfm/index.qmd (accepted, frozen content)
-from source. The only learner-facing difference from Release Candidate 1 is
-the subtitle: "Release Candidate 1" becomes "Final Edition". RC1 is never
-copied or renamed.
+from source. The only learner-facing difference from the accepted review
+build is the title-page subtitle, which becomes the edition line
+"Final Edition, version <EDITION_VERSION>" (v1.0.0 used "Final Edition" and
+was checked against Release Candidate 1; v1.1.0 is checked against its
+accepted review PDF by scripts/check_addendum_final.py). Neither RC1 nor
+any review PDF is ever copied or renamed.
 
 Output: outputs/addendum-04-05-tsfm.pdf  (git-ignored; distributed only as a
 GitHub Release asset). Also writes page renders, extracted text and a
@@ -46,7 +49,8 @@ DEV_DIR = os.path.join(REPO_ROOT, "outputs", "_development", WB_ID, "final")
 MANIFEST = os.path.join(DEV_DIR, "final-manifest.json")
 STAGING_QMD = os.path.join(WB_DIR, "final-build.qmd")
 STAGING_PDF = os.path.join(WB_DIR, "final-build.pdf")
-FINAL_SUBTITLE = "Final Edition"
+EDITION_VERSION = "1.1.0"
+FINAL_SUBTITLE = f"Final Edition, version {EDITION_VERSION}"
 PAGE_CEILING = 24
 DPI = 150
 CONDA_ENV = os.environ.get("ML_WORKBOOKS_ENV", "/mnt/home/amitra/.conda/envs/ml-workbooks")
@@ -167,6 +171,7 @@ def main():
         "bytes": os.path.getsize(OUTPUT_PDF),
         "sha256": sha256(OUTPUT_PDF),
         "subtitle": FINAL_SUBTITLE,
+        "version": EDITION_VERSION,
     }
     with open(MANIFEST, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
