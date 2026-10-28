@@ -91,7 +91,7 @@ workbooks:
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
   06-llm-inference:
     status: "scaffold_only"
-    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. Chapters 1-2 accepted and frozen 2026-10-28; Chapter 3 drafted 2026-10-28 (pending human review); Chapters 4-7 scaffold only. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
+    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. Chapters 1-3 accepted and frozen 2026-10-28; Chapters 4-7 scaffold only. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
     chapters:
       01:
         status: "accepted_frozen"
@@ -122,8 +122,24 @@ workbooks:
           accepted_review_pdf_page_count: 13
         note: "Drafted, internally audited and corrected at 043f9d0, then corrected once more (Question 2 selection-versus-KV-append wording) at 4a5d05d, and accepted after independent human review of the review PDF above. The two-entry bibliography continuation on page 13 is accepted intentional layout."
       03:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
+        commit_sha: "91378b1a7d7e33df173a00d0e5e7995604368dd1"
         chapter_path: "workbooks/06-llm-inference/chapters/03-serving-and-scheduling.qmd"
+        acceptance:
+          accepted: true
+          date: "2026-10-28"
+          accepted_by: human
+          reviewed_review_pdf_sha256: "5c731db5506420883a09a8777c5186c9ed7683d2643a06dc8a82a962054b4bbd"
+          reviewed_review_pdf_bytes: 257559
+          reviewed_review_pdf_page_count: 12
+          reviewed_source_commit: "1ac28c8f3a4f1defde1557725ad864c7c65e1384"
+          authorized_correction: "Page 7: 'every gap is 5.4 ms' under static batching replaced by the worst gap (5.4 ms with two decoding requests, 5.2 ms with one). Verified: extracted text differs only in that sentence and its re-wrapped paragraph; page renders 1-6 and 9-12 byte-identical; pages 7-8 inspected with no layout regression."
+          accepted_source_commit: "91378b1a7d7e33df173a00d0e5e7995604368dd1"
+          accepted_review_pdf: "outputs/_development/06-llm-inference/chapter-03-review/06-llm-inference-ch03-review.pdf"
+          accepted_review_pdf_sha256: "f111cd43b1be2d6076bf2ce6e65724792b002c17f6d9bee07e3b92a1f1a8c164"
+          accepted_review_pdf_bytes: 257608
+          accepted_review_pdf_page_count: 12
+        note: "Drafted, audited and corrected at 1ac28c8; independently reviewed; accepted with one authorized wording correction applied at 91378b1. Page 4's sparse lower area (Figure 2 kept whole) is accepted layout."
       04:
         status: "scaffold_only"
         chapter_path: "workbooks/06-llm-inference/chapters/04-efficient-execution.qmd"

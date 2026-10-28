@@ -10,9 +10,8 @@ are set once, project-wide, in the repo-root _quarto.yml -- do not repeat
 them here.
 
 Status: development draft (see config/chapter-status-registry.yaml and
-reports/06_llm_inference_scope_and_source_decision.md). Chapters 1-2 are
-`accepted_frozen`; Chapter 3 is `drafted_pending_human_review`; Chapters 4-7
-are `scaffold_only`. No PDF rendered from this file is a release candidate or
+reports/06_llm_inference_scope_and_source_decision.md). Chapters 1-3 are
+`accepted_frozen`; Chapters 4-7 are `scaffold_only`. No PDF rendered from this file is a release candidate or
 a canonical edition. Development builds go to
 outputs/_development/06-llm-inference/ via scripts/workbook_qa.py; the
 canonical outputs/06-llm-inference-workbook.pdf is created only by the

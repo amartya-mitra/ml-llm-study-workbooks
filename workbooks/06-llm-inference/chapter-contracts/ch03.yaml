@@ -8,33 +8,39 @@
 # (.claude/skills/draft-workbook-chapter/) extends allowed_paths with the
 # chapter's worked-example and figure files when it drafts them.
 
+# ACCEPTED 2026-10-28: the independently reviewed 12-page PDF (sha256 5c731db5...)
+# was accepted subject to one authorized wording correction (static batching's
+# worst gap), applied at 91378b1; the corrected review PDF is recorded in the
+# status registry. Status-record update only.
+
 identity:
   workbook: "06-llm-inference"
   chapter: "03"
   title: "Serving and Scheduling: Continuous Batching, Chunked Prefill, and Disaggregation"
-  status: "drafted_pending_human_review"
+  status: "accepted_frozen"
 
 scope:
-  allowed_paths:
+  # Accepted and frozen (2026-10-28): no further edits without an explicit
+  # human-authorized override in config/chapter-status-registry.yaml. Chapter 3's
+  # question, claim-ledger and figure-plan records live in shared files; later
+  # chapters may append their own records but must not alter Chapter 3's.
+  allowed_paths: []
+  frozen_paths:
     - "workbooks/06-llm-inference/chapters/03-serving-and-scheduling.qmd"
     - "workbooks/06-llm-inference/solutions/03-serving-and-scheduling-solutions.qmd"
-    - "workbooks/06-llm-inference/questions.yaml"
-    - "workbooks/06-llm-inference/claim-ledger.yaml"
-    - "workbooks/06-llm-inference/figure-plan.yaml"
     - "workbooks/06-llm-inference/data/worked-examples/serving_schedules.py"
     - "workbooks/06-llm-inference/data/worked-examples/serving_schedules.json"
     - "workbooks/06-llm-inference/figures/source/fig_schedule_timelines.py"
     - "workbooks/06-llm-inference/figures/source/fig_prefill_decode_interference.py"
     - "workbooks/06-llm-inference/figures/rendered/fig-schedule-timelines.svg"
     - "workbooks/06-llm-inference/figures/rendered/fig-prefill-decode-interference.svg"
-  frozen_paths:
-    - "workbooks/06-llm-inference/chapters/0[124567]-*.qmd"
+    - "workbooks/06-llm-inference/chapters/0[12]-*.qmd"
+    - "workbooks/06-llm-inference/solutions/0[12]-*-solutions.qmd"
     - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.py"
     - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.json"
     - "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.py"
     - "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.json"
     - "workbooks/06-llm-inference/figures/source/_common.py"
-    - "workbooks/06-llm-inference/solutions/0[124567]-*-solutions.qmd"
     - "workbooks/04-llm-architecture/**"
     - "workbooks/05-llm-training/**"
     - "workbooks/addendum-04-05-tsfm/**"
