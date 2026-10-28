@@ -46,3 +46,17 @@ asset, `addendum-04-05-tsfm.pdf`. The remote verification result is
 recorded in the publication registry (`status: published`) only after a
 fresh download reproduced the SHA-256 above. v1.0.0 (tag, release, asset)
 is untouched and listed under `previous_releases`.
+
+## Remote verification (2026-10-28)
+
+- Release: https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/addendum-04-05-tsfm-v1.1.0
+  (id 426278481; created as a draft, asset uploaded and verified by
+  authenticated download, then published 2026-10-28T05:00:16Z; public,
+  not draft, not prerelease; exactly one asset).
+- Direct download: https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/addendum-04-05-tsfm-v1.1.0/addendum-04-05-tsfm.pdf
+  — anonymous download: 508,386 bytes, SHA-256 `68467ffb…6ea2`, 23 pages,
+  "Final Edition, version 1.1.0" on page 1.
+- Annotated tag object `9644d45f7593797529019141e6c776d95056fc5c` →
+  commit `00f3bb63185114f0c2231703cd2ea93394f77ac2`.
+- v1.0.0 re-verified read-only: annotated tag → `39294a2…`, single asset
+  425,777 bytes, SHA-256 `b7096e9b…2b65`, 18 pages — unchanged.

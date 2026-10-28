@@ -204,7 +204,7 @@ publications:
     title: "Addendum 04-05: From Language Models to Time-Series Foundation Models"
     workbook_id: "addendum-04-05-tsfm"
     version: "1.1.0"
-    status: "canonical_built"
+    status: "published"
     page_count: 23
     bytes: 508386
     sha256: "68467ffb62bbf7734bb97e4387d5956349811d6d211b5d12501c5166b87d6ea2"
@@ -214,6 +214,7 @@ publications:
     release_title: "Addendum 04–05 v1.1.0 — Time-Series Foundation Models"
     release_asset: "addendum-04-05-tsfm.pdf"
     release_url: "https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/tag/addendum-04-05-tsfm-v1.1.0"
+    publication_date: "2026-10-28"
     reproduction_command: "python3 scripts/build_addendum_final.py"
     human_acceptance:
       accepted: true
