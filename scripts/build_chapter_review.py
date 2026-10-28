@@ -106,7 +106,9 @@ def discover_source_ids(chapter_text, solutions_text):
 def render_template(book_title, chapter_num, chapter_title, chapter_rel, solutions_rel, pagebreak_before_bib):
     with open(TEMPLATE_PATH, encoding="utf-8") as f:
         template = f.read()
-    subtitle = f"Chapter {int(chapter_num)} Review Draft — {chapter_title}"
+    # A markdown hard line break (backslash-newline, written for a YAML double-quoted
+    # string) puts a long chapter title on its own line instead of hyphenating it.
+    subtitle = f"Chapter {int(chapter_num)} Review Draft —\\\\\\n{chapter_title}"
     bib_pagebreak = "\n```{=typst}\n#pagebreak()\n```\n" if pagebreak_before_bib else ""
     filled = (
         template

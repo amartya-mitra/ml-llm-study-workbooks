@@ -1,5 +1,87 @@
 ## Answer Key: Chapter 3 {#sec-solutions-ch3 .unnumbered}
 
-Answers to Chapter 3's "Check your understanding" questions (@sec-ch3-check).
+<!-- Layout: the intro and each repeated prompt are full-width sticky blocks,
+so each stays on the same page as the start of what follows it (the heading
+is sticky by default). Answers themselves still break normally. -->
 
-*Pending: no questions have been written for this chapter yet, so there are no answers.*
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+Full solutions to this chapter's "Check your understanding" questions (@sec-ch3-check). Every number is derived from the chapter's illustrative trace and cost model; none is a measurement.
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**1. Calculation. Using @eq-step-cost, how long is a step that carries C's whole 1,024-token prefill together with A's and B's decode tokens? How long is a chunked step that carries a 254-token piece of C with the same two decode tokens?**
+
+```{=typst}
+]
+```
+
+*Answer.* Whole prefill: $5 + 0.015 \times 1024 + 0.2 \times 2 = 5 + 15.36 + 0.4 = 20.76$ ms. Chunked piece: $5 + 0.015 \times 254 + 0.2 \times 2 = 5 + 3.81 + 0.4 = 9.21$ ms. A and B each wait the whole step for their next token, so their gap is 20.76 ms in the first case and 9.21 ms in the second. A decode-only step for the same two sequences would take 5.4 ms.
+
+*Common trap:* Charging the prefill only to C. Every sequence in a step waits for the step to finish, so a long prefill stretches the co-scheduled decodes' gaps too.
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**2. Calculation. Under continuous batching, B arrives at 0 ms and its output tokens are selected at 16.52, 37.28, 44.80 and 50.60 ms. Compute its TTFT, gaps, TPOT and worst gap. Does it meet the SLO, and which statistic decides?**
+
+```{=typst}
+]
+```
+
+*Answer.* TTFT $= 16.52$ ms. Gaps: 20.76, 7.52 and 5.80 ms. TPOT $= (50.60 - 16.52)/(4 - 1) = 34.08/3 = 11.36$ ms, the mean of the three gaps. Worst gap: 20.76 ms. TTFT meets its 40 ms target, but TPOT exceeds 10 ms, so B fails the SLO. The decision rests on TPOT, as the SLO is stated; the worst gap, nearly twice TPOT, is what a tail-gap SLO would catch.
+
+*Common trap:* Reading TPOT as the largest gap, or the largest gap as typical. TPOT is a per-request mean; a single long gap can hide inside an acceptable TPOT.
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**3. Compare. Sarathi-Serve and DistServe disagree about chunked prefill. State each position, and say which numbers in the worked example support each one.**
+
+```{=typst}
+]
+```
+
+*Answer.* Sarathi-Serve presents chunked prefill with stall-free batching as a way to keep token gaps low while sustaining throughput: bounding tokens per step bounds every decode's wait. DistServe argues that chunking trades TTFT for TPOT and cannot eliminate interference, and that re-reading earlier chunks' cache grows quadratically with the number of chunks. Sarathi-Serve also replies that the extra reads cost little because chunked attention prefill stays compute-bound. In the worked example, the worst gap falls from 20.8 to 9.2 ms and throughput (226 output tokens per second) stays above static batching (215) with every gap under 10 ms, supporting Sarathi-Serve; C's TTFT rises from 25.3 to 58.6 ms, supporting DistServe's trade. The fall from 304 to 226 tokens per second against unchunked continuous batching comes from the extra per-step cost in this toy model, not from a claim either source makes, and the model omits the chunk re-reads, so it cannot settle that part of the argument.
+
+*Common trap:* Treating one source as simply right. On this trace each is describing a real effect, and which matters depends on the SLO.
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**4. Calculation. Using @eq-kv-transfer and the worked example's assumptions, how long does D's KV transfer take? Why can you not conclude from that number alone that disaggregation speeds D up?**
+
+```{=typst}
+]
+```
+
+*Answer.* D's 128-token prompt carries 128 × 131,072 = 16,777,216 bytes (16 MiB) of cache, so $t_\text{xfer}$ = 2 ms + 16,777,216 bytes ÷ 25 GB/s = 2 + 0.67 = 2.67 ms. But in the simulated schedule (visible in the timeline figure) D's first gap is 13.46 ms: after the transfer it waits for the decode device's next step boundary and then for that step. D's TTFT improves slightly (13.8 against 14.8 ms) but its E2E worsens, 48.5 ms under disaggregation against 42.4 ms under continuous batching on one device. Transfer time is one term; queueing on each device, step-boundary joining and the second device also matter, and designs should be compared by SLO-qualified goodput per device.
+
+*Common trap:* Treating a small transfer time as proof of a speedup, or ignoring that disaggregation uses two devices.
+
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+**5. Debugging. Under the FCFS policy of vLLM v0.32.0, a running request cannot get a block. Which request is preempted, what happens to waiting requests in that step, and what does resuming request A cost if it had selected 5 output tokens?**
+
+```{=typst}
+]
+```
+
+*Answer.* Under FCFS the victim is the last request in the running list, the most recently admitted (admitted requests are appended), so earlier arrivals keep running; no waiting request is admitted in a step that preempts. Request A, with a 512-token prompt and 5 selected outputs, holds KV entries for the prompt and its first 4 outputs: 516 entries, all freed. Resuming prefills those 516 tokens again plus the fifth selected token (which a decode step would have processed anyway): a 517-token pass costing $5 + 0.015 \times 517 = 12.76$ ms alone, against 5.2 ms for the decode step it replaces, assuming no freed block is still cached and hit again (Chapter 2).
+
+*Common trap:* Counting the last selected token as already cached. It had been selected but not processed, so it held no KV entry.
+
+**Applied exercise (512-token budget).** With a 512-token budget the worst gap is 13.05 ms (between 9.2 ms at 256 tokens and 20.8 ms unchunked), C waits 0.68 ms and its TTFT is 37.8 ms (between 58.6 and 25.3 ms), throughput is 284 output tokens per second (between 226 and 304) and goodput 38.8 requests per second. A, C and D meet the SLO, the same set as unchunked; B misses its TPOT target by 0.02 ms (10.02 ms), the reverse of the 256-token run for B and C. The budget trades how long any step may be — which bounds running requests' gaps — against how many steps a long prompt needs, which sets its TTFT and the chunk re-reads. Which budget is best depends on the SLO: a tighter gap target favours small budgets, a tighter TTFT target large ones, and results near a threshold, like B here, can flip with small changes.

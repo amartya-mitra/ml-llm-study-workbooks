@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="322" viewBox="0 0 620 322">
+  <title>Prefill-decode interference in step durations</title>
+  <defs></defs>
+  <rect x="0" y="0" width="620" height="322" fill="#ffffff"/>
+  <text x="310.0" y="18" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">Illustrative step durations: a long prefill stretches co-scheduled decodes</text>
+  <text x="70" y="54" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">No chunking: C&#x27;s whole prefill joins a decode step</text>
+  <line x1="70.00" y1="138.00" x2="604.00" y2="138.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="64" y="142.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">0</text>
+  <line x1="70.00" y1="106.33" x2="604.00" y2="106.33" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="64" y="110.33333333333333" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">10</text>
+  <line x1="70.00" y1="74.67" x2="604.00" y2="74.67" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="64" y="78.66666666666666" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">20</text>
+  <g id="panel-continuous">
+  <rect x="70.50" y="122.17" width="87.22" height="15.83" fill="#444444" fill-opacity="0.35" data-step="0" data-part="t0" data-ms="5.000000"/>
+  <rect x="70.50" y="85.69" width="87.22" height="36.48" fill="#E69F00" fill-opacity="0.8" data-step="0" data-part="prefill_ms" data-ms="11.520000"/>
+  <rect x="158.72" y="122.17" width="109.86" height="15.83" fill="#444444" fill-opacity="0.35" data-step="1" data-part="t0" data-ms="5.000000"/>
+  <rect x="158.72" y="73.53" width="109.86" height="48.64" fill="#E69F00" fill-opacity="0.8" data-step="1" data-part="prefill_ms" data-ms="15.360000"/>
+  <rect x="158.72" y="72.26" width="109.86" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="1" data-part="decode_ms" data-ms="0.400000"/>
+  <rect x="269.58" y="122.17" width="39.16" height="15.83" fill="#444444" fill-opacity="0.35" data-step="2" data-part="t0" data-ms="5.000000"/>
+  <rect x="269.58" y="116.09" width="39.16" height="6.08" fill="#E69F00" fill-opacity="0.8" data-step="2" data-part="prefill_ms" data-ms="1.920000"/>
+  <rect x="269.58" y="114.19" width="39.16" height="1.90" fill="#0072B2" fill-opacity="0.8" data-step="2" data-part="decode_ms" data-ms="0.600000"/>
+  <rect x="309.73" y="122.17" width="29.97" height="15.83" fill="#444444" fill-opacity="0.35" data-step="3" data-part="t0" data-ms="5.000000"/>
+  <rect x="309.73" y="119.63" width="29.97" height="2.53" fill="#0072B2" fill-opacity="0.8" data-step="3" data-part="decode_ms" data-ms="0.800000"/>
+  <rect x="340.70" y="122.17" width="28.90" height="15.83" fill="#444444" fill-opacity="0.35" data-step="4" data-part="t0" data-ms="5.000000"/>
+  <rect x="340.70" y="120.27" width="28.90" height="1.90" fill="#0072B2" fill-opacity="0.8" data-step="4" data-part="decode_ms" data-ms="0.600000"/>
+  <rect x="370.61" y="122.17" width="27.84" height="15.83" fill="#444444" fill-opacity="0.35" data-step="5" data-part="t0" data-ms="5.000000"/>
+  <rect x="370.61" y="120.90" width="27.84" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="5" data-part="decode_ms" data-ms="0.400000"/>
+  <rect x="399.44" y="122.17" width="27.84" height="15.83" fill="#444444" fill-opacity="0.35" data-step="6" data-part="t0" data-ms="5.000000"/>
+  <rect x="399.44" y="120.90" width="27.84" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="6" data-part="decode_ms" data-ms="0.400000"/>
+  <rect x="428.28" y="122.17" width="27.84" height="15.83" fill="#444444" fill-opacity="0.35" data-step="7" data-part="t0" data-ms="5.000000"/>
+  <rect x="428.28" y="120.90" width="27.84" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="7" data-part="decode_ms" data-ms="0.400000"/>
+  </g>
+  <text x="604" y="54" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">longest decode-carrying step 20.8 ms</text>
+  <text x="18" y="104.0" font-family="sans-serif" font-size="11" fill="#111111" text-anchor="middle" transform="rotate(-90 18 104.0)">step (ms)</text>
+  <text x="70" y="174" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">Chunked prefill, 256-token budget</text>
+  <line x1="70.00" y1="258.00" x2="604.00" y2="258.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="64" y="262.0" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">0</text>
+  <line x1="70.00" y1="226.33" x2="604.00" y2="226.33" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="64" y="230.33333333333334" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">10</text>
+  <line x1="70.00" y1="194.67" x2="604.00" y2="194.67" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="64" y="198.66666666666666" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">20</text>
+  <g id="panel-chunked">
+  <rect x="70.50" y="242.17" width="46.21" height="15.83" fill="#444444" fill-opacity="0.35" data-step="0" data-part="t0" data-ms="5.000000"/>
+  <rect x="70.50" y="230.01" width="46.21" height="12.16" fill="#E69F00" fill-opacity="0.8" data-step="0" data-part="prefill_ms" data-ms="3.840000"/>
+  <rect x="117.71" y="242.17" width="46.21" height="15.83" fill="#444444" fill-opacity="0.35" data-step="1" data-part="t0" data-ms="5.000000"/>
+  <rect x="117.71" y="230.01" width="46.21" height="12.16" fill="#E69F00" fill-opacity="0.8" data-step="1" data-part="prefill_ms" data-ms="3.840000"/>
+  <rect x="164.91" y="242.17" width="47.19" height="15.83" fill="#444444" fill-opacity="0.35" data-step="2" data-part="t0" data-ms="5.000000"/>
+  <rect x="164.91" y="230.05" width="47.19" height="12.11" fill="#E69F00" fill-opacity="0.8" data-step="2" data-part="prefill_ms" data-ms="3.825000"/>
+  <rect x="164.91" y="229.42" width="47.19" height="0.63" fill="#0072B2" fill-opacity="0.8" data-step="2" data-part="decode_ms" data-ms="0.200000"/>
+  <rect x="213.10" y="242.17" width="47.19" height="15.83" fill="#444444" fill-opacity="0.35" data-step="3" data-part="t0" data-ms="5.000000"/>
+  <rect x="213.10" y="230.05" width="47.19" height="12.11" fill="#E69F00" fill-opacity="0.8" data-step="3" data-part="prefill_ms" data-ms="3.825000"/>
+  <rect x="213.10" y="229.42" width="47.19" height="0.63" fill="#0072B2" fill-opacity="0.8" data-step="3" data-part="decode_ms" data-ms="0.200000"/>
+  <rect x="261.30" y="242.17" width="48.18" height="15.83" fill="#444444" fill-opacity="0.35" data-step="4" data-part="t0" data-ms="5.000000"/>
+  <rect x="261.30" y="230.10" width="48.18" height="12.06" fill="#E69F00" fill-opacity="0.8" data-step="4" data-part="prefill_ms" data-ms="3.810000"/>
+  <rect x="261.30" y="228.84" width="48.18" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="4" data-part="decode_ms" data-ms="0.400000"/>
+  <rect x="310.48" y="242.17" width="48.18" height="15.83" fill="#444444" fill-opacity="0.35" data-step="5" data-part="t0" data-ms="5.000000"/>
+  <rect x="310.48" y="230.10" width="48.18" height="12.06" fill="#E69F00" fill-opacity="0.8" data-step="5" data-part="prefill_ms" data-ms="3.810000"/>
+  <rect x="310.48" y="228.84" width="48.18" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="5" data-part="decode_ms" data-ms="0.400000"/>
+  <rect x="359.66" y="242.17" width="48.18" height="15.83" fill="#444444" fill-opacity="0.35" data-step="6" data-part="t0" data-ms="5.000000"/>
+  <rect x="359.66" y="230.10" width="48.18" height="12.06" fill="#E69F00" fill-opacity="0.8" data-step="6" data-part="prefill_ms" data-ms="3.810000"/>
+  <rect x="359.66" y="228.84" width="48.18" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="6" data-part="decode_ms" data-ms="0.400000"/>
+  <rect x="408.84" y="242.17" width="37.66" height="15.83" fill="#444444" fill-opacity="0.35" data-step="7" data-part="t0" data-ms="5.000000"/>
+  <rect x="408.84" y="235.71" width="37.66" height="6.46" fill="#E69F00" fill-opacity="0.8" data-step="7" data-part="prefill_ms" data-ms="2.040000"/>
+  <rect x="408.84" y="235.07" width="37.66" height="0.63" fill="#0072B2" fill-opacity="0.8" data-step="7" data-part="decode_ms" data-ms="0.200000"/>
+  <rect x="447.50" y="242.17" width="28.90" height="15.83" fill="#444444" fill-opacity="0.35" data-step="8" data-part="t0" data-ms="5.000000"/>
+  <rect x="447.50" y="240.27" width="28.90" height="1.90" fill="#0072B2" fill-opacity="0.8" data-step="8" data-part="decode_ms" data-ms="0.600000"/>
+  <rect x="477.41" y="242.17" width="27.84" height="15.83" fill="#444444" fill-opacity="0.35" data-step="9" data-part="t0" data-ms="5.000000"/>
+  <rect x="477.41" y="240.90" width="27.84" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="9" data-part="decode_ms" data-ms="0.400000"/>
+  <rect x="506.24" y="242.17" width="27.84" height="15.83" fill="#444444" fill-opacity="0.35" data-step="10" data-part="t0" data-ms="5.000000"/>
+  <rect x="506.24" y="240.90" width="27.84" height="1.27" fill="#0072B2" fill-opacity="0.8" data-step="10" data-part="decode_ms" data-ms="0.400000"/>
+  <rect x="535.08" y="242.17" width="26.77" height="15.83" fill="#444444" fill-opacity="0.35" data-step="11" data-part="t0" data-ms="5.000000"/>
+  <rect x="535.08" y="241.53" width="26.77" height="0.63" fill="#0072B2" fill-opacity="0.8" data-step="11" data-part="decode_ms" data-ms="0.200000"/>
+  <rect x="562.85" y="242.17" width="26.77" height="15.83" fill="#444444" fill-opacity="0.35" data-step="12" data-part="t0" data-ms="5.000000"/>
+  <rect x="562.85" y="241.53" width="26.77" height="0.63" fill="#0072B2" fill-opacity="0.8" data-step="12" data-part="decode_ms" data-ms="0.200000"/>
+  </g>
+  <text x="604" y="174" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">longest decode-carrying step 9.2 ms</text>
+  <text x="18" y="224.0" font-family="sans-serif" font-size="11" fill="#111111" text-anchor="middle" transform="rotate(-90 18 224.0)">step (ms)</text>
+  <text x="70.0" y="274" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">0</text>
+  <text x="176.8" y="274" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">20</text>
+  <text x="283.6" y="274" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">40</text>
+  <text x="390.4" y="274" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">60</text>
+  <text x="497.20000000000005" y="274" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">80</text>
+  <text x="604.0" y="274" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">100</text>
+  <text x="337.0" y="290" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">time (ms)</text>
+  <rect x="70" y="302" width="12" height="9" fill="#444444" fill-opacity="0.35"/>
+  <text x="86" y="311" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">fixed per-step cost T0</text>
+  <rect x="240" y="302" width="12" height="9" fill="#E69F00" fill-opacity="0.8"/>
+  <text x="256" y="311" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">prefill tokens</text>
+  <rect x="410" y="302" width="12" height="9" fill="#0072B2" fill-opacity="0.8"/>
+  <text x="426" y="311" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">decode tokens</text>
+</svg>

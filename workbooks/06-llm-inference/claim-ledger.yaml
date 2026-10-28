@@ -1,6 +1,6 @@
 # Workbook 06's claim ledger. Schema: shared/claim-ledger-schema.yaml.
 #
-# `entries` holds Chapter 1's and Chapter 2's claims (drafted 2026-10-28). Do not add an
+# `entries` holds the claims of Chapters 1-3 (drafted 2026-10-28). Do not add an
 # entry until the sentence or number it supports exists and its passage
 # has been read.
 #
@@ -298,6 +298,126 @@ entries:
     verification_status: "computed_by_script"
     note: "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.py -> .json (imports Chapter 1's model read-only); checked by tests/test_workbook06_ch02_*.py. Illustrative inputs, derived outputs."
 
+  - id: "claim-06-serving-and-scheduling-001"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "Request-level serving fixes a batch until all requests finish, so early-finished requests cannot return and late-arriving requests wait for the whole batch; Orca's iteration-level scheduling selects requests at every iteration instead."
+    source_ids: ["src-74"]
+    verification_status: "verified_full_text"
+    note: "Sec. 3, C1 and S1 (raw-text lines ~514-545). 'Continuous batching' is later usage; the chapter keeps Orca's term when attributing."
+
+  - id: "claim-06-serving-and-scheduling-002"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "Orca's selective batching batches non-attention operations over flattened tokens of all requests and splits attention per request, with little efficiency loss because attention has no parameters whose reads batching could share."
+    source_ids: ["src-74"]
+    verification_status: "verified_full_text"
+    note: "Sec. 1 and Sec. 3 S2 (raw-text lines ~140-150, 733-760)."
+
+  - id: "claim-06-serving-and-scheduling-003"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "Orca keeps an iteration-level FCFS property (an earlier arrival has run at least as many iterations as a later one) and a maximum batch size, noting that larger batches trade latency for throughput with diminishing returns."
+    source_ids: ["src-74"]
+    verification_status: "verified_full_text"
+    note: "Sec. 4 scheduler description (raw-text lines ~966-986)."
+
+  - id: "claim-06-serving-and-scheduling-004"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "vLLM v0.32.0 bounds each iteration by max_num_batched_tokens and max_num_seqs, whose effective values are set at engine creation from the usage context and device; it schedules running requests (decodes and partial prefills) before admitting waiting ones; its default policy is FCFS with an optional priority policy; admitted requests are appended to the running list; max_num_seqs is also the default admission limit unless max_num_active_seqs lowers it; chunked prefill is on by default for models that support it and, when disabled, a prompt larger than the remaining budget stops admission."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "vllm/config/scheduler.py:40-77, 134, 159-165; vllm/engine/arg_utils.py:695, 2900-2960, 2987-2994 (effective chunked-prefill default = model_config.is_chunked_prefill_supported; the config default of True is a testing convenience); vllm/v1/core/sched/scheduler.py:132-136, 657-659, 899-923, 1155-1169, 1345 at commit 5df63a72."
+
+  - id: "claim-06-serving-and-scheduling-005"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "DistServe: colocated prefill and decoding interfere — batched prefills lengthen decoding steps and TPOT, decodes add to TTFT — and scheduling them separately on one device still makes each queue behind the other."
+    source_ids: ["src-76"]
+    verification_status: "verified_full_text"
+    note: "Sec. 1 (raw-text lines ~140-160)."
+
+  - id: "claim-06-serving-and-scheduling-006"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "Sarathi-Serve classifies schedulers as decode-prioritising (request-level systems; low TBT, poor throughput) and prefill-prioritising (Orca and vLLM of the time; higher throughput, generation stalls)."
+    source_ids: ["src-75"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2-3 (raw-text lines ~135-165)."
+
+  - id: "claim-06-serving-and-scheduling-007"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "Sarathi-Serve's chunked prefills split a prompt into near-equal chunks; stall-free batching packs running decodes, then partial prefills, then new requests up to a token budget chosen from the TBT SLO."
+    source_ids: ["src-75"]
+    verification_status: "verified_full_text"
+    note: "Sec. 1 and 4.2 (raw-text lines ~208-222, 1160-1185)."
+
+  - id: "claim-06-serving-and-scheduling-008"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "Chunking makes each chunk re-read earlier chunks' KV (N-1, N-2, ... loads); Sarathi-Serve reports at most about 25% prefill overhead at its smallest chunk size of 512 on Yi-34B and almost none at 2,048."
+    source_ids: ["src-75"]
+    verification_status: "verified_full_text"
+    note: "Sec. 4.3 and 5.4.1 (raw-text lines ~1255-1280, 1906-1912); reported, model- and hardware-specific. Sarathi-Serve also argues the re-reads cost little because chunked attention prefill stays compute-bound even at small chunk sizes (lines ~1275-1279), the counter-position to src-76 that the chapter preserves; small chunks lower GPU utilisation (lines ~1264-1266)."
+
+  - id: "claim-06-serving-and-scheduling-009"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "DistServe argues chunked prefill trades TTFT for TPOT, cannot eliminate interference, and needs O(N^2) chunk KV loads for N chunks."
+    source_ids: ["src-76"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2.1 and 2.3 (raw-text lines ~215-226, 380-395): chunking trades TTFT for TPOT and does not eliminate interference; it also adds prefill overhead that chunk-size tuning cannot easily remove. DistServe counts N + (N-1) + ... + 1 chunk loads (including each chunk's own), Sarathi-Serve N-1, N-2, ... re-reads; the chapter uses the latter. Source disagreement with src-75 preserved in the chapter."
+
+  - id: "claim-06-serving-and-scheduling-010"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "vLLM v0.32.0 documents disaggregated prefilling as experimental, motivated by tuning TTFT and ITL separately and controlling tail ITL (chunked prefill can too, but its size is hard to choose), and states that it does not improve throughput."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "docs/features/disagg_prefill.md:1-19 at commit 5df63a72. Connector transfer internals not examined."
+
+  - id: "claim-06-serving-and-scheduling-011"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "PagedAttention serves the earliest arrivals first and preempts the latest first; in vLLM v0.32.0 the FCFS victim is the last running request (the most recently admitted, since admissions are appended), the priority-policy victim the largest (priority, arrival), and no waiting request is admitted in a step that preempts."
+    source_ids: ["src-73", "src-82"]
+    verification_status: "verified_full_text"
+    note: "src-73 Sec. 4.5 (raw-text lines ~1328-1332); src-82 vllm/v1/core/sched/scheduler.py:795-803, 899-900, 1345."
+
+  - id: "claim-06-serving-and-scheduling-012"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "DistServe disaggregates prefill and decoding onto separate GPUs to remove interference and allow per-phase parallelism and resources, measures per-GPU goodput, reports about 1.13 GB of KV for a 512-token OPT-66B request (11.3 GB/s at 10 rps), and pulls caches so prefill memory buffers bursts."
+    source_ids: ["src-76"]
+    verification_status: "verified_full_text"
+    note: "Sec. 1, 3.3 and 4 (raw-text lines ~155-165, 680-695, 968-980); reported example values."
+
+  - id: "claim-06-serving-and-scheduling-013"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "The scaling-book analysis: an interleaved server pauses other users' generation during a prefill; disaggregated prefill and generate servers avoid blocking and allow different sharding, at the cost of moving the KV cache across the network."
+    source_ids: ["src-10"]
+    verification_status: "verified_full_text"
+    note: "'Inference' chapter, serving-configuration discussion (local text lines ~200-207)."
+
+  - id: "claim-06-serving-and-scheduling-014"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "SGLang notes that its greedy cache-aware (longest-shared-prefix-first) scheduling can lead to starvation."
+    source_ids: ["src-77"]
+    verification_status: "verified_full_text"
+    note: "Sec. 3 (raw-text lines ~604-615). The chapter's extension to strict priority orders is stated as an assumption-dependent inference."
+
+  - id: "claim-06-serving-and-scheduling-015"
+    workbook: "06-llm-inference"
+    chapter: "ch3"
+    statement: "All schedule timelines, request metrics, throughput and goodput values, the KV-transfer times, the chunk re-read count, the preemption recompute cost, every question and exercise number in Chapter 3."
+    source_ids: []
+    verification_status: "computed_by_script"
+    note: "workbooks/06-llm-inference/data/worked-examples/serving_schedules.py -> .json (deterministic; imports Chapter 1's model read-only for KV bytes per token); checked by tests/test_workbook06_ch03_*.py. Illustrative cost model and trace; not a measurement."
+
 planned_chapter_sources:
   - chapter: "ch1"
     source_ids: ["src-78", "src-79", "src-10", "src-75", "src-76", "src-81", "src-82", "src-44", "src-96"]
@@ -310,9 +430,9 @@ planned_chapter_sources:
     note: "src-25 (Mistral 7B) re-read in full for Sec. 2 while drafting (2026-10-28). src-82 behaviour is vLLM v0.32.0 only. Rolling-buffer eviction would need src-25 re-read first (web-search-verified only)."
 
   - chapter: "ch3"
-    source_ids: ["src-74", "src-75", "src-76", "src-73", "src-82", "src-10"]
+    source_ids: ["src-74", "src-75", "src-76", "src-73", "src-82", "src-10", "src-77"]
     candidate_source_ids: []
-    note: "Sarathi-Serve (src-75) and DistServe (src-76) disagree about chunked prefill; preserve both. No queueing-theory source."
+    note: "src-77 added while drafting (starvation caveat only). Sarathi-Serve (src-75) and DistServe (src-76) disagree about chunked prefill; preserve both. No queueing-theory source."
 
   - chapter: "ch4"
     source_ids: ["src-55", "src-83", "src-84", "src-85", "src-78", "src-53", "src-33", "src-10"]

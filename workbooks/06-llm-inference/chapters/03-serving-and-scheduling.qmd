@@ -1,65 +1,211 @@
 ## Serving and Scheduling: Continuous Batching, Chunked Prefill, and Disaggregation {#sec-ch3}
 
-::: {.callout-note title="Scaffold status"}
-Scaffold only: drafting has not yet begun. This page records the approved plan for the chapter; it contains no teaching content, questions, answers, figures, worked examples or citations yet.
-:::
-
-**Purpose.** Explain how a serving engine decides what runs in each step, and how those decisions trade time to first token, inter-token latency and goodput.
-
-**Prerequisites and planned recap.** Chapter 1 (metrics) and Chapter 2 (paging and preemption mechanics).
-
-**Scope boundaries.** No queueing-theory derivations and no autoscaling; arrival effects stay qualitative. Layouts within one deployment are Chapter 4.
+*What Runs in Each Step, Who Waits, and Which Metric Pays*
 
 ### Learning objectives
 
-Planned outcomes (approved scope). By the end of this chapter you should be able to:
+By the end of this chapter you should be able to:
 
-- Contrast request-level and iteration-level batching, and explain selective batching.
-- Diagnose generation stalls caused by prefills scheduled between decode steps.
-- Weigh chunked prefill against prefill--decode disaggregation, and state where the sources disagree.
-- Apply SLO attainment and goodput to a schedule.
-- Place preemption policy within scheduling.
+- Contrast request-level (static) batching with iteration-level (continuous) batching, and explain why the second admits and releases requests between steps.
+- Describe how a scheduler builds a step from running decodes, partial prefills and new arrivals, within a token budget and an active-sequence limit.
+- Explain why a prefill sharing a step with decodes stretches every decode in that step, and what chunked prefill trades to bound that stretch.
+- Place preemption policy and its recomputation cost on top of the memory mechanics of Chapter 2.
+- Explain prefill/decode disaggregation: what it removes, what it adds (KV transfer, a second queue, two device pools), and why transfer time alone does not predict end-to-end speed.
+- Compute waiting time, TTFT, TPOT, worst gap, throughput and SLO-qualified goodput for a schedule, keeping each distinct, and recognise when a throughput gain worsens a latency metric.
 
 ### Why this matters
 
-*Pending: drafting has not yet begun.*
+::: {.callout-note title="Recap from Chapters 1 and 2"}
+**Metrics (Chapter 1).** TTFT runs from a start event to the first output token; token gaps are the times between consecutive output tokens, and TPOT is a request's *mean* gap after the first token; E2E $=$ TTFT $+$ TPOT$\,(n_\text{out} - 1)$. Throughput needs a stated window and token type, and goodput counts only requests that meet every SLO. **Steps (Chapter 1).** Decode adds one token per running sequence per step; a step's time is shared by every sequence in it. **Selection versus processing (Chapter 2).** Processing a token writes its keys and values and yields the logits from which the next token is selected; a selected token is not cached until a later step processes it. **Memory (Chapter 2).** The cache is allocated in blocks; when no block is free a running request must wait or be preempted, and vLLM v0.32.0 preempts by recomputation.
+:::
+
+Chapters 1 and 2 priced one step and one request's memory. A server runs many requests that arrive at different times with different prompt and output lengths, so every step is a scheduling decision: which requests to process, how many tokens of each, and which to leave waiting. Those decisions move cost between metrics. This chapter explains the main designs and computes their effects on one synthetic trace. All inputs are illustrative and every result is derived by a small deterministic simulator — none is an engine benchmark.
 
 ### Mental model or analogy
 
-*Pending: drafting has not yet begun.*
+::: {.callout-note title="Analogy"}
+Think of a kitchen with one stove that cooks in rounds. A *static* kitchen seats a table, cooks every course for that table, and only then seats the next table — even if one diner left after the starter. A *continuous* kitchen re-plans every round: diners who finish leave, newcomers are seated, and the stove cooks one course for everyone present. But if a newcomer orders a dish that takes ten minutes to prepare (a long prefill), every diner waiting for their next bite waits ten minutes too. *Chunking* prepares that dish a little each round; *disaggregation* builds a second kitchen just for preparation and carries the prepared dish across.
+
+**Where this breaks down:** a step's time is not a sum of independent dishes — it depends on the total tokens and the fixed cost of reading the weights once — and carrying the dish (the KV cache) has its own cost and delay.
+:::
 
 ### Visual overview
 
-*Pending: drafting has not yet begun.*
+![The same synthetic four-request trace under four schedules. Each row is a request; bars are steps in which its tokens are processed (orange: prefill tokens; blue: one decode token), dots mark output tokens being selected, and black ticks mark arrivals. Under disaggregation, prefill and decode bars run on different devices, and dashed orange-red lines are the KV transfer between them. Illustrative cost model; not a measurement.](figures/rendered/fig-schedule-timelines.svg){#fig-schedule-timelines}
 
 ### Technical core
 
-*Pending: drafting has not yet begun.*
+#### Static versus continuous batching
+
+Request-level serving systems fix a batch until every request in it finishes. Orca identifies two problems: requests that finish early still occupy the batch and cannot return, and requests that arrive mid-batch must wait for the whole batch to end [@src-74]. Its answer is **iteration-level scheduling**: the scheduler picks the requests to run at every iteration, so finished requests leave and new ones join between steps [@src-74]. As of 2026 this is usually called continuous batching, though Orca's own term is iteration-level scheduling. Orca also introduces **selective batching**: requests with different numbers of tokens cannot be stacked into one rectangular tensor, but matrix multiplications and normalisation work on the flattened tokens of all requests, so only attention is split per request — which costs little, because attention has no weights whose reads could be shared [@src-74]. Orca keeps an iteration-level first-come-first-served (FCFS) order and a maximum batch size, noting that larger batches trade latency for throughput with diminishing returns [@src-74].
+
+#### What a scheduler decides each step
+
+A step processes a set of tokens: one decode token for each running sequence, plus prompt tokens for prefills. The scheduler fills it from three pools — running decodes, prefills already in progress, and newly arrived requests — subject to a **token budget** (tokens per step) and an **active-sequence limit**. In vLLM v0.32.0 these are `max_num_batched_tokens` and `max_num_seqs` (by default also the admission limit, which a separate `max_num_active_seqs` can lower); their effective values are set when the engine is created, from the usage context and the device [@src-82]. Its scheduler first walks the running requests, which includes decodes and partially prefilled prompts, and only then admits waiting requests in policy order while budget remains, appending each admitted request to the running list [@src-82]. Decode and prefill tokens count against the same budget. The default policy is FCFS by arrival; a `priority` policy orders by a request's priority and then arrival time [@src-82]. Chunked prefill is enabled by default for models that support it: a waiting prompt larger than the remaining budget is split to fit, and with chunking disabled admission stops at such a prompt [@src-82].
+
+Two waits now need separate names. **Waiting time** runs from arrival until a step first processes any of the request's tokens. **TTFT** runs from arrival to the end of the step that processes the last prompt token, because that step's logits select the first output token. A chunked prompt can therefore start early and still have a late first token.
+
+#### How prefill interferes with decode
+
+Every sequence in a step waits for the whole step. In the illustrative cost model used throughout this chapter,
+
+$$
+t_\text{step} = T_0 + \alpha\,P + \beta\,D,
+$$ {#eq-step-cost}
+
+where $T_0$ stands for the per-step weight read, $P$ is the number of prefill tokens in the step and $D$ the number of decode tokens; we take $T_0 = 5$ ms, $\alpha = 0.015$ ms per prefill token and $\beta = 0.2$ ms per decode token (illustrative, not fitted to any engine). The model charges every prefill token the same $\alpha$ whatever came before it, so it omits the re-reads of earlier chunks discussed below; chunking's only modelled cost is the extra $T_0$ of each additional step, which understates the real overhead. A decode-only step for two sequences takes 5.4 ms, but the same step carrying a 1,024-token prefill takes $5 + 0.015 \times 1024 + 0.2 \times 2 = 20.76$ ms — and both decoding sequences wait all of it (@fig-prefill-decode-interference). DistServe calls this prefill-decoding interference: batched prefills lengthen decode steps and so TPOT, and decodes in the batch add to TTFT; scheduling the phases separately on one device still makes each queue behind the other [@src-76]. Sarathi-Serve classifies schedulers as *decode-prioritising* (request-level systems, which protect token gaps but waste throughput) and *prefill-prioritising* (Orca and the vLLM of that time, which admit prefills eagerly for throughput and cause **generation stalls**) [@src-75]. The scaling-book analysis describes the same effect for an interleaved server: while it prefills, every other user's generation pauses [@src-10].
+
+![Step durations under continuous batching without chunking (top) and with a 256-token chunked budget (bottom), stacked into the three terms of the cost model. The step carrying C's whole prefill lasts 20.8 ms; with chunking no decode-carrying step exceeds 9.21 ms. Illustrative; derived from the worked example below.](figures/rendered/fig-prefill-decode-interference.svg){#fig-prefill-decode-interference}
+
+#### Chunked prefill and stall-free batching
+
+Sarathi-Serve splits a prompt into near-equal chunks processed over several steps and builds each step by first packing all running decodes, then any partial prefill, and only then new requests, up to a token budget chosen from the time-between-tokens SLO [@src-75]. Bounding the tokens per step bounds the step time, so decodes no longer stall behind a long prompt. The cost is twofold. Each chunk's attention must read the keys and values of all earlier chunks, so a prompt in $N$ chunks reloads earlier chunks $N(N-1)/2$ times in total [@src-75] — six reloads for four equal chunks — and DistServe stresses that this grows quadratically with the number of chunks [@src-76]. Sarathi-Serve replies that the extra reads cost little, because chunked attention prefill stays compute-bound even at small chunk sizes [@src-75]. Small chunks also use the device less well [@src-75]. Sarathi-Serve reports at most about 25% prefill overhead for its smallest chunk size of 512 on Yi-34B and almost none at 2,048 [@src-75]; these are its measurements, not general constants.
+
+The two sources disagree about what chunking achieves. Sarathi-Serve presents chunking with stall-free batching as a way to raise throughput while keeping token gaps low [@src-75]. DistServe argues that chunking "trades TTFT for TPOT" and cannot eliminate interference, and that it adds prefill overhead that tuning the chunk size cannot easily remove, since small chunks under-use the device and large ones leave little room for decodes [@src-76]. The documentation of vLLM v0.32.0 takes a middle line: a well-chosen chunk size can control tail inter-token latency, but that size is hard to find in practice [@src-82]. The worked example shows both effects on one trace.
+
+::: {.callout-warning title="Common misconception"}
+"*Chunked prefill makes everything faster.*" It bounds how long any one step can be, which protects running requests' token gaps. It does not reduce the prefill work — it adds re-reads of earlier chunks — and it delays the chunked prompt's own first token, because that token is selected only after the last chunk is processed.
+:::
+
+#### Preemption policy, on top of the mechanics of Chapter 2
+
+When a running request needs a new block and none is free (Chapter 2), the scheduler must choose a victim. The PagedAttention system serves the earliest arrivals first and preempts the latest first [@src-73]. In vLLM v0.32.0, under FCFS the victim is the last request in the running list — the most recently admitted, since admitted requests are appended to it — and under the priority policy it is the request with the largest (priority value, arrival time) — the lowest priority, latest arrival [@src-82]. In a step that preempts, no waiting request is admitted [@src-82]. Recomputation is not free: a request that has selected $k$ output tokens holds KV entries for its prompt and its first $k-1$ outputs, all of which are freed, and on resumption they must be prefilled again together with the $k$-th token, which a decode step would have processed anyway. For request A of the trace (512-token prompt) preempted after selecting 5 tokens, that is 516 KV entries freed and a 517-token resume pass costing 12.76 ms alone in our model, against 5.2 ms for the decode step it replaces — more if the pass shares a step with other work, and less if some freed blocks are still cached and hit again (Chapter 2).
+
+#### Disaggregating prefill and decode
+
+DistServe places prefill and decoding on different GPUs, which removes their interference and lets each phase use its own parallelism and resources; it measures per-GPU goodput, the maximum request rate per GPU at which a target fraction of requests meets the SLO [@src-76]. The cost is moving each request's KV cache from the prefill device to the decode device. DistServe's own example: a 512-token request on OPT-66B carries about 1.13 GB of KV, so 10 requests per second need about 11.3 GB/s, which constrains where prefill and decode instances can be placed; it pulls caches on demand so that prefill-side memory acts as a queue buffer under bursts [@src-76]. The scaling-book analysis gives the same reasons — no user's generation blocks on another's prefill, and each phase can use its own sharding — and notes the cost of shifting the KV cache across the network [@src-10]. vLLM v0.32.0 provides disaggregated prefilling as an **experimental** feature built on KV connectors; its documentation lists tuning TTFT and inter-token latency separately and controlling tail inter-token latency as the reasons, and states that disaggregated prefill does not improve throughput [@src-82].
+
+Transfer time is one term among several. For a prompt of $n$ tokens with $m_\text{tok}$ bytes of cache per token, effective bandwidth $W$ in bytes per second and fixed overhead $t_\text{fix}$,
+
+$$
+t_\text{xfer} = t_\text{fix} + \frac{n\,m_\text{tok}}{W}.
+$$ {#eq-kv-transfer}
+
+The request then joins the decode device at its next step boundary, behind whatever that device is already running, and the prefill device has its own queue. Two devices also do the work one device did, so a fair comparison counts goodput per device.
+
+#### Fairness, starvation and overload
+
+FCFS is the fairness baseline here: Orca guarantees that an earlier arrival has run at least as many iterations as a later one [@src-74]. Departing from arrival order can starve requests if favoured work keeps arriving — SGLang notes that its greedy cache-aware ordering can lead to starvation [@src-77], and the same holds, under the assumption of a steady stream of higher-priority arrivals, for any strict priority order (our inference, not a claim of the sources), including the `priority` policy of vLLM v0.32.0. Overload is different from unfairness: if requests arrive faster than the server completes them, queues grow without bound under every policy, waiting time dominates TTFT, and goodput falls even when each step is efficient. This chapter treats arrival effects qualitatively; it does not model queueing theory or autoscaling.
+
+::: {.callout-warning title="Common misconception"}
+"*Higher throughput means users wait less.*" Throughput counts tokens over a window; users feel waiting time, TTFT and token gaps. A schedule that packs more work into each step can raise throughput while lengthening every gap in that step, as the worked example shows.
+:::
 
 ### Worked example
 
-*Pending: drafting has not yet begun.*
+**Illustrative inputs.** Four requests: A (arrives at 0 ms, 512-token prompt, 8 output tokens), B (0 ms, 256, 4), C (12 ms, 1,024, 4) and D (30 ms, 128, 6). The cost model is @eq-step-cost. The unchunked token budget (2,048) admits any whole prompt here; the chunked budget is 256 tokens; at most four sequences are active. A request is schedulable at the first step boundary at or after its arrival, and every policy is FCFS. Our static model lets a finished request leave the step without padding but admits nothing until the whole batch ends — kinder to static batching than Orca's description. Under disaggregation, transfers do not contend for the link and the decode device has room for every cache. The SLO is TTFT $\le$ 40 ms and TPOT $\le$ 10 ms, both required; the worst single gap is reported separately as a tail signal. Throughput counts output tokens per second and, like goodput, uses the window from the first arrival to the last completion. A request leaves as soon as its last output token is selected. Every result is derived by a deterministic simulator and checked by tests; all times are server-side.
+
+| Policy | tok/s | C wait, TTFT | B TPOT | Worst gap | Meet SLO | Goodput |
+|------------|------|-----------|-------|--------|--------|--------|
+| Static | 215 | 41.5, 63.8 | 5.4 | 5.4 | A, B | 19.5 |
+| Continuous | 304 | 4.5, 25.3 | 11.4 | 20.8 | A, C, D | 41.4 |
+| Chunked | 226 | 14.7, 58.6 | 9.2 | 9.2 | A, B | 20.5 |
+| Disaggregated | 280 | 4.5, 24.9 | 6.4 | 14.8 | all | 25.5 |
+
+: Per-policy results for the synthetic trace (derived; tok/s counts output tokens, times in ms, goodput in requests per second). Wait ends when a step first processes any of the request's tokens; TTFT ends when its first output token is selected. Chunked uses a 256-token budget. Goodput is good requests per second over this one trace (the per-run form of Chapter 1, not DistServe's maximum sustainable rate), per device: disaggregation reaches 51.0 requests per second over two devices. {#tbl-policy-results}
+
+**Static batching** runs A and B to completion before C and D start: C waits 41.5 ms and its TTFT is 63.8 ms, but nothing interrupts a decode, so every gap is 5.4 ms. **Continuous batching** admits C at the next step, raising throughput from 215 to 304 tokens per second and cutting C's TTFT to 25.3 ms — yet the step carrying C's prefill makes A and B wait 20.76 ms for their next token, pushing B's TPOT from 5.4 to 11.4 ms, over the SLO. That is the case where a throughput gain worsens a latency metric. **Chunked prefill** caps the worst gap at 9.2 ms, but C's 1,024 tokens now take five steps (254, 254, 254, 254 and 8 tokens, since decode tokens share the budget; ten chunk re-reads, not modelled) and its TTFT rises to 58.6 ms; D, admitted behind C, misses the TTFT target by 0.6 ms — a reminder that SLO verdicts near a threshold are fragile. Both sources' claims show up: gaps are protected, as Sarathi-Serve says, and TTFT pays, as DistServe says.
+
+**Disaggregation.** With the Chapter 1 model's 128 KiB per token, C's KV cache is 128 MiB. At an illustrative effective bandwidth of 25 GB/s and 2 ms of fixed overhead, @eq-kv-transfer gives 2 ms + 134,217,728 bytes ÷ 25 GB/s = 2 + 5.37 = 7.37 ms. Yet C's first gap is 14.8 ms, not 7.37 (D's is 13.5 ms): after the transfer, C waits for the decode device's next step and then for that step to finish. Every request meets the SLO, and total goodput is 51.0 requests per second — but on two devices, so goodput per device is 25.5, below the 41.4 of continuous batching on one (a window rate on one short trace, not DistServe's maximum sustainable rate). On this small trace, separating the phases buys SLO compliance, not efficiency.
 
 ### Compare and contrast
 
-*Pending: drafting has not yet begun.*
+| | Static | Continuous | Chunked | Disaggregated |
+|---|---|---|---|---|
+| Admission | batch end | each step | each step | per phase |
+| Interference | none | full | bounded | none on decode |
+| Main cost | waiting | long gaps | later TTFT | KV transfer |
+| Protects | gaps | throughput | gaps | TTFT, later gaps |
+
+: Scheduling designs compared under this chapter's assumptions (one model, FCFS, no queueing model). Chunked prefill also adds re-reads of earlier chunks; disaggregation adds a second device pool, and its first gap includes the KV transfer and the wait for the decode device's next step. Which design wins depends on the workload and the SLO. {#tbl-sched-compare}
 
 ### Check your understanding {#sec-ch3-check}
 
-*Pending: drafting has not yet begun.*
+```{=typst}
+#block(sticky: true, width: 100%)[
+```
+
+Full solutions are in [Answer Key: Chapter 3](#sec-solutions-ch3).
+
+```{=typst}
+]
+```
+
+<!-- Keep each question with its answer line on one page: each question is
+its own one-item list (numbered from its own start) in a non-breakable block. -->
+
+```{=typst}
+#block(breakable: false)[
+```
+
+1. **Calculation.** Using @eq-step-cost, how long is a step that carries C's whole 1,024-token prefill together with A's and B's decode tokens? How long is a chunked step that carries a 254-token piece of C with the same two decode tokens? \
+   ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
+2. **Calculation.** Under continuous batching, B arrives at 0 ms and its output tokens are selected at 16.52, 37.28, 44.80 and 50.60 ms. Compute its TTFT, gaps, TPOT and worst gap. Does it meet the SLO, and which statistic decides? \
+   ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
+3. **Compare.** Sarathi-Serve and DistServe disagree about chunked prefill. State each position, and say which numbers in the worked example support each one. \
+   ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
+4. **Calculation.** Using @eq-kv-transfer and the worked example's assumptions, how long does D's KV transfer take? Why can you not conclude from that number alone that disaggregation speeds D up? \
+   ________________________________________________
+
+```{=typst}
+]
+```
+
+```{=typst}
+#block(breakable: false)[
+```
+
+5. **Debugging.** Under the FCFS policy of vLLM v0.32.0, a running request cannot get a block. Which request is preempted, what happens to waiting requests in that step, and what does resuming request A cost if it had selected 5 output tokens? \
+   ________________________________________________
+
+```{=typst}
+]
+```
 
 ### Applied exercise
 
-*Pending: drafting has not yet begun.*
+Rerun the chunked schedule with a 512-token budget instead of 256. Report the worst gap, C's waiting time and TTFT, throughput, goodput and which requests meet the SLO, and compare with the 256-token and unchunked results. Explain what the token budget trades, and why the answer depends on the SLO as well as on the trace.
 
 ### Interview lens
 
-*Pending: drafting has not yet begun.*
+*"After we enabled chunked prefill, our p99 inter-token latency improved but long-prompt users complain about time to first token. Should we switch to disaggregated serving?"* A strong answer separates the metrics first: chunking bounds each step, so token gaps improve, but a long prompt's first token now waits for its last chunk, so its TTFT rises — the trade DistServe describes. Before switching, it asks what the SLO targets are, whether TTFT misses come from waiting in the queue (overload) or from chunking itself, and what the token budget is. It weighs disaggregation's costs — KV transfer per request, a decode device that admits requests only at its step boundaries, and a second pool whose size must match the prefill/decode mix — and judges it on goodput per device, not on transfer time alone. Finally, it notes that vLLM v0.32.0 marks disaggregated prefilling as experimental and does not claim it raises throughput.
 
 ### Chapter recap
 
-*Pending: drafting has not yet begun.*
+- Iteration-level (continuous) batching admits and releases requests between steps; selective batching lets requests of different lengths share the weight-bound matrix multiplications.
+- Each step is built from running decodes, partial prefills and new arrivals within a token budget and a sequence limit; waiting time and TTFT end at different events.
+- A prefill in a decode step stretches every co-scheduled token gap; chunked prefill bounds the step but delays the chunked prompt's first token and adds re-reads.
+- Preemption chooses a victim by policy and, by recomputation, pays a prefill over the request's whole retained history.
+- Disaggregation removes interference at the cost of KV transfer, a second queue and a second device pool; compare designs by SLO-qualified goodput per device.
+- Throughput, waiting time, TTFT, TPOT and worst gap can move in different directions under the same change.
 
 ### Sources and further reading
 
-*Pending: drafting has not yet begun.*
+Primary sources: [@src-74] (Yu et al., Orca — Sections 3 and 4.2: request-level scheduling problems, iteration-level scheduling, selective batching and iteration-level FCFS; read from the USENIX PDF); [@src-75] (Agrawal et al., Sarathi-Serve — Sections 1, 2, 3.2, 4.1–4.3 and 5.4.1: decode- and prefill-prioritising schedulers, generation stalls, chunked prefills, stall-free batching, the token budget and chunking overhead); [@src-76] (Zhong et al., DistServe — Sections 1, 2.2–2.3, 3 and 4: prefill–decoding interference, its critique of chunked prefill, disaggregation, KV transfer and per-GPU goodput); [@src-73] (Kwon et al., PagedAttention — Section 4.5: preemption order); [@src-77] (Zheng et al., SGLang — Section 3: the starvation caveat of cache-aware ordering). Documentation and code: [@src-82] (vLLM v0.32.0 at a pinned commit — scheduler configuration and loop, preemption victim selection, and the experimental disaggregated-prefill documentation). Analytical companion: [@src-10] (the "Inference" chapter — interleaved versus disaggregated serving).

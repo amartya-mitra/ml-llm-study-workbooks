@@ -38,11 +38,12 @@ REQUIRED_HEADINGS = [
     "Applied exercise", "Interview lens", "Chapter recap", "Sources and further reading",
 ]
 CANONICAL = os.path.join(REPO_ROOT, "outputs", "06-llm-inference-workbook.pdf")
-DRAFTED = {1: "accepted_frozen", 2: "accepted_frozen"}  # every other chapter is scaffold_only
+DRAFTED = {1: "accepted_frozen", 2: "accepted_frozen", 3: "drafted_pending_human_review"}  # every other chapter is scaffold_only
 SCAFFOLD = [n for n in range(1, 8) if n not in DRAFTED]
 CH1_FIGURES = {"fig-roofline-prefill-decode", "fig-request-timeline", "fig-latency-throughput-frontier"}
 CH2_FIGURES = {"fig-block-table", "fig-prefix-tree"}
-DRAWN_FIGURES = CH1_FIGURES | CH2_FIGURES
+CH3_FIGURES = {"fig-schedule-timelines", "fig-prefill-decode-interference"}
+DRAWN_FIGURES = CH1_FIGURES | CH2_FIGURES | CH3_FIGURES
 
 
 def read(path):
@@ -80,7 +81,7 @@ class TestStructure(unittest.TestCase):
         index = read(os.path.join(WB, "index.qmd"))
         self.assertIn('title: "LLM Inference Engineering"', index)
         front = index.split("---")[1]  # YAML title block only (the source comment may say what it is not)
-        self.assertIn('subtitle: "Development draft: Chapters 1–2 drafted; Chapters 3–7 scaffolded"', front)
+        self.assertIn('subtitle: "Development draft: Chapters 1–3 drafted; Chapters 4–7 scaffolded"', front)
         self.assertNotIn("drafting has not yet begun", front)
         self.assertNotRegex(front, r"(?i)release candidate|final edition|complete|release-ready")
 

@@ -12,7 +12,7 @@ identity:
   workbook: "06-llm-inference"
   chapter: "03"
   title: "Serving and Scheduling: Continuous Batching, Chunked Prefill, and Disaggregation"
-  status: "scaffold_only"
+  status: "drafted_pending_human_review"
 
 scope:
   allowed_paths:
@@ -21,8 +21,19 @@ scope:
     - "workbooks/06-llm-inference/questions.yaml"
     - "workbooks/06-llm-inference/claim-ledger.yaml"
     - "workbooks/06-llm-inference/figure-plan.yaml"
+    - "workbooks/06-llm-inference/data/worked-examples/serving_schedules.py"
+    - "workbooks/06-llm-inference/data/worked-examples/serving_schedules.json"
+    - "workbooks/06-llm-inference/figures/source/fig_schedule_timelines.py"
+    - "workbooks/06-llm-inference/figures/source/fig_prefill_decode_interference.py"
+    - "workbooks/06-llm-inference/figures/rendered/fig-schedule-timelines.svg"
+    - "workbooks/06-llm-inference/figures/rendered/fig-prefill-decode-interference.svg"
   frozen_paths:
     - "workbooks/06-llm-inference/chapters/0[124567]-*.qmd"
+    - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.py"
+    - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.json"
+    - "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.py"
+    - "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.json"
+    - "workbooks/06-llm-inference/figures/source/_common.py"
     - "workbooks/06-llm-inference/solutions/0[124567]-*-solutions.qmd"
     - "workbooks/04-llm-architecture/**"
     - "workbooks/05-llm-training/**"
@@ -35,7 +46,7 @@ sources:
   # Planned chapter-level mapping only (approved scope), not claim-level
   # evidence: each mechanism claim still needs its passage read and a
   # claim-ledger entry when drafted.
-  required_source_ids: ["src-74", "src-75", "src-76", "src-73", "src-82", "src-10"]
+  required_source_ids: ["src-74", "src-75", "src-76", "src-73", "src-82", "src-10", "src-77"]
   full_text_required: true
   evidence_locators_required: true
   # Sarathi-Serve (src-75) and DistServe (src-76) disagree about chunked prefill; preserve both. No queueing-theory source.

@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="458" viewBox="0 0 620 458">
+  <title>Four schedules of one synthetic trace</title>
+  <defs></defs>
+  <rect x="0" y="0" width="620" height="458" fill="#ffffff"/>
+  <text x="310.0" y="18" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">One synthetic trace, four schedules (illustrative cost model)</text>
+  <text x="92" y="50" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">Static (request-level) batching</text>
+  <g id="panel-static">
+  <text x="84" y="68" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">A</text>
+  <line x1="92.00" y1="71.00" x2="604.00" y2="71.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-static-A" x1="92.0" y1="58" x2="92.0" y2="71" stroke="#111111" stroke-width="1.6" data-arrival="0.0"/>
+  <rect x="92.40" y="60" width="76.09" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="0.0" data-end="16.52" data-req="A"/>
+  <rect x="169.29" y="60" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="16.52" data-end="21.92" data-req="A"/>
+  <rect x="194.43" y="60" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="21.92" data-end="27.32" data-req="A"/>
+  <rect x="219.56" y="60" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="27.32" data-end="32.72" data-req="A"/>
+  <rect x="244.70" y="60" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="32.72" data-end="37.92" data-req="A"/>
+  <rect x="268.90" y="60" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="37.92" data-end="43.12" data-req="A"/>
+  <rect x="293.10" y="60" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="43.12" data-end="48.32" data-req="A"/>
+  <rect x="317.31" y="60" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="48.32" data-end="53.52" data-req="A"/>
+  <circle cx="168.89" cy="64.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="16.52"/>
+  <circle cx="194.03" cy="64.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="21.92"/>
+  <circle cx="219.16" cy="64.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="27.32"/>
+  <circle cx="244.30" cy="64.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="32.72"/>
+  <circle cx="268.50" cy="64.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="37.92"/>
+  <circle cx="292.70" cy="64.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="43.12"/>
+  <circle cx="316.91" cy="64.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="48.32"/>
+  <circle cx="341.11" cy="64.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="53.52"/>
+  <text x="84" y="83" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">B</text>
+  <line x1="92.00" y1="86.00" x2="604.00" y2="86.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-static-B" x1="92.0" y1="73" x2="92.0" y2="86" stroke="#111111" stroke-width="1.6" data-arrival="0.0"/>
+  <rect x="92.40" y="75" width="76.09" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="0.0" data-end="16.52" data-req="B"/>
+  <rect x="169.29" y="75" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="16.52" data-end="21.92" data-req="B"/>
+  <rect x="194.43" y="75" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="21.92" data-end="27.32" data-req="B"/>
+  <rect x="219.56" y="75" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="27.32" data-end="32.72" data-req="B"/>
+  <circle cx="168.89" cy="79.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="16.52"/>
+  <circle cx="194.03" cy="79.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="21.92"/>
+  <circle cx="219.16" cy="79.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="27.32"/>
+  <circle cx="244.30" cy="79.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="32.72"/>
+  <text x="84" y="98" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">C</text>
+  <line x1="92.00" y1="101.00" x2="604.00" y2="101.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-static-C" x1="147.9" y1="88" x2="147.9" y2="101" stroke="#111111" stroke-width="1.6" data-arrival="12.0"/>
+  <rect x="341.51" y="90" width="102.90" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="53.52" data-end="75.8" data-req="C"/>
+  <rect x="445.21" y="90" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="75.8" data-end="81.2" data-req="C"/>
+  <rect x="470.35" y="90" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="81.2" data-end="86.6" data-req="C"/>
+  <rect x="495.48" y="90" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="86.6" data-end="92.0" data-req="C"/>
+  <circle cx="444.81" cy="94.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="75.8"/>
+  <circle cx="469.95" cy="94.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="81.2"/>
+  <circle cx="495.08" cy="94.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="86.6"/>
+  <circle cx="520.22" cy="94.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="92.0"/>
+  <text x="84" y="113" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">D</text>
+  <line x1="92.00" y1="116.00" x2="604.00" y2="116.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-static-D" x1="231.6" y1="103" x2="231.6" y2="116" stroke="#111111" stroke-width="1.6" data-arrival="30.0"/>
+  <rect x="341.51" y="105" width="102.90" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="53.52" data-end="75.8" data-req="D"/>
+  <rect x="445.21" y="105" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="75.8" data-end="81.2" data-req="D"/>
+  <rect x="470.35" y="105" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="81.2" data-end="86.6" data-req="D"/>
+  <rect x="495.48" y="105" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="86.6" data-end="92.0" data-req="D"/>
+  <rect x="520.62" y="105" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="92.0" data-end="97.2" data-req="D"/>
+  <rect x="544.82" y="105" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="97.2" data-end="102.4" data-req="D"/>
+  <circle cx="444.81" cy="109.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="75.8"/>
+  <circle cx="469.95" cy="109.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="81.2"/>
+  <circle cx="495.08" cy="109.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="86.6"/>
+  <circle cx="520.22" cy="109.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="92.0"/>
+  <circle cx="544.42" cy="109.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="97.2"/>
+  <circle cx="568.63" cy="109.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="102.4"/>
+  <text x="604" y="50" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">215 tok/s · worst gap 5.4 ms</text>
+  </g>
+  <text x="92" y="140" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">Continuous batching, no chunking</text>
+  <g id="panel-continuous">
+  <text x="84" y="158" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">A</text>
+  <line x1="92.00" y1="161.00" x2="604.00" y2="161.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-continuous-A" x1="92.0" y1="148" x2="92.0" y2="161" stroke="#111111" stroke-width="1.6" data-arrival="0.0"/>
+  <rect x="92.40" y="150" width="76.09" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="0.0" data-end="16.52" data-req="A"/>
+  <rect x="169.29" y="150" width="95.83" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="16.52" data-end="37.28" data-req="A"/>
+  <rect x="265.92" y="150" width="34.20" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="37.28" data-end="44.8" data-req="A"/>
+  <rect x="300.92" y="150" width="26.20" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="44.8" data-end="50.6" data-req="A"/>
+  <rect x="327.92" y="150" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="50.6" data-end="56.2" data-req="A"/>
+  <rect x="353.99" y="150" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="56.2" data-end="61.6" data-req="A"/>
+  <rect x="379.12" y="150" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="61.6" data-end="67.0" data-req="A"/>
+  <rect x="404.25" y="150" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="67.0" data-end="72.4" data-req="A"/>
+  <circle cx="168.89" cy="154.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="16.52"/>
+  <circle cx="265.52" cy="154.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="37.28"/>
+  <circle cx="300.52" cy="154.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="44.8"/>
+  <circle cx="327.52" cy="154.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="50.6"/>
+  <circle cx="353.59" cy="154.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="56.2"/>
+  <circle cx="378.72" cy="154.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="61.6"/>
+  <circle cx="403.85" cy="154.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="67.0"/>
+  <circle cx="428.99" cy="154.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="72.4"/>
+  <text x="84" y="173" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">B</text>
+  <line x1="92.00" y1="176.00" x2="604.00" y2="176.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-continuous-B" x1="92.0" y1="163" x2="92.0" y2="176" stroke="#111111" stroke-width="1.6" data-arrival="0.0"/>
+  <rect x="92.40" y="165" width="76.09" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="0.0" data-end="16.52" data-req="B"/>
+  <rect x="169.29" y="165" width="95.83" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="16.52" data-end="37.28" data-req="B"/>
+  <rect x="265.92" y="165" width="34.20" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="37.28" data-end="44.8" data-req="B"/>
+  <rect x="300.92" y="165" width="26.20" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="44.8" data-end="50.6" data-req="B"/>
+  <circle cx="168.89" cy="169.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="16.52"/>
+  <circle cx="265.52" cy="169.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="37.28"/>
+  <circle cx="300.52" cy="169.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="44.8"/>
+  <circle cx="327.52" cy="169.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="50.6"/>
+  <text x="84" y="188" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">C</text>
+  <line x1="92.00" y1="191.00" x2="604.00" y2="191.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-continuous-C" x1="147.9" y1="178" x2="147.9" y2="191" stroke="#111111" stroke-width="1.6" data-arrival="12.0"/>
+  <rect x="169.29" y="180" width="95.83" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="16.52" data-end="37.28" data-req="C"/>
+  <rect x="265.92" y="180" width="34.20" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="37.28" data-end="44.8" data-req="C"/>
+  <rect x="300.92" y="180" width="26.20" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="44.8" data-end="50.6" data-req="C"/>
+  <rect x="327.92" y="180" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="50.6" data-end="56.2" data-req="C"/>
+  <circle cx="265.52" cy="184.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="37.28"/>
+  <circle cx="300.52" cy="184.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="44.8"/>
+  <circle cx="327.52" cy="184.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="50.6"/>
+  <circle cx="353.59" cy="184.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="56.2"/>
+  <text x="84" y="203" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">D</text>
+  <line x1="92.00" y1="206.00" x2="604.00" y2="206.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-continuous-D" x1="231.6" y1="193" x2="231.6" y2="206" stroke="#111111" stroke-width="1.6" data-arrival="30.0"/>
+  <rect x="265.92" y="195" width="34.20" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="37.28" data-end="44.8" data-req="D"/>
+  <rect x="300.92" y="195" width="26.20" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="44.8" data-end="50.6" data-req="D"/>
+  <rect x="327.92" y="195" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="50.6" data-end="56.2" data-req="D"/>
+  <rect x="353.99" y="195" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="56.2" data-end="61.6" data-req="D"/>
+  <rect x="379.12" y="195" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="61.6" data-end="67.0" data-req="D"/>
+  <rect x="404.25" y="195" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="67.0" data-end="72.4" data-req="D"/>
+  <circle cx="300.52" cy="199.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="44.8"/>
+  <circle cx="327.52" cy="199.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="50.6"/>
+  <circle cx="353.59" cy="199.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="56.2"/>
+  <circle cx="378.72" cy="199.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="61.6"/>
+  <circle cx="403.85" cy="199.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="67.0"/>
+  <circle cx="428.99" cy="199.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="72.4"/>
+  <text x="604" y="140" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">304 tok/s · worst gap 20.8 ms</text>
+  </g>
+  <text x="92" y="230" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">Continuous batching, chunked prefill (256-token budget)</text>
+  <g id="panel-chunked">
+  <text x="84" y="248" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">A</text>
+  <line x1="92.00" y1="251.00" x2="604.00" y2="251.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-chunked-A" x1="92.0" y1="238" x2="92.0" y2="251" stroke="#111111" stroke-width="1.6" data-arrival="0.0"/>
+  <rect x="92.40" y="240" width="40.35" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="0.0" data-end="8.84" data-req="A"/>
+  <rect x="133.55" y="240" width="40.35" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="8.84" data-end="17.68" data-req="A"/>
+  <rect x="174.69" y="240" width="41.21" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="17.68" data-end="26.705" data-req="A"/>
+  <rect x="216.70" y="240" width="41.21" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="26.705" data-end="35.73" data-req="A"/>
+  <rect x="258.71" y="240" width="42.07" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="35.73" data-end="44.94" data-req="A"/>
+  <rect x="301.58" y="240" width="42.07" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="44.94" data-end="54.15" data-req="A"/>
+  <rect x="344.44" y="240" width="42.07" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="54.15" data-end="63.36" data-req="A"/>
+  <rect x="387.31" y="240" width="32.90" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="63.36" data-end="70.6" data-req="A"/>
+  <rect x="421.01" y="240" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="70.6" data-end="76.2" data-req="A"/>
+  <circle cx="174.29" cy="244.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="17.68"/>
+  <circle cx="216.30" cy="244.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="26.705"/>
+  <circle cx="258.31" cy="244.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="35.73"/>
+  <circle cx="301.18" cy="244.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="44.94"/>
+  <circle cx="344.04" cy="244.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="54.15"/>
+  <circle cx="386.91" cy="244.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="63.36"/>
+  <circle cx="420.61" cy="244.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="70.6"/>
+  <circle cx="446.68" cy="244.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="76.2"/>
+  <text x="84" y="263" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">B</text>
+  <line x1="92.00" y1="266.00" x2="604.00" y2="266.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-chunked-B" x1="92.0" y1="253" x2="92.0" y2="266" stroke="#111111" stroke-width="1.6" data-arrival="0.0"/>
+  <rect x="174.69" y="255" width="41.21" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="17.68" data-end="26.705" data-req="B"/>
+  <rect x="216.70" y="255" width="41.21" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="26.705" data-end="35.73" data-req="B"/>
+  <rect x="258.71" y="255" width="42.07" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="35.73" data-end="44.94" data-req="B"/>
+  <rect x="301.58" y="255" width="42.07" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="44.94" data-end="54.15" data-req="B"/>
+  <rect x="344.44" y="255" width="42.07" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="54.15" data-end="63.36" data-req="B"/>
+  <circle cx="258.31" cy="259.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="35.73"/>
+  <circle cx="301.18" cy="259.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="44.94"/>
+  <circle cx="344.04" cy="259.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="54.15"/>
+  <circle cx="386.91" cy="259.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="63.36"/>
+  <text x="84" y="278" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">C</text>
+  <line x1="92.00" y1="281.00" x2="604.00" y2="281.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-chunked-C" x1="147.9" y1="268" x2="147.9" y2="281" stroke="#111111" stroke-width="1.6" data-arrival="12.0"/>
+  <rect x="216.70" y="270" width="41.21" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="26.705" data-end="35.73" data-req="C"/>
+  <rect x="258.71" y="270" width="42.07" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="35.73" data-end="44.94" data-req="C"/>
+  <rect x="301.58" y="270" width="42.07" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="44.94" data-end="54.15" data-req="C"/>
+  <rect x="344.44" y="270" width="42.07" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="54.15" data-end="63.36" data-req="C"/>
+  <rect x="387.31" y="270" width="32.90" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="63.36" data-end="70.6" data-req="C"/>
+  <rect x="421.01" y="270" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="70.6" data-end="76.2" data-req="C"/>
+  <rect x="447.08" y="270" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="76.2" data-end="81.6" data-req="C"/>
+  <rect x="472.21" y="270" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="81.6" data-end="87.0" data-req="C"/>
+  <circle cx="420.61" cy="274.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="70.6"/>
+  <circle cx="446.68" cy="274.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="76.2"/>
+  <circle cx="471.81" cy="274.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="81.6"/>
+  <circle cx="496.95" cy="274.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="87.0"/>
+  <text x="84" y="293" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">D</text>
+  <line x1="92.00" y1="296.00" x2="604.00" y2="296.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-chunked-D" x1="231.6" y1="283" x2="231.6" y2="296" stroke="#111111" stroke-width="1.6" data-arrival="30.0"/>
+  <rect x="387.31" y="285" width="32.90" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="63.36" data-end="70.6" data-req="D"/>
+  <rect x="421.01" y="285" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="70.6" data-end="76.2" data-req="D"/>
+  <rect x="447.08" y="285" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="76.2" data-end="81.6" data-req="D"/>
+  <rect x="472.21" y="285" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="81.6" data-end="87.0" data-req="D"/>
+  <rect x="497.35" y="285" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="87.0" data-end="92.2" data-req="D"/>
+  <rect x="521.55" y="285" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="92.2" data-end="97.4" data-req="D"/>
+  <circle cx="420.61" cy="289.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="70.6"/>
+  <circle cx="446.68" cy="289.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="76.2"/>
+  <circle cx="471.81" cy="289.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="81.6"/>
+  <circle cx="496.95" cy="289.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="87.0"/>
+  <circle cx="521.15" cy="289.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="92.2"/>
+  <circle cx="545.35" cy="289.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="97.4"/>
+  <text x="604" y="230" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">226 tok/s · worst gap 9.2 ms</text>
+  </g>
+  <text x="92" y="320" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">Disaggregated: prefill device + decode device</text>
+  <g id="panel-disaggregated">
+  <text x="84" y="338" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">A</text>
+  <line x1="92.00" y1="341.00" x2="604.00" y2="341.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-disaggregated-A" x1="92.0" y1="328" x2="92.0" y2="341" stroke="#111111" stroke-width="1.6" data-arrival="0.0"/>
+  <rect x="92.40" y="330" width="76.09" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="0.0" data-end="16.52" data-req="A"/>
+  <rect x="209.05" y="330" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="25.062177" data-end="30.462177" data-req="A"/>
+  <rect x="234.19" y="330" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="30.462177" data-end="35.862177" data-req="A"/>
+  <rect x="259.32" y="330" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="35.862177" data-end="41.062177" data-req="A"/>
+  <rect x="283.53" y="330" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="41.062177" data-end="46.262177" data-req="A"/>
+  <rect x="307.73" y="330" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="46.262177" data-end="51.662177" data-req="A"/>
+  <rect x="332.86" y="330" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="51.662177" data-end="57.262177" data-req="A"/>
+  <rect x="358.93" y="330" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="57.262177" data-end="62.862177" data-req="A"/>
+  <line id="xfer-A" x1="168.89" y1="334.5" x2="190.70" y2="334.5" stroke="#D55E00" stroke-width="2" stroke-dasharray="3 2"/>
+  <circle cx="168.89" cy="334.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="16.52"/>
+  <circle cx="233.79" cy="334.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="30.462177"/>
+  <circle cx="258.92" cy="334.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="35.862177"/>
+  <circle cx="283.13" cy="334.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="41.062177"/>
+  <circle cx="307.33" cy="334.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="46.262177"/>
+  <circle cx="332.46" cy="334.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="51.662177"/>
+  <circle cx="358.53" cy="334.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="57.262177"/>
+  <circle cx="384.59" cy="334.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="62.862177"/>
+  <text x="84" y="353" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">B</text>
+  <line x1="92.00" y1="356.00" x2="604.00" y2="356.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-disaggregated-B" x1="92.0" y1="343" x2="92.0" y2="356" stroke="#111111" stroke-width="1.6" data-arrival="0.0"/>
+  <rect x="92.40" y="345" width="76.09" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="0.0" data-end="16.52" data-req="B"/>
+  <rect x="184.85" y="345" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="19.862177" data-end="25.062177" data-req="B"/>
+  <rect x="209.05" y="345" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="25.062177" data-end="30.462177" data-req="B"/>
+  <rect x="234.19" y="345" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="30.462177" data-end="35.862177" data-req="B"/>
+  <line id="xfer-B" x1="168.89" y1="349.5" x2="184.45" y2="349.5" stroke="#D55E00" stroke-width="2" stroke-dasharray="3 2"/>
+  <circle cx="168.89" cy="349.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="16.52"/>
+  <circle cx="208.65" cy="349.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="25.062177"/>
+  <circle cx="233.79" cy="349.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="30.462177"/>
+  <circle cx="258.92" cy="349.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="35.862177"/>
+  <text x="84" y="368" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">C</text>
+  <line x1="92.00" y1="371.00" x2="604.00" y2="371.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-disaggregated-C" x1="147.9" y1="358" x2="147.9" y2="371" stroke="#111111" stroke-width="1.6" data-arrival="12.0"/>
+  <rect x="169.29" y="360" width="93.97" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="16.52" data-end="36.88" data-req="C"/>
+  <rect x="307.73" y="360" width="24.33" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="46.262177" data-end="51.662177" data-req="C"/>
+  <rect x="332.86" y="360" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="51.662177" data-end="57.262177" data-req="C"/>
+  <rect x="358.93" y="360" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="57.262177" data-end="62.862177" data-req="C"/>
+  <line id="xfer-C" x1="263.66" y1="364.5" x2="297.96" y2="364.5" stroke="#D55E00" stroke-width="2" stroke-dasharray="3 2"/>
+  <circle cx="263.66" cy="364.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="36.88"/>
+  <circle cx="332.46" cy="364.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="51.662177"/>
+  <circle cx="358.53" cy="364.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="57.262177"/>
+  <circle cx="384.59" cy="364.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="62.862177"/>
+  <text x="84" y="383" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="end">D</text>
+  <line x1="92.00" y1="386.00" x2="604.00" y2="386.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <line id="arr-disaggregated-D" x1="231.6" y1="373" x2="231.6" y2="386" stroke="#111111" stroke-width="1.6" data-arrival="30.0"/>
+  <rect x="264.06" y="375" width="31.41" height="9" fill="#E69F00" fill-opacity="0.75" data-kind="prefill" data-start="36.88" data-end="43.8" data-req="D"/>
+  <rect x="332.86" y="375" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="51.662177" data-end="57.262177" data-req="D"/>
+  <rect x="358.93" y="375" width="25.27" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="57.262177" data-end="62.862177" data-req="D"/>
+  <rect x="384.99" y="375" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="62.862177" data-end="68.062177" data-req="D"/>
+  <rect x="409.20" y="375" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="68.062177" data-end="73.262177" data-req="D"/>
+  <rect x="433.40" y="375" width="23.40" height="9" fill="#0072B2" fill-opacity="0.75" data-kind="decode" data-start="73.262177" data-end="78.462177" data-req="D"/>
+  <line id="xfer-D" x1="295.87" y1="379.5" x2="308.30" y2="379.5" stroke="#D55E00" stroke-width="2" stroke-dasharray="3 2"/>
+  <circle cx="295.87" cy="379.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="43.8"/>
+  <circle cx="358.53" cy="379.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="57.262177"/>
+  <circle cx="384.59" cy="379.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="62.862177"/>
+  <circle cx="408.80" cy="379.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="68.062177"/>
+  <circle cx="433.00" cy="379.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="73.262177"/>
+  <circle cx="457.21" cy="379.50" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2" data-t="78.462177"/>
+  <text x="604" y="320" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">280 tok/s · worst gap 14.8 ms</text>
+  </g>
+  <line x1="92.00" y1="54.00" x2="92.00" y2="390.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="92.0" y="402" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">0</text>
+  <line x1="185.09" y1="54.00" x2="185.09" y2="390.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="185.0909090909091" y="402" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">20</text>
+  <line x1="278.18" y1="54.00" x2="278.18" y2="390.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="278.1818181818182" y="402" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">40</text>
+  <line x1="371.27" y1="54.00" x2="371.27" y2="390.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="371.27272727272725" y="402" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">60</text>
+  <line x1="464.36" y1="54.00" x2="464.36" y2="390.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="464.3636363636364" y="402" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">80</text>
+  <line x1="557.45" y1="54.00" x2="557.45" y2="390.00" stroke="#d9d9d9" stroke-width="0.6"/>
+  <text x="557.4545454545455" y="402" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">100</text>
+  <text x="348.0" y="416" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">time (ms)</text>
+  <rect x="92" y="425" width="12" height="9" fill="#E69F00" fill-opacity="0.75"/>
+  <text x="108" y="434" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">prefill tokens processed</text>
+  <rect x="252" y="425" width="12" height="9" fill="#0072B2" fill-opacity="0.75"/>
+  <text x="268" y="434" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">decode token processed</text>
+  <circle cx="96.00" cy="446.00" r="2.6" fill="#111111" stroke="#111111" stroke-width="1.2"/>
+  <text x="108" y="450" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">token selected</text>
+  <line x1="252" y1="441" x2="252" y2="452" stroke="#111111" stroke-width="1.6"/>
+  <text x="268" y="450" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">arrival</text>
+  <line x1="392" y1="446" x2="408" y2="446" stroke="#D55E00" stroke-width="2" stroke-dasharray="3 2"/>
+  <text x="414" y="450" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">KV transfer (disaggregated)</text>
+</svg>

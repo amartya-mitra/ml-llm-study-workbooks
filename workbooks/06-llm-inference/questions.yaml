@@ -2,8 +2,8 @@
 # Schema: shared/question-schema.yaml. Validate with:
 #   python3 scripts/validate_questions.py
 #
-# Chapter 1 and 2 records added when those chapters were drafted (2026-10-28);
-# Chapters 3-7 add their 5 records each when drafted.
+# Chapter 1-3 records added when those chapters were drafted (2026-10-28);
+# Chapters 4-7 add their 5 records each when drafted.
 
 questions:
   - id: "q-06-inference-workload-001"
@@ -125,3 +125,63 @@ questions:
     explanation: "Cache management that keeps every attended position is exact; dropping attended positions is not."
     common_wrong_answer: "Treating all three as equivalent because they free the same bytes."
     source_ids: ["src-73", "src-82", "src-25"]
+
+  - id: "q-06-serving-and-scheduling-001"
+    workbook: "06-llm-inference"
+    chapter: "serving-and-scheduling"
+    topic: "Step cost of a co-scheduled prefill"
+    difficulty: "intro"
+    question_type: "calculation"
+    prompt: "Using the step-cost equation, how long is a step that carries C's whole 1,024-token prefill together with A's and B's decode tokens? How long is a chunked step that carries a 254-token piece of C with the same two decode tokens?"
+    expected_answer: "5 + 0.015 x 1024 + 0.2 x 2 = 20.76 ms; 5 + 0.015 x 254 + 0.2 x 2 = 9.21 ms. A and B wait the whole step, so these are their gaps (a decode-only step would be 5.4 ms)."
+    explanation: "Every sequence in a step waits for the step to finish, so prefill tokens in the step lengthen co-scheduled decodes."
+    common_wrong_answer: "Charging the prefill cost only to the prefilling request."
+    source_ids: ["src-76", "src-75"]
+
+  - id: "q-06-serving-and-scheduling-002"
+    workbook: "06-llm-inference"
+    chapter: "serving-and-scheduling"
+    topic: "TTFT, TPOT and worst gap against an SLO"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "Under continuous batching, B arrives at 0 ms and its output tokens are selected at 16.52, 37.28, 44.80 and 50.60 ms. Compute its TTFT, gaps, TPOT and worst gap. Does it meet the SLO, and which statistic decides?"
+    expected_answer: "TTFT 16.52 ms; gaps 20.76, 7.52, 5.80 ms; TPOT (50.60 - 16.52)/3 = 11.36 ms; worst gap 20.76 ms. It fails: TTFT meets 40 ms but TPOT exceeds 10 ms; a tail-gap SLO would also catch the 20.76 ms gap."
+    explanation: "TPOT is the per-request mean gap; the worst gap is a separate tail signal."
+    common_wrong_answer: "Treating TPOT as the largest gap, or a single large gap as typical."
+    source_ids: ["src-76"]
+
+  - id: "q-06-serving-and-scheduling-003"
+    workbook: "06-llm-inference"
+    chapter: "serving-and-scheduling"
+    topic: "Source disagreement on chunked prefill"
+    difficulty: "core"
+    question_type: "compare_and_contrast"
+    prompt: "Sarathi-Serve and DistServe disagree about chunked prefill. State each position, and say which numbers in the worked example support each one."
+    expected_answer: "Sarathi-Serve: chunking plus stall-free batching keeps token gaps low while sustaining throughput. DistServe: chunking trades TTFT for TPOT, cannot eliminate interference, and re-reads earlier chunks quadratically. Sarathi-Serve also argues chunked attention prefill stays compute-bound, so re-reads cost little. In the example the worst gap falls from 20.8 to 9.2 ms and throughput (226) stays above static (215) with all gaps under 10 ms (Sarathi-Serve), while C's TTFT rises from 25.3 to 58.6 ms (DistServe); the drop from 304 is a toy-model per-step cost, and re-reads are not modelled."
+    explanation: "Each source describes a real effect; which dominates depends on the SLO."
+    common_wrong_answer: "Declaring one source simply correct."
+    source_ids: ["src-75", "src-76"]
+
+  - id: "q-06-serving-and-scheduling-004"
+    workbook: "06-llm-inference"
+    chapter: "serving-and-scheduling"
+    topic: "KV transfer versus end-to-end latency"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "Using the KV-transfer equation and the worked example's assumptions, how long does D's KV transfer take? Why can you not conclude from that number alone that disaggregation speeds D up?"
+    expected_answer: "128 x 131,072 = 16,777,216 bytes; 2 ms + 16,777,216 B / 25e9 B/s (0.67 ms) = 2.67 ms. D's first gap is 13.46 ms and its E2E 48.5 ms versus 42.4 ms under continuous batching: step-boundary joining, queues on each device and the second device also matter."
+    explanation: "Transfer time is one term; compare designs by SLO-qualified goodput per device."
+    common_wrong_answer: "Treating a small transfer time as proof of a speedup."
+    source_ids: ["src-76", "src-10", "src-82"]
+
+  - id: "q-06-serving-and-scheduling-005"
+    workbook: "06-llm-inference"
+    chapter: "serving-and-scheduling"
+    topic: "Preemption victim and recomputation cost"
+    difficulty: "stretch"
+    question_type: "debugging"
+    prompt: "Under the FCFS policy of vLLM v0.32.0, a running request cannot get a block. Which request is preempted, what happens to waiting requests in that step, and what does resuming request A cost if it had selected 5 output tokens?"
+    expected_answer: "The last request in the running list (most recently admitted); no waiting request is admitted in that step. A frees 516 KV entries (512-token prompt + 4 processed outputs); resuming prefills them plus the fifth selected token, a 517-token pass costing 5 + 0.015 x 517 = 12.76 ms against 5.2 ms for the decode step it replaces (less if freed blocks are still cached and hit)."
+    explanation: "Recomputation rebuilds the whole retained history; the last selected token was never processed, so it held no KV entry."
+    common_wrong_answer: "Counting the last selected token as already cached, or assuming the earliest arrival is preempted."
+    source_ids: ["src-82", "src-73"]

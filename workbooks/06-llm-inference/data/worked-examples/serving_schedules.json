@@ -1,0 +1,1796 @@
+{
+  "labels": {
+    "inputs": "illustrative",
+    "outputs": "derived by a deterministic simulator, not measured"
+  },
+  "cost_model": {
+    "t0_ms": 5.0,
+    "alpha_ms_per_prefill_token": 0.015,
+    "beta_ms_per_decode_token": 0.2
+  },
+  "trace": [
+    {
+      "id": "A",
+      "arrival": 0.0,
+      "prompt": 512,
+      "output": 8
+    },
+    {
+      "id": "B",
+      "arrival": 0.0,
+      "prompt": 256,
+      "output": 4
+    },
+    {
+      "id": "C",
+      "arrival": 12.0,
+      "prompt": 1024,
+      "output": 4
+    },
+    {
+      "id": "D",
+      "arrival": 30.0,
+      "prompt": 128,
+      "output": 6
+    }
+  ],
+  "slo": {
+    "ttft_ms": 40.0,
+    "tpot_ms": 10.0
+  },
+  "budgets": {
+    "unchunked": 2048,
+    "chunked": 256,
+    "max_seqs": 4
+  },
+  "policies": {
+    "static": {
+      "steps": [
+        {
+          "start": 0.0,
+          "end": 16.52,
+          "prefill_tokens": 768,
+          "decode_tokens": 0,
+          "work": [
+            {
+              "id": "A",
+              "kind": "prefill",
+              "tokens": 512
+            },
+            {
+              "id": "B",
+              "kind": "prefill",
+              "tokens": 256
+            }
+          ]
+        },
+        {
+          "start": 16.52,
+          "end": 21.92,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 21.92,
+          "end": 27.32,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 27.32,
+          "end": 32.72,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 32.72,
+          "end": 37.92,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 37.92,
+          "end": 43.12,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 43.12,
+          "end": 48.32,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 48.32,
+          "end": 53.52,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 53.52,
+          "end": 75.8,
+          "prefill_tokens": 1152,
+          "decode_tokens": 0,
+          "work": [
+            {
+              "id": "C",
+              "kind": "prefill",
+              "tokens": 1024
+            },
+            {
+              "id": "D",
+              "kind": "prefill",
+              "tokens": 128
+            }
+          ]
+        },
+        {
+          "start": 75.8,
+          "end": 81.2,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 81.2,
+          "end": 86.6,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 86.6,
+          "end": 92.0,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 92.0,
+          "end": 97.2,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 97.2,
+          "end": 102.4,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        }
+      ],
+      "requests": [
+        {
+          "id": "A",
+          "arrival": 0.0,
+          "prompt": 512,
+          "output": 8,
+          "waiting_ms": 0.0,
+          "ttft_ms": 16.52,
+          "gaps_ms": [
+            5.4,
+            5.4,
+            5.4,
+            5.2,
+            5.2,
+            5.2,
+            5.2
+          ],
+          "max_gap_ms": 5.4,
+          "tpot_ms": 5.285714,
+          "e2e_ms": 53.52,
+          "selected_at": [
+            16.52,
+            21.92,
+            27.32,
+            32.72,
+            37.92,
+            43.12,
+            48.32,
+            53.52
+          ],
+          "processed_outputs": 7,
+          "meets_slo": true
+        },
+        {
+          "id": "B",
+          "arrival": 0.0,
+          "prompt": 256,
+          "output": 4,
+          "waiting_ms": 0.0,
+          "ttft_ms": 16.52,
+          "gaps_ms": [
+            5.4,
+            5.4,
+            5.4
+          ],
+          "max_gap_ms": 5.4,
+          "tpot_ms": 5.4,
+          "e2e_ms": 32.72,
+          "selected_at": [
+            16.52,
+            21.92,
+            27.32,
+            32.72
+          ],
+          "processed_outputs": 3,
+          "meets_slo": true
+        },
+        {
+          "id": "C",
+          "arrival": 12.0,
+          "prompt": 1024,
+          "output": 4,
+          "waiting_ms": 41.52,
+          "ttft_ms": 63.8,
+          "gaps_ms": [
+            5.4,
+            5.4,
+            5.4
+          ],
+          "max_gap_ms": 5.4,
+          "tpot_ms": 5.4,
+          "e2e_ms": 80.0,
+          "selected_at": [
+            75.8,
+            81.2,
+            86.6,
+            92.0
+          ],
+          "processed_outputs": 3,
+          "meets_slo": false
+        },
+        {
+          "id": "D",
+          "arrival": 30.0,
+          "prompt": 128,
+          "output": 6,
+          "waiting_ms": 23.52,
+          "ttft_ms": 45.8,
+          "gaps_ms": [
+            5.4,
+            5.4,
+            5.4,
+            5.2,
+            5.2
+          ],
+          "max_gap_ms": 5.4,
+          "tpot_ms": 5.32,
+          "e2e_ms": 72.4,
+          "selected_at": [
+            75.8,
+            81.2,
+            86.6,
+            92.0,
+            97.2,
+            102.4
+          ],
+          "processed_outputs": 5,
+          "meets_slo": false
+        }
+      ],
+      "aggregate": {
+        "window_ms": 102.4,
+        "output_tokens": 22,
+        "output_tokens_per_s": 214.84375,
+        "requests_per_s": 39.0625,
+        "good_requests": [
+          "A",
+          "B"
+        ],
+        "goodput_requests_per_s": 19.53125,
+        "devices": 1,
+        "goodput_per_device": 19.53125,
+        "mean_ttft_ms": 35.66,
+        "worst_gap_ms": 5.4
+      }
+    },
+    "continuous": {
+      "steps": [
+        {
+          "start": 0.0,
+          "end": 16.52,
+          "prefill_tokens": 768,
+          "decode_tokens": 0,
+          "work": [
+            {
+              "id": "A",
+              "kind": "prefill",
+              "tokens": 512
+            },
+            {
+              "id": "B",
+              "kind": "prefill",
+              "tokens": 256
+            }
+          ]
+        },
+        {
+          "start": 16.52,
+          "end": 37.28,
+          "prefill_tokens": 1024,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "prefill",
+              "tokens": 1024
+            }
+          ]
+        },
+        {
+          "start": 37.28,
+          "end": 44.8,
+          "prefill_tokens": 128,
+          "decode_tokens": 3,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "prefill",
+              "tokens": 128
+            }
+          ]
+        },
+        {
+          "start": 44.8,
+          "end": 50.6,
+          "prefill_tokens": 0,
+          "decode_tokens": 4,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 50.6,
+          "end": 56.2,
+          "prefill_tokens": 0,
+          "decode_tokens": 3,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 56.2,
+          "end": 61.6,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 61.6,
+          "end": 67.0,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 67.0,
+          "end": 72.4,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        }
+      ],
+      "requests": [
+        {
+          "id": "A",
+          "arrival": 0.0,
+          "prompt": 512,
+          "output": 8,
+          "waiting_ms": 0.0,
+          "ttft_ms": 16.52,
+          "gaps_ms": [
+            20.76,
+            7.52,
+            5.8,
+            5.6,
+            5.4,
+            5.4,
+            5.4
+          ],
+          "max_gap_ms": 20.76,
+          "tpot_ms": 7.982857,
+          "e2e_ms": 72.4,
+          "selected_at": [
+            16.52,
+            37.28,
+            44.8,
+            50.6,
+            56.2,
+            61.6,
+            67.0,
+            72.4
+          ],
+          "processed_outputs": 7,
+          "meets_slo": true
+        },
+        {
+          "id": "B",
+          "arrival": 0.0,
+          "prompt": 256,
+          "output": 4,
+          "waiting_ms": 0.0,
+          "ttft_ms": 16.52,
+          "gaps_ms": [
+            20.76,
+            7.52,
+            5.8
+          ],
+          "max_gap_ms": 20.76,
+          "tpot_ms": 11.36,
+          "e2e_ms": 50.6,
+          "selected_at": [
+            16.52,
+            37.28,
+            44.8,
+            50.6
+          ],
+          "processed_outputs": 3,
+          "meets_slo": false
+        },
+        {
+          "id": "C",
+          "arrival": 12.0,
+          "prompt": 1024,
+          "output": 4,
+          "waiting_ms": 4.52,
+          "ttft_ms": 25.28,
+          "gaps_ms": [
+            7.52,
+            5.8,
+            5.6
+          ],
+          "max_gap_ms": 7.52,
+          "tpot_ms": 6.306667,
+          "e2e_ms": 44.2,
+          "selected_at": [
+            37.28,
+            44.8,
+            50.6,
+            56.2
+          ],
+          "processed_outputs": 3,
+          "meets_slo": true
+        },
+        {
+          "id": "D",
+          "arrival": 30.0,
+          "prompt": 128,
+          "output": 6,
+          "waiting_ms": 7.28,
+          "ttft_ms": 14.8,
+          "gaps_ms": [
+            5.8,
+            5.6,
+            5.4,
+            5.4,
+            5.4
+          ],
+          "max_gap_ms": 5.8,
+          "tpot_ms": 5.52,
+          "e2e_ms": 42.4,
+          "selected_at": [
+            44.8,
+            50.6,
+            56.2,
+            61.6,
+            67.0,
+            72.4
+          ],
+          "processed_outputs": 5,
+          "meets_slo": true
+        }
+      ],
+      "aggregate": {
+        "window_ms": 72.4,
+        "output_tokens": 22,
+        "output_tokens_per_s": 303.867403,
+        "requests_per_s": 55.248619,
+        "good_requests": [
+          "A",
+          "C",
+          "D"
+        ],
+        "goodput_requests_per_s": 41.436464,
+        "devices": 1,
+        "goodput_per_device": 41.436464,
+        "mean_ttft_ms": 18.28,
+        "worst_gap_ms": 20.76
+      }
+    },
+    "chunked": {
+      "steps": [
+        {
+          "start": 0.0,
+          "end": 8.84,
+          "prefill_tokens": 256,
+          "decode_tokens": 0,
+          "work": [
+            {
+              "id": "A",
+              "kind": "prefill",
+              "tokens": 256
+            }
+          ]
+        },
+        {
+          "start": 8.84,
+          "end": 17.68,
+          "prefill_tokens": 256,
+          "decode_tokens": 0,
+          "work": [
+            {
+              "id": "A",
+              "kind": "prefill",
+              "tokens": 256
+            }
+          ]
+        },
+        {
+          "start": 17.68,
+          "end": 26.705,
+          "prefill_tokens": 255,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "prefill",
+              "tokens": 255
+            }
+          ]
+        },
+        {
+          "start": 26.705,
+          "end": 35.73,
+          "prefill_tokens": 255,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "prefill",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "prefill",
+              "tokens": 254
+            }
+          ]
+        },
+        {
+          "start": 35.73,
+          "end": 44.94,
+          "prefill_tokens": 254,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "prefill",
+              "tokens": 254
+            }
+          ]
+        },
+        {
+          "start": 44.94,
+          "end": 54.15,
+          "prefill_tokens": 254,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "prefill",
+              "tokens": 254
+            }
+          ]
+        },
+        {
+          "start": 54.15,
+          "end": 63.36,
+          "prefill_tokens": 254,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "prefill",
+              "tokens": 254
+            }
+          ]
+        },
+        {
+          "start": 63.36,
+          "end": 70.6,
+          "prefill_tokens": 136,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "prefill",
+              "tokens": 8
+            },
+            {
+              "id": "D",
+              "kind": "prefill",
+              "tokens": 128
+            }
+          ]
+        },
+        {
+          "start": 70.6,
+          "end": 76.2,
+          "prefill_tokens": 0,
+          "decode_tokens": 3,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 76.2,
+          "end": 81.6,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 81.6,
+          "end": 87.0,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 87.0,
+          "end": 92.2,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 92.2,
+          "end": 97.4,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        }
+      ],
+      "requests": [
+        {
+          "id": "A",
+          "arrival": 0.0,
+          "prompt": 512,
+          "output": 8,
+          "waiting_ms": 0.0,
+          "ttft_ms": 17.68,
+          "gaps_ms": [
+            9.025,
+            9.025,
+            9.21,
+            9.21,
+            9.21,
+            7.24,
+            5.6
+          ],
+          "max_gap_ms": 9.21,
+          "tpot_ms": 8.36,
+          "e2e_ms": 76.2,
+          "selected_at": [
+            17.68,
+            26.705,
+            35.73,
+            44.94,
+            54.15,
+            63.36,
+            70.6,
+            76.2
+          ],
+          "processed_outputs": 7,
+          "meets_slo": true
+        },
+        {
+          "id": "B",
+          "arrival": 0.0,
+          "prompt": 256,
+          "output": 4,
+          "waiting_ms": 17.68,
+          "ttft_ms": 35.73,
+          "gaps_ms": [
+            9.21,
+            9.21,
+            9.21
+          ],
+          "max_gap_ms": 9.21,
+          "tpot_ms": 9.21,
+          "e2e_ms": 63.36,
+          "selected_at": [
+            35.73,
+            44.94,
+            54.15,
+            63.36
+          ],
+          "processed_outputs": 3,
+          "meets_slo": true
+        },
+        {
+          "id": "C",
+          "arrival": 12.0,
+          "prompt": 1024,
+          "output": 4,
+          "waiting_ms": 14.705,
+          "ttft_ms": 58.6,
+          "gaps_ms": [
+            5.6,
+            5.4,
+            5.4
+          ],
+          "max_gap_ms": 5.6,
+          "tpot_ms": 5.466667,
+          "e2e_ms": 75.0,
+          "selected_at": [
+            70.6,
+            76.2,
+            81.6,
+            87.0
+          ],
+          "processed_outputs": 3,
+          "meets_slo": false
+        },
+        {
+          "id": "D",
+          "arrival": 30.0,
+          "prompt": 128,
+          "output": 6,
+          "waiting_ms": 33.36,
+          "ttft_ms": 40.6,
+          "gaps_ms": [
+            5.6,
+            5.4,
+            5.4,
+            5.2,
+            5.2
+          ],
+          "max_gap_ms": 5.6,
+          "tpot_ms": 5.36,
+          "e2e_ms": 67.4,
+          "selected_at": [
+            70.6,
+            76.2,
+            81.6,
+            87.0,
+            92.2,
+            97.4
+          ],
+          "processed_outputs": 5,
+          "meets_slo": false
+        }
+      ],
+      "aggregate": {
+        "window_ms": 97.4,
+        "output_tokens": 22,
+        "output_tokens_per_s": 225.87269,
+        "requests_per_s": 41.067762,
+        "good_requests": [
+          "A",
+          "B"
+        ],
+        "goodput_requests_per_s": 20.533881,
+        "devices": 1,
+        "goodput_per_device": 20.533881,
+        "mean_ttft_ms": 38.1525,
+        "worst_gap_ms": 9.21
+      }
+    },
+    "disaggregated": {
+      "prefill_steps": [
+        {
+          "start": 0.0,
+          "end": 16.52,
+          "prefill_tokens": 768,
+          "decode_tokens": 0,
+          "work": [
+            {
+              "id": "A",
+              "kind": "prefill",
+              "tokens": 512
+            },
+            {
+              "id": "B",
+              "kind": "prefill",
+              "tokens": 256
+            }
+          ]
+        },
+        {
+          "start": 16.52,
+          "end": 36.88,
+          "prefill_tokens": 1024,
+          "decode_tokens": 0,
+          "work": [
+            {
+              "id": "C",
+              "kind": "prefill",
+              "tokens": 1024
+            }
+          ]
+        },
+        {
+          "start": 36.88,
+          "end": 43.8,
+          "prefill_tokens": 128,
+          "decode_tokens": 0,
+          "work": [
+            {
+              "id": "D",
+              "kind": "prefill",
+              "tokens": 128
+            }
+          ]
+        }
+      ],
+      "decode_steps": [
+        {
+          "start": 19.862177,
+          "end": 25.062177,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 25.062177,
+          "end": 30.462177,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 30.462177,
+          "end": 35.862177,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "B",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 35.862177,
+          "end": 41.062177,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 41.062177,
+          "end": 46.262177,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 46.262177,
+          "end": 51.662177,
+          "prefill_tokens": 0,
+          "decode_tokens": 2,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 51.662177,
+          "end": 57.262177,
+          "prefill_tokens": 0,
+          "decode_tokens": 3,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 57.262177,
+          "end": 62.862177,
+          "prefill_tokens": 0,
+          "decode_tokens": 3,
+          "work": [
+            {
+              "id": "A",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "C",
+              "kind": "decode",
+              "tokens": 1
+            },
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 62.862177,
+          "end": 68.062177,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 68.062177,
+          "end": 73.262177,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        },
+        {
+          "start": 73.262177,
+          "end": 78.462177,
+          "prefill_tokens": 0,
+          "decode_tokens": 1,
+          "work": [
+            {
+              "id": "D",
+              "kind": "decode",
+              "tokens": 1
+            }
+          ]
+        }
+      ],
+      "transfer": {
+        "A": {
+          "bytes": 67108864,
+          "ms": 4.684355,
+          "ready_at": 21.204355
+        },
+        "B": {
+          "bytes": 33554432,
+          "ms": 3.342177,
+          "ready_at": 19.862177
+        },
+        "C": {
+          "bytes": 134217728,
+          "ms": 7.368709,
+          "ready_at": 44.248709
+        },
+        "D": {
+          "bytes": 16777216,
+          "ms": 2.671089,
+          "ready_at": 46.471089
+        }
+      },
+      "requests": [
+        {
+          "id": "A",
+          "arrival": 0.0,
+          "prompt": 512,
+          "output": 8,
+          "waiting_ms": 0.0,
+          "ttft_ms": 16.52,
+          "gaps_ms": [
+            13.942177,
+            5.4,
+            5.2,
+            5.2,
+            5.4,
+            5.6,
+            5.6
+          ],
+          "max_gap_ms": 13.942177,
+          "tpot_ms": 6.620311,
+          "e2e_ms": 62.862177,
+          "selected_at": [
+            16.52,
+            30.462177,
+            35.862177,
+            41.062177,
+            46.262177,
+            51.662177,
+            57.262177,
+            62.862177
+          ],
+          "processed_outputs": 7,
+          "meets_slo": true
+        },
+        {
+          "id": "B",
+          "arrival": 0.0,
+          "prompt": 256,
+          "output": 4,
+          "waiting_ms": 0.0,
+          "ttft_ms": 16.52,
+          "gaps_ms": [
+            8.542177,
+            5.4,
+            5.4
+          ],
+          "max_gap_ms": 8.542177,
+          "tpot_ms": 6.447392,
+          "e2e_ms": 35.862177,
+          "selected_at": [
+            16.52,
+            25.062177,
+            30.462177,
+            35.862177
+          ],
+          "processed_outputs": 3,
+          "meets_slo": true
+        },
+        {
+          "id": "C",
+          "arrival": 12.0,
+          "prompt": 1024,
+          "output": 4,
+          "waiting_ms": 4.52,
+          "ttft_ms": 24.88,
+          "gaps_ms": [
+            14.782177,
+            5.6,
+            5.6
+          ],
+          "max_gap_ms": 14.782177,
+          "tpot_ms": 8.660726,
+          "e2e_ms": 50.862177,
+          "selected_at": [
+            36.88,
+            51.662177,
+            57.262177,
+            62.862177
+          ],
+          "processed_outputs": 3,
+          "meets_slo": true
+        },
+        {
+          "id": "D",
+          "arrival": 30.0,
+          "prompt": 128,
+          "output": 6,
+          "waiting_ms": 6.88,
+          "ttft_ms": 13.8,
+          "gaps_ms": [
+            13.462177,
+            5.6,
+            5.2,
+            5.2,
+            5.2
+          ],
+          "max_gap_ms": 13.462177,
+          "tpot_ms": 6.932435,
+          "e2e_ms": 48.462177,
+          "selected_at": [
+            43.8,
+            57.262177,
+            62.862177,
+            68.062177,
+            73.262177,
+            78.462177
+          ],
+          "processed_outputs": 5,
+          "meets_slo": true
+        }
+      ],
+      "aggregate": {
+        "window_ms": 78.462177,
+        "output_tokens": 22,
+        "output_tokens_per_s": 280.389875,
+        "requests_per_s": 50.979977,
+        "good_requests": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "goodput_requests_per_s": 50.979977,
+        "devices": 2,
+        "goodput_per_device": 25.489989,
+        "mean_ttft_ms": 17.93,
+        "worst_gap_ms": 14.782177
+      },
+      "transfer_assumptions": {
+        "effective_bytes_per_s": 25000000000.0,
+        "fixed_overhead_ms": 2.0,
+        "kv_bytes_per_token": 131072
+      }
+    }
+  },
+  "exercise_chunked_512": {
+    "budget": 512,
+    "steps": [
+      {
+        "start": 0.0,
+        "end": 12.68,
+        "prefill_tokens": 512,
+        "decode_tokens": 0,
+        "work": [
+          {
+            "id": "A",
+            "kind": "prefill",
+            "tokens": 512
+          }
+        ]
+      },
+      {
+        "start": 12.68,
+        "end": 25.545,
+        "prefill_tokens": 511,
+        "decode_tokens": 1,
+        "work": [
+          {
+            "id": "A",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "B",
+            "kind": "prefill",
+            "tokens": 256
+          },
+          {
+            "id": "C",
+            "kind": "prefill",
+            "tokens": 255
+          }
+        ]
+      },
+      {
+        "start": 25.545,
+        "end": 38.595,
+        "prefill_tokens": 510,
+        "decode_tokens": 2,
+        "work": [
+          {
+            "id": "A",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "B",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "C",
+            "kind": "prefill",
+            "tokens": 510
+          }
+        ]
+      },
+      {
+        "start": 38.595,
+        "end": 49.8,
+        "prefill_tokens": 387,
+        "decode_tokens": 2,
+        "work": [
+          {
+            "id": "A",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "B",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "C",
+            "kind": "prefill",
+            "tokens": 259
+          },
+          {
+            "id": "D",
+            "kind": "prefill",
+            "tokens": 128
+          }
+        ]
+      },
+      {
+        "start": 49.8,
+        "end": 55.6,
+        "prefill_tokens": 0,
+        "decode_tokens": 4,
+        "work": [
+          {
+            "id": "A",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "B",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "C",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "D",
+            "kind": "decode",
+            "tokens": 1
+          }
+        ]
+      },
+      {
+        "start": 55.6,
+        "end": 61.2,
+        "prefill_tokens": 0,
+        "decode_tokens": 3,
+        "work": [
+          {
+            "id": "A",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "C",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "D",
+            "kind": "decode",
+            "tokens": 1
+          }
+        ]
+      },
+      {
+        "start": 61.2,
+        "end": 66.8,
+        "prefill_tokens": 0,
+        "decode_tokens": 3,
+        "work": [
+          {
+            "id": "A",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "C",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "D",
+            "kind": "decode",
+            "tokens": 1
+          }
+        ]
+      },
+      {
+        "start": 66.8,
+        "end": 72.2,
+        "prefill_tokens": 0,
+        "decode_tokens": 2,
+        "work": [
+          {
+            "id": "A",
+            "kind": "decode",
+            "tokens": 1
+          },
+          {
+            "id": "D",
+            "kind": "decode",
+            "tokens": 1
+          }
+        ]
+      },
+      {
+        "start": 72.2,
+        "end": 77.4,
+        "prefill_tokens": 0,
+        "decode_tokens": 1,
+        "work": [
+          {
+            "id": "D",
+            "kind": "decode",
+            "tokens": 1
+          }
+        ]
+      }
+    ],
+    "requests": [
+      {
+        "id": "A",
+        "arrival": 0.0,
+        "prompt": 512,
+        "output": 8,
+        "waiting_ms": 0.0,
+        "ttft_ms": 12.68,
+        "gaps_ms": [
+          12.865,
+          13.05,
+          11.205,
+          5.8,
+          5.6,
+          5.6,
+          5.4
+        ],
+        "max_gap_ms": 13.05,
+        "tpot_ms": 8.502857,
+        "e2e_ms": 72.2,
+        "selected_at": [
+          12.68,
+          25.545,
+          38.595,
+          49.8,
+          55.6,
+          61.2,
+          66.8,
+          72.2
+        ],
+        "processed_outputs": 7,
+        "meets_slo": true
+      },
+      {
+        "id": "B",
+        "arrival": 0.0,
+        "prompt": 256,
+        "output": 4,
+        "waiting_ms": 12.68,
+        "ttft_ms": 25.545,
+        "gaps_ms": [
+          13.05,
+          11.205,
+          5.8
+        ],
+        "max_gap_ms": 13.05,
+        "tpot_ms": 10.018333,
+        "e2e_ms": 55.6,
+        "selected_at": [
+          25.545,
+          38.595,
+          49.8,
+          55.6
+        ],
+        "processed_outputs": 3,
+        "meets_slo": false
+      },
+      {
+        "id": "C",
+        "arrival": 12.0,
+        "prompt": 1024,
+        "output": 4,
+        "waiting_ms": 0.68,
+        "ttft_ms": 37.8,
+        "gaps_ms": [
+          5.8,
+          5.6,
+          5.6
+        ],
+        "max_gap_ms": 5.8,
+        "tpot_ms": 5.666667,
+        "e2e_ms": 54.8,
+        "selected_at": [
+          49.8,
+          55.6,
+          61.2,
+          66.8
+        ],
+        "processed_outputs": 3,
+        "meets_slo": true
+      },
+      {
+        "id": "D",
+        "arrival": 30.0,
+        "prompt": 128,
+        "output": 6,
+        "waiting_ms": 8.595,
+        "ttft_ms": 19.8,
+        "gaps_ms": [
+          5.8,
+          5.6,
+          5.6,
+          5.4,
+          5.2
+        ],
+        "max_gap_ms": 5.8,
+        "tpot_ms": 5.52,
+        "e2e_ms": 47.4,
+        "selected_at": [
+          49.8,
+          55.6,
+          61.2,
+          66.8,
+          72.2,
+          77.4
+        ],
+        "processed_outputs": 5,
+        "meets_slo": true
+      }
+    ],
+    "aggregate": {
+      "window_ms": 77.4,
+      "output_tokens": 22,
+      "output_tokens_per_s": 284.237726,
+      "requests_per_s": 51.679587,
+      "good_requests": [
+        "A",
+        "C",
+        "D"
+      ],
+      "goodput_requests_per_s": 38.75969,
+      "devices": 1,
+      "goodput_per_device": 38.75969,
+      "mean_ttft_ms": 23.95625,
+      "worst_gap_ms": 13.05
+    }
+  },
+  "chunking_overhead": {
+    "prompt": 1024,
+    "chunk_tokens": 256,
+    "chunks": 4,
+    "earlier_chunk_rereads": 6
+  },
+  "preemption": {
+    "request": "A",
+    "after_outputs_selected": 5,
+    "kv_entries_freed": 516,
+    "tokens_in_resume_prefill": 517,
+    "tokens_recomputed_beyond_normal_decode": 516,
+    "resume_step_ms_alone": 12.755,
+    "normal_decode_step_ms_alone": 5.2
+  }
+}
