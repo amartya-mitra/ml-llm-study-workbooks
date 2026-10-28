@@ -250,6 +250,13 @@ class TestMetrics(unittest.TestCase):
 
 
 class TestProse(unittest.TestCase):
+    def test_static_gap_wording_matches_data(self):
+        ch = read("chapters", "03-serving-and-scheduling.qmd")
+        gaps = sorted({g for m in DATA["policies"]["static"]["requests"] for g in m["gaps_ms"]})
+        self.assertEqual(gaps, [5.2, 5.4])           # not all gaps are equal
+        self.assertNotIn("every gap is 5.4 ms", ch)
+        self.assertIn("the worst gap is 5.4 ms (5.4 ms while two requests decode, 5.2 ms with one)", ch)
+
     def test_numbers_and_layout(self):
         ch = read("chapters", "03-serving-and-scheduling.qmd")
         sol = read("solutions", "03-serving-and-scheduling-solutions.qmd")
