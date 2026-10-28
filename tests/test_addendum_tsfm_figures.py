@@ -258,6 +258,15 @@ class TestDhfLayoutFigure(unittest.TestCase):
     def test_figure_says_it_shows_inference_code(self):
         self.assertIn("inference code", svg_text("fig-dhf-layout"))
 
+    def test_annotation_names_self_attention_and_matches_the_diagonal(self):
+        svg = svg_text("fig-dhf-layout")
+        self.assertIn("forecast tokens read the valid context, themselves", svg)
+        self.assertIn("and earlier forecast tokens in their block", svg)
+        self.assertNotIn("read all context and earlier forecast tokens", svg)
+        w7 = example("w7_timestral.json")["mask_example"]
+        n = w7["n_ctx"] + w7["n_dec"]
+        self.assertTrue(all(w7["mask"][q][q] == 1 for q in range(n)))  # diagonal open
+
 
 if __name__ == "__main__":
     unittest.main()

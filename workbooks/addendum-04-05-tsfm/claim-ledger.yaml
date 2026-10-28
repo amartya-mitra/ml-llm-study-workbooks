@@ -674,7 +674,7 @@ entries:
   - id: "claim-tsfm-architecture-014"
     workbook: "addendum-04-05-tsfm"
     chapter: "ch3"
-    statement: "In Timestral's inference code, h <= K forecast tokens (copies of one learned vector distinguished by time positions) follow the encoded context; they read all valid context patches and earlier forecast tokens of their block; context never reads forecast tokens; each forecast token yields one 32-step patch of quantiles. The mask builder supports a multi-block layout, but inference uses one block."
+    statement: "In Timestral's inference code, h <= K forecast tokens (copies of one learned vector distinguished by time positions) follow the encoded context; they read the valid context patches, themselves and earlier forecast tokens of their block (the mask diagonal is always open); context never reads forecast tokens; each forecast token yields one 32-step patch of quantiles. The mask builder supports a multi-block layout, but inference uses one block."
     source_ids: ["src-71"]
     verification_status: "verified_full_text"
     note: "Code-verified (inference): model.PatchRepresentation.forecast_tokens, masks.build_forecast_time_mask, masks.build_two_stream_time_mask / compute_block_layout, model._predict_window. With covariates the encoder spans context plus the block horizon and every patch has a forecast token, active only from the forecast origin (one active block at inference); the chapter and figure caption say so. The multi-block layout's use in training is not verified (no training code). As of October 2026."
@@ -758,3 +758,11 @@ entries:
     source_ids: ["src-69", "src-70", "src-71"]
     verification_status: "verified_full_text"
     note: "Table row checked cell by cell against synthesis-map.yaml by the scoped tests; no paper mechanism is stated and no ranking is implied."
+
+  - id: "claim-tsfm-release-012"
+    workbook: "addendum-04-05-tsfm"
+    chapter: "ch6"
+    statement: "Timestral's inference code is licensed under Apache-2.0, while the weights carry a separate 'Modified MIT' license that adds an attribution condition and states that its rights cannot be exercised if the user's company, or employer, has a global consolidated monthly revenue above $20 million for the preceding month."
+    source_ids: ["src-70", "src-71"]
+    verification_status: "verified_full_text"
+    note: "Documentation claim: LICENSE text read in full on 2026-10-28 (SHA-256 648194727930df730890e9f9affdbcc5c930d406d6829559b25ca3d5a973fc8c), identical at the cited Timestral-209M revision 9874d25 and on main of all four repos; code license from the repository LICENSE at commit a534bdb (src-71, documentation). Restated, not interpreted; time-sensitive (license terms can change on main)."

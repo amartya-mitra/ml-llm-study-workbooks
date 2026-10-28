@@ -78,7 +78,8 @@ def draw(m):
     for i, line in enumerate([
         "c = encoded context patch; f = learned forecast token",
         "no context row reads a forecast column (top right empty)",
-        "forecast tokens read all context and earlier forecast tokens",
+        "forecast tokens read the valid context, themselves",
+        "and earlier forecast tokens in their block",
     ]):
         c.add_text(LEFT_X - 98, ly + i * 14, line, size=11, color=TEXT, anchor="start")
 

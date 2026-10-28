@@ -67,3 +67,21 @@ space at some page bottoms, Figure 6 annotation wording.
 Review PDF: `outputs/_development/addendum-04-05-tsfm/v1.1.0-review/addendum-04-05-tsfm-v1.1.0-review.pdf`
 (23 pages, ceiling 24). `check_addendum_pdf_text.py` reports only the
 pinned src-71 commit hash in the bibliography, kept on purpose.
+
+## Correction pass (2026-10-28)
+
+- Module 2 answer key: intro sentence and answer 1 wrapped in one
+  non-breakable Typst block in that solutions file only; the sticky heading
+  now moves with them (no global typography change, answer text unchanged).
+- Module 6 licensing: the weights LICENSE was read in full on 2026-10-28
+  (1,695 bytes, SHA-256 `648194727930df730890e9f9affdbcc5c930d406d6829559b25ca3d5a973fc8c`),
+  byte-identical on `main` of all four model repos and at the cited
+  Timestral-209M revision `9874d252ab0aae16f7f7c999f98f98d6ad7d8365`, which is
+  still `main` (last commit 2026-10-15). Prose now separates the Apache-2.0
+  inference-code license from the weights' "Modified MIT" license (attribution
+  condition; USD 20 million monthly-revenue condition), restated without
+  interpretation. src-70 registry/bibliography and claim-tsfm-release-012 updated.
+  The LICENSE numbers the revenue condition "2." but refers to it as "(b)";
+  recorded only in the registry note.
+- Figure 4 and its prose: forecast tokens read the valid context, themselves
+  and earlier forecast tokens in their block (mask geometry unchanged).

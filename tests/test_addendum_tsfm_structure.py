@@ -193,7 +193,7 @@ class TestRegistration(unittest.TestCase):
         for i in range(69, 73):
             s = by_id[f"src-{i}"]
             self.assertEqual(s["workbook_categories"], [WB_ID])
-            self.assertEqual(s["last_verified"], "2026-10-27")
+            self.assertEqual(s["last_verified"], "2026-10-28" if i == 70 else "2026-10-27")  # src-70 LICENSE read 2026-10-28
             self.assertIn("timestral", s["topic_tags"])
         for i in (69, 70, 72):
             self.assertEqual(by_id[f"src-{i}"]["authority_type"], "implementation_guide")
@@ -400,6 +400,20 @@ class TestLearnerFacingText(unittest.TestCase):
         self.assertIn("as of October 2026", read(os.path.join(ADD, "includes", "front-matter.qmd")))
         self.assertIn("as of October 2026", chapter("06"))
         self.assertIn("as of October 2026", chapter("05"))
+
+    def test_timestral_license_statement_separates_code_and_weights(self):
+        ch6 = chapter("06")
+        self.assertNotIn("license changes relative to MIT", ch6)
+        sentence = ch6.split("Licensing, by contrast")[1].split("\n")[0]
+        self.assertIn("Apache-2.0 [@src-71]", sentence)
+        self.assertIn('"Modified MIT"', sentence)
+        self.assertIn("\\$20 million", sentence)
+        self.assertIn("[@src-70]", sentence)
+        self.assertIn("does not interpret them", sentence)
+        ledger = safe_load_path(os.path.join(ADD, "claim-ledger.yaml"))["entries"]
+        lic = [e for e in ledger if e["id"] == "claim-tsfm-release-012"][0]
+        self.assertIn("9874d25", lic["note"])
+        self.assertIn("648194727930df730890e9f9affdbcc5c930d406d6829559b25ca3d5a973fc8c", lic["note"])
 
     def test_no_benchmark_ranking_language(self):
         for n in MODULES:
