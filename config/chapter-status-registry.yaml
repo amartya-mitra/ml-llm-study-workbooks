@@ -91,7 +91,7 @@ workbooks:
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
   06-llm-inference:
     status: "scaffold_only"
-    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. Chapter 1 accepted and frozen 2026-10-28; Chapter 2 drafted 2026-10-28 (pending human review); Chapters 3-7 scaffold only. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
+    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. Chapters 1-2 accepted and frozen 2026-10-28; Chapter 3 in drafting; Chapters 3-7 scaffold only until drafted. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
     chapters:
       01:
         status: "accepted_frozen"
@@ -108,8 +108,19 @@ workbooks:
           accepted_review_pdf_page_count: 14
         note: "Drafted, internally audited, corrected twice (Equation 1 scope/subtitle/question layout at 3202b3f; Answer Key pagination at 7e12422), then accepted after independent human review of the review PDF above. commit_sha is the last commit touching Chapter 1 files (the solutions file); the chapter prose was last touched at 3202b3f."
       02:
-        status: "drafted_pending_human_review"
+        status: "accepted_frozen"
+        commit_sha: "4a5d05d399fff2aa426f98a43d84bdd4d0454141"
         chapter_path: "workbooks/06-llm-inference/chapters/02-kv-cache-memory.qmd"
+        acceptance:
+          accepted: true
+          date: "2026-10-28"
+          accepted_by: human
+          accepted_source_commit: "4a5d05d399fff2aa426f98a43d84bdd4d0454141"
+          accepted_review_pdf: "outputs/_development/06-llm-inference/chapter-02-review/06-llm-inference-ch02-review.pdf"
+          accepted_review_pdf_sha256: "d3417eab33a702fbcb16239ee04ea118835aa7048006d6f4816d0608dd5ead73"
+          accepted_review_pdf_bytes: 258003
+          accepted_review_pdf_page_count: 13
+        note: "Drafted, internally audited and corrected at 043f9d0, then corrected once more (Question 2 selection-versus-KV-append wording) at 4a5d05d, and accepted after independent human review of the review PDF above. The two-entry bibliography continuation on page 13 is accepted intentional layout."
       03:
         status: "scaffold_only"
         chapter_path: "workbooks/06-llm-inference/chapters/03-serving-and-scheduling.qmd"

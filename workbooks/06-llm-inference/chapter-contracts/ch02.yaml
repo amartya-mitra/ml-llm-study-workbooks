@@ -8,28 +8,34 @@
 # (.claude/skills/draft-workbook-chapter/) extends allowed_paths with the
 # chapter's worked-example and figure files when it drafts them.
 
+# ACCEPTED 2026-10-28 after independent human review of the 13-page review
+# PDF (sha256 d3417eab33a702fb...; see the status registry for the full
+# acceptance record). Status-record update only: no Chapter 2 content changed.
+
 identity:
   workbook: "06-llm-inference"
   chapter: "02"
   title: "KV-Cache Memory: Capacity, Paging, Prefix Reuse, and Eviction"
-  status: "drafted_pending_human_review"
+  status: "accepted_frozen"
 
 scope:
-  allowed_paths:
+  # Accepted and frozen (2026-10-28): no further edits are in scope without an
+  # explicit human-authorized override in config/chapter-status-registry.yaml.
+  # Chapter 2's question, claim-ledger and figure-plan records live in shared
+  # workbook files; later chapters may append their own records but must not
+  # alter Chapter 2's.
+  allowed_paths: []
+  frozen_paths:
     - "workbooks/06-llm-inference/chapters/02-kv-cache-memory.qmd"
     - "workbooks/06-llm-inference/solutions/02-kv-cache-memory-solutions.qmd"
-    - "workbooks/06-llm-inference/questions.yaml"
-    - "workbooks/06-llm-inference/claim-ledger.yaml"
-    - "workbooks/06-llm-inference/figure-plan.yaml"
     - "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.py"
     - "workbooks/06-llm-inference/data/worked-examples/kv_cache_memory.json"
     - "workbooks/06-llm-inference/figures/source/fig_block_table.py"
     - "workbooks/06-llm-inference/figures/source/fig_prefix_tree.py"
     - "workbooks/06-llm-inference/figures/rendered/fig-block-table.svg"
     - "workbooks/06-llm-inference/figures/rendered/fig-prefix-tree.svg"
-  frozen_paths:
-    - "workbooks/06-llm-inference/chapters/0[134567]-*.qmd"
-    - "workbooks/06-llm-inference/solutions/0[134567]-*-solutions.qmd"
+    - "workbooks/06-llm-inference/chapters/01-inference-workload.qmd"
+    - "workbooks/06-llm-inference/solutions/01-inference-workload-solutions.qmd"
     - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.py"
     - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.json"
     - "workbooks/06-llm-inference/figures/source/_common.py"
