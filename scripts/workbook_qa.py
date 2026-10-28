@@ -68,7 +68,27 @@ WORKBOOK_REGISTRY = {
         "title": "Addendum 04-05: From Language Models to Time-Series Foundation Models",
         "canonical_pdf": "addendum-04-05-tsfm.pdf",  # not built: no canonical addendum PDF exists
     },
+    # Workbook 06 is in development (scaffold_only): build_stage
+    # "development" routes the build to outputs/_development/<id>/ under a
+    # development filename, never to outputs/<canonical_pdf>, and runs only
+    # the workbook's own focused tests. Remove build_stage only when the
+    # publication workflow authorizes a canonical build.
+    "06-llm-inference": {
+        "title": "LLM Inference Engineering",
+        "canonical_pdf": "06-llm-inference-workbook.pdf",
+        "build_stage": "development",
+        "development_pdf": "06-llm-inference-development.pdf",
+        "test_pattern": "test_workbook06_*.py",
+    },
 }
+
+
+def is_development(cfg):
+    return cfg.get("build_stage") == "development"
+
+
+def development_build_dir(workbook_id):
+    return os.path.join(REPO_ROOT, "outputs", "_development", workbook_id, "development-build")
 
 PLACEHOLDER_PATTERNS = [
     r"\bTODO\b", r"\bTBD\b", r"\bFIXME\b", r"\bXXX\b",
@@ -145,6 +165,29 @@ def build_pdf(workbook_id, cfg, run_dir):
     if not os.path.exists(rendered_pdf):
         return False, {"blocked": f"render reported success but {rendered_pdf} not found"}
 
+    if is_development(cfg):
+        # Development stage: never write (or even temporarily create) the
+        # canonical PDF; keep one current development build, preserving any
+        # earlier one with a hash suffix, and remove the staging copy.
+        out_dir = development_build_dir(workbook_id)
+        os.makedirs(out_dir, exist_ok=True)
+        output_pdf = os.path.join(out_dir, cfg["development_pdf"])
+        result = {}
+        if os.path.exists(output_pdf):
+            import hashlib
+            with open(output_pdf, "rb") as f:
+                digest = hashlib.sha256(f.read()).hexdigest()[:12]
+            aside = f"{output_pdf}.prev-{digest}"
+            shutil.move(output_pdf, aside)
+            result["preserved_prior_copy"] = os.path.relpath(aside, REPO_ROOT)
+        shutil.move(rendered_pdf, output_pdf)
+        result.update({
+            "pdf_path": os.path.relpath(output_pdf, REPO_ROOT),
+            "build_stage": "development",
+            "canonical_pdf_present": os.path.exists(os.path.join(REPO_ROOT, "outputs", cfg["canonical_pdf"])),
+        })
+        return True, result
+
     output_pdf = os.path.join(REPO_ROOT, "outputs", cfg["canonical_pdf"])
     os.makedirs(os.path.dirname(output_pdf), exist_ok=True)
     backup_path = None
@@ -162,10 +205,12 @@ def build_pdf(workbook_id, cfg, run_dir):
     return True, result
 
 
-def run_tests():
-    """Step 3: run the full test suite in-process, no subprocess."""
+def run_tests(pattern="test*.py"):
+    """Step 3: run the test suite in-process, no subprocess (the full
+    suite unless the workbook's registry entry sets a focused
+    test_pattern, as development-stage workbooks do)."""
     loader = unittest.TestLoader()
-    suite = loader.discover(os.path.join(REPO_ROOT, "tests"))
+    suite = loader.discover(os.path.join(REPO_ROOT, "tests"), pattern=pattern)
     stream = __import__("io").StringIO()
     runner = unittest.TextTestRunner(stream=stream, verbosity=1)
     result = runner.run(suite)
@@ -281,6 +326,19 @@ def verify_output(pdf_path, cfg):
     info = run(["pdfinfo", pdf_path])
     m = re.search(r"^Pages:\s+(\d+)", info.stdout, re.MULTILINE)
     page_count = int(m.group(1)) if m else None
+    if is_development(cfg):
+        # Development stage: the build must carry the development filename
+        # and the canonical PDF must not exist.
+        canonical_present = os.path.exists(os.path.join(REPO_ROOT, "outputs", cfg["canonical_pdf"]))
+        name_ok = os.path.basename(pdf_path) == cfg["development_pdf"]
+        return (page_count is not None and name_ok and not canonical_present), {
+            "page_count": page_count,
+            "build_stage": "development",
+            "expected_filename": cfg["development_pdf"],
+            "actual_filename": os.path.basename(pdf_path),
+            "canonical_pdf": cfg["canonical_pdf"],
+            "canonical_pdf_present": canonical_present,
+        }
     name_ok = os.path.basename(pdf_path) == cfg["canonical_pdf"]
     return (page_count is not None and name_ok), {
         "page_count": page_count,
@@ -524,7 +582,7 @@ def main():
         return
     pdf_path = os.path.join(REPO_ROOT, details["pdf_path"])
 
-    ok, details = run_tests()
+    ok, details = run_tests(cfg.get("test_pattern", "test*.py"))
     summary["steps"]["tests"] = {"ok": ok, **details}
 
     ok2, details2 = run_validators()

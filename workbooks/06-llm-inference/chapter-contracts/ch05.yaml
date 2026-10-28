@@ -1,0 +1,85 @@
+# Chapter contract for Workbook 06, Chapter 5 ("Quantization: Weights, Activations, and KV Caches").
+# Validated by scripts/validate_chapter_contract.py against
+# shared/chapter-contract-schema.yaml. Created at scaffolding
+# (2026-10-28) from reports/06_llm_inference_scope_and_source_decision.md.
+#
+# identity.status must exactly match config/chapter-status-registry.yaml's
+# entry for workbooks."06-llm-inference".chapters."05". The drafting skill
+# (.claude/skills/draft-workbook-chapter/) extends allowed_paths with the
+# chapter's worked-example and figure files when it drafts them.
+
+identity:
+  workbook: "06-llm-inference"
+  chapter: "05"
+  title: "Quantization: Weights, Activations, and KV Caches"
+  status: "scaffold_only"
+
+scope:
+  allowed_paths:
+    - "workbooks/06-llm-inference/chapters/05-quantization.qmd"
+    - "workbooks/06-llm-inference/solutions/05-quantization-solutions.qmd"
+    - "workbooks/06-llm-inference/questions.yaml"
+    - "workbooks/06-llm-inference/claim-ledger.yaml"
+    - "workbooks/06-llm-inference/figure-plan.yaml"
+  frozen_paths:
+    - "workbooks/06-llm-inference/chapters/0[123467]-*.qmd"
+    - "workbooks/06-llm-inference/solutions/0[123467]-*-solutions.qmd"
+    - "workbooks/04-llm-architecture/**"
+    - "workbooks/05-llm-training/**"
+    - "workbooks/addendum-04-05-tsfm/**"
+  canonical_output_allowed: false
+  release_output_allowed: false
+  push_allowed: false
+
+sources:
+  # Planned chapter-level mapping only (approved scope), not claim-level
+  # evidence: each mechanism claim still needs its passage read and a
+  # claim-ledger entry when drafted.
+  required_source_ids: ["src-88", "src-87", "src-90", "src-86", "src-89", "src-91", "src-92", "src-84", "src-10"]
+  full_text_required: true
+  evidence_locators_required: true
+  # In depth: src-88 (weight-only), src-87 (W8A8), src-90 (KV cache); the others in one comparison table. Preserve the recorded source disagreements.
+
+content:
+  required_sections:
+    - "Learning objectives"
+    - "Why this matters"
+    - "Mental model or analogy"
+    - "Visual overview"
+    - "Technical core"
+    - "Worked example"
+    - "Compare and contrast"
+    - "Check your understanding"
+    - "Applied exercise"
+    - "Interview lens"
+    - "Chapter recap"
+    - "Sources and further reading"
+    - "Answer Key"
+  question_count: 5
+  answer_count: 5
+  worked_example_count_minimum: 1
+  figure_count_minimum: 1
+
+worked_examples:
+  structured_output_required: true
+  prose_crosscheck_required: true
+  units_required: true
+
+figures:
+  semantic_tests_required: true
+  numeric_source_of_truth_required: true
+
+learner_facing:
+  forbid_source_ids: true
+  forbid_repo_paths: true
+  forbid_implementation_filenames: true
+  forbid_revision_history: true
+  require_scope_qualification: true
+
+acceptance:
+  source_audit: "not_yet_run"
+  numerical_audit: "not_yet_run"
+  figure_audit: "not_yet_run"
+  learner_pdf_audit: "not_yet_run"
+  scoped_tests: "not_yet_run"
+  visual_review: "not_yet_run"

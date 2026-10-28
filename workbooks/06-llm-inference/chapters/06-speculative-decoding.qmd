@@ -1,0 +1,66 @@
+## Speculative Decoding: Proposal, Verification, and Correctness {#sec-ch6}
+
+::: {.callout-note title="Scaffold status"}
+Scaffold only: drafting has not yet begun. This page records the approved plan for the chapter; it contains no teaching content, questions, answers, figures, worked examples or citations yet.
+:::
+
+**Purpose.** Explain how drafting and verification can produce several tokens per target pass, the conditions under which the output distribution is preserved, and the separate conditions under which it is faster.
+
+**Prerequisites and planned recap.** Workbook 05 Chapter 2 (multi-token prediction); Chapter 1 (sampling and bandwidth-limited decode) and Chapter 3 (iteration-level batching).
+
+**Scope boundaries.** Tree-attention details are summarized, not derived. Notation follows one source's naming of target and draft, with the mapping to the other stated once.
+
+### Learning objectives
+
+Planned outcomes (approved scope). By the end of this chapter you should be able to:
+
+- Run accept-and-resample by hand and recover the target distribution.
+- State correctness conditions separately from speedup conditions.
+- Compute expected tokens per iteration and the walltime factor under their stated assumptions.
+- Classify draft sources by cost and acceptance rate, and verification rules by exactness.
+- Explain batch-size effects, the latency--throughput trade-off, and hardware and serving-engine dependence.
+- Reconcile one-token-per-pass statements in Workbook 04 with multi-token verification.
+
+### Why this matters
+
+*Pending: drafting has not yet begun.*
+
+### Mental model or analogy
+
+*Pending: drafting has not yet begun.*
+
+### Visual overview
+
+*Pending: drafting has not yet begun.*
+
+### Technical core
+
+*Pending: drafting has not yet begun.*
+
+### Worked example
+
+*Pending: drafting has not yet begun.*
+
+### Compare and contrast
+
+*Pending: drafting has not yet begun.*
+
+### Check your understanding {#sec-ch6-check}
+
+*Pending: drafting has not yet begun.*
+
+### Applied exercise
+
+*Pending: drafting has not yet begun.*
+
+### Interview lens
+
+*Pending: drafting has not yet begun.*
+
+### Chapter recap
+
+*Pending: drafting has not yet begun.*
+
+### Sources and further reading
+
+*Pending: drafting has not yet begun.*

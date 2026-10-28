@@ -31,7 +31,7 @@ workbooks:
   - id: "06-llm-inference"
     number: 6
     title: "LLM Inference Engineering"
-    status: "not started"
+    status: "scaffold_only"  # scaffolded 2026-10-28; no chapter drafted
   - id: "07-llm-post-training"
     number: 7
     title: "LLM Post-Training and Alignment"

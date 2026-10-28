@@ -1,0 +1,8 @@
+# Question records for Workbook 06 (LLM Inference Engineering).
+# Schema: shared/question-schema.yaml. Validate with:
+#   python3 scripts/validate_questions.py
+#
+# Empty at scaffolding (2026-10-28): no chapter has been drafted, so no
+# question exists yet. Each chapter adds its 5 records when drafted.
+
+questions: []

@@ -1,0 +1,64 @@
+## Reading and Benchmarking an Inference Deployment {#sec-ch7}
+
+::: {.callout-note title="Scaffold status"}
+Scaffold only: drafting has not yet begun. This page records the approved plan for the chapter; it contains no teaching content, questions, answers, figures, worked examples or citations yet.
+:::
+
+**Purpose.** Apply the workbook's definitions to specify a fair benchmark and to read deployment and performance claims critically.
+
+**Prerequisites and planned recap.** Workbook 05 Chapter 6 (configured, observed and derived numbers); Chapter 1 (metric contract), Chapter 3 (SLO attainment) and Chapter 4 (kernel versus end-to-end).
+
+**Scope boundaries.** The workbook runs no benchmark. Warm-up and open- versus closed-loop load guidance is the workbook's own methodology, not a source claim.
+
+### Learning objectives
+
+Planned outcomes (approved scope). By the end of this chapter you should be able to:
+
+- Specify a benchmark: model, hardware, precision, length distributions, arrival process, concurrency, warm-up and percentiles.
+- Map a reported metric to its definition.
+- Separate kernel, engine and end-to-end claims.
+- Read a published deployment description and label each number reported, derived or illustrative.
+
+### Why this matters
+
+*Pending: drafting has not yet begun.*
+
+### Mental model or analogy
+
+*Pending: drafting has not yet begun.*
+
+### Visual overview
+
+*Pending: drafting has not yet begun.*
+
+### Technical core
+
+*Pending: drafting has not yet begun.*
+
+### Worked example
+
+*Pending: drafting has not yet begun.*
+
+### Compare and contrast
+
+*Pending: drafting has not yet begun.*
+
+### Check your understanding {#sec-ch7-check}
+
+*Pending: drafting has not yet begun.*
+
+### Applied exercise
+
+*Pending: drafting has not yet begun.*
+
+### Interview lens
+
+*Pending: drafting has not yet begun.*
+
+### Chapter recap
+
+*Pending: drafting has not yet begun.*
+
+### Sources and further reading
+
+*Pending: drafting has not yet begun.*

@@ -1,0 +1,24 @@
+# Page budget for Workbook 06 (approved 2026-10-28). Planning guide, not a
+# reason to remove necessary explanations, qualifications, examples or
+# answer keys. Reassess scope before exceeding the ceiling.
+
+target_pages: 72
+hard_ceiling_pages: 78
+
+planning:  # pages, including questions and answer keys
+  front_matter: 3
+  chapter_1: 11
+  chapter_2: 9
+  chapter_3: 9
+  chapter_4: 11
+  chapter_5: 10
+  chapter_6: 9
+  chapter_7: 8
+  build_note_and_bibliography: 4
+
+# Content cut order if over target (never required sections or
+# qualifications): (1) weight-gathered/stationary layout detail (ch4);
+# (2) inference pipeline parallelism (ch4); (3) per-method detail beyond
+# the comparison table (ch5); (4) Medusa/EAGLE detail beyond the
+# draft-source table (ch6). If still over the ceiling, reassess scope
+# (e.g. split ch4) rather than shrink typography.

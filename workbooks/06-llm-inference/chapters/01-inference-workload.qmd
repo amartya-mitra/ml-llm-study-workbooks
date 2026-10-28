@@ -1,0 +1,66 @@
+## The Inference Workload: Prefill, Decode, the Roofline, and the Latency–Throughput Trade-off {#sec-ch1}
+
+::: {.callout-note title="Scaffold status"}
+Scaffold only: drafting has not yet begun. This page records the approved plan for the chapter; it contains no teaching content, questions, answers, figures, worked examples or citations yet.
+:::
+
+**Purpose.** Give the workbook its shared cost model and metric vocabulary: where prefill and decode spend time, how to bound a step from hardware limits, and what each serving metric does and does not measure.
+
+**Prerequisites and planned recap.** Workbook 04 Chapters 1 and 7 (prefill versus decode as tendencies); Workbook 05 Chapter 5 (arithmetic intensity and training MFU). Recap: the KV-cache formula, the logical-versus-measured distinction, and training MFU versus inference MFU.
+
+**Scope boundaries.** Scheduling policies are Chapter 3; attention kernels are Chapter 4; quantization effects on the critical batch size are previewed only and taught in Chapter 5. Hardware figures will be labelled illustrative unless a registered datasheet is cited.
+
+### Learning objectives
+
+Planned outcomes (approved scope). By the end of this chapter you should be able to:
+
+- Classify linear-layer and attention work at prefill and at decode as compute- or bandwidth-limited, under stated assumptions.
+- Place a step on a roofline and compute a step-time lower bound from weight bytes, KV bytes, FLOPs and hardware limits.
+- Define time to first token, inter-token latency (TBT, TPOT, ITL), end-to-end latency, throughput and goodput, and name how definitions differ between sources and tools.
+- Explain batch size as a latency--throughput knob.
+- Describe how a sampling setting turns logits into the distribution a token is drawn from.
+- Explain why reusing a block's weights across loop passes (looped depth) does not reduce per-token decode cost.
+
+### Why this matters
+
+*Pending: drafting has not yet begun.*
+
+### Mental model or analogy
+
+*Pending: drafting has not yet begun.*
+
+### Visual overview
+
+*Pending: drafting has not yet begun.*
+
+### Technical core
+
+*Pending: drafting has not yet begun.*
+
+### Worked example
+
+*Pending: drafting has not yet begun.*
+
+### Compare and contrast
+
+*Pending: drafting has not yet begun.*
+
+### Check your understanding {#sec-ch1-check}
+
+*Pending: drafting has not yet begun.*
+
+### Applied exercise
+
+*Pending: drafting has not yet begun.*
+
+### Interview lens
+
+*Pending: drafting has not yet begun.*
+
+### Chapter recap
+
+*Pending: drafting has not yet begun.*
+
+### Sources and further reading
+
+*Pending: drafting has not yet begun.*

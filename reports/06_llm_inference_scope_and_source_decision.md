@@ -133,10 +133,31 @@ Keep **seven chapters**, with these changes:
    ch2 explains the memory mechanics of preemption and cross-references ch3.
 5. **MoE and long-context serving are sections**, not chapters (EP in ch4;
    context ceilings in ch2; split-KV in ch4).
-6. **Order follows an exactness axis:** ch2–4 mathematically equivalent
-   methods, ch5 numerics-changing methods, ch6 distribution-preserving
-   under stated conditions, ch7 measurement. FA-3 FP8 appears in ch4 only
-   as a pointer to ch5; no ch4 question depends on FP8 numerics.
+6. **Ordering and correctness (qualified at approval, 2026-10-28).** The
+   order is pedagogical — memory, then scheduling, then execution, then
+   numerics-changing and drafting methods, then measurement — not a
+   claim that a chapter's techniques share one correctness property.
+   The workbook keeps four properties apart and states which applies to
+   each technique **under its own assumptions**:
+   - *mathematical equivalence* — the same function in exact arithmetic
+     (online-softmax tiling, split-KV reduction, paging, prefix reuse of
+     identical tokens and extra keys);
+   - *floating-point differences* — equivalent mathematics can still give
+     different results through reduction order, batch shape, chunking or
+     kernel choice, so "exact" never means bit-identical;
+   - *approximation* — methods that intentionally change values or model
+     behaviour (all quantization, FP8 attention, Medusa typical
+     acceptance);
+   - *distributional correctness* — speculative decoding preserves the
+     target distribution only under its verification rule and sampling
+     assumptions (§4), "within hardware numerics".
+   Chapters 2–4 are not universally exact: e.g. prefix reuse depends on
+   matching keys and is not bitwise identical, and scheduling choices
+   (continuous batching, chunked prefill) are intended to change latency
+   rather than outputs, yet can still alter floating-point results by
+   changing batch and chunk shapes. FA-3 FP8
+   appears in ch4 only as a pointer to ch5; no ch4 question depends on
+   FP8 numerics.
 7. **Looped depth** (roadmap brief): cache consequence in ch2's technical
    core, latency consequence (decode cost does not shrink with fewer
    distinct parameters) as one paragraph in ch1.
@@ -429,28 +450,68 @@ version; findings were checked against the files before acting.
 | P10-P14 | FA-3 pointer; label vocabulary; INT4 convention; ch5 breadth; question counts | **Fixed** §3 labels, §5.1, ch5, §5.2 (5 per chapter) |
 | P15-P19 | script feasibility; seeded trace; data-driven figures; Pope figure fallback; ch4 split option | **Adopted** in ch3, ch4, ch7, §5.3 |
 
-## 9. Unresolved decisions for approval
+## 9. Approved decisions (2026-10-28)
 
-1. Page budget: target 72 / ceiling 78 (vs the default habit of ~68), or
-   an eight-chapter split of ch4.
-2. Canonical filename `outputs/06-llm-inference-workbook.pdf`.
-3. Single representative engine (vLLM v0.32.0) vs adding pinned SGLang or
-   TensorRT-LLM documentation (not recommended: framework-encyclopedia
-   risk).
+Approved by the user on 2026-10-28:
 
-## 10. Exact next task after approval
+1. Seven chapters, as in §5.2.
+2. Target 72 pages, ceiling 78. The target is a planning guide: necessary
+   explanations, qualifications, examples and answer keys are not removed
+   merely to reach it; scope is reassessed before exceeding 78.
+3. Canonical filename `outputs/06-llm-inference-workbook.pdf`.
+4. vLLM v0.32.0 at commit `5df63a7203cdb9328d824a27b682e77c7b9928be` as the
+   single example engine; no additional framework survey.
+5. MoE and long-context serving remain sections, not chapters.
 
-**Scaffold Workbook 06 (no prose):** in `workbooks/06-llm-inference/`
-create `index.qmd` (title, front-matter include, chapter and solution
-includes), an `includes/front-matter.qmd` stub, seven
-`chapter-contracts/chNN.yaml` (status `scaffold_only`, required source
-IDs and sections from §5.2, `question_count: 5`), empty `chapters/` and
-`solutions/` files, `claim-ledger.yaml` and `questions.yaml` skeletons,
-`figure-plan.yaml` with the §5.2 figures, `page-budget.yaml` (as
-approved), and `data/worked-examples/`; register `06-llm-inference` in
-`config/chapter-status-registry.yaml` (`workbooks:` at `scaffold_only`;
-`publications:` record at `planned`, README catalog synchronized) and in
-`scripts/workbook_qa.py` `WORKBOOK_REGISTRY` (canonical
-`06-llm-inference-workbook.pdf`); add a scaffold test mirroring
-`tests/test_workbook05_scaffold.py`. Then draft Chapter 1 through
-`.claude/skills/draft-workbook-chapter/`.
+The "ordered by exactness" explanation was qualified at approval (§5.1
+item 6).
+
+## 10. Scaffolding (completed 2026-10-28) and next task
+
+The approved scope was scaffolded in `workbooks/06-llm-inference/`:
+`index.qmd` (subtitle "Development scaffold"), seven chapter files and
+matching answer-key files carrying only the title and stable anchor, a
+scaffold-status note, purpose, planned outcomes, prerequisites and
+planned recap, scope boundaries and the required headings (each marked
+pending); seven `chapter-contracts/ch01-07.yaml` at `scaffold_only`;
+`questions.yaml` (empty bank), `claim-ledger.yaml` (no entries; planned
+chapter-level source mappings only), `figure-plan.yaml` (all planned),
+`page-budget.yaml` (72 / 78); empty `data/worked-examples/`,
+`figures/source/`, `figures/rendered/` and `includes/`. Registered in
+`config/chapter-status-registry.yaml` (`workbooks:` scaffold_only;
+`publications.workbook-06` at `drafting` with prepared values),
+`config/project.yaml`, the README catalog ("Drafting") and
+`scripts/workbook_qa.py` (`build_stage: development`: builds go to
+`outputs/_development/06-llm-inference/development-build/` and the
+canonical PDF is never written). RCs are reserved for
+`outputs/_releases/06-llm-inference/`.
+
+**Next task (not started):** draft Chapter 1 through
+`.claude/skills/draft-workbook-chapter/`, after working through the
+Chapter 1 rows of §11.
+
+## 11. Drafting checklist: source prerequisites
+
+These do not block scaffolding. **Rule for every chapter:** an unread,
+abstract-only, title-level or search-only source must not support a
+mechanism claim; each claim's passage is read and recorded in the claim
+ledger before the sentence is accepted.
+
+| Ch | Before drafting | Status |
+|---|---|---|
+| all | Read the specific passage for every mechanism claim; add a claim-ledger entry with its locator | open per claim |
+| all | Re-check pinned versions (vLLM v0.32.0 at `5df63a72`, MLPerf rules at `d3eba2f`); if a newer release is used, re-pin and re-read the affected files | open |
+| 1 | Hardware numbers: keep illustrative and labelled, or register a vendor datasheet before naming a device | open |
+| 1 | Sampling primer: use src-44 §2.2 framing; register the nucleus-sampling paper (Holtzman et al.) only if cited by name, after reading it | open |
+| 1 | Roofline wording from the Berkeley TR (CACM text inaccessible) | recorded |
+| 1, 3, 7 | Use metric definitions per source (TTFT start point; TBT vs TPOT vs ITL); no single definition presented as universal | recorded |
+| 2 | Rolling-buffer (sliding-window) eviction: re-read src-25 (web-search-verified only) before any mechanism claim | open |
+| 3 | No queueing-theory source: keep arrival and load effects qualitative | recorded |
+| 4 | Inference pipeline parallelism: no primary source — keep brief and derived, or register one after reading | open |
+| 4 | Expert-parallel serving detail: re-read src-31 (web-search-verified only) or rely on src-33 §3.4 | open |
+| 4 | Flash-Decoding: authors' blog, end-to-end hardware unstated — label as such | recorded |
+| 5 | Preserve recorded disagreements (LLM.int8() speed; AWQ vs GPTQ calibration; KIVI vs KVQuant; FP8 paper's int8 baseline) | recorded |
+| 6 | Fix notation (src-44: p = target) and state the src-45 mapping; DeepSeek-V3 speedups are vendor-reported with conditions unstated | recorded |
+| 6 | EAGLE-2/3 and vLLM `synthetic`/`block` rejection options: do not describe unless read and registered | open |
+| 7 | MLPerf percentile for TTFT/TPOT unconfirmed: state rules as written | recorded |
+| — | src-11/src-12 bib title mismatch and src-10 bib note: pre-existing; fix only in a scoped maintenance task (shared bib affects frozen rebuilds) | deferred |

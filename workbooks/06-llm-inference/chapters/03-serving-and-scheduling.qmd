@@ -1,0 +1,65 @@
+## Serving and Scheduling: Continuous Batching, Chunked Prefill, and Disaggregation {#sec-ch3}
+
+::: {.callout-note title="Scaffold status"}
+Scaffold only: drafting has not yet begun. This page records the approved plan for the chapter; it contains no teaching content, questions, answers, figures, worked examples or citations yet.
+:::
+
+**Purpose.** Explain how a serving engine decides what runs in each step, and how those decisions trade time to first token, inter-token latency and goodput.
+
+**Prerequisites and planned recap.** Chapter 1 (metrics) and Chapter 2 (paging and preemption mechanics).
+
+**Scope boundaries.** No queueing-theory derivations and no autoscaling; arrival effects stay qualitative. Layouts within one deployment are Chapter 4.
+
+### Learning objectives
+
+Planned outcomes (approved scope). By the end of this chapter you should be able to:
+
+- Contrast request-level and iteration-level batching, and explain selective batching.
+- Diagnose generation stalls caused by prefills scheduled between decode steps.
+- Weigh chunked prefill against prefill--decode disaggregation, and state where the sources disagree.
+- Apply SLO attainment and goodput to a schedule.
+- Place preemption policy within scheduling.
+
+### Why this matters
+
+*Pending: drafting has not yet begun.*
+
+### Mental model or analogy
+
+*Pending: drafting has not yet begun.*
+
+### Visual overview
+
+*Pending: drafting has not yet begun.*
+
+### Technical core
+
+*Pending: drafting has not yet begun.*
+
+### Worked example
+
+*Pending: drafting has not yet begun.*
+
+### Compare and contrast
+
+*Pending: drafting has not yet begun.*
+
+### Check your understanding {#sec-ch3-check}
+
+*Pending: drafting has not yet begun.*
+
+### Applied exercise
+
+*Pending: drafting has not yet begun.*
+
+### Interview lens
+
+*Pending: drafting has not yet begun.*
+
+### Chapter recap
+
+*Pending: drafting has not yet begun.*
+
+### Sources and further reading
+
+*Pending: drafting has not yet begun.*

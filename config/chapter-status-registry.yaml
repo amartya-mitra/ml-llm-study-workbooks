@@ -89,6 +89,31 @@ workbooks:
       06:
         status: "accepted_frozen"
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
+  06-llm-inference:
+    status: "scaffold_only"
+    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. No chapter drafted. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
+    chapters:
+      01:
+        status: "scaffold_only"
+        chapter_path: "workbooks/06-llm-inference/chapters/01-inference-workload.qmd"
+      02:
+        status: "scaffold_only"
+        chapter_path: "workbooks/06-llm-inference/chapters/02-kv-cache-memory.qmd"
+      03:
+        status: "scaffold_only"
+        chapter_path: "workbooks/06-llm-inference/chapters/03-serving-and-scheduling.qmd"
+      04:
+        status: "scaffold_only"
+        chapter_path: "workbooks/06-llm-inference/chapters/04-efficient-execution.qmd"
+      05:
+        status: "scaffold_only"
+        chapter_path: "workbooks/06-llm-inference/chapters/05-quantization.qmd"
+      06:
+        status: "scaffold_only"
+        chapter_path: "workbooks/06-llm-inference/chapters/06-speculative-decoding.qmd"
+      07:
+        status: "scaffold_only"
+        chapter_path: "workbooks/06-llm-inference/chapters/07-reading-and-benchmarking.qmd"
   04-llm-architecture:
     status: "frozen"
     note: "Whole workbook frozen -- Release Candidate 7, complete. Chapter-granular entries are not needed since no further chapter-level work on this workbook is in scope for the chapter-factory workflow."
@@ -235,6 +260,20 @@ publications:
         human_acceptance_date: "2026-10-06"
         human_acceptance_note: "Release Candidate 1 (18 pages, SHA-256 a1599e49...) accepted after independent human review; the canonical PDF differs from it only in the subtitle (Final Edition)."
         local_archive: "outputs/_development/addendum-04-05-tsfm/v1.0.0-canonical-archive/addendum-04-05-tsfm-v1.0.0.pdf"
+
+  workbook-06:
+    # In development (scaffold only). The canonical/release fields below are
+    # PREPARED values from the approved scope, not claims: nothing is built,
+    # tagged or released. The canonical PDF must stay absent until the
+    # publication workflow authorizes building it.
+    title: "LLM Inference Engineering"
+    workbook_id: "06-llm-inference"
+    status: "drafting"
+    canonical_path: "outputs/06-llm-inference-workbook.pdf"
+    release_tag: "workbook-06-v1.0.0"
+    release_asset: "06-llm-inference-workbook.pdf"
+    development_dir: "outputs/_development/06-llm-inference/"
+    release_candidate_dir: "outputs/_releases/06-llm-inference/"
 
 # --------------------------------------------------------------------
 # Override mechanism

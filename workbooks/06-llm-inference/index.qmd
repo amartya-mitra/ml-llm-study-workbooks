@@ -1,0 +1,74 @@
+---
+title: "LLM Inference Engineering"
+subtitle: "Development scaffold: drafting has not yet begun"
+author: "ML/LLM Study Workbooks"
+toc: true
+number-sections: true
+---
+<!-- Workbook 06 source root. papersize/margin/callout-icon/bibliography
+are set once, project-wide, in the repo-root _quarto.yml -- do not repeat
+them here.
+
+Status: scaffold only (see config/chapter-status-registry.yaml and
+reports/06_llm_inference_scope_and_source_decision.md). Every chapter is
+`scaffold_only`; no PDF rendered from this file is a release candidate or
+a canonical edition. Development builds go to
+outputs/_development/06-llm-inference/ via scripts/workbook_qa.py; the
+canonical outputs/06-llm-inference-workbook.pdf is created only by the
+publication workflow. The subtitle above changes when content exists. -->
+
+{{< include chapters/01-inference-workload.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/02-kv-cache-memory.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/03-serving-and-scheduling.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/04-efficient-execution.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/05-quantization.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/06-speculative-decoding.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include chapters/07-reading-and-benchmarking.qmd >}}
+
+```{=typst}
+#pagebreak()
+```
+
+{{< include solutions/01-inference-workload-solutions.qmd >}}
+
+{{< include solutions/02-kv-cache-memory-solutions.qmd >}}
+
+{{< include solutions/03-serving-and-scheduling-solutions.qmd >}}
+
+{{< include solutions/04-efficient-execution-solutions.qmd >}}
+
+{{< include solutions/05-quantization-solutions.qmd >}}
+
+{{< include solutions/06-speculative-decoding-solutions.qmd >}}
+
+{{< include solutions/07-reading-and-benchmarking-solutions.qmd >}}

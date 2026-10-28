@@ -1,0 +1,48 @@
+# Workbook 06's claim ledger. Schema: shared/claim-ledger-schema.yaml.
+#
+# `entries` is EMPTY at scaffolding (2026-10-28): no chapter text exists, so
+# no claim has been written or verified. Do not add an entry until the
+# sentence or number it supports exists and its passage has been read.
+#
+# `planned_chapter_sources` records the approved chapter-level source
+# mapping (reports/06_llm_inference_scope_and_source_decision.md, Sec. 5.2).
+# It names no claim and is not evidence for any statement.
+
+schema_version: 1
+entries: []
+
+planned_chapter_sources:
+  - chapter: "ch1"
+    source_ids: ["src-78", "src-79", "src-10", "src-75", "src-76", "src-81", "src-82", "src-44"]
+    candidate_source_ids: []
+    note: "src-10 is analytical (TPU-centred estimates); src-44 is used only for its Sec. 2.2 framing of sampling as an adjusted distribution; src-81/src-82 are version-pinned documentation."
+
+  - chapter: "ch2"
+    source_ids: ["src-73", "src-77", "src-82", "src-10"]
+    candidate_source_ids: []
+    note: "src-82 behaviour is vLLM v0.32.0 only. Rolling-buffer eviction would need src-25 re-read first (web-search-verified only)."
+
+  - chapter: "ch3"
+    source_ids: ["src-74", "src-75", "src-76", "src-73", "src-82", "src-10"]
+    candidate_source_ids: []
+    note: "Sarathi-Serve (src-75) and DistServe (src-76) disagree about chunked prefill; preserve both. No queueing-theory source."
+
+  - chapter: "ch4"
+    source_ids: ["src-55", "src-83", "src-84", "src-85", "src-78", "src-53", "src-33", "src-10"]
+    candidate_source_ids: []
+    note: "src-85 is the authors' blog; src-84 is hardware-specific; src-53 is reused for TP structure (decode application is derived). No primary source for inference pipeline parallelism; src-31 needs re-reading before any expert-parallel serving mechanism claim."
+
+  - chapter: "ch5"
+    source_ids: ["src-88", "src-87", "src-90", "src-86", "src-89", "src-91", "src-92", "src-84", "src-10"]
+    candidate_source_ids: []
+    note: "In depth: src-88 (weight-only), src-87 (W8A8), src-90 (KV cache); the others in one comparison table. Preserve the recorded source disagreements."
+
+  - chapter: "ch6"
+    source_ids: ["src-44", "src-45", "src-93", "src-94", "src-95", "src-43", "src-33", "src-82", "src-84", "src-49"]
+    candidate_source_ids: []
+    note: "Notation follows src-44 (p = target); src-45 swaps the letters. src-33 speedup figures are vendor-reported with conditions unstated."
+
+  - chapter: "ch7"
+    source_ids: ["src-80", "src-81", "src-82", "src-76", "src-75", "src-33", "src-78"]
+    candidate_source_ids: []
+    note: "Warm-up and open- versus closed-loop guidance is workbook methodology; src-80/src-81 support the scenario definitions only."

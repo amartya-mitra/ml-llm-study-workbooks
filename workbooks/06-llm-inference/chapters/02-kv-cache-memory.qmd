@@ -1,0 +1,66 @@
+## KV-Cache Memory: Capacity, Paging, Prefix Reuse, and Eviction {#sec-ch2}
+
+::: {.callout-note title="Scaffold status"}
+Scaffold only: drafting has not yet begun. This page records the approved plan for the chapter; it contains no teaching content, questions, answers, figures, worked examples or citations yet.
+:::
+
+**Purpose.** Turn the logical KV-cache size into a capacity plan, and explain how serving engines allocate, share, reuse and reclaim cache memory.
+
+**Prerequisites and planned recap.** Workbook 04 Chapter 3 (KV-cache size), Chapter 4 (sliding windows, latent KV) and Chapter 8 (looped depth); Workbook 05 Chapter 5 (kinds of memory measurement); Chapter 1 of this workbook.
+
+**Scope boundaries.** KV-cache quantization is Chapter 5; preemption policy and cross-machine KV transfer are Chapter 3. Rolling-buffer eviction mechanics need a re-verified source before any mechanism claim.
+
+### Learning objectives
+
+Planned outcomes (approved scope). By the end of this chapter you should be able to:
+
+- Estimate maximum concurrency from a memory budget, separating logical estimates from profiled and observed memory.
+- Explain reservation waste and internal and external fragmentation.
+- Trace block tables, reference counting and copy-on-write.
+- Compare full-block hashing with radix-tree prefix reuse, including the conditions under which a cached prefix may be reused.
+- Explain the memory mechanics of preemption by swapping or recomputation, and how engine versions differ.
+- State how looped depth can affect cache size.
+
+### Why this matters
+
+*Pending: drafting has not yet begun.*
+
+### Mental model or analogy
+
+*Pending: drafting has not yet begun.*
+
+### Visual overview
+
+*Pending: drafting has not yet begun.*
+
+### Technical core
+
+*Pending: drafting has not yet begun.*
+
+### Worked example
+
+*Pending: drafting has not yet begun.*
+
+### Compare and contrast
+
+*Pending: drafting has not yet begun.*
+
+### Check your understanding {#sec-ch2-check}
+
+*Pending: drafting has not yet begun.*
+
+### Applied exercise
+
+*Pending: drafting has not yet begun.*
+
+### Interview lens
+
+*Pending: drafting has not yet begun.*
+
+### Chapter recap
+
+*Pending: drafting has not yet begun.*
+
+### Sources and further reading
+
+*Pending: drafting has not yet begun.*
