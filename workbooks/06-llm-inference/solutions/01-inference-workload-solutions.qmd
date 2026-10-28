@@ -1,5 +1,40 @@
 ## Answer Key: Chapter 1 {#sec-solutions-ch1 .unnumbered}
 
-Answers to Chapter 1's "Check your understanding" questions (@sec-ch1-check).
+Full solutions to this chapter's "Check your understanding" questions (@sec-ch1-check). Every number is derived from the chapter's illustrative inputs under logical-byte accounting; none is a measurement.
 
-*Pending: no questions have been written for this chapter yet, so there are no answers.*
+**1. Calculation. For the worked example's illustrative model and accelerator, a decode step runs $B = 8$ sequences at $S = 4096$. Using logical bytes and @eq-step-time, compute the bytes read, the per-operation step-time estimate, and the batch's tokens per second. Which bound applies?**
+
+*Answer.* Bytes: 15,007,219,712 bytes of weights (read once, shared by all 8 sequences) plus 8 × 536,870,912 = 4,294,967,296 bytes of cache (512 MiB per sequence), so 19,302,187,008 bytes, about 19.30 GB. FLOPs: about $1.20\times10^{11}$ for the linear layers ($2 \times P_\text{lin} \times 8$) and about $1.72\times10^{10}$ for attention ($4 \times 8 \times 4096 \times 32 \times 32 \times 128$), about $1.37\times10^{11}$ in total.
+
+- Linear part: the FLOP time is 0.12 ms and the byte time is 15.007 GB ÷ 3 TB/s = 5.00 ms, so it takes 5.00 ms.
+- Attention part: the FLOP time is 0.017 ms and the byte time is 4.295 GB ÷ 3 TB/s = 1.43 ms, so it takes 1.43 ms.
+
+So $\hat t_\text{step} \approx 6.43$ ms and throughput is 8 ÷ 6.434 ms ≈ 1,243 tokens per second. Both parts are bandwidth-bound, so here the global lower bound (@eq-step-bound), 19.30 GB ÷ 3 TB/s, is the same 6.43 ms.
+
+*Common trap:* Multiplying the weight bytes by the batch size. The weights are read once per step for every sequence; only the cache scales with $B$.
+
+**2. Compare. For this model with 2-byte values, at how many tokens per step do the linear layers become compute-bound on the illustrative accelerator? Can any batch size make decode attention compute-bound here — with 8 KV heads, or with 32? Explain from @eq-attention-work.**
+
+*Answer.* The ridge point is $10^{15}/(3\times10^{12}) \approx 333$ FLOP per byte. With 2-byte weights the linear intensity is $2N_\text{tok}/b_w = N_\text{tok}$, so the linear layers become compute-bound from 334 tokens per step (the first whole number at or above 333.3) — 334 sequences at decode. Decode attention's intensity is $2H_q/(H_{kv}\,b_{kv})$: 4 with 8 KV heads, 1 with 32. $B$ and $S$ cancel in @eq-attention-work because every sequence brings its own cache, so no batch size moves either value toward 333; decode attention stays bandwidth-bound on this accelerator.
+
+*Common trap:* Concluding that "decode is memory-bound" as a whole. The linear layers can cross the ridge with enough sequences; only the attention part stays at its fixed intensity.
+
+**3. Calculation. A client sends a request at 0 s and receives chunks at 0.30 s (1 token), 0.36 s (2 tokens) and 0.40 s (1 token). Compute TTFT, the chunk gaps, E2E and TPOT. Then say what TPOT is for a second request whose only chunk carries one token, and why a tool must state its convention.**
+
+*Answer.* $n_\text{out} = 4$. TTFT $= 0.30$ s and E2E $= 0.40$ s, both measured from client send. The chunk gaps are 60 ms and 40 ms — two gaps, mean 50 ms. TPOT $= (0.40 - 0.30)/(4 - 1) \approx 33.3$ ms: the 2-token chunk hides a gap the client never sees. For a one-token request $(\text{E2E} - \text{TTFT})/(n_\text{out}-1)$ divides by zero, so TPOT is undefined. A tool must say what it does with such requests: vLLM v0.32.0, for example, leaves them out of its TPOT statistics but counts them as meeting a TPOT SLO when computing goodput. In the chapter's log the choice moved goodput from 1.92 to 2.88 requests per second.
+
+*Common trap:* Treating the mean chunk gap (ITL) as TPOT, or silently dropping one-token requests from some statistics and not others.
+
+**4. Quick check. A next-token distribution has probabilities 0.50, 0.20, 0.15, 0.10 and 0.05. Give the renormalized distribution under top-p with $p = 0.8$, and under top-k with $k = 2$.**
+
+*Answer.* Top-p: sorted cumulative mass is 0.50, 0.70, 0.85, …, so the smallest set reaching 0.8 is the first three tokens, mass 0.85. Renormalized: $0.50/0.85 \approx 0.588$, $0.20/0.85 \approx 0.235$, $0.15/0.85 \approx 0.176$. Top-k with $k = 2$: keep 0.50 and 0.20, mass 0.70, giving $\approx 0.714$ and $\approx 0.286$. The other tokens get probability zero.
+
+*Common trap:* Stopping the nucleus at 0.70, below $p$, or forgetting to renormalize. The set must reach *at least* $p$.
+
+**5. Design exercise. For the illustrative model at $S = 4096$, what is the largest decode batch whose per-operation step estimate is at most 10 ms, and what throughput does it give? Name two things this estimate cannot tell you about meeting a 10 ms token-gap target in a real deployment.**
+
+*Answer.* The linear part costs a fixed 5.00 ms (bandwidth-bound) and each sequence adds 536,870,912 bytes ÷ 3 TB/s ≈ 0.179 ms of cache reads, so $5.00 + 0.179\,B \le 10$ gives $B = 27$: $\hat t_\text{step} \approx 9.83$ ms and about 2,746 tokens per second ($B = 28$ gives 10.01 ms). It fits the 80 GB easily (the limit is 119 sequences). The estimate cannot tell you: real kernel efficiency below peak bandwidth; activation and other traffic it ignores; the extra work when prefills share a step with decodes (Chapter 3); queueing and scheduling delays; stream bundling at the client; or the tail of the gap distribution, which is what a percentile SLO tests. Any two of these suffice.
+
+*Common trap:* Treating the idealized estimate as the deployed gap, or reading a percentile target as if it applied to the mean.
+
+**Applied exercise (MHA variant).** Decode-attention intensity drops from 4 to 1, since each query head now has its own key/value head. Capacity: (80 GB − 17.67 GB) ÷ 2,147,483,648 bytes ≈ 29 sequences fit at $S = 4096$, against 119 with GQA. Traffic at $B = 16$: the linear part reads 16.62 GB (5.54 ms) and attention reads $16 \times 2$ GiB $\approx 34.4$ GB (11.45 ms), so $\hat t_\text{step} \approx 16.99$ ms (about 942 tokens per second), against 7.87 ms (about 2,034 tokens per second) with GQA. The capacity loss — fewer concurrent sequences — comes from the 4× larger cache per sequence, plus 1.6 GB more weights. The step-time increase comes from traffic: four times the cache bytes read per step, plus 0.54 ms of extra weight reads. Attention FLOPs are unchanged, because they depend on the query heads, not the KV heads.

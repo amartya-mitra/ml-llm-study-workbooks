@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="380" viewBox="0 0 620 380">
+  <title>Idealized roofline with prefill and decode operations</title>
+  <defs></defs>
+  <rect x="0" y="0" width="620" height="380" fill="#ffffff"/>
+  <text x="310.0" y="18" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">Idealized roofline (illustrative accelerator; bounds, not measurements)</text>
+  <line x1="114.57" y1="330.00" x2="114.57" y2="40.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="114.57142857142857" y="346" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">1</text>
+  <line x1="236.06" y1="330.00" x2="236.06" y2="40.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="236.05908461302354" y="346" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">10</text>
+  <line x1="357.55" y1="330.00" x2="357.55" y2="40.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="357.54674065461853" y="346" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">100</text>
+  <line x1="479.03" y1="330.00" x2="479.03" y2="40.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="479.0343966962135" y="346" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">1000</text>
+  <line x1="78.00" y1="265.23" x2="590.00" y2="265.23" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="72" y="269.2262350066374" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">1 T</text>
+  <line x1="78.00" y1="200.45" x2="590.00" y2="200.45" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="72" y="204.45247001327485" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">10 T</text>
+  <line x1="78.00" y1="135.68" x2="590.00" y2="135.68" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="72" y="139.6787050199123" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">100 T</text>
+  <line x1="78.00" y1="70.90" x2="590.00" y2="70.90" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="72" y="74.9049400265497" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="end">1000 T</text>
+  <line x1="78.00" y1="330.00" x2="590.00" y2="330.00" stroke="#444444" stroke-width="1.2"/>
+  <line x1="78.00" y1="330.00" x2="78.00" y2="40.00" stroke="#444444" stroke-width="1.2"/>
+  <text x="334.0" y="364" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">operational intensity (FLOP per byte of memory traffic, log scale)</text>
+  <text x="18" y="185.0" font-family="sans-serif" font-size="11" fill="#111111" text-anchor="middle" transform="rotate(-90 18 185.0)">attainable FLOP/s (log scale)</text>
+  <line id="roof-bandwidth" x1="78.00" y1="253.82" x2="421.07" y2="70.90" stroke="#111111" stroke-width="2.2"/>
+  <line id="roof-compute" x1="421.07" y1="70.90" x2="590.00" y2="70.90" stroke="#111111" stroke-width="2.2"/>
+  <line id="ridge" x1="421.07" y1="70.90" x2="421.07" y2="330.00" stroke="#444444" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="425.07005381269687" y="322" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">ridge ≈ 333 FLOP/byte</text>
+  <text x="309.20194175588074" y="186.54983759654178" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="start">bandwidth-bound</text>
+  <text x="552.1772538390707" y="44.904940026549696" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">compute-bound</text>
+  <circle id="pt-decode-linear-B1" cx="114.57" cy="234.32" r="5" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-intensity="1" data-bound="bandwidth"/>
+  <circle id="pt-decode-linear-B16" cx="260.86" cy="156.33" r="5" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-intensity="16" data-bound="bandwidth"/>
+  <circle id="pt-decode-linear-B64" cx="334.00" cy="117.33" r="5" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-intensity="64" data-bound="bandwidth"/>
+  <circle id="pt-decode-linear-B256" cx="407.14" cy="78.33" r="5" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-intensity="256" data-bound="bandwidth"/>
+  <circle id="pt-decode-linear-B512" cx="443.71" cy="70.90" r="5" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-intensity="512" data-bound="compute"/>
+  <circle id="pt-decode-attention-gqa" cx="187.71" cy="195.32" r="5" fill="#D55E00" stroke="#ffffff" stroke-width="1.2" data-intensity="4" data-bound="bandwidth"/>
+  <circle id="pt-decode-attention-mha" cx="114.57" cy="234.32" r="5" fill="#D55E00" stroke="#ffffff" stroke-width="1.2" data-intensity="1" data-bound="bandwidth"/>
+  <circle id="pt-prefill-linear" cx="513.04" cy="70.90" r="5" fill="#E69F00" stroke="#ffffff" stroke-width="1.2" data-intensity="1904.97" data-bound="compute"/>
+  <circle id="pt-prefill-attention" cx="468.54" cy="70.90" r="5" fill="#E69F00" stroke="#ffffff" stroke-width="1.2" data-intensity="819.6" data-bound="compute"/>
+  <text x="106.57142857142857" y="227.3212949800877" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#0072B2" text-anchor="end">B=1</text>
+  <text x="252.8571428571429" y="149.325910199721" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#0072B2" text-anchor="end">B=16</text>
+  <text x="326.0" y="110.32821780953768" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#0072B2" text-anchor="end">B=64</text>
+  <text x="399.14285714285717" y="71.3305254193543" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#0072B2" text-anchor="end">B=256</text>
+  <text x="443.7142857142857" y="90.9049400265497" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#0072B2" text-anchor="middle">B=512</text>
+  <text x="122.57142857142857" y="251.3212949800877" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#D55E00" text-anchor="start">attention, 32 KV heads (same point as B=1)</text>
+  <text x="195.71428571428572" y="212.32360258990437" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#D55E00" text-anchor="start">attention, 8 KV heads</text>
+  <text x="468.5381000822449" y="60.904940026549696" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#E69F00" text-anchor="middle">prefill attention</text>
+  <text x="513.0374386416431" y="90.9049400265497" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#E69F00" text-anchor="middle">prefill linear</text>
+  <rect x="84" y="44" width="232" height="52" fill="#ffffff" opacity="0.92"/>
+  <circle cx="92.00" cy="54.00" r="5" fill="#0072B2" stroke="#ffffff" stroke-width="1.2"/>
+  <text x="102" y="58" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">decode linear layers (B sequences)</text>
+  <circle cx="92.00" cy="70.00" r="5" fill="#D55E00" stroke="#ffffff" stroke-width="1.2"/>
+  <text x="102" y="74" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">decode attention (any batch)</text>
+  <circle cx="92.00" cy="86.00" r="5" fill="#E69F00" stroke="#ffffff" stroke-width="1.2"/>
+  <text x="102" y="90" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">prefill, one 2048-token prompt</text>
+</svg>

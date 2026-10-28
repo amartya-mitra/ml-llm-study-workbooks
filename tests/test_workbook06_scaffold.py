@@ -1,13 +1,15 @@
 """Structural and integration tests for the Workbook 06 scaffold
-(LLM Inference Engineering; scaffold only, no chapter drafted -- see
+(LLM Inference Engineering -- see
 reports/06_llm_inference_scope_and_source_decision.md).
 
 They check structure, registration and output routing, not content:
 the seven approved chapters exist in order with stable anchors and the
-required headings; the scaffold carries no citations, figures or
-question/answer content; contracts, the status registry, the claim
-ledger's planned source mappings and the registry agree; development
-builds route away from the canonical PDF, which stays absent.
+required headings; chapters not yet drafted (DRAFTED excludes them)
+carry no citations, figures or question/answer content; contracts, the
+status registry, the claim ledger's planned source mappings and the
+registry agree; development builds route away from the canonical PDF,
+which stays absent. Chapter 1 was drafted on 2026-10-28 and is pending
+human review; its content is tested in test_workbook06_ch01_*.py.
 """
 import importlib.util
 import os
@@ -36,6 +38,9 @@ REQUIRED_HEADINGS = [
     "Applied exercise", "Interview lens", "Chapter recap", "Sources and further reading",
 ]
 CANONICAL = os.path.join(REPO_ROOT, "outputs", "06-llm-inference-workbook.pdf")
+DRAFTED = {1: "drafted_pending_human_review"}  # chapter -> status; every other chapter is scaffold_only
+SCAFFOLD = [n for n in range(1, 8) if n not in DRAFTED]
+CH1_FIGURES = {"fig-roofline-prefill-decode", "fig-request-timeline", "fig-latency-throughput-frontier"}
 
 
 def read(path):
@@ -90,7 +95,7 @@ class TestStructure(unittest.TestCase):
             self.assertEqual(found, REQUIRED_HEADINGS, msg=f"chapter {n}")
 
     def test_scaffold_has_no_content_or_evidence(self):
-        for n in range(1, 8):
+        for n in SCAFFOLD:
             text = chapter(n) + solution(n)
             self.assertIn("drafting has not yet begun", chapter(n))
             for label in ("**Purpose.**", "**Prerequisites and planned recap.**", "**Scope boundaries.**"):
@@ -100,6 +105,14 @@ class TestStructure(unittest.TestCase):
             self.assertIsNone(re.search(r"^\d+\. \*\*|^\*\*\d+\.\*\*", text, re.MULTILINE), msg=f"chapter {n}: no questions/answers")
             self.assertIsNone(re.search(r"(?i)\bTODO\b|\bTBD\b|\bFIXME\b|lorem ipsum|\bplaceholder\b", text))
 
+    def test_drafted_chapters_carry_no_scaffold_notes(self):
+        for n in DRAFTED:
+            text = chapter(n) + solution(n)
+            self.assertNotIn("drafting has not yet begun", text)
+            for label in ("**Purpose.**", "**Prerequisites and planned recap.**", "**Scope boundaries.**", "Pending:"):
+                self.assertNotIn(label, text)
+            self.assertIsNone(re.search(r"(?i)\bTODO\b|\bTBD\b|\bFIXME\b|lorem ipsum|\bplaceholder\b", text))
+
 
 class TestRecords(unittest.TestCase):
     @classmethod
@@ -107,42 +120,52 @@ class TestRecords(unittest.TestCase):
         cls.reg = safe_load_path(os.path.join(REPO_ROOT, "config", "chapter-status-registry.yaml"))
         cls.sources = {s["id"] for s in safe_load_path(os.path.join(REPO_ROOT, "sources", "registry.yaml"))["sources"]}
 
-    def test_status_registry_and_contracts_agree_at_scaffold_only(self):
+    def test_status_registry_and_contracts_agree(self):
         entry = self.reg["workbooks"][WB_ID]
         self.assertEqual(entry["status"], "scaffold_only")
         self.assertEqual(sorted(str(k).zfill(2) for k in entry["chapters"]), [f"{n:02d}" for n in range(1, 8)])
         for n in range(1, 8):
             ch = entry["chapters"][f"{n:02d}"] if f"{n:02d}" in entry["chapters"] else entry["chapters"][n]
-            self.assertEqual(ch["status"], "scaffold_only")
+            expected = DRAFTED.get(n, "scaffold_only")
+            self.assertEqual(ch["status"], expected)
             self.assertEqual(ch["chapter_path"], f"workbooks/{WB_ID}/chapters/{SLUGS[n - 1]}.qmd")
             contract = safe_load_path(os.path.join(WB, "chapter-contracts", f"ch{n:02d}.yaml"))
-            self.assertEqual(contract["identity"]["status"], "scaffold_only")
+            self.assertEqual(contract["identity"]["status"], expected)
             self.assertEqual(contract["content"]["question_count"], 5)
             self.assertFalse(contract["scope"]["canonical_output_allowed"])
             self.assertFalse(contract["scope"]["push_allowed"])
-            self.assertEqual(set(contract["acceptance"].values()), {"not_yet_run"})
+            if n in SCAFFOLD:
+                self.assertEqual(set(contract["acceptance"].values()), {"not_yet_run"})
             for frozen in ("workbooks/04-llm-architecture/**", "workbooks/05-llm-training/**", "workbooks/addendum-04-05-tsfm/**"):
                 self.assertIn(frozen, contract["scope"]["frozen_paths"])
 
     def test_planned_sources_are_registered_and_kept_apart_from_claims(self):
         ledger = safe_load_path(os.path.join(WB, "claim-ledger.yaml"))
-        self.assertEqual(ledger["entries"], [])  # no claim exists before drafting
+        # claims and questions exist only for drafted chapters
+        self.assertEqual({e["chapter"] for e in ledger["entries"]}, {f"ch{n}" for n in DRAFTED})
         planned = {p["chapter"]: p["source_ids"] for p in ledger["planned_chapter_sources"]}
         for n in range(1, 8):
             contract = safe_load_path(os.path.join(WB, "chapter-contracts", f"ch{n:02d}.yaml"))
             ids = contract["sources"]["required_source_ids"]
-            self.assertEqual(ids, planned[f"ch{n}"])
+            if n in SCAFFOLD:
+                self.assertEqual(ids, planned[f"ch{n}"])
+            else:
+                self.assertTrue(set(planned[f"ch{n}"]) <= set(ids))  # drafting may add sources, not drop them
             self.assertEqual(set(ids) - self.sources, set())
-        self.assertEqual(safe_load_path(os.path.join(WB, "questions.yaml"))["questions"], [])
+        questions = safe_load_path(os.path.join(WB, "questions.yaml"))["questions"]
+        self.assertEqual({q["chapter"] for q in questions}, {SLUGS[n - 1][3:] for n in DRAFTED})
 
     def test_figure_plan_and_page_budget(self):
         figs = safe_load_path(os.path.join(WB, "figure-plan.yaml"))["figures"]
         self.assertTrue(figs)
-        self.assertEqual({f["status"] for f in figs}, {"planned"})
+        self.assertEqual({f["id"] for f in figs if f["status"] == "drawn"}, CH1_FIGURES)
+        self.assertEqual({f["status"] for f in figs if f["id"] not in CH1_FIGURES}, {"planned"})
         self.assertTrue(all(f["must_be_redrawn"] is True for f in figs))
         self.assertEqual({f["chapter"] for f in figs}, {f"ch{n}" for n in range(1, 8)})
-        self.assertEqual(os.listdir(os.path.join(WB, "figures", "source")), [".gitkeep"])
-        self.assertEqual(os.listdir(os.path.join(WB, "figures", "rendered")), [".gitkeep"])
+        rendered = sorted(os.listdir(os.path.join(WB, "figures", "rendered")))
+        self.assertEqual(rendered, sorted([".gitkeep"] + [f + ".svg" for f in CH1_FIGURES]))
+        scripts = sorted(f for f in os.listdir(os.path.join(WB, "figures", "source")) if f.endswith(".py"))
+        self.assertEqual(scripts, sorted(["_common.py"] + [f.replace("-", "_") + ".py" for f in CH1_FIGURES]))
         budget = safe_load_path(os.path.join(WB, "page-budget.yaml"))
         self.assertEqual((budget["target_pages"], budget["hard_ceiling_pages"]), (72, 78))
 

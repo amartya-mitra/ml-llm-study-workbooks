@@ -1243,7 +1243,7 @@ sources:
     last_verified: "2026-10-28"
     access_status: "shallow clone at tag v0.32.0 (tag resolves to 5df63a72... on 2026-10-28) read with file:line locators for the files named in expected_use; nothing installed or run."
     license_or_reuse: "Apache-2.0 code and docs -- cite and paraphrase; no code reproduced beyond identifiers"
-    notes: "Behaviour is version-specific and fast-changing; always state 'vLLM v0.32.0'. KV memory figures here are measured by profiling at startup, not logical estimates. The rejection_sample_method options 'synthetic' and 'block' were not verified. Do not let this one engine stand for 'serving engines in general'. Further locators at v0.32.0: docs/features/speculative_decoding/README.md:197 ('theoretically lossless up to the precision limits of hardware numerics') and :220 ('Changes in batch size may cause variations in logprobs and output probabilities'); docs/benchmarking/cli.md:127 ('Metric terminology is not standardized'), with ITL exceeding TPOT stated for speculative decoding; docs/design/prefix_caching.md:5-25 and :87 (block hash includes extra keys such as LoRA, multimodal inputs and the per-request cache_salt)."
+    notes: "Behaviour is version-specific and fast-changing; always state 'vLLM v0.32.0'. KV memory figures here are measured by profiling at startup, not logical estimates. The rejection_sample_method options 'synthetic' and 'block' were not verified. Do not let this one engine stand for 'serving engines in general'. Further locators at v0.32.0: docs/features/speculative_decoding/README.md:197 ('theoretically lossless up to the precision limits of hardware numerics') and :220 ('Changes in batch size may cause variations in logprobs and output probabilities'); docs/benchmarking/cli.md:127 ('Metric terminology is not standardized'), with ITL exceeding TPOT stated for speculative decoding; docs/design/prefix_caching.md:5-25 and :87 (block hash includes extra keys such as LoRA, multimodal inputs and the per-request cache_salt). Metric-boundary locators (read for Workbook 06 Ch. 1, 2026-10-28): vllm/benchmarks/lib/endpoint_request_func.py:228-287 (OpenAI completions client: timer st taken just before the HTTP POST; TTFT = first content chunk - st; ITL appended per later content chunk; latency = last content-chunk timestamp - st, so the [DONE] marker is excluded); vllm/benchmarks/serve.py:600-631 (tpots only for output_len > 1; all_tpots records 0.0 for output_len <= 1, with the comment 'if output_len <= 1, we regard tpot as 0 for goodput'), :640-660 (goodput tests ttfts, all_tpots and e2els against the SLOs), :749-764 (request_throughput and request_goodput divide by the benchmark duration; mean/median/percentile TPOT over tpots), :1011 and :1090 (duration runs from just before requests are launched until all have finished)."
 
   - id: "src-83"
     title: "FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning"
@@ -1426,3 +1426,17 @@ sources:
     access_status: "targeted full-text read via pdftotext: abstract, Sec. 1, 3, 4.1-4.2, limitations, Appendices B and K."
     license_or_reuse: "arXiv preprint -- cite and summarize"
     notes: "Reported up to 1.99x is on LLaMA-2 13B/70B with A100s; batched decoding is listed as future work. LayerSkip (arXiv:2404.16710) was read as a second self-speculative example but is not registered; its speedups compare against differently trained checkpoints."
+
+  - id: "src-96"
+    title: "The Curious Case of Neural Text Degeneration"
+    url: "https://arxiv.org/abs/1904.09751"
+    authors: "Ari Holtzman, Jan Buys, Li Du, Maxwell Forbes, Yejin Choi"
+    resource_type: "original research paper (arXiv:1904.09751v2, 14 Feb 2020; ICLR 2020 per the PDF header)"
+    workbook_categories: ["06-llm-inference"]
+    topic_tags: ["06-llm-inference", "sampling", "nucleus-sampling", "top-k", "temperature"]
+    authority_type: "primary_technical"
+    expected_use: "Primary source for Workbook 06 ch. 1's sampling primer: the top-p (nucleus) vocabulary as the smallest set whose probability mass is at least p (Sec. 3.1, Eq. 2) with renormalization over that set (Eq. 3); top-k sampling as sampling from the size-k set with the largest total probability, renormalized the same way (Sec. 3.2); and temperature as re-estimating the softmax of the logits divided by t, with t < 1 sharpening toward high-probability tokens (Sec. 3.3, Eq. 4). Used for definitions only, not for the paper's text-quality evaluations."
+    last_verified: "2026-10-28"
+    access_status: "targeted full-text read via pdftotext of the arXiv PDF v2: abstract, Sec. 3.1-3.3 (definitions and equations). Evaluation sections not read."
+    license_or_reuse: "arXiv preprint -- cite and summarize; no figure reuse"
+    notes: "Registered while drafting Workbook 06 Chapter 1 (2026-10-28). The paper defines nucleus sampling; top-k and temperature are described as prior practice with their own citations, which were not read; use this paper only for the definitions as it states them. It does not prescribe the order in which serving engines apply temperature, top-k and top-p."

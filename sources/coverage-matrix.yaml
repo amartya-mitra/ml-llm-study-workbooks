@@ -299,6 +299,8 @@ workbooks:
         coverage: "primary"
       - id: "src-95"
         coverage: "primary"
+      - id: "src-96"
+        coverage: "supporting"
 
   - id: "07-llm-post-training"
     sources:

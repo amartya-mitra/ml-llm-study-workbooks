@@ -1,0 +1,540 @@
+{
+  "labels": {
+    "inputs": "illustrative",
+    "outputs": "derived (idealized, not measured)"
+  },
+  "model": {
+    "n_layers": 32,
+    "d_model": 4096,
+    "n_q_heads": 32,
+    "n_kv_heads": 8,
+    "d_head": 128,
+    "d_ff": 14336,
+    "vocab": 128000,
+    "bytes_per_weight": 2,
+    "bytes_per_kv": 2
+  },
+  "hardware": {
+    "peak_flops_per_s": 1000000000000000.0,
+    "mem_bandwidth_bytes_per_s": 3000000000000.0,
+    "mem_capacity_bytes": 80000000000.0
+  },
+  "params": {
+    "attention_per_layer": 41943040,
+    "mlp_per_layer": 176160768,
+    "per_layer": 218103808,
+    "unembedding": 524288000,
+    "linear_total": 7503609856,
+    "input_embedding_stored_not_read": 524288000
+  },
+  "weight_bytes_read_per_step": 15007219712,
+  "weight_bytes_stored": 16055795712,
+  "kv_bytes_per_token": 131072,
+  "kv_bytes_per_sequence": {
+    "512": 67108864,
+    "4096": 536870912
+  },
+  "ridge_flops_per_byte": 333.3333333333333,
+  "linear_crossover_tokens_per_step": 333.3333333333333,
+  "decode_attention_intensity_gqa": 4.0,
+  "decode_attention_intensity_mha": 1.0,
+  "max_batch_fitting_capacity": {
+    "512": 952,
+    "4096": 119
+  },
+  "decode": {
+    "512": [
+      {
+        "batch": 1,
+        "context": 512,
+        "tokens_per_step": 1,
+        "linear_flops": 15007219712,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 1.0,
+        "linear_bound": "bandwidth",
+        "attention_flops": 268435456,
+        "attention_bytes": 67108864,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.005024776192,
+        "step_time_per_op_estimate_s": 0.005024776192,
+        "tokens_per_s_at_per_op_estimate": 199.0138389829403,
+        "logical_resident_bytes": 16122904576,
+        "fits_illustrative_capacity": true
+      },
+      {
+        "batch": 16,
+        "context": 512,
+        "tokens_per_step": 16,
+        "linear_flops": 240115515392,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 16.0,
+        "linear_bound": "bandwidth",
+        "attention_flops": 4294967296,
+        "attention_bytes": 1073741824,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.005360320512,
+        "step_time_per_op_estimate_s": 0.005360320512,
+        "tokens_per_s_at_per_op_estimate": 2984.896138986698,
+        "logical_resident_bytes": 17129537536,
+        "fits_illustrative_capacity": true
+      },
+      {
+        "batch": 64,
+        "context": 512,
+        "tokens_per_step": 64,
+        "linear_flops": 960462061568,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 64.0,
+        "linear_bound": "bandwidth",
+        "attention_flops": 17179869184,
+        "attention_bytes": 4294967296,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.006434062336,
+        "step_time_per_op_estimate_s": 0.006434062336,
+        "tokens_per_s_at_per_op_estimate": 9947.059362777052,
+        "logical_resident_bytes": 20350763008,
+        "fits_illustrative_capacity": true
+      },
+      {
+        "batch": 256,
+        "context": 512,
+        "tokens_per_step": 256,
+        "linear_flops": 3841848246272,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 256.0,
+        "linear_bound": "bandwidth",
+        "attention_flops": 68719476736,
+        "attention_bytes": 17179869184,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.010729029632,
+        "step_time_per_op_estimate_s": 0.010729029632,
+        "tokens_per_s_at_per_op_estimate": 23860.49892494136,
+        "logical_resident_bytes": 33235664896,
+        "fits_illustrative_capacity": true
+      },
+      {
+        "batch": 512,
+        "context": 512,
+        "tokens_per_step": 512,
+        "linear_flops": 7683696492544,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 512.0,
+        "linear_bound": "compute",
+        "attention_flops": 137438953472,
+        "attention_bytes": 34359738368,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.016455652693333333,
+        "step_time_per_op_estimate_s": 0.019136942615210668,
+        "tokens_per_s_at_per_op_estimate": 26754.534948181623,
+        "logical_resident_bytes": 50415534080,
+        "fits_illustrative_capacity": true
+      }
+    ],
+    "4096": [
+      {
+        "batch": 1,
+        "context": 4096,
+        "tokens_per_step": 1,
+        "linear_flops": 15007219712,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 1.0,
+        "linear_bound": "bandwidth",
+        "attention_flops": 2147483648,
+        "attention_bytes": 536870912,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.005181363541333334,
+        "step_time_per_op_estimate_s": 0.005181363541333334,
+        "tokens_per_s_at_per_op_estimate": 192.99938945080612,
+        "logical_resident_bytes": 16592666624,
+        "fits_illustrative_capacity": true
+      },
+      {
+        "batch": 16,
+        "context": 4096,
+        "tokens_per_step": 16,
+        "linear_flops": 240115515392,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 16.0,
+        "linear_bound": "bandwidth",
+        "attention_flops": 34359738368,
+        "attention_bytes": 8589934592,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.007865718101333333,
+        "step_time_per_op_estimate_s": 0.007865718101333333,
+        "tokens_per_s_at_per_op_estimate": 2034.143582807501,
+        "logical_resident_bytes": 24645730304,
+        "fits_illustrative_capacity": true
+      },
+      {
+        "batch": 64,
+        "context": 4096,
+        "tokens_per_step": 64,
+        "linear_flops": 960462061568,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 64.0,
+        "linear_bound": "bandwidth",
+        "attention_flops": 137438953472,
+        "attention_bytes": 34359738368,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.016455652693333333,
+        "step_time_per_op_estimate_s": 0.016455652693333333,
+        "tokens_per_s_at_per_op_estimate": 3889.2410524638913,
+        "logical_resident_bytes": 50415534080,
+        "fits_illustrative_capacity": true
+      },
+      {
+        "batch": 256,
+        "context": 4096,
+        "tokens_per_step": 256,
+        "linear_flops": 3841848246272,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 256.0,
+        "linear_bound": "bandwidth",
+        "attention_flops": 549755813888,
+        "attention_bytes": 137438953472,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.050815391061333336,
+        "step_time_per_op_estimate_s": 0.050815391061333336,
+        "tokens_per_s_at_per_op_estimate": 5037.843744841248,
+        "logical_resident_bytes": 153494749184,
+        "fits_illustrative_capacity": false
+      },
+      {
+        "batch": 512,
+        "context": 4096,
+        "tokens_per_step": 512,
+        "linear_flops": 7683696492544,
+        "linear_bytes": 15007219712,
+        "linear_intensity": 512.0,
+        "linear_bound": "compute",
+        "attention_flops": 1099511627776,
+        "attention_bytes": 274877906944,
+        "attention_intensity": 4.0,
+        "attention_bound": "bandwidth",
+        "step_time_lower_bound_s": 0.096628375552,
+        "step_time_per_op_estimate_s": 0.09930966547387733,
+        "tokens_per_s_at_per_op_estimate": 5155.590823480095,
+        "logical_resident_bytes": 290933702656,
+        "fits_illustrative_capacity": false
+      }
+    ]
+  },
+  "prefill": {
+    "prompt_tokens": 2048,
+    "linear_flops": 28588350898176,
+    "linear_bytes": 15007219712,
+    "linear_intensity": 1904.9731693683623,
+    "linear_bound": "compute",
+    "attention_flops": 1100048498688,
+    "attention_logical_bytes": 1342177280,
+    "attention_intensity": 819.6,
+    "kv_written_bytes": 268435456,
+    "step_time_lower_bound_s": 0.029688399396864,
+    "step_time_per_op_estimate_s": 0.029688399396864
+  },
+  "events": [
+    {
+      "id": "r1",
+      "client_send": 0.0,
+      "server_arrival": 0.01,
+      "first_scheduled": 0.01,
+      "server_token_times": [
+        0.2,
+        0.24,
+        0.28,
+        0.32,
+        0.36
+      ],
+      "client_chunks": [
+        [
+          0.215,
+          1
+        ],
+        [
+          0.255,
+          1
+        ],
+        [
+          0.295,
+          1
+        ],
+        [
+          0.335,
+          1
+        ],
+        [
+          0.375,
+          1
+        ]
+      ],
+      "client_done": 0.38
+    },
+    {
+      "id": "r2",
+      "client_send": 0.05,
+      "server_arrival": 0.06,
+      "first_scheduled": 0.3,
+      "server_token_times": [
+        0.52,
+        0.57,
+        0.61,
+        0.62,
+        0.66
+      ],
+      "client_chunks": [
+        [
+          0.535,
+          1
+        ],
+        [
+          0.585,
+          1
+        ],
+        [
+          0.64,
+          2
+        ],
+        [
+          0.675,
+          1
+        ]
+      ],
+      "client_done": 0.68
+    },
+    {
+      "id": "r3",
+      "client_send": 0.1,
+      "server_arrival": 0.11,
+      "first_scheduled": 0.11,
+      "server_token_times": [
+        0.4
+      ],
+      "client_chunks": [
+        [
+          0.415,
+          1
+        ]
+      ],
+      "client_done": 0.42
+    },
+    {
+      "id": "r4",
+      "client_send": 0.15,
+      "server_arrival": 0.16,
+      "first_scheduled": 0.6,
+      "server_token_times": [
+        0.9,
+        0.96,
+        1.02
+      ],
+      "client_chunks": [
+        [
+          0.915,
+          1
+        ],
+        [
+          0.975,
+          1
+        ],
+        [
+          1.035,
+          1
+        ]
+      ],
+      "client_done": 1.04
+    }
+  ],
+  "requests": [
+    {
+      "id": "r1",
+      "output_tokens": 5,
+      "ttft_client_s": 0.215,
+      "e2e_client_s": 0.375,
+      "itl_client_s": [
+        0.04,
+        0.04,
+        0.04,
+        0.04
+      ],
+      "tpot_s": 0.04,
+      "server_ttft_incl_queue_s": 0.19,
+      "server_queue_s": 0.0,
+      "server_ttft_excl_queue_s": 0.19,
+      "server_token_gaps_s": [
+        0.04,
+        0.04,
+        0.04,
+        0.04
+      ],
+      "client_overhead_on_ttft_s": 0.025
+    },
+    {
+      "id": "r2",
+      "output_tokens": 5,
+      "ttft_client_s": 0.485,
+      "e2e_client_s": 0.625,
+      "itl_client_s": [
+        0.05,
+        0.055,
+        0.035
+      ],
+      "tpot_s": 0.035,
+      "server_ttft_incl_queue_s": 0.46,
+      "server_queue_s": 0.24,
+      "server_ttft_excl_queue_s": 0.22,
+      "server_token_gaps_s": [
+        0.05,
+        0.04,
+        0.01,
+        0.04
+      ],
+      "client_overhead_on_ttft_s": 0.025
+    },
+    {
+      "id": "r3",
+      "output_tokens": 1,
+      "ttft_client_s": 0.315,
+      "e2e_client_s": 0.315,
+      "itl_client_s": [],
+      "tpot_s": null,
+      "server_ttft_incl_queue_s": 0.29,
+      "server_queue_s": 0.0,
+      "server_ttft_excl_queue_s": 0.29,
+      "server_token_gaps_s": [],
+      "client_overhead_on_ttft_s": 0.025
+    },
+    {
+      "id": "r4",
+      "output_tokens": 3,
+      "ttft_client_s": 0.765,
+      "e2e_client_s": 0.885,
+      "itl_client_s": [
+        0.06,
+        0.06
+      ],
+      "tpot_s": 0.06,
+      "server_ttft_incl_queue_s": 0.74,
+      "server_queue_s": 0.44,
+      "server_ttft_excl_queue_s": 0.3,
+      "server_token_gaps_s": [
+        0.06,
+        0.06
+      ],
+      "client_overhead_on_ttft_s": 0.025
+    }
+  ],
+  "aggregate": {
+    "window_start_s": 0.0,
+    "window_end_s": 1.04,
+    "window_s": 1.04,
+    "completed_requests": 4,
+    "output_tokens": 14,
+    "request_throughput_per_s": 3.846154,
+    "output_token_throughput_per_s": 13.461538,
+    "mean_itl_s": 0.046667,
+    "itl_gap_count": 9,
+    "mean_tpot_s_excluding_one_token": 0.045,
+    "tpot_count": 3,
+    "mean_tpot_s_if_one_token_counted_as_zero": 0.03375,
+    "slo": {
+      "ttft_s": 0.5,
+      "tpot_s": 0.05
+    },
+    "good_requests_one_token_tpot_vacuous": [
+      "r1",
+      "r2",
+      "r3"
+    ],
+    "good_requests_one_token_tpot_strict": [
+      "r1",
+      "r2"
+    ],
+    "goodput_per_s_vacuous": 2.884615,
+    "goodput_per_s_strict": 1.923077
+  },
+  "questions": {
+    "q1_decode_B8_S4096": {
+      "bytes": 19302187008,
+      "step_time_s": 0.006434062336,
+      "tokens_per_s": 1243.3824203471315,
+      "flops": 137237626880
+    },
+    "q2_integer_crossover_tokens": 334,
+    "q3_request": {
+      "id": "q3",
+      "output_tokens": 4,
+      "ttft_client_s": 0.3,
+      "e2e_client_s": 0.4,
+      "itl_client_s": [
+        0.06,
+        0.04
+      ],
+      "tpot_s": 0.033333,
+      "server_ttft_incl_queue_s": 0.29,
+      "server_queue_s": 0.0,
+      "server_ttft_excl_queue_s": 0.29,
+      "server_token_gaps_s": [
+        0.05,
+        0.01,
+        0.04
+      ],
+      "client_overhead_on_ttft_s": 0.01
+    },
+    "q4_sampling": {
+      "probs": [
+        0.5,
+        0.2,
+        0.15,
+        0.1,
+        0.05
+      ],
+      "top_p": 0.8,
+      "top_p_set": [
+        0,
+        1,
+        2
+      ],
+      "top_p_mass": 0.85,
+      "top_p_renormalized": {
+        "0": 0.588235,
+        "1": 0.235294,
+        "2": 0.176471
+      },
+      "top_k": 2,
+      "top_k_set": [
+        0,
+        1
+      ],
+      "top_k_renormalized": {
+        "0": 0.714286,
+        "1": 0.285714
+      }
+    },
+    "q5_max_batch_10ms_S4096": {
+      "batch": 27,
+      "step_time_s": 0.009834244778666667,
+      "tokens_per_s": 2745.508232474632
+    },
+    "exercise_mha": {
+      "kv_bytes_per_token": 524288,
+      "kv_bytes_per_sequence_4096": 2147483648,
+      "attention_intensity": 1.0,
+      "max_batch_fitting_4096": 29,
+      "step_time_B16_S4096_s": 0.016992523605333335,
+      "tokens_per_s_B16_S4096": 941.5905707483132,
+      "weight_bytes_read_per_step": 16617832448,
+      "weight_bytes_stored": 17666408448,
+      "gqa_step_time_B16_S4096_s": 0.007865718101333333,
+      "gqa_tokens_per_s_B16_S4096": 2034.143582807501
+    }
+  }
+}

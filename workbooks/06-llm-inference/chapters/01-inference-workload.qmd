@@ -1,66 +1,201 @@
 ## The Inference Workload: Prefill, Decode, the Roofline, and the Latency–Throughput Trade-off {#sec-ch1}
 
-::: {.callout-note title="Scaffold status"}
-Scaffold only: drafting has not yet begun. This page records the approved plan for the chapter; it contains no teaching content, questions, answers, figures, worked examples or citations yet.
-:::
-
-**Purpose.** Give the workbook its shared cost model and metric vocabulary: where prefill and decode spend time, how to bound a step from hardware limits, and what each serving metric does and does not measure.
-
-**Prerequisites and planned recap.** Workbook 04 Chapters 1 and 7 (prefill versus decode as tendencies); Workbook 05 Chapter 5 (arithmetic intensity and training MFU). Recap: the KV-cache formula, the logical-versus-measured distinction, and training MFU versus inference MFU.
-
-**Scope boundaries.** Scheduling policies are Chapter 3; attention kernels are Chapter 4; quantization effects on the critical batch size are previewed only and taught in Chapter 5. Hardware figures will be labelled illustrative unless a registered datasheet is cited.
+*Where a Request Spends Its Time, How to Bound Each Step, and What Each Serving Metric Measures*
 
 ### Learning objectives
 
-Planned outcomes (approved scope). By the end of this chapter you should be able to:
+By the end of this chapter you should be able to:
 
-- Classify linear-layer and attention work at prefill and at decode as compute- or bandwidth-limited, under stated assumptions.
-- Place a step on a roofline and compute a step-time lower bound from weight bytes, KV bytes, FLOPs and hardware limits.
-- Define time to first token, inter-token latency (TBT, TPOT, ITL), end-to-end latency, throughput and goodput, and name how definitions differ between sources and tools.
-- Explain batch size as a latency--throughput knob.
-- Describe how a sampling setting turns logits into the distribution a token is drawn from.
-- Explain why reusing a block's weights across loop passes (looped depth) does not reduce per-token decode cost.
+- Trace one request through its timestamps — client send, server arrival, scheduling, prefill, each decode step, each streamed chunk — and say which phase each timestamp belongs to.
+- Classify the linear-layer and attention work of a step as compute- or bandwidth-limited from its operational intensity, under stated assumptions, and explain why the answer changes with tokens per step but, for decode attention, not with batch size.
+- Place a step on a roofline and compute an idealized step-time lower bound from FLOPs, logical bytes and two hardware limits, without double-counting bytes or adding overlapping costs.
+- Explain batch size as a latency–throughput trade-off, and why memory capacity can end that trade-off first.
+- Define time to first token, token gaps, time per output token, end-to-end latency, throughput and goodput from timestamps, including the one-output-token case and the conventions different tools use.
+- Describe how temperature, top-k and top-p turn logits into the distribution a token is sampled from.
+- Explain why sharing a block's weights across repeated passes (looped depth) reduces stored parameters but not executed computation.
 
 ### Why this matters
 
-*Pending: drafting has not yet begun.*
+::: {.callout-note title="Recap from Workbooks 04 and 05"}
+**Decoder step.** Each layer applies attention and a feed-forward block to every new token; between layers the residual stream keeps a fixed width $d_\text{model}$. **KV cache.** Each layer stores the keys and values of every retained position so later tokens need not recompute them; the logical size from Workbook 04 is $M_{KV} = 2\,B\,S\,L\,H_{kv}\,d_\text{head}\,\text{bytes\_per\_elem}$ for $B$ sequences of $S$ retained positions, $L$ layers, $H_{kv}$ key/value heads of dimension $d_\text{head}$ and bytes_per_elem bytes per cached number (written $b_{kv}$ below), a *logical minimum* that excludes allocator overhead, paging, fragmentation and workspaces. **Grouped-query attention (GQA).** $H_{kv} < H_q$ key/value heads serve $H_q$ query heads, shrinking the cache and its read traffic, not the query-side FLOPs. **Prefill and decode.** Prefill processes the prompt's tokens together; decode then adds one token per sequence per step and is "often memory-bandwidth-sensitive" (Workbook 04, Chapter 7) — a tendency, not a law. **Arithmetic intensity** is FLOPs per byte moved; **MFU** in training counts forward and backward FLOPs against peak.
+:::
+
+Workbooks 04 and 05 described these tendencies qualitatively. Serving decisions need numbers: how long can a step take, how many sequences can share it, and which reported metric actually measures what a user waits for? This chapter supplies one shared cost model and one metric vocabulary for the rest of the workbook. Every quantity is labelled *reported* (a source states it), *derived* (computed here from stated definitions) or *illustrative* (chosen for teaching). No number in this chapter is a measurement.
 
 ### Mental model or analogy
 
-*Pending: drafting has not yet begun.*
+::: {.callout-note title="Analogy"}
+Picture a narrator reading from one large shared reference book to answer many listeners at once. To speak one more word to every listener, the narrator must leaf through the whole book (the weights) once — the same pass serves every listener, so more listeners cost little extra reading. Each listener also has a private notebook of everything said to them so far (their KV cache), and the narrator must reread each notebook in full for every new word; notebooks are not shared, so more listeners means more notebook reading. Reading a long new question aloud (prefill) is different: one pass through the book serves every word of the question.
+
+**Where this breaks down:** real hardware overlaps reading with speaking, caches some pages, and moves other data the analogy ignores; and the narrator here never waits in a queue, while real requests do.
+:::
 
 ### Visual overview
 
-*Pending: drafting has not yet begun.*
+![A synthetic event log for four requests on one clock. Grey marks time a request waits in the server queue; orange is server running time, with a tick for each token emitted; blue dots are streamed chunks arriving at the client; green brackets are client-measured time to first token. Request r2 receives one chunk carrying two tokens, and r3 produces a single output token. The log is schematic, not a measurement.](figures/rendered/fig-request-timeline.svg){#fig-request-timeline}
 
 ### Technical core
 
-*Pending: drafting has not yet begun.*
+#### A request's timestamps
+
+A request crosses a boundary between a client and a server. On the client side it is *sent*, and later *chunks* of output arrive, each carrying one or more tokens, followed by an end-of-stream marker. On the server side it *arrives*, may wait in a queue, is *first scheduled*, runs **prefill** — one forward pass over the prompt that writes its keys and values into the cache and produces the first output token — and then runs **decode** steps, each adding one token to every running sequence. Pope et al. split inference latency the same way, into prefill time for the input tokens present at the start and decode time for generating output tokens one step at a time [@src-78]. Tokenization, queueing, network transfer, detokenization and stream framing all sit between the first and last of these timestamps, so every metric below must say which of them it includes (@fig-request-timeline).
+
+#### Work in one step: linear layers
+
+Let a step process $N_\text{tok}$ new tokens in total across its sequences: $N_\text{tok} = B\,T_q$, with $B$ sequences each adding $T_q$ tokens ($T_q = 1$ at decode; the prompt length at prefill). Let $P_\text{lin}$ be the number of weights in the matrices multiplied in every step — attention projections, feed-forward matrices and the output (unembedding) matrix — and $b_w$ the bytes per weight. The input embedding is a row lookup, so it is stored but adds neither matmul work nor a full read per step. One multiply-add counts as 2 FLOPs, so a decoder-only model needs about $2N$ matmul FLOPs per token for $N$ parameters [@src-78]:
+
+$$
+F_\text{lin} = 2\,P_\text{lin}\,N_\text{tok}, \qquad
+\text{Bytes}_\text{lin} \ge P_\text{lin}\,b_w, \qquad
+I_\text{lin} = \frac{F_\text{lin}}{\text{Bytes}_\text{lin}} \le \frac{2\,N_\text{tok}}{b_w}.
+$$ {#eq-linear-work}
+
+The byte count is a *logical* minimum: every weight read once per step and reused for all $N_\text{tok}$ tokens; activation traffic (by our estimate, about $2N_\text{tok}$ bytes per row and column of each matrix) is ignored, which is reasonable only while $N_\text{tok}$ is much smaller than the model width. Actual traffic is at least this and usually more. With 2-byte weights the intensity is simply $N_\text{tok}$ FLOPs per byte: the more tokens share one read of the weights, the more work each byte supports.
+
+#### Work in one step: attention
+
+At decode, each new token's query is scored against the $S$ retained keys and then used to weight the $S$ values: per query head per layer, $2\,S\,d_\text{head}$ FLOPs for each of the two matmuls. Softmax and other element-wise work, the query and output traffic, and the write of the new token's own keys and values (1/$S$ of the read) are ignored. The keys and values read are the sequence's cache, $2\,S\,L\,H_{kv}\,d_\text{head}\,b_{kv}$ bytes — the $M_{KV}$ of Workbook 04 with $B = 1$:
+
+$$
+F_\text{att} = 4\,B\,S\,L\,H_q\,d_\text{head}, \qquad
+\text{Bytes}_\text{att} = B \cdot 2\,S\,L\,H_{kv}\,d_\text{head}\,b_{kv}, \qquad
+I_\text{att} = \frac{2\,H_q}{H_{kv}\,b_{kv}}.
+$$ {#eq-attention-work}
+
+$B$ and $S$ cancel. Unlike the weights, each sequence's cache is its own, so adding sequences adds cache reads in proportion and decode attention's intensity does not grow with batch size; Pope et al. make the same point — attention adds comparatively few FLOPs but a large share of memory traffic, "since (unlike the weights) the KV cache is unique for each sequence in the batch" [@src-78]. For multi-head attention ($H_{kv} = H_q$) with 2-byte cache entries $I_\text{att} = 1$, matching the analytical treatment in [@src-10]; under GQA each key/value head serves $H_q/H_{kv}$ query heads, so the intensity rises to $H_q/H_{kv}$ — still a small, fixed number. At prefill the picture differs: queries and keys both span the prompt, so attention intensity grows with prompt length [@src-10].
+
+#### The roofline and when each bound applies
+
+The roofline model bounds attainable performance by two machine limits: attainable FLOP/s $=\min(C_\text{peak},\ \mathit{BW}\times I)$, where $C_\text{peak}$ is peak FLOP/s, $\mathit{BW}$ is peak memory bandwidth and $I$ is operational intensity — operations per byte of memory traffic [@src-79], the quantity Workbook 05 called arithmetic intensity. The two lines meet at the **ridge point** $I^* = C_\text{peak}/\mathit{BW}$; an operation left of the ridge is limited by bandwidth, one to the right by compute [@src-79]. Combining with @eq-linear-work, linear layers with 2-byte weights become compute-bound once $N_\text{tok} \ge I^*\,b_w/2$ tokens per step; [@src-10] derives the same critical batch and notes it shifts with the ratio of bits per weight to bits per activation (Chapter 5).
+
+For a whole step, two idealized numbers are useful, and neither is a runtime:
+
+$$
+t_\text{step} \ge \max\left(\frac{F_\text{lin} + F_\text{att}}{C_\text{peak}},\ \frac{\text{Bytes}_\text{lin} + \text{Bytes}_\text{att}}{\mathit{BW}}\right)
+$$ {#eq-step-bound}
+
+$$
+\hat t_\text{step} = \max\left(\frac{F_\text{lin}}{C_\text{peak}},\ \frac{\text{Bytes}_\text{lin}}{\mathit{BW}}\right) + \max\left(\frac{F_\text{att}}{C_\text{peak}},\ \frac{\text{Bytes}_\text{att}}{\mathit{BW}}\right)
+$$ {#eq-step-time}
+
+@eq-step-bound is a lower bound that assumes everything overlaps perfectly. @eq-step-time, the per-operation estimate $\hat t_\text{step}$, assumes the linear part and the attention part run back to back while each overlaps its own compute and memory traffic; the general step-time estimate in [@src-10] has the same shape, with attention taken as always bandwidth-bound. Adding a compute time and a memory time *for the same operation* would double-count, because an operation that overlaps loading with computing pays only the larger of the two. Real kernels fall short of both peaks; [@src-10] itself cautions that a sharp roofline is often not seen in practice.
+
+::: {.callout-warning title="Common misconception"}
+*"Decode is memory-bound."* Only under conditions. Decode **linear layers** are bandwidth-bound while the tokens per step stay below the crossover $I^*\,b_w/2$; with enough sequences they become compute-bound. Decode **attention** stays at its low, fixed intensity at any batch size. And at long context the KV reads can dominate the step even after the linear layers cross. State the batch, context, precision and hardware before classifying.
+:::
+
+#### Batch size as a latency–throughput knob
+
+In steady decode, every running sequence gets one token per step, so the step time is each sequence's gap between tokens, and the batch's throughput is $B/t_\text{step}$. Raising $B$ amortizes the one weight read over more tokens, so throughput rises — but each step also reads more cache and, eventually, does more compute, so every sequence's gap grows. Pope et al. state the trade-off directly: smaller batches can lower latency but worsen utilization, raising cost per token [@src-78]. Their memory-time observation explains the shape: at small batch and short sequences weight loading dominates; at large batch and long sequences the cache dominates [@src-78]. Memory *capacity* can end the trade-off before the compute ceiling is reached: every extra sequence must also fit its cache (Chapter 2 plans capacity).
+
+#### Serving metrics, defined from timestamps
+
+All metrics below are per request unless stated, and each depends on where the timestamps are taken.
+
+- **Time to first token (TTFT)** — from a start event to the first output token. Sarathi-Serve measures it "from the moment a request arrives in the system", so it includes queueing [@src-75]; DistServe's introduction calls TTFT the duration of the prefill phase, yet its queueing model adds a queueing delay to average TTFT [@src-76], so even one paper's usage shifts; the benchmark client in vLLM v0.32.0 starts its timer just before sending the HTTP request and stops at the first streamed chunk, so its TTFT also includes network transfer, server-side tokenization and stream framing [@src-82].
+- **Token gaps** — the time between consecutive output tokens. Sarathi-Serve's *time between tokens* (TBT) measures this per gap and reports tail percentiles [@src-75]. A client sees *chunks*, not tokens: the *inter-token latency* (ITL) of vLLM v0.32.0 is the gap between successive streamed chunks [@src-82], so a chunk carrying several tokens produces one long gap where the server produced several short ones.
+- **Time per output token (TPOT)** — a *per-request average*: DistServe defines it as "the average time taken to generate a token for each request (except for the first token)" [@src-76], and vLLM v0.32.0 computes $(\text{E2E} - \text{TTFT})/(n_\text{out} - 1)$ [@src-82]. It is undefined for a request with $n_\text{out} = 1$. Tools must choose a convention: vLLM v0.32.0 leaves such requests out of its TPOT statistics but counts their TPOT as 0 when testing a goodput SLO [@src-82]. The MLPerf Inference rules (as of August 2026) describe TPOT as "the average interval between all the tokens generated" [@src-81].
+- **End-to-end latency (E2E)** — start event to last output token. vLLM v0.32.0 ends it at the last content chunk, not the end-of-stream marker [@src-82]. With these definitions, $\text{E2E} = \text{TTFT} + \text{TPOT}\,(n_\text{out} - 1)$ exactly; DistServe states the equivalent relation with TPOT multiplied by the number of tokens generated in the decoding phase [@src-76].
+- **Throughput** — completed requests, output tokens, or input-plus-output tokens per second **over a stated measurement window**. vLLM v0.32.0 divides by the whole benchmark duration [@src-82]; Pope et al. use tokens processed or generated per second for prefill or decode [@src-78]. "Tokens per second" without its window and token type is not comparable.
+- **Goodput** — the rate of requests that meet every service-level objective (SLO). DistServe defines per-GPU goodput as the maximum request rate that can be served while meeting an SLO-attainment goal, such as 90% [@src-76]; vLLM v0.32.0 reports good requests per second over one benchmark run [@src-82]. The SLO thresholds, the attainment rule and the window must be stated before goodput is computed.
+
+::: {.callout-warning title="Common misconception"}
+*"ITL and TPOT are the same number."* They agree only when every streamed chunk carries exactly one token and gaps are averaged per request. ITL pools chunk gaps; TPOT averages a request's time after its first token over its remaining tokens. Bundled chunks, speculative decoding (Chapter 6) and averaging across requests all separate them.
+:::
+
+#### From logits to a sampled token
+
+A decode step ends with logits $u$ over the vocabulary. **Temperature** $t$ rescales them before the softmax, $p_l \propto \exp(u_l/t)$; $t < 1$ shifts mass toward high-probability tokens [@src-96]. **Top-k sampling** keeps the $k$ most probable tokens and renormalizes; **top-p (nucleus) sampling** keeps the smallest set of tokens whose probability mass reaches $p$ and renormalizes over it, so the set size adapts to the distribution [@src-96]. Greedy decoding keeps only the most probable token. Each of these is ordinary sampling from an *adjusted* distribution [@src-44] — the fact Chapter 6 relies on when it asks whether a faster decoding method preserves the distribution a token is drawn from. The order of the transforms changes the result — Holtzman et al. note low temperature being applied before top-k in practice [@src-96] — so state the order when it matters.
+
+#### Sharing weights across depth is not saving work
+
+A looped (depth-recurrent) model applies the same block several times per token (Workbook 04, Chapter 8). Sharing weights reduces the *distinct parameters stored*, but each application still performs its matmuls, so per-token decode FLOPs scale with the number of block applications, not with the number of distinct blocks. Whether the shared weights are re-read from memory on each pass depends on the implementation; nothing in @eq-linear-work lets you assume they are not. Workbook 04 (Chapter 8) adds that the KV cache may also scale with applications unless the design shares it (Chapter 2).
 
 ### Worked example
 
-*Pending: drafting has not yet begun.*
+**Illustrative inputs.** A dense decoder resembling an 8B-class model — $L = 32$ layers, $d_\text{model} = 4096$, $H_q = 32$, $H_{kv} = 8$, $d_\text{head} = 128$, a three-matrix gated feed-forward block of width 14,336, a 128,000-token vocabulary — with 2-byte weights and cache entries; and an illustrative accelerator with $C_\text{peak} = 10^{15}$ FLOP/s, $\mathit{BW} = 3\times10^{12}$ bytes/s and 80 GB of memory. These are round teaching values, not a specification of any model or device. Every result below is derived (computed by a script and checked by tests) and idealized.
+
+**Model terms.** $P_\text{lin}$ = 7,503,609,856 weights are multiplied every step, so one step reads at least 15.01 GB of weights; 16.06 GB is stored once the input embedding is included. The cache costs $2\cdot32\cdot8\cdot128\cdot2$ = 131,072 bytes = 128 KiB per token: 64 MiB per sequence at $S = 512$ and 512 MiB at $S = 4096$. The ridge point is $I^* = 10^{15}/(3\times10^{12}) \approx 333$ FLOP per byte, so linear layers become compute-bound from 334 tokens per step. Decode attention has intensity 4 with 8 KV heads (1 with 32); see @fig-roofline-prefill-decode.
+
+![Idealized roofline for the illustrative accelerator. Decode linear layers move right as more tokens share each weight read (the label gives the batch $B$); decode attention stays at a fixed intensity set by the KV-head grouping; prefill lies far to the right. Points are bounds computed from logical bytes, not measurements.](figures/rendered/fig-roofline-prefill-decode.svg){#fig-roofline-prefill-decode}
+
+| Context $S$ | Batch $B$ | Linear bound | $\hat t_\text{step}$ (ms) | Tokens/s | Fits 80 GB? |
+|---|---|---|---|---|---|
+| 512 | 1 | bandwidth | 5.02 | 199 | yes |
+| 512 | 64 | bandwidth | 6.43 | 9,947 | yes |
+| 512 | 512 | compute | 19.14 | 26,755 | yes |
+| 4,096 | 1 | bandwidth | 5.18 | 193 | yes |
+| 4,096 | 16 | bandwidth | 7.87 | 2,034 | yes |
+| 4,096 | 64 | bandwidth | 16.46 | 3,889 | yes |
+| 4,096 | 256 | bandwidth | 50.82 | 5,038 | no (153.5 GB) |
+
+: Idealized decode steps for the illustrative model and accelerator, using the per-operation estimate of @eq-step-time (derived). Attention is bandwidth-bound in every row. "Fits" compares logical resident bytes (stored weights plus caches) with the 80 GB capacity; allocator overhead and workspaces would lower the real limit. {#tbl-decode-steps}
+
+At $B = 1$, $S = 4096$ the step reads 15.01 GB of weights plus 0.54 GB of cache and does about 17 GFLOP, so the bound is $15.54\times10^9/(3\times10^{12}) = 5.18$ ms: bandwidth-bound by a factor of about 300. At $S = 512$ the linear layers cross to compute-bound between the tabulated $B = 256$ and $B = 512$ (at 334); at $B = 512$, where the global lower bound (@eq-step-bound) is 16.46 ms and the back-to-back estimate 19.14 ms — the two diverge only once both compute and memory traffic matter. At $S = 4096$ the cache fills the illustrative 80 GB at about $B = 119$ sequences, long before the linear layers could cross; the $B = 256$ row is an extrapolation that could not run there (@fig-latency-throughput-frontier). Throughput grows about 20-fold from $B = 1$ to $B = 64$ at $S = 4096$, while each sequence's token gap grows from 5.18 to 16.46 ms.
+
+![Idealized decode step time against throughput as the batch grows, for two context lengths. Hollow points need more memory than the illustrative device holds. Values are per-operation estimates (@eq-step-time), computed as in @tbl-decode-steps, which lists a subset of these batch sizes.](figures/rendered/fig-latency-throughput-frontier.svg){#fig-latency-throughput-frontier}
+
+**Prefill** of one 2048-token prompt: at inference only the last position needs logits (training computes them at every position), so the linear layers do about 28.6 TFLOP — @eq-linear-work with the unembedding applied once — at a weight-only intensity of about 1,900. Activation traffic is no longer negligible at this length and lowers that figure, but not to anywhere near the ridge. Causal attention, counting only unmasked query–key pairs as a block-skipping kernel would (a dense masked kernel does about twice the work), adds about 1.10 TFLOP at a logical intensity of about 820, counting the query, key and value reads and the output write. Both are far right of the ridge, so the idealized prefill bound is about 29.7 ms, compute-bound. That is a server-side lower bound on the prefill part of TTFT for a request running alone; queueing, tokenization and transfer come on top.
+
+
+**Metrics from the event log** (@fig-request-timeline; client-side, vLLM-style boundaries; window from the first send at 0 s to the end of the last stream at 1.04 s, matching how vLLM v0.32.0 measures its benchmark duration):
+
+| Request | Tokens out | TTFT (ms) | Gaps (ms) | TPOT (ms) | Queue (ms) |
+|---|---|---|---|---|---|
+| r1 | 5 | 215 | 40, 40, 40, 40 | 40 | 0 |
+| r2 | 5 | 485 | 50, 55, 35 | 35 | 240 |
+| r3 | 1 | 315 | none | undefined | 0 |
+| r4 | 3 | 765 | 60, 60 | 60 | 440 |
+
+: Per-request metrics derived from the synthetic event log. Gaps are client-side chunk gaps; queue is server-side waiting. TTFT runs from client send to first chunk; each includes 25 ms of synthetic client-to-server overhead. {#tbl-request-metrics}
+
+In request r2 the third chunk carries two tokens: the mean chunk gap is 46.7 ms, but its TPOT is $(625 - 485)/(5 - 1) = 35$ ms. Pooled over all nine gaps, mean ITL is 46.7 ms, while mean TPOT over the three requests that have one is 45.0 ms — or 33.8 ms if r3 were counted as zero. Throughput over the 1.04 s window is 4 requests (3.85 per second) and 14 output tokens (13.5 per second). With an SLO of TTFT ≤ 500 ms and TPOT ≤ 50 ms, r1 and r2 pass and r4 fails both; r3 passes only if its undefined TPOT is treated as meeting the SLO, which gives goodput 2.88 requests per second instead of 1.92. The convention changes the answer, so it must be stated.
 
 ### Compare and contrast
 
-*Pending: drafting has not yet begun.*
+| | Prefill | Decode, small $B$ | Decode, large $B$ |
+|---|---|---|---|
+| Tokens per step | prompt length | $B$ | $B$ |
+| Linear layers | compute-bound | bandwidth-bound | compute-bound |
+| Attention intensity | grows with prompt | low, fixed | low, fixed |
+| Main memory traffic | weights | weights | cache |
+| Metric it shapes | TTFT | token gaps | throughput |
+
+: Tendencies under this chapter's assumptions (dense model, 2-byte values, one prompt at prefill), not universal classifications. "Large $B$" means $N_\text{tok} \ge I^*\,b_w/2$; the cache dominates traffic once $B\,S$ exceeds about 114,000 retained tokens (weight bytes ÷ cache bytes per token). A short prompt can leave prefill bandwidth-bound, and quantization moves the crossover (Chapter 5). {#tbl-phase-compare}
 
 ### Check your understanding {#sec-ch1-check}
 
-*Pending: drafting has not yet begun.*
+Full solutions are in [Answer Key: Chapter 1](#sec-solutions-ch1).
+
+1. **Calculation.** For the worked example's illustrative model and accelerator, a decode step runs $B = 8$ sequences at $S = 4096$. Using logical bytes and @eq-step-time, compute the bytes read, the per-operation step-time estimate, and the batch's tokens per second. Which bound applies? \
+   ________________________________________________
+2. **Compare.** For this model with 2-byte values, at how many tokens per step do the linear layers become compute-bound on the illustrative accelerator? Can any batch size make decode attention compute-bound here — with 8 KV heads, or with 32? Explain from @eq-attention-work. \
+   ________________________________________________
+3. **Calculation.** A client sends a request at 0 s and receives chunks at 0.30 s (1 token), 0.36 s (2 tokens) and 0.40 s (1 token). Compute TTFT, the chunk gaps, E2E and TPOT. Then say what TPOT is for a second request whose only chunk carries one token, and why a tool must state its convention. \
+   ________________________________________________
+4. **Quick check.** A next-token distribution has probabilities 0.50, 0.20, 0.15, 0.10 and 0.05. Give the renormalized distribution under top-p with $p = 0.8$, and under top-k with $k = 2$. \
+   ________________________________________________
+5. **Design exercise.** For the illustrative model at $S = 4096$, what is the largest decode batch whose per-operation step estimate is at most 10 ms, and what throughput does it give? Name two things this estimate cannot tell you about meeting a 10 ms token-gap target in a real deployment. \
+   ________________________________________________
 
 ### Applied exercise
 
-*Pending: drafting has not yet begun.*
+Rerun the worked example for a multi-head-attention variant of the model ($H_{kv} = 32$, so 512 KiB of cache per token and 2 GiB per sequence at $S = 4096$). Its key and value projections also grow, to 16.62 GB of weights read per step and 17.67 GB stored. For $S = 4096$, compute the decode-attention intensity, the largest batch that fits the illustrative 80 GB, and $\hat t_\text{step}$ at $B = 16$. Compare each with the grouped-query results and explain which differences come from cache *capacity* and which from cache *traffic*.
 
 ### Interview lens
 
-*Pending: drafting has not yet begun.*
+*"Our dashboard shows tokens per second went up after we doubled the batch, but users say streaming feels slower. What happened?"* A strong answer separates the metrics: tokens per second is a throughput over a window, while what a streaming user feels is the per-request token gap (and TTFT). Doubling the batch raises step time — every running sequence's gap — while amortizing weight reads over more tokens, so throughput can rise as gaps lengthen; at long context the extra cache reads make gaps grow faster. A complete answer asks for TTFT and token-gap percentiles at the same window and boundary, checks whether chunks bundle several tokens (ITL versus TPOT), and estimates step time from weight and cache bytes before and after the change rather than assuming decode is simply "memory-bound".
 
 ### Chapter recap
 
-*Pending: drafting has not yet begun.*
+- A request's metrics are defined by timestamps on either side of a client–server boundary; queueing, tokenization, network and stream framing are included or excluded depending on where those timestamps are taken.
+- Linear-layer intensity grows with tokens per step ($2N_\text{tok}/b_w$ under logical bytes), so batching moves decode linear layers toward compute-bound; decode attention's intensity, $2H_q/(H_{kv}\,b_{kv})$, does not grow with batch because each sequence's cache is its own (@eq-linear-work, @eq-attention-work).
+- The roofline gives idealized bounds, $\min(C_\text{peak}, \mathit{BW}\times I)$ per operation and @eq-step-time per step; they are not runtimes, and adding an operation's compute time to its memory time double-counts.
+- Batch size trades token gaps for throughput; memory capacity can stop the trade first, especially at long context.
+- TTFT, token gaps, ITL, TPOT, E2E, throughput and goodput each need a start event, an end event, a token type, an aggregation and a window; TPOT is undefined for a one-token request, and conventions for it change goodput.
+- Temperature, top-k and top-p each produce an adjusted distribution to sample from; Chapter 6 depends on that view.
+- Sharing weights across depth saves stored parameters, not executed FLOPs.
 
 ### Sources and further reading
 
-*Pending: drafting has not yet begun.*
+Primary sources for this chapter: [@src-78] (Pope et al., Section 2 and 2.1 — latency, throughput and MFU definitions, the $2N$-FLOPs-per-token count, which memory traffic dominates when, and the latency-versus-cost trade-off; targeted full-text read of the arXiv PDF); [@src-79] (Williams, Waterman and Patterson — operational intensity, the roofline bound and the ridge point; read from the Berkeley technical-report version); [@src-75] (Sarathi-Serve, Sections 2.4 and 5 — TTFT and TBT definitions); [@src-76] (DistServe, Sections 1 and 3.1 — TTFT, TPOT and goodput definitions, and its TTFT queueing model); [@src-96] (Holtzman et al., Sections 3.1–3.3 — top-p, top-k and temperature); and [@src-44] (Leviathan et al., Section 2.2 — sampling methods as adjusted distributions). Documentation and code: [@src-82] (vLLM v0.32.0 benchmark client and metric computation, read at a pinned commit) and [@src-81] (MLPerf Inference rules, at a pinned commit). Analytical companion: [@src-10] (the "Inference" chapter — critical batch size, attention intensity and step-time estimates; its numbers are theoretical estimates for other hardware).

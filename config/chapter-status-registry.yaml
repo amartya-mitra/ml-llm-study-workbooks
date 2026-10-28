@@ -91,10 +91,10 @@ workbooks:
         chapter_path: "workbooks/addendum-04-05-tsfm/chapters/06-reading-a-tsfm-release.qmd"
   06-llm-inference:
     status: "scaffold_only"
-    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. No chapter drafted. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
+    note: "Workbook 06 (LLM Inference Engineering). Scaffolded 2026-10-28 from the approved scope (reports/06_llm_inference_scope_and_source_decision.md): seven chapters, target 72 / ceiling 78 pages, vLLM v0.32.0 as the single example engine. Chapter 1 drafted 2026-10-28 (pending human review); Chapters 2-7 scaffold only. Development builds only (outputs/_development/06-llm-inference/); RCs reserved for outputs/_releases/06-llm-inference/; the canonical PDF is created only by the publication workflow."
     chapters:
       01:
-        status: "scaffold_only"
+        status: "drafted_pending_human_review"
         chapter_path: "workbooks/06-llm-inference/chapters/01-inference-workload.qmd"
       02:
         status: "scaffold_only"

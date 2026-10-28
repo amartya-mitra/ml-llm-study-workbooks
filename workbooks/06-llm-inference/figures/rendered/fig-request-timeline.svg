@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="346" viewBox="0 0 620 346">
+  <title>Synthetic request and token events</title>
+  <defs></defs>
+  <rect x="0" y="0" width="620" height="346" fill="#ffffff"/>
+  <text x="310.0" y="18" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="middle">Four requests on one clock (synthetic, schematic event log)</text>
+  <line x1="58.00" y1="50.00" x2="58.00" y2="272.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="58.0" y="286" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">0.0</text>
+  <line x1="156.55" y1="50.00" x2="156.55" y2="272.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="156.54545454545456" y="286" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">0.2</text>
+  <line x1="255.09" y1="50.00" x2="255.09" y2="272.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="255.0909090909091" y="286" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">0.4</text>
+  <line x1="353.64" y1="50.00" x2="353.64" y2="272.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="353.6363636363636" y="286" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">0.6</text>
+  <line x1="452.18" y1="50.00" x2="452.18" y2="272.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="452.1818181818182" y="286" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">0.8</text>
+  <line x1="550.73" y1="50.00" x2="550.73" y2="272.00" stroke="#d9d9d9" stroke-width="0.8"/>
+  <text x="550.7272727272727" y="286" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#444444" text-anchor="middle">1.0</text>
+  <text x="329.0" y="302" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="middle">time (s)</text>
+  <text x="10" y="86" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">r1</text>
+  <g id="lane-r1">
+  <line id="ttft-r1" x1="58.00" y1="68.00" x2="163.94" y2="68.00" stroke="#009E73" stroke-width="2"/>
+  <line x1="58.00" y1="64.00" x2="58.00" y2="72.00" stroke="#009E73" stroke-width="2"/>
+  <text x="61.0" y="64" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#009E73" text-anchor="start">TTFT 215 ms</text>
+  <rect id="queue-r1" x="62.93" y="76" width="0.50" height="12" fill="#888888" opacity="0.6"/>
+  <rect id="run-r1" x="62.93" y="76" width="172.45" height="12" fill="#E69F00" opacity="0.35"/>
+  <line x1="156.55" y1="76.00" x2="156.55" y2="88.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="176.25" y1="76.00" x2="176.25" y2="88.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="195.96" y1="76.00" x2="195.96" y2="88.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="215.67" y1="76.00" x2="215.67" y2="88.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="235.38" y1="76.00" x2="235.38" y2="88.00" stroke="#E69F00" stroke-width="2"/>
+  <circle cx="163.94" cy="96.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <circle cx="183.65" cy="96.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <circle cx="203.35" cy="96.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <circle cx="223.06" cy="96.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <circle cx="242.77" cy="96.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  </g>
+  <text x="10" y="138" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">r2</text>
+  <g id="lane-r2">
+  <line id="ttft-r2" x1="82.64" y1="120.00" x2="321.61" y2="120.00" stroke="#009E73" stroke-width="2"/>
+  <line x1="82.64" y1="116.00" x2="82.64" y2="124.00" stroke="#009E73" stroke-width="2"/>
+  <text x="85.63636363636364" y="116" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#009E73" text-anchor="start">TTFT 485 ms</text>
+  <rect id="queue-r2" x="87.56" y="128" width="118.25" height="12" fill="#888888" opacity="0.6"/>
+  <rect id="run-r2" x="205.82" y="128" width="177.38" height="12" fill="#E69F00" opacity="0.35"/>
+  <line x1="314.22" y1="128.00" x2="314.22" y2="140.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="338.85" y1="128.00" x2="338.85" y2="140.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="358.56" y1="128.00" x2="358.56" y2="140.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="363.49" y1="128.00" x2="363.49" y2="140.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="383.20" y1="128.00" x2="383.20" y2="140.00" stroke="#E69F00" stroke-width="2"/>
+  <circle cx="321.61" cy="148.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <circle cx="346.25" cy="148.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <circle cx="373.35" cy="148.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="2"/>
+  <text x="373.3454545454545" y="165" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#0072B2" text-anchor="middle">chunk with 2 tokens</text>
+  <circle cx="390.59" cy="148.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  </g>
+  <text x="10" y="190" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">r3</text>
+  <g id="lane-r3">
+  <line id="ttft-r3" x1="107.27" y1="172.00" x2="262.48" y2="172.00" stroke="#009E73" stroke-width="2"/>
+  <line x1="107.27" y1="168.00" x2="107.27" y2="176.00" stroke="#009E73" stroke-width="2"/>
+  <text x="110.27272727272728" y="168" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#009E73" text-anchor="start">TTFT 315 ms</text>
+  <rect id="queue-r3" x="112.20" y="180" width="0.50" height="12" fill="#888888" opacity="0.6"/>
+  <rect id="run-r3" x="112.20" y="180" width="142.89" height="12" fill="#E69F00" opacity="0.35"/>
+  <line x1="255.09" y1="180.00" x2="255.09" y2="192.00" stroke="#E69F00" stroke-width="2"/>
+  <circle cx="262.48" cy="200.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <text x="270.48181818181814" y="204" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#0072B2" text-anchor="start">1 output token: no gaps</text>
+  </g>
+  <text x="10" y="242" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#111111" text-anchor="start">r4</text>
+  <g id="lane-r4">
+  <line id="ttft-r4" x1="131.91" y1="224.00" x2="508.85" y2="224.00" stroke="#009E73" stroke-width="2"/>
+  <line x1="131.91" y1="220.00" x2="131.91" y2="228.00" stroke="#009E73" stroke-width="2"/>
+  <text x="134.9090909090909" y="220" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#009E73" text-anchor="start">TTFT 765 ms</text>
+  <rect id="queue-r4" x="136.84" y="232" width="216.80" height="12" fill="#888888" opacity="0.6"/>
+  <rect id="run-r4" x="353.64" y="232" width="206.95" height="12" fill="#E69F00" opacity="0.35"/>
+  <line x1="501.45" y1="232.00" x2="501.45" y2="244.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="531.02" y1="232.00" x2="531.02" y2="244.00" stroke="#E69F00" stroke-width="2"/>
+  <line x1="560.58" y1="232.00" x2="560.58" y2="244.00" stroke="#E69F00" stroke-width="2"/>
+  <circle cx="508.85" cy="252.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <circle cx="538.41" cy="252.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  <circle cx="567.97" cy="252.00" r="4" fill="#0072B2" stroke="#ffffff" stroke-width="1.2" data-tokens="1"/>
+  </g>
+  <rect x="58" y="311" width="12" height="10" fill="#888888" opacity="0.8"/>
+  <text x="74" y="320" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">server queue</text>
+  <rect x="328" y="311" width="12" height="10" fill="#E69F00" opacity="0.8"/>
+  <text x="344" y="320" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">running on the server; ticks = token emitted</text>
+  <rect x="58" y="327" width="12" height="10" fill="#0072B2" opacity="0.8"/>
+  <text x="74" y="336" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">streamed chunk received by the client</text>
+  <rect x="328" y="327" width="12" height="10" fill="#009E73" opacity="0.8"/>
+  <text x="344" y="336" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">client-side time to first token</text>
+</svg>

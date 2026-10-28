@@ -12,7 +12,7 @@ identity:
   workbook: "06-llm-inference"
   chapter: "01"
   title: "The Inference Workload: Prefill, Decode, the Roofline, and the Latency-Throughput Trade-off"
-  status: "scaffold_only"
+  status: "drafted_pending_human_review"
 
 scope:
   allowed_paths:
@@ -21,6 +21,15 @@ scope:
     - "workbooks/06-llm-inference/questions.yaml"
     - "workbooks/06-llm-inference/claim-ledger.yaml"
     - "workbooks/06-llm-inference/figure-plan.yaml"
+    - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.py"
+    - "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.json"
+    - "workbooks/06-llm-inference/figures/source/_common.py"
+    - "workbooks/06-llm-inference/figures/source/fig_roofline_prefill_decode.py"
+    - "workbooks/06-llm-inference/figures/source/fig_request_timeline.py"
+    - "workbooks/06-llm-inference/figures/source/fig_latency_throughput_frontier.py"
+    - "workbooks/06-llm-inference/figures/rendered/fig-roofline-prefill-decode.svg"
+    - "workbooks/06-llm-inference/figures/rendered/fig-request-timeline.svg"
+    - "workbooks/06-llm-inference/figures/rendered/fig-latency-throughput-frontier.svg"
   frozen_paths:
     - "workbooks/06-llm-inference/chapters/0[234567]-*.qmd"
     - "workbooks/06-llm-inference/solutions/0[234567]-*-solutions.qmd"
@@ -35,9 +44,11 @@ sources:
   # Planned chapter-level mapping only (approved scope), not claim-level
   # evidence: each mechanism claim still needs its passage read and a
   # claim-ledger entry when drafted.
-  required_source_ids: ["src-78", "src-79", "src-10", "src-75", "src-76", "src-81", "src-82", "src-44"]
+  required_source_ids: ["src-78", "src-79", "src-10", "src-75", "src-76", "src-81", "src-82", "src-44", "src-96"]
   full_text_required: true
   evidence_locators_required: true
+  # src-96 (Holtzman et al., nucleus sampling) was registered while drafting
+  # (2026-10-28) for the sampling primer's definitions only.
   # src-10 is analytical (TPU-centred estimates); src-44 is used only for its Sec. 2.2 framing of sampling as an adjusted distribution; src-81/src-82 are version-pinned documentation.
 
 content:
@@ -77,9 +88,9 @@ learner_facing:
   require_scope_qualification: true
 
 acceptance:
-  source_audit: "not_yet_run"
-  numerical_audit: "not_yet_run"
-  figure_audit: "not_yet_run"
-  learner_pdf_audit: "not_yet_run"
-  scoped_tests: "not_yet_run"
-  visual_review: "not_yet_run"
+  source_audit: "pass"
+  numerical_audit: "pass"
+  figure_audit: "pass_with_warnings"
+  learner_pdf_audit: "pass_with_warnings"
+  scoped_tests: "pass"
+  visual_review: "pass"

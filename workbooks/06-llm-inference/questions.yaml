@@ -2,7 +2,66 @@
 # Schema: shared/question-schema.yaml. Validate with:
 #   python3 scripts/validate_questions.py
 #
-# Empty at scaffolding (2026-10-28): no chapter has been drafted, so no
-# question exists yet. Each chapter adds its 5 records when drafted.
+# Chapter 1 records added when Chapter 1 was drafted (2026-10-28);
+# Chapters 2-7 add their 5 records each when drafted.
 
-questions: []
+questions:
+  - id: "q-06-inference-workload-001"
+    workbook: "06-llm-inference"
+    chapter: "inference-workload"
+    topic: "Decode step bytes, time and throughput"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "For the worked example's illustrative model and accelerator, a decode step runs B = 8 sequences at S = 4096. Using logical bytes and the step-time equation, compute the bytes read, the per-operation step-time estimate, and the batch's tokens per second. Which bound applies?"
+    expected_answer: "About 19.30 GB (15.01 GB of weights read once plus 8 x 512 MiB of cache), a per-operation estimate of about 6.43 ms (5.00 ms linear + 1.43 ms attention), and about 1,243 tokens per second; both parts are bandwidth-bound, so the global lower bound is also 6.43 ms."
+    explanation: "Weights are read once per step and shared by every sequence; only the cache scales with batch. Each part's time is the larger of its FLOP time and its byte time, and both byte times dominate here."
+    common_wrong_answer: "Multiplying the weight bytes by the batch size, as if each sequence re-read the weights."
+    source_ids: ["src-79", "src-78"]
+
+  - id: "q-06-inference-workload-002"
+    workbook: "06-llm-inference"
+    chapter: "inference-workload"
+    topic: "Linear versus attention intensity at decode"
+    difficulty: "core"
+    question_type: "compare_and_contrast"
+    prompt: "For the illustrative model with 2-byte values, at how many tokens per step do the linear layers become compute-bound on the illustrative accelerator? Can any batch size make decode attention compute-bound here, with 8 KV heads or with 32?"
+    expected_answer: "From 334 tokens per step (the first whole number at or above the 333.3 ridge point, since linear intensity equals tokens per step with 2-byte weights). No: decode attention's intensity is 2 H_q / (H_kv b_kv), 4 with 8 KV heads and 1 with 32, independent of batch and context."
+    explanation: "Batching amortizes the shared weight read, but each sequence brings its own cache, so batch size cancels from the attention intensity."
+    common_wrong_answer: "Declaring decode memory-bound as a whole, or expecting a large batch to rescue attention intensity."
+    source_ids: ["src-79", "src-78", "src-10"]
+
+  - id: "q-06-inference-workload-003"
+    workbook: "06-llm-inference"
+    chapter: "inference-workload"
+    topic: "TTFT, chunk gaps and TPOT from client timestamps"
+    difficulty: "core"
+    question_type: "calculation"
+    prompt: "A client sends a request at 0 s and receives chunks at 0.30 s (1 token), 0.36 s (2 tokens) and 0.40 s (1 token). Compute TTFT, the chunk gaps, E2E and TPOT. Then say what TPOT is for a second request whose only chunk carries one token, and why a tool must state its convention."
+    expected_answer: "TTFT 0.30 s, chunk gaps 60 ms and 40 ms, E2E 0.40 s, TPOT (0.40 - 0.30)/(4 - 1) = 33.3 ms. For a one-token request TPOT is undefined (division by zero); tools must state whether such requests are excluded or treated as passing, because the choice changes statistics and goodput."
+    explanation: "Chunk gaps are measured per streamed chunk, TPOT per output token after the first; a multi-token chunk separates them. vLLM v0.32.0 excludes one-token requests from TPOT statistics but treats their TPOT as 0 for goodput."
+    common_wrong_answer: "Reporting the mean chunk gap (50 ms) as TPOT, or silently treating a one-token request's TPOT as zero everywhere."
+    source_ids: ["src-76", "src-82"]
+
+  - id: "q-06-inference-workload-004"
+    workbook: "06-llm-inference"
+    chapter: "inference-workload"
+    topic: "Top-p and top-k renormalization"
+    difficulty: "intro"
+    question_type: "recall"
+    prompt: "A next-token distribution has probabilities 0.50, 0.20, 0.15, 0.10 and 0.05. Give the renormalized distribution under top-p with p = 0.8, and under top-k with k = 2."
+    expected_answer: "Top-p keeps the first three tokens (mass 0.85): about 0.588, 0.235 and 0.176. Top-k with k = 2 keeps the first two (mass 0.70): about 0.714 and 0.286."
+    explanation: "The nucleus is the smallest set whose mass reaches at least p, so it stops at 0.85, not 0.70; both methods renormalize over the kept set."
+    common_wrong_answer: "Stopping the nucleus below p, or forgetting to renormalize."
+    source_ids: ["src-96"]
+
+  - id: "q-06-inference-workload-005"
+    workbook: "06-llm-inference"
+    chapter: "inference-workload"
+    topic: "Batch size under a step-time target"
+    difficulty: "stretch"
+    question_type: "design"
+    prompt: "For the illustrative model at S = 4096, what is the largest decode batch whose per-operation step estimate is at most 10 ms, and what throughput does it give? Name two things this estimate cannot tell you about meeting a 10 ms token-gap target in a real deployment."
+    expected_answer: "B = 27 (about 9.83 ms; B = 28 gives about 10.01 ms), about 2,746 tokens per second. It cannot tell you real kernel efficiency below peak, ignored activation traffic, queueing or scheduling delays, prefills sharing steps (Chapter 3), client-side chunk bundling, or the tail of the gap distribution."
+    explanation: "The linear part is a fixed 5.00 ms bandwidth-bound read; each sequence adds about 0.179 ms of cache reads. The estimate is an idealized bound, not a deployed gap distribution."
+    common_wrong_answer: "Treating the idealized estimate as the deployed token gap, or a percentile target as a mean."
+    source_ids: ["src-79", "src-78"]

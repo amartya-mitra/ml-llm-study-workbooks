@@ -1,21 +1,156 @@
 # Workbook 06's claim ledger. Schema: shared/claim-ledger-schema.yaml.
 #
-# `entries` is EMPTY at scaffolding (2026-10-28): no chapter text exists, so
-# no claim has been written or verified. Do not add an entry until the
-# sentence or number it supports exists and its passage has been read.
+# `entries` holds Chapter 1's claims (drafted 2026-10-28). Do not add an
+# entry until the sentence or number it supports exists and its passage
+# has been read.
 #
 # `planned_chapter_sources` records the approved chapter-level source
 # mapping (reports/06_llm_inference_scope_and_source_decision.md, Sec. 5.2).
 # It names no claim and is not evidence for any statement.
 
 schema_version: 1
-entries: []
+entries:
+  - id: "claim-06-inference-workload-001"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Pope et al. split inference latency into prefill time for the input tokens present at the start and decode time for generating output tokens one step at a time."
+    source_ids: ["src-78"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2 (Inference cost trade-offs), arXiv PDF read via pdftotext."
+
+  - id: "claim-06-inference-workload-002"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "A decoder-only model needs about 2N matmul FLOPs per token for N parameters."
+    source_ids: ["src-78"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2; the chapter applies it to the matrices multiplied in every step and excludes the input-embedding lookup (a stated convention, not from the source)."
+
+  - id: "claim-06-inference-workload-003"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Attention adds comparatively few FLOPs per token but can account for a significant fraction of memory capacity and bandwidth costs, 'since (unlike the weights) the KV cache is unique for each sequence in the batch'."
+    source_ids: ["src-78"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2, quoted wording checked against the pdftotext extraction (the word 'sequence' wraps to the next line)."
+
+  - id: "claim-06-inference-workload-004"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Memory time is dominated by weight loading at small batch and short sequences and by the KV cache at large batch and long sequences; smaller batches can lower latency but worsen utilization and raise cost."
+    source_ids: ["src-78"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2-2.1. Paper results are TPU v4-specific; none are reproduced in the chapter."
+
+  - id: "claim-06-inference-workload-005"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "The roofline bounds attainable performance as min(peak FLOP/s, peak memory bandwidth x operational intensity); the ridge point is where the two lines meet, left of it bandwidth limits and right of it compute limits."
+    source_ids: ["src-79"]
+    verification_status: "verified_full_text"
+    note: "Berkeley technical report Sec. 3-4 (CACM version not read). Operational intensity in the source counts DRAM traffic after cache filtering; the chapter's logical bytes are a lower bound on that traffic."
+
+  - id: "claim-06-inference-workload-006"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Matmuls are compute-bound once the per-replica token batch exceeds a critical batch equal to the FLOPs/bandwidth ratio times (bits per parameter / bits per activation)."
+    source_ids: ["src-10"]
+    verification_status: "verified_full_text"
+    note: "'Inference' chapter, arithmetic-intensity section. Its 240 (TPU v5e) and about 280 (H100) token values are analytical estimates for other hardware and are not used in the chapter."
+
+  - id: "claim-06-inference-workload-007"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Multi-head attention intensity at decode is approximately 1 in bf16 and cannot be raised by batching, while prefill attention intensity grows with sequence length."
+    source_ids: ["src-10"]
+    verification_status: "verified_full_text"
+    note: "'Inference' chapter, attention-intensity derivation (ST/(S+T)). The GQA generalisation 2 H_q/(H_kv b_kv) is derived in the chapter."
+
+  - id: "claim-06-inference-workload-008"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "src-10's general theoretical step time sums a bandwidth-bound attention term and a max(compute, memory) term for the MLP, and it cautions that a sharp roofline is often not seen in practice."
+    source_ids: ["src-10"]
+    verification_status: "verified_full_text"
+    note: "'Inference' chapter, theoretical step-time equations and the roofline caveat. The chapter's per-operation estimate applies max() to attention too."
+
+  - id: "claim-06-inference-workload-009"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Sarathi-Serve measures TTFT from the moment a request arrives in the system (so it includes queueing) and TBT as the interval between consecutive output tokens, reported at tail percentiles."
+    source_ids: ["src-75"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2.4 (metric definitions; arXiv text lines ~224-233) and Sec. 5 (P99 TBT evaluation)."
+
+  - id: "claim-06-inference-workload-010"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "DistServe's introduction calls TTFT the duration of the prefill phase while its Sec. 3.1 queueing model (Eq. 1) adds queueing delay to average TTFT; it defines TPOT as 'the average time taken to generate a token for each request (except for the first token)', gives total latency as TTFT + TPOT x tokens generated in the decoding phase, and defines per-GPU goodput as the maximum request rate meeting an SLO-attainment goal such as 90%."
+    source_ids: ["src-76"]
+    verification_status: "verified_full_text"
+    note: "Sec. 1 (TTFT/TPOT definitions, total-latency relation, goodput definition), Sec. 3.1 Eq. 1 (Avg_TTFT = execution + queueing delay), footnote 3 (latency comprises execution and queueing). Source audit 2026-10-28 corrected an earlier overstatement that DistServe excludes queueing; the chapter now presents the source's own two usages rather than a firm disagreement with src-75."
+
+  - id: "claim-06-inference-workload-011"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "MLPerf Inference rules describe TPOT as 'the average interval between all the tokens generated'."
+    source_ids: ["src-81"]
+    verification_status: "verified_full_text"
+    note: "inference_rules.adoc:270 (footnote in the LLM-scenario section) at commit d3eba2f (Aug 2026), as recorded in the registry. Time-sensitive: rules change by round."
+
+  - id: "claim-06-inference-workload-012"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "vLLM v0.32.0's benchmark client starts its timer just before the HTTP request, takes TTFT at the first streamed data chunk carrying output choices (its text may be empty), records ITL as gaps between such chunks, and ends latency at the last such chunk rather than the end-of-stream marker."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "vllm/benchmarks/lib/endpoint_request_func.py:228-287 (the OpenAI-completions request function) at commit 5df63a72; other request functions in the file were not checked line by line. Code-verified behaviour of this version only."
+
+  - id: "claim-06-inference-workload-013"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "vLLM v0.32.0 computes TPOT as (latency - TTFT)/(output_tokens - 1) only for requests with more than one output token, leaves one-token requests out of its TPOT statistics, but counts their TPOT as 0 when testing a goodput SLO; throughput and goodput divide by the whole benchmark duration."
+    source_ids: ["src-82"]
+    verification_status: "verified_full_text"
+    note: "vllm/benchmarks/serve.py:600-631, 640-660, 749-764, 1011, 1090 at commit 5df63a72; the duration ends after asyncio.gather returns, i.e. after every stream has finished (the chapter's synthetic window ends at the last end-of-stream marker to match)."
+
+  - id: "claim-06-inference-workload-014"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Temperature divides logits before the softmax (t < 1 sharpens toward likely tokens); top-k keeps the k most probable tokens and renormalizes; top-p keeps the smallest set whose mass reaches p and renormalizes."
+    source_ids: ["src-96"]
+    verification_status: "verified_full_text"
+    note: "Sec. 3.1-3.3, Eqs. 2-4; Sec. 3.3 also notes low temperature applied before top-k in practice (cited prior work not read). The source does not prescribe an engine order; the chapter claims only that order matters."
+
+  - id: "claim-06-inference-workload-015"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Greedy, top-k, nucleus and temperature sampling can each be cast as standard sampling from an adjusted distribution."
+    source_ids: ["src-44"]
+    verification_status: "verified_full_text"
+    note: "Sec. 2.2 only; used as the bridge to Chapter 6."
+
+  - id: "claim-06-inference-workload-016"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "For the illustrative model and accelerator: 15.01 GB of weights read per step (16.06 GB stored), 128 KiB of cache per token, ridge 333.3 FLOP/byte (integer crossover 334 tokens), prefill 28.6 TFLOP linear with last-position logits only and a 29.7 ms bound, decode attention intensity 4 (GQA) or 1 (MHA), and every decode-table, prefill, question and exercise number in the chapter and answer key."
+    source_ids: []
+    verification_status: "computed_by_script"
+    note: "workbooks/06-llm-inference/data/worked-examples/inference_workload_and_metrics.py -> .json; illustrative inputs, derived idealized outputs; checked by tests/test_workbook06_ch01_worked_examples.py."
+
+  - id: "claim-06-inference-workload-017"
+    workbook: "06-llm-inference"
+    chapter: "ch1"
+    statement: "Per-request and aggregate metrics for the synthetic four-request event log: TTFTs 215/485/315/765 ms, TPOT 40/35/undefined/60 ms, mean ITL 46.7 ms over nine gaps, 3.85 requests/s and 13.5 output tokens/s over a 1.04 s window ending at the last end-of-stream marker, goodput 2.88 or 1.92 requests/s depending on the one-token convention."
+    source_ids: []
+    verification_status: "computed_by_script"
+    note: "Synthetic event log, not a measurement; same script and tests as claim-06-inference-workload-016."
 
 planned_chapter_sources:
   - chapter: "ch1"
-    source_ids: ["src-78", "src-79", "src-10", "src-75", "src-76", "src-81", "src-82", "src-44"]
+    source_ids: ["src-78", "src-79", "src-10", "src-75", "src-76", "src-81", "src-82", "src-44", "src-96"]
     candidate_source_ids: []
-    note: "src-10 is analytical (TPU-centred estimates); src-44 is used only for its Sec. 2.2 framing of sampling as an adjusted distribution; src-81/src-82 are version-pinned documentation."
+    note: "src-96 added while drafting (sampling definitions). src-10 is analytical (TPU-centred estimates); src-44 is used only for its Sec. 2.2 framing of sampling as an adjusted distribution; src-81/src-82 are version-pinned documentation."
 
   - chapter: "ch2"
     source_ids: ["src-73", "src-77", "src-82", "src-10"]
