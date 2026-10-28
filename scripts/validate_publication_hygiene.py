@@ -288,6 +288,20 @@ def validate_readme(text, pubs, slug=DEFAULT_REPO_SLUG, workbooks=None, browser=
             errors.append(f"README shows a browser-reading link before browser reading is verified: {url}")
         elif not url.startswith(str(browser["base_url"])):
             errors.append(f"README browser-reading link {url} is outside the verified site {browser['base_url']}")
+    if verified:
+        # A catalog "Read in browser" link must open the same current edition
+        # its row downloads, at the site's versioned path.
+        base = str(browser["base_url"]).rstrip("/") + "/"
+        for row in rows:
+            reads = re.findall(r"\[Read in browser[^\]]*\]\(([^)\s]+)\)", row)
+            for url in [u for u in DOWNLOAD_RE.findall(row) if u in current]:
+                rec = pubs[current[url]]
+                want = f"{base}editions/{rec['release_tag']}/{rec['release_asset']}"
+                if reads and reads != [want]:
+                    errors.append(f"[{current[url]}] 'Read in browser' must link {want}; got {reads}")
+            for url in re.findall(r"https?://[^)\s]*github\.io[^)\s]*\.pdf", row):
+                if not reads or url not in reads:
+                    errors.append(f"README catalog links a site PDF without the 'Read in browser' label: {url}")
     return errors
 
 

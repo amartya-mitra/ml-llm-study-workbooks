@@ -5,12 +5,23 @@ the published study guides in the browser's built-in PDF viewer, with a
 visible download link beside each one. It mirrors the README catalog and
 includes only published editions.
 
-Status as of 2026-10-28: **prepared, not deployed.** GitHub Pages is not
-enabled for this repository (`GET /repos/amartya-mitra/ml-llm-study-workbooks/pages`
-returns 404). The registry records this as
-`browser_reading: {status: prepared, verified: false}` in
-`config/chapter-status-registry.yaml`. While `verified` is false, the
-publication-hygiene validator rejects any `github.io` link in the README.
+Live site: <https://amartya-mitra.github.io/ml-llm-study-workbooks/>
+
+Status as of 2026-10-28: **deployed and verified.** The first deployment
+was from commit `9aa3fa3` (workflow run 40775205298, deployment
+7398229289). All four served PDFs matched their recorded SHA-256, and a
+human reader confirmed that the site works and the PDFs open in the
+browser. The registry records this as
+`browser_reading: {status: deployed, verified: true}` in
+`config/chapter-status-registry.yaml`.
+
+The README catalog gives each published guide a **Read in browser** link
+(the site's versioned PDF path,
+`<base_url>editions/<release_tag>/<release_asset>`) beside its **Download
+PDF** link (the GitHub release asset). The validator checks both
+against the registry. `github.io` links are allowed only while
+`verified` is true, and a "Read in browser" link must open the same
+current edition that its row downloads.
 
 ## How the site is built
 
@@ -86,27 +97,29 @@ upgrade deliberately, not as part of activation.)
 - Deploys to the `github-pages` environment, one deployment at a time
   (`concurrency: pages`).
 
-## Activation (remaining steps)
+## Activation (completed 2026-10-28)
 
-1. Push the commit that contains the workflow (requires explicit user
-   authorization).
-2. In the repository on GitHub: **Settings → Pages → Build and
-   deployment → Source: GitHub Actions.**
-3. In **Settings → Environments → github-pages**, confirm the deployment
-   branch rule allows only `main` (GitHub creates the environment on
-   first use).
-4. Run the workflow from **Actions → Browser reading site → Run
-   workflow**, or let the push trigger it once Pages is enabled.
-5. Verify the deployed site at
-   <https://amartya-mitra.github.io/ml-llm-study-workbooks/>: each "Read
-   in browser" link opens; each served PDF's SHA-256 matches
-   [editions-and-verification.md](editions-and-verification.md), for
-   example with
-   `curl -sL <url> | sha256sum`; check on a phone-width screen.
-6. Only after that check, set `browser_reading.verified: true` (and
-   `status: "deployed"`) in the registry, and add "Read online" links to
-   the README catalog under the base URL. The validator allows
-   `github.io` links only in that state.
+1. Pushed the commit containing the workflow (user-authorized).
+2. **Settings → Pages → Build and deployment → Source: GitHub Actions**,
+   with the `github-pages` environment limited to deployments from
+   `main`.
+3. The push triggered the workflow, which built and deployed the site.
+4. Verified the deployment: each served PDF's SHA-256 matched
+   [editions-and-verification.md](editions-and-verification.md)
+   (`curl -sL <url> | sha256sum`), and a human reader checked it in a
+   browser.
+5. Set `browser_reading.verified: true` and added the README's "Read in
+   browser" links.
 
-If step 1 happens before step 2, the first workflow run fails at the
-deploy step without side effects; enable Pages and re-run it.
+## When a new edition is released
+
+The site rebuilds whenever the registry or the README changes on
+`main`. After a release is published and recorded:
+
+1. Point the README row's "Read in browser" link at the new edition's
+   versioned site path, in the same commit that updates its "Download
+   PDF" link.
+2. After the deployment, check that the new path serves the recorded
+   checksum.
+
+The old edition's path stays on the site.

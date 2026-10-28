@@ -212,6 +212,23 @@ class ReadmeConsistencyTests(unittest.TestCase):
         other = readme_for(self.pubs) + "\n[Read online](https://someone.github.io/x/)\n"
         self.assertTrue(any("outside the verified site" in e for e in v.validate_readme(other, self.pubs, SLUG, None, verified)))
 
+    def test_read_in_browser_link_must_match_the_rows_current_edition(self):
+        verified = {"verified": True, "base_url": "https://amartya-mitra.github.io/ml-llm-study-workbooks/"}
+        url = v.asset_url(SLUG, "workbook-04-v1.0.0", "04-fixture-workbook.pdf")
+        site = verified["base_url"] + "editions/workbook-04-v1.0.0/04-fixture-workbook.pdf"
+
+        def with_read(link, label="Read in browser"):
+            row = f"| **Workbook 04** | x | [{label}]({link}) · [Download PDF]({url}) |"
+            return readme_for(self.pubs, {"workbook-04": row})
+        self.assertEqual(v.validate_readme(with_read(site), self.pubs, SLUG, None, verified), [])
+        self.assertTrue(v.validate_readme(with_read(site), self.pubs, SLUG, None, {"verified": False}))
+        stale = site.replace("v1.0.0", "v0.9.0")
+        self.assertTrue(any("must link" in e for e in v.validate_readme(with_read(stale), self.pubs, SLUG, None, verified)))
+        wrong = site.replace("workbook-04-v1.0.0/04", "workbook-05-v1.0.0/05")
+        self.assertTrue(v.validate_readme(with_read(wrong), self.pubs, SLUG, None, verified))
+        self.assertTrue(any("without the 'Read in browser' label" in e
+                            for e in v.validate_readme(with_read(site, "here"), self.pubs, SLUG, None, verified)))
+
     def test_missing_row_or_catalog_fails(self):
         self.assertTrue(v.validate_readme("no catalog here", self.pubs, SLUG))
         text = readme_for({"workbook-04": self.pubs["workbook-04"]})
@@ -333,8 +350,17 @@ class RealRepositoryTests(unittest.TestCase):
         done, total = v.chapter_progress(reg["workbooks"], reg["publications"]["workbook-06"]["workbook_id"])
         block = v._block(readme, v.IN_PROGRESS_START, v.IN_PROGRESS_END)
         self.assertIn(f"{done} of {total} chapters", block)
-        if not reg.get("browser_reading", {}).get("verified"):
+        browser = reg.get("browser_reading", {})
+        if not browser.get("verified"):
             self.assertNotIn("github.io", readme)
+        else:
+            catalog = v._block(readme, v.README_START, v.README_END)
+            for rec in reg["publications"].values():
+                if rec.get("status") == "published":
+                    site = f"{browser['base_url']}editions/{rec['release_tag']}/{rec['release_asset']}"
+                    self.assertIn(f"[Read in browser]({site})", catalog)
+                    self.assertIn(f"[Download PDF]({v.asset_url(v.DEFAULT_REPO_SLUG, rec['release_tag'], rec['release_asset'])})", catalog)
+            self.assertIn(f"[Browse all study guides]({browser['base_url']})", readme)
 
     def test_no_canonical_pdf_is_tracked_in_this_repository(self):
         tracked = v.git_tracked_files(REPO_ROOT)

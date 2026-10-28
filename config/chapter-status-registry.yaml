@@ -313,13 +313,15 @@ publications:
     development_dir: "outputs/_development/06-llm-inference/"
     release_candidate_dir: "outputs/_releases/06-llm-inference/"
 
-# Browser-reading site (docs/browser-reading.md). `verified` stays false
-# until the deployed site has been opened and checked; only then may the
-# README show "Read online" links under base_url (enforced by
-# scripts/validate_publication_hygiene.py).
+# Browser-reading site (docs/browser-reading.md). `verified` became true
+# only after the deployed site had been opened and checked; the README
+# may show "Read in browser" links under base_url only while it is true
+# (enforced by scripts/validate_publication_hygiene.py).
 browser_reading:
-  status: "prepared"
-  verified: false
+  status: "deployed"
+  verified: true
+  verified_date: "2026-10-28"
+  verification_note: "Deployed from 9aa3fa3 (run 40775205298, deployment 7398229289); all four served PDFs matched their recorded SHA-256; human confirmed the site works and the PDFs open in the browser."
   base_url: "https://amartya-mitra.github.io/ml-llm-study-workbooks/"
   workflow: ".github/workflows/pages.yml"
   builder: "scripts/build_site.py"

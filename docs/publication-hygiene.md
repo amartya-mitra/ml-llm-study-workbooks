@@ -85,7 +85,8 @@ unique across the registry.
     set, plus a manual download check before it).
 13. Set `status: published` and `publication_date`. Move the guide from
     the README in-progress block to the catalog, with its "Download PDF"
-    link. Add its row and release page to
+    link and its "Read in browser" link (the versioned site path, see
+    [browser-reading.md](browser-reading.md)). Add its row and release page to
     `docs/editions-and-verification.md`; for a new edition, move the old
     one to `previous_releases` and keep its row. Re-run offline and
     `--remote` validation; the browser-reading site picks up the new

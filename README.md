@@ -14,17 +14,21 @@ neural network by gradient descent.
 
 ## Choose a study guide
 
+[Browse all study guides](https://amartya-mitra.github.io/ml-llm-study-workbooks/) on the reading site.
+
 <!-- publication-catalog:start -->
 | Study guide | What you will learn | Read |
 |---|---|---|
-| **Modern LLM Architecture** | How a decoder-only transformer turns tokens into a next-token prediction; attention variants and the KV cache; ways to reduce attention cost; mixture-of-experts; hybrid and looped designs; how to read a model report | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-04-v1.0.0/04-modern-llm-architecture-workbook.pdf) (69 pages) |
-| **LLM Pretraining and Distributed Training** | Pretraining objectives and data; multi-token prediction; optimization and scaling laws; data, tensor and pipeline parallelism; training memory and communication; how to read a real training run | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-05-v1.0.0/05-llm-training-workbook.pdf) (64 pages) |
-| **From Language Models to Time-Series Foundation Models** (addendum) | Which LLM ideas carry over to forecasting models and which do not: patches instead of tokens, channels and covariates, architecture families, probabilistic outputs and losses, pretraining data and leakage, and how to read a model release | [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/addendum-04-05-tsfm-v1.1.0/addendum-04-05-tsfm.pdf) (23 pages) |
+| **Modern LLM Architecture** | How a decoder-only transformer turns tokens into a next-token prediction; attention variants and the KV cache; ways to reduce attention cost; mixture-of-experts; hybrid and looped designs; how to read a model report | [Read in browser](https://amartya-mitra.github.io/ml-llm-study-workbooks/editions/workbook-04-v1.0.0/04-modern-llm-architecture-workbook.pdf) · [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-04-v1.0.0/04-modern-llm-architecture-workbook.pdf) (69 pages) |
+| **LLM Pretraining and Distributed Training** | Pretraining objectives and data; multi-token prediction; optimization and scaling laws; data, tensor and pipeline parallelism; training memory and communication; how to read a real training run | [Read in browser](https://amartya-mitra.github.io/ml-llm-study-workbooks/editions/workbook-05-v1.0.0/05-llm-training-workbook.pdf) · [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/workbook-05-v1.0.0/05-llm-training-workbook.pdf) (64 pages) |
+| **From Language Models to Time-Series Foundation Models** (addendum) | Which LLM ideas carry over to forecasting models and which do not: patches instead of tokens, channels and covariates, architecture families, probabilistic outputs and losses, pretraining data and leakage, and how to read a model release | [Read in browser](https://amartya-mitra.github.io/ml-llm-study-workbooks/editions/addendum-04-05-tsfm-v1.1.0/addendum-04-05-tsfm.pdf) · [Download PDF](https://github.com/amartya-mitra/ml-llm-study-workbooks/releases/download/addendum-04-05-tsfm-v1.1.0/addendum-04-05-tsfm.pdf) (23 pages) |
 <!-- publication-catalog:end -->
 
-Each link downloads the current edition. Earlier editions, and checksums
-for confirming that a download is intact, are listed in
-[Editions and verification](docs/editions-and-verification.md).
+Both links give the current edition. **Read in browser** opens the PDF
+in your browser's built-in viewer; some browsers or settings download it
+instead. **Download PDF** saves the released file from GitHub. Earlier
+editions, and checksums for confirming that a download is intact, are
+listed in [Editions and verification](docs/editions-and-verification.md).
 
 ## Where to start
 
